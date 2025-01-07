@@ -7,6 +7,7 @@ export default  function Home(){
         <div>Home </div>
        <Link to="/loginPage"> <div>Login</div> </Link>
        </div>
+       <div>aloalo</div>
         </>
     )
 }

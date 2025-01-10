@@ -1,13 +1,16 @@
 import { Link} from "react-router-dom";
+import Header from '../components/headerHomePage';
+import BodyHomePage from '../components/bodyHomePage';
+import FooterHomePage from '../components/footerHomPage';
+
 export default  function Home(){
 
     return (
         <>
-       <div className="">
-        <div>Home </div>
-       <Link to="/loginPage"> <div>Login</div> </Link>
-       </div>
-       <div>aloalo</div>
+     
+        <Header/> 
+        <BodyHomePage/> 
+        <FooterHomePage/>
         </>
     )
 }

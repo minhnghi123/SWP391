@@ -1,6 +1,10 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFacebookF, faTwitter, faInstagram, faLinkedin } from "@fortawesome/free-brands-svg-icons";
+
+
 export default function FooterHomePage() {
     return (
-        <footer className="bg-gray-900 text-white">
+        <footer className="bg-gray-900 text-white" id='contact'>
             <div className="max-w-7xl mx-auto px-4 py-16">
                 {/* Main Footer Content */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -20,13 +24,19 @@ export default function FooterHomePage() {
                         </p>
                         {/* Social Links */}
                         <div className="flex space-x-4">
-                            {['facebook', 'twitter', 'instagram', 'linkedin'].map((social) => (
+                            {[
+                               { icon: faFacebookF, name: 'facebook'}, 
+                               { icon: faTwitter, name: 'twitter'}, 
+                               { icon: faInstagram, name: 'instagram'}, 
+                               { icon: faLinkedin, name: 'linkedin'}
+                             
+                            ].map((social) => (
                                 <a
-                                    key={social}
-                                    href={`#${social}`}
+                                    key={social.name}
+                                    href={`#${social.name}`}
                                     className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-500 transition-colors duration-300"
                                 >
-                                    <i className={`fab fa-${social} text-white`}></i>
+                                   <FontAwesomeIcon icon={social.icon} className="text-white text-lg" />
                                 </a>
                             ))}
                         </div>

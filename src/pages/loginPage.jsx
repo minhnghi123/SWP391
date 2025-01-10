@@ -4,6 +4,7 @@ import Register from '../components/register';
 import ImageRight from '../components/imageLogin';
 import ForgotPassword from '../components/forgetpassword'
 
+
 const LoginPage = () => {
     const [openRegister, setRegister] = useState(0);
 

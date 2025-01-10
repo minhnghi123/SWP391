@@ -10,6 +10,8 @@ export default function ImageRight() {
     useEffect(() => {
         const id = setInterval(() => {
             setCurrentPicIndex((prevIndex) =>
+                // if the current is the last picture
+                //then set to the first picture
                 prevIndex === pictures.length - 1 ? 0 : prevIndex + 1
             );
         }, 4000);
@@ -19,7 +21,7 @@ export default function ImageRight() {
         };
     }, [pictures.length]);
 
-
+ 
     return (
 
         <div className="flex-[0.5] flex justify-center items-center p-8 relative">
@@ -41,6 +43,7 @@ export default function ImageRight() {
 
                 <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-4 z-20 
                 bg-black/20 backdrop-blur-sm px-6 py-3 rounded-full">
+                    {/* don't care value  */}
                     {pictures.map((_, index) => (
                         <button
                             key={index}

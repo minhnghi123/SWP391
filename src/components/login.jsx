@@ -1,4 +1,3 @@
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGooglePlusG } from '@fortawesome/free-brands-svg-icons';
 import { faApple } from '@fortawesome/free-brands-svg-icons';
@@ -6,6 +5,44 @@ import { faFacebook } from '@fortawesome/free-brands-svg-icons';
 import { useEffect, useState } from "react";
 
 
+
+const ButtonLogin = ({ label, handleClick, link, d, isActive }) => {
+
+    return (
+
+        <button
+            onClick={handleClick}
+            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300
+                                flex items-center gap-2 shadow-sm
+                                ${isActive
+                    ? 'bg-blue-500 text-white shadow-blue-200 hover:shadow-md hover:bg-blue-600'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+        >
+            <svg xmlns={link} className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d={d}
+                />
+            </svg>
+            {label}
+        </button>
+
+    )
+}
+const InputLogin = ({ type, placeholder, onChange, name, value }) => {
+    return (
+        <div className="group relative">
+            <input
+                className="w-full p-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                type={type}
+                placeholder={placeholder}
+                onChange={onChange}
+                name={name}
+                value={value}
+                required
+            />
+        </div>
+    )
+}
 
 export default function Login({ setRegister }) {
 
@@ -55,6 +92,12 @@ export default function Login({ setRegister }) {
             console.log(input)
         }
     }
+    const isFormValid = () => {
+        return (
+            input.username &&
+            input.password
+        )
+    }
 
 
 
@@ -71,36 +114,21 @@ export default function Login({ setRegister }) {
                 </div>
             </div>
             <div className="flex flex-row gap-4 mt-8">
-                <button
-                    onClick={handleClickByPhoneNumber}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-300
-                                flex items-center gap-2 shadow-sm
-                                ${isOpen
-                            ? 'bg-blue-500 text-white shadow-blue-200 hover:shadow-md hover:bg-blue-600'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                        />
-                    </svg>
-                    Login by Phone
-                </button>
-                <button
-                    onClick={handleClickByAccount}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-300
-                                flex items-center gap-2 shadow-sm
-                                ${!isOpen
-                            ? 'bg-blue-500 text-white shadow-blue-200 hover:shadow-md hover:bg-blue-600'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                    </svg>
-                    Login by Account
-                </button>
+
+                <ButtonLogin
+                    label="Login by Phone"
+                    handleClick={handleClickByPhoneNumber}
+                    link="http://www.w3.org/2000/svg"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    isActive={isOpen}
+                />
+
+                <ButtonLogin label="Login by Account" handleClick={handleClickByAccount}
+                    link="http://www.w3.org/2000/svg"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    isActive={!isOpen}
+                />
+
             </div>
 
             {
@@ -155,7 +183,7 @@ export default function Login({ setRegister }) {
                                             disabled={!sent}
                                         >
                                             {openOTP ? 'Verify OTP' : 'Login'}
-                                          
+
                                         </button>
                                     </>
 
@@ -200,39 +228,35 @@ export default function Login({ setRegister }) {
                 ) : (
                     <form className="flex flex-col p-10 max-w-[400px] w-full items-center" onSubmit={handleSubmit}>
                         <div className="flex flex-col w-full space-y-5">
-                            <div className="group relative">
-                                <input
-                                    className="w-full p-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white/50 backdrop-blur-sm"
-                                    type="text"
-                                    placeholder="Username"
-                                    onChange={handleChangeAccount}
-                                    name="username"
-                                    value={input.name}
-                                />
-                            </div>
+                            <InputLogin
+                                type="text"
+                                placeholder="Username"
+                                onChange={handleChangeAccount}
+                                name="username"
+                                value={input.username}
+                            />
 
-                            <div className="group relative">
-                                <input
-                                    className="w-full p-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white/50 backdrop-blur-sm"
-                                    type="password"
-                                    placeholder="Password"
-                                    onChange={handleChangeAccount}
-                                    name="password"
-                                    value={input.password}
-                                />
-                            </div>
+                            <InputLogin
+                                type="password"
+                                placeholder="Password"
+                                onChange={handleChangeAccount}
+                                name="password"
+                                value={input.password}
+                            />
 
                             <span onClick={handleForgotPassword} className="text-right text-sm text-blue-600 cursor-pointer hover:text-blue-800 hover:underline transition-all duration-300">
                                 Forgot Password?
                             </span>
 
 
-                            <button className="w-full p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white 
-                                                rounded-xl text-base font-semibold hover:from-blue-700 hover:to-blue-800 
-                                                transform hover:scale-[1.02] transition-all duration-300 shadow-md hover:shadow-lg
-                                                disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
-                                                flex items-center justify-center gap-2"
-                                disabled={!input.username || !input.password}
+                            <button type="submit"
+                                className={`w-full p-4 mt-6 rounded-xl text-base font-semibold 
+                            ${isFormValid()
+                                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white cursor-pointer hover:from-blue-700 hover:to-blue-800'
+                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'}
+                            transform hover:scale-[1.01] transition-all duration-300 
+                            shadow-md hover:shadow-lg active:scale-[0.99]`}
+                                disabled={!isFormValid()}
                             >
                                 Login
                             </button>

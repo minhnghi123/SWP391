@@ -24,7 +24,7 @@ import pictureBody from '../../bodyPicture.json'
 
 
 
-const BenefitforParents = ({image,title,description}) => {
+const BenefitforParents = ({ image, title, description }) => {
     return (
         <div className='group hover:-translate-y-2 transition-all duration-300'>
             <div className='flex flex-col items-center space-y-6'>
@@ -45,7 +45,7 @@ const BenefitforParents = ({image,title,description}) => {
                         {title}
                     </h3>
                     <p className='text-gray-600 leading-relaxed'>
-                      {description}
+                        {description}
                     </p>
                 </div>
 
@@ -482,16 +482,16 @@ export default function BodyHomePage() {
                 {/* Benefits Cards */}
                 <div className='grid grid-cols-3 gap-12'>
                     {/* Benefit Card 1 */}
-                    
-                    <BenefitforParents image={img5} title={"Easy Schedule Management"} description={"Helps parents easily manage their children's vaccination schedules with automated reminders and clear timelines."}/>
+
+                    <BenefitforParents image={img5} title={"Easy Schedule Management"} description={"Helps parents easily manage their children's vaccination schedules with automated reminders and clear timelines."} />
 
                     {/* Benefit Card 2 */}
-               
-                    <BenefitforParents image={img6} title={"Avoid missing important shots."} description={"Access and manage your child's complete health records anytime, anywhere with secure digital storage."}/>
+
+                    <BenefitforParents image={img6} title={"Avoid missing important shots."} description={"Access and manage your child's complete health records anytime, anywhere with secure digital storage."} />
 
                     {/* Benefit Card 3 */}
-                    
-                    <BenefitforParents image={img7} title={"Expert Support"} description={"Get instant access to healthcare professionals and expert advice for your child's health needs."}/>
+
+                    <BenefitforParents image={img7} title={"Expert Support"} description={"Get instant access to healthcare professionals and expert advice for your child's health needs."} />
                 </div>
             </div>
 

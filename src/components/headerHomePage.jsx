@@ -45,7 +45,8 @@ export default function Header() {
     return (
         <div className="flex flex-row justify-between items-center px-8 py-6 mx-auto max-w-7xl
           m-4 border border-gray-200 rounded-3xl fixed top-0 left-0 right-0  bg-white z-50 shadow-lg" >
-            <div className=" flex flex-row gap-2 items-center text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+          <Link to="/">
+          <div className=" cursor-pointer flex flex-row gap-2 items-center text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                 <div className="flex items-center space-x-2">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center">
                         <span className="text-2xl font-bold text-white">H</span>
@@ -61,6 +62,11 @@ export default function Header() {
                     />
                 </div>
             </div>
+          
+          </Link>
+           
+            
+          
             <div className="flex flex-row justify-between items-center gap-3">
                 <nav className="bg-gray-50/80 px-8 py-3 rounded-full shadow-sm backdrop-blur-sm w-full ">
                     <ul className="flex flex-row gap-8 items-center">

@@ -18,58 +18,61 @@ import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHandsHoldingChild } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from 'react';
-import formatCurrency from './utils/calculateMony'
+import formatCurrency from '../utils/calculateMony'
 import pictureBody from '../../bodyPicture.json'
+// import VariantsPage from '../pages/variantsPage'
+// import AboutPage from '../pages/aboutPage'
+import { Link } from 'react-router-dom'
 
-const Variants = ({image,title,description,country,price}) => {
+const Variants = ({ image, title, description, country, price }) => {
     return (
         <div className='bg-white rounded-3xl p-6 hover:shadow-xl hover:scale-105  transition-all duration-300 border border-gray-100'>
-        <div className='space-y-4'>
-            {/* Vaccine Image Placeholder */}
-            <div className='bg-blue-50 rounded-2xl p-4 flex items-center justify-center h-48'>
-                <img
-                    src={image}
-                    alt="Vaccine A"
-                    className='max-h-full object-contain'
-                />
-            </div>
-
-            {/* Vaccine Details */}
-            <div className='space-y-3'>
-                <h2 className='text-xl font-semibold text-gray-800'>{title}</h2>
-                <p className='text-gray-600 text-sm'>{description}</p>
-
-                {/* Origin */}
-                <div className='flex items-center gap-2 text-gray-500'>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
-                    </svg>
-                    <span className='text-sm'>Origin: {country}</span>
+            <div className='space-y-4'>
+                {/* Vaccine Image Placeholder */}
+                <div className='bg-blue-50 rounded-2xl p-4 flex items-center justify-center h-48'>
+                    <img
+                        src={image}
+                        alt="Vaccine A"
+                        className='max-h-full object-contain'
+                    />
                 </div>
 
-                {/* Price */}
-                <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-1 text-blue-600'>
-                        <LocalOfferOutlinedIcon className='h-5 w-5' />
-                        <span className='font-semibold'>{formatCurrency(price)} VND</span>
+                {/* Vaccine Details */}
+                <div className='space-y-3'>
+                    <h2 className='text-xl font-semibold text-gray-800'>{title}</h2>
+                    <p className='text-gray-600 text-sm'>{description}</p>
+
+                    {/* Origin */}
+                    <div className='flex items-center gap-2 text-gray-500'>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+                        </svg>
+                        <span className='text-sm'>Origin: {country}</span>
                     </div>
-                    <button className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300'>
-                        Book Now
-                    </button>
-                </div>
-            </div>
 
-            {/* Clinic Info */}
-            <div className='pt-4 border-t border-gray-100'>
-                <div className='flex items-center gap-2'>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <span className='text-gray-600 text-sm'>Available at: Central Medical Clinic</span>
+                    {/* Price */}
+                    <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1 text-blue-600'>
+                            <LocalOfferOutlinedIcon className='h-5 w-5' />
+                            <span className='font-semibold'>{formatCurrency(price)} VND</span>
+                        </div>
+                        <button className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300'>
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+
+                {/* Clinic Info */}
+                <div className='pt-4 border-t border-gray-100'>
+                    <div className='flex items-center gap-2'>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <span className='text-gray-600 text-sm'>Available at: Central Medical Clinic</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     )
 }
 const FeedbackParent = ({ image, description, babyName, parentName, randomNumber }) => {
@@ -158,12 +161,21 @@ const BenefitforParents = ({ image, title, description }) => {
                 </div>
 
                 {/* Learn More Link */}
-                <a href="#" className='flex items-center text-blue-500 font-medium hover:text-blue-600 transition-colors group-hover:translate-x-2 duration-300'>
+                {/* <a href="#" className='flex items-center text-blue-500 font-medium hover:text-blue-600 transition-colors group-hover:translate-x-2 duration-300'>
                     Learn More
                     <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
-                </a>
+                </a> */}
+                <div className="flex items-center gap-4 pt-4">
+                    <button className='px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 font-medium flex items-center gap-2'>
+                        <Link to="/aboutPage">Learn More</Link>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </button>
+
+                </div>
             </div>
         </div>
     )
@@ -243,7 +255,7 @@ export default function BodyHomePage() {
     const randomNumber = () => {
         return Math.floor(Math.random() * 2);
     };
-    
+
     return (
         <div className="max-w-7xl mx-auto mt-[125px] px-4 py-2 z-0  " id='home'>
             <div className='relative flex flex-col items-center '>
@@ -356,15 +368,19 @@ export default function BodyHomePage() {
                             </div>
 
                             {/* CTA Buttons */}
-                            <div className="flex items-center gap-4 pt-4">
-                                <button className='px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 font-medium flex items-center gap-2'>
-                                    Learn More
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                    </svg>
-                                </button>
+                            <Link to="/aboutPage">
+                                <div className="flex items-center gap-4 pt-4">
+                                    <button className='px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 font-medium flex items-center gap-2'>
+                                        Learn More
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                        </svg>
+                                    </button>
 
-                            </div>
+                                </div>
+
+                            </Link>
+
                         </div>
                     </div>
                 </div>
@@ -387,35 +403,38 @@ export default function BodyHomePage() {
 
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                     {/* Vaccine Card */}
-                  
-                    <Variants 
-                    image={img9} 
-                    title={"Vaccine A"} 
-                    description={"High-quality vaccine with proven effectiveness"} 
-                    country={"USA"} 
-                    price={1000000} />
-       
+
+                    <Variants
+                        image={img9}
+                        title={"Vaccine A"}
+                        description={"High-quality vaccine with proven effectiveness"}
+                        country={"USA"}
+                        price={1000000} />
+
                     {/* Vaccine Card 2 */}
-                 
-                    <Variants 
-                    image={img10} 
-                    title={"Vaccine B"} 
-                    description={"High-quality vaccine with proven effectiveness"} 
-                    country={"USA"} price={1000000} />
+
+                    <Variants
+                        image={img10}
+                        title={"Vaccine B"}
+                        description={"High-quality vaccine with proven effectiveness"}
+                        country={"USA"} price={1000000} />
 
                     {/* Vaccine Card 3 */}
-                    
-                    <Variants 
-                    image={img11} 
-                    title={"Vaccine C"} 
-                    description={"High-quality vaccine with proven effectiveness"} 
-                    country={"USA"} 
-                    price={1000000} />
+
+                    <Variants
+                        image={img11}
+                        title={"Vaccine C"}
+                        description={"High-quality vaccine with proven effectiveness"}
+                        country={"USA"}
+                        price={1000000} />
 
                 </div>
                 <div className='flex justify-end mt-8'>
                     <button className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
-                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>View All Vaccines</span>
+                        {/* <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>View All Vaccines</span> */}
+                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>
+                            <Link to="/variantsPage">View All Vaccines</Link>
+                        </span>
                         <svg
                             className="w-5 h-5 text-blue-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
                             fill="none"
@@ -473,21 +492,21 @@ export default function BodyHomePage() {
                 <div className='grid grid-cols-3 gap-12'>
                     {/* Benefit Card 1 */}
 
-                    <BenefitforParents 
-                    image={img5} title={"Easy Schedule Management"} 
-                    description={"Helps parents easily manage their children's vaccination schedules with automated reminders and clear timelines."} />
+                    <BenefitforParents
+                        image={img5} title={"Easy Schedule Management"}
+                        description={"Helps parents easily manage their children's vaccination schedules with automated reminders and clear timelines."} />
 
                     {/* Benefit Card 2 */}
 
-                    <BenefitforParents 
-                    image={img6} title={"Avoid missing important shots."} 
-                    description={"Access and manage your child's complete health records anytime, anywhere with secure digital storage."} />
+                    <BenefitforParents
+                        image={img6} title={"Avoid missing important shots."}
+                        description={"Access and manage your child's complete health records anytime, anywhere with secure digital storage."} />
 
                     {/* Benefit Card 3 */}
 
-                    <BenefitforParents 
-                    image={img7} title={"Expert Support"} 
-                    description={"Get instant access to healthcare professionals and expert advice for your child's health needs."} />
+                    <BenefitforParents
+                        image={img7} title={"Expert Support"}
+                        description={"Get instant access to healthcare professionals and expert advice for your child's health needs."} />
                 </div>
             </div>
 
@@ -509,29 +528,29 @@ export default function BodyHomePage() {
                 {/* Feedback Cards Container */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {/* Feedback Card 1 */}
-                    <FeedbackParent 
-                    randomNumber={randomNumber()} 
-                    image={img12} 
-                    description={"The doctors here are kind and patient, making my child feel comfortable and at ease during every visit. A wonderful experience!"} 
-                    babyName={"John"} 
-                    parentName={"Sarah Johnson"} />
+                    <FeedbackParent
+                        randomNumber={randomNumber()}
+                        image={img12}
+                        description={"The doctors here are kind and patient, making my child feel comfortable and at ease during every visit. A wonderful experience!"}
+                        babyName={"John"}
+                        parentName={"Sarah Johnson"} />
 
                     {/* Feedback Card 2 */}
 
-                    <FeedbackParent 
-                    randomNumber={randomNumber()} 
-                    image={img12} 
-                    description={"The vaccination tracking system has made it so much easier to stay on top of my children's immunization schedule. Highly recommended!"} 
-                    babyName={"John"} 
-                    parentName={"Michael Chen"} />
+                    <FeedbackParent
+                        randomNumber={randomNumber()}
+                        image={img12}
+                        description={"The vaccination tracking system has made it so much easier to stay on top of my children's immunization schedule. Highly recommended!"}
+                        babyName={"John"}
+                        parentName={"Michael Chen"} />
 
                     {/* Feedback Card 3 */}
 
-                    <FeedbackParent 
-                    randomNumber={randomNumber()} 
-                    image={img12} description={"The reminders and notifications have been a lifesaver. I never miss an important vaccination appointment anymore!"} 
-                    babyName={"John"} 
-                    parentName={"Emma Davis"} />
+                    <FeedbackParent
+                        randomNumber={randomNumber()}
+                        image={img12} description={"The reminders and notifications have been a lifesaver. I never miss an important vaccination appointment anymore!"}
+                        babyName={"John"}
+                        parentName={"Emma Davis"} />
                 </div>
             </div>
 

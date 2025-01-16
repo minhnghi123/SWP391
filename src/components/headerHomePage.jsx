@@ -76,7 +76,7 @@ export default function Header() {
                                     </li>
                                 ))}
                                 <li
-                                    onClick={() => setIsOpen(true)}
+                                    onClick={handleOpen}
                                     className="px-4 py-1.5 rounded-full text-gray-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-400 font-medium cursor-pointer transition-all duration-300"
                                 >
                                     <SearchOutlinedIcon />

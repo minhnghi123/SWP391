@@ -3,6 +3,7 @@ import { faGooglePlusG } from '@fortawesome/free-brands-svg-icons';
 import { faApple } from '@fortawesome/free-brands-svg-icons';
 import { faFacebook } from '@fortawesome/free-brands-svg-icons';
 import { useEffect, useState } from "react";
+import { LocalTaxi } from '@mui/icons-material';
 
 
 
@@ -70,7 +71,8 @@ export default function Login({ setRegister }) {
 
 
     const handleChangeAccount = (e) => {
-        setInput({ ...input, [e.target.name]: e.target.value })
+        const { name, value } = e.target;
+        setInput((prevInput) => ({ ...prevInput, [name]: value }));
     }
     const handleChangePhoneNumber = (e) => {
         const newPhoneNumber = e.target.value;
@@ -86,11 +88,12 @@ export default function Login({ setRegister }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (isOpen) {
-            console.log(phoneNumber)
+            console.log(phoneNumber);
+        } else {
+            console.log(input);
         }
-        else {
-            console.log(input)
-        }
+
+
     }
     const isFormValid = () => {
         return (

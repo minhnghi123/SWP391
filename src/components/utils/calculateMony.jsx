@@ -4,3 +4,4 @@ export default function formatDecimal(number) {
         maximumFractionDigits: 0 
     });
 }
+

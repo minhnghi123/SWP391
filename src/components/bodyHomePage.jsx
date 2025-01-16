@@ -18,7 +18,7 @@ import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHandsHoldingChild } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from 'react';
-import formatCurrency from '../components/calculateMony'
+import formatCurrency from './utils/calculateMony'
 import pictureBody from '../../bodyPicture.json'
 
 const Variants = ({image,title,description,country,price}) => {
@@ -459,6 +459,7 @@ export default function BodyHomePage() {
             <div className="max-w-7xl mx-auto px-4 py-16" id='benefits'>
                 {/* Section Header */}
                 <div className="text-center mb-16">
+                    <span className="text-blue-500 font-semibold text-base tracking-wider uppercase">Services</span>
                     <h2 className="text-4xl font-bold text-gray-800 mb-4">
                         Benefits for <span className="text-blue-500">Parents</span>
                     </h2>

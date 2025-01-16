@@ -12,6 +12,7 @@ export default function AvatarHomePage() {
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                                       //phần tử được click không nằm bên trong dropdown.
                 setIsOpen(false);
             }
         };
@@ -19,7 +20,7 @@ export default function AvatarHomePage() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
+    
     return (
         <div className="relative" ref={dropdownRef}>
             {/* Avatar Button */}

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 
-import FooterHomePage from '../components/footerHomPage';
-import BodyVariantsHomePage from "../components/bodyVariantsPage";
-import Header from '../components/headerHomePage';
+import FooterHomePage from '../components/home/footerHomPage';
+import BodyVariantsHomePage from "../components/variants/bodyVariantsPage";
+import Header from '../components/home/headerHomePage';
 
 const VariantsPage = () => {
     return (

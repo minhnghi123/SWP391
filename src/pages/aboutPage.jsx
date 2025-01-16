@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 
-import FooterHomePage from '../components/footerHomPage';
-import BodyAboutPage from '../components/bodyAboutPage';
-import Header from '../components/headerHomePage';
+import FooterHomePage from '../components/home/footerHomPage';
+import BodyAboutPage from '../components/aboutUs/bodyAboutPage';
+import Header from '../components/home/headerHomePage';
 
 const AboutPage = () => {
     return (

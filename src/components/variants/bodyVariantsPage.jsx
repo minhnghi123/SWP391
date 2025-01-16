@@ -1,9 +1,9 @@
-import img9 from '../assets/p9.jpg'
-import img10 from '../assets/p10.jpg'
-import img11 from '../assets/p11.jpg'
+import img9 from '../../assets/p9.jpg'
+import img10 from '../../assets/p10.jpg'
+import img11 from '../../assets/p11.jpg'
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import { useEffect, useState } from 'react';
-import formatCurrency from '../utils/calculateMony'
+import formatCurrency from '../../utils/calculateMony'
 import { Link } from 'react-router-dom'
 export default function BodyVariantsHomePage() {
     const [selectedVaccines, setSelectedVaccines] = useState([]);
@@ -74,8 +74,7 @@ export default function BodyVariantsHomePage() {
     const handleBookVaccine = (vaccine) => {
         setSelectedVaccines(prev => [...prev, vaccine]);
     };
-
-    const calculateTotal = () => {
+    const calculateTotal = () => {    
         return selectedVaccines.reduce((total, vaccine) => total + vaccine.price, 0);
     };
 

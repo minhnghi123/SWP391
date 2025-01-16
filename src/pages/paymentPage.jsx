@@ -1,10 +1,10 @@
 
 import { useState } from 'react'
-import HeaderPayment from '../components/HeaderPayment';
-import BodyPaymentPage from '../components/bodyPayment';
-import FooterHomePage from '../components/footerHomPage';
-import Stage2Payment from '../components/stage2payment';
-import Stage3Payment from '../components/stage3payment';
+import HeaderPayment from '../components/payment/HeaderPayment';
+import BodyPaymentPage from '../components/payment/bodyPayment';
+import FooterHomePage from '../components/home/footerHomPage';
+import Stage2Payment from '../components/payment/stage2payment';
+import Stage3Payment from '../components/payment/stage3payment';
 
 export default function PaymentPage() {
   const [isopennextstep, setIsopenNextStep] = useState(1);

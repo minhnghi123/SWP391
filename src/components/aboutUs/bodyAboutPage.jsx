@@ -1,4 +1,4 @@
-import img1 from '../assets/vaccine.jpg'
+import img1 from '../../assets/vaccine.jpg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGoogle } from '@fortawesome/free-brands-svg-icons'
 

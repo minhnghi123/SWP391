@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState, useRef } from "react";
 import Avatar from "../assets/p3.jpg"
 
-import CalculateAge from "./utils/calculateYearOld"
+import CalculateAge from "../utils/calculateYearOld"
 
 export default function BodyPaymentPage({ isopennextstep }) {
     // const [api, setApi] = useState([])

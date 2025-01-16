@@ -7,6 +7,8 @@ import { BrowserRouter as Router, Route, Routes, createBrowserRouter } from 'rea
 import LoginPage from '../pages/loginPage'
 import PaymentPage from '../pages/paymentPage'
 import Test from '../components/test'
+import VariantsPage from '../pages/variantsPage'
+import AboutPage from '../pages/aboutPage'
 function App() {
 
 
@@ -17,6 +19,8 @@ function App() {
         <Route path="/loginPage" element={<LoginPage />} />
         <Route path="/paymentPage" element={<PaymentPage />} />
         <Route path="/test" element={<Test />} />
+        <Route path="/variantsPage" element={<VariantsPage />} />
+        <Route path="/aboutPage" element={<AboutPage />} />
       </Routes>
 
 

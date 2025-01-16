@@ -1,15 +1,15 @@
-import img from '../assets/p1.webp'
-import img2 from '../assets/p2.webp'
-import img3 from '../assets/p3.jpg'
-import img4 from '../assets/p4.webp'
-import img5 from '../assets/p5.jpg'
-import img6 from '../assets/p6.webp'
-import img7 from '../assets/p7.webp'
-import img8 from '../assets/p8.webp'
-import img9 from '../assets/p9.jpg'
-import img10 from '../assets/p10.jpg'
-import img11 from '../assets/p11.jpg'
-import img12 from '../assets/p12.jpg'
+import img from '../../assets/p1.webp'
+import img2 from '../../assets/p2.webp'
+import img3 from '../../assets/p3.jpg'
+import img4 from '../../assets/p4.webp'
+import img5 from '../../assets/p5.jpg'
+import img6 from '../../assets/p6.webp'
+import img7 from '../../assets/p7.webp'
+import img8 from '../../assets/p8.webp'
+import img9 from '../../assets/p9.jpg'
+import img10 from '../../assets/p10.jpg'
+import img11 from '../../assets/p11.jpg'
+import img12 from '../../assets/p12.jpg'
 
 
 
@@ -18,8 +18,8 @@ import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHandsHoldingChild } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from 'react';
-import formatCurrency from '../utils/calculateMony'
-import pictureBody from '../../bodyPicture.json'
+import formatCurrency from '../../utils/calculateMony'
+import pictureBody from '../../../bodyPicture.json'
 // import VariantsPage from '../pages/variantsPage'
 // import AboutPage from '../pages/aboutPage'
 import { Link } from 'react-router-dom'

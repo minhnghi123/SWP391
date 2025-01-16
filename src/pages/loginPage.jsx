@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Login from '../components/login';
-import Register from '../components/register';
-import ImageRight from '../components/imageLogin';
-import ForgotPassword from '../components/forgetpassword'
+import Login from '../components/login/login';
+import Register from '../components/login/register';
+import ImageRight from '../components/login/imageLogin';
+import ForgotPassword from '../components/login/forgetpassword'
 
 
 const LoginPage = () => {

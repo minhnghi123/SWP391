@@ -17,6 +17,7 @@ import { Link ,useNavigate} from 'react-router-dom';
 
 // }
 export default function AvatarHomePage() {
+
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);

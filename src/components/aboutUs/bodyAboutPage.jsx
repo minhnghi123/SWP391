@@ -4,7 +4,7 @@ import { faGoogle } from '@fortawesome/free-brands-svg-icons'
 
 export default function BodyAboutPage() {
     return (
-        <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="max-w-7xl mx-auto px-4 py-16 mt-[80px]">
             <div className="flex flex-col lg:flex-row items-center gap-12">
                 {/* Left side - Image */}
                 <div className="w-full lg:w-1/2">

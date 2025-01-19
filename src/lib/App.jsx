@@ -9,6 +9,7 @@ import PaymentPage from '../pages/paymentPage'
 import Test from '../components/test'
 import VariantsPage from '../pages/variantsPage'
 import AboutPage from '../pages/aboutPage'
+import PageProfile from '../pages/PageProfile'
 function App() {
 
 
@@ -21,6 +22,9 @@ function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/variantsPage" element={<VariantsPage />} />
         <Route path="/aboutPage" element={<AboutPage />} />
+        <Route path="/pageProfile/:section" element={<PageProfile />} />
+       
+       
       </Routes>
 
 

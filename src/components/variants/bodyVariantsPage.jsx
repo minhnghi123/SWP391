@@ -2,13 +2,19 @@ import img9 from '../../assets/p9.jpg'
 import img10 from '../../assets/p10.jpg'
 import img11 from '../../assets/p11.jpg'
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
-import { useEffect, useState } from 'react';
-import formatCurrency from '../../utils/calculateMony'
-import { Link } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react';
+import formatCurrency from '../../utils/calculateMoney'
+import { Link, useLocation } from 'react-router-dom'
+import ModalVariants from '../variants/modal'
+
 export default function BodyVariantsHomePage() {
+
+    const [inputData, setInputData] = useState({});
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const location = useLocation();
     const [selectedVaccines, setSelectedVaccines] = useState([]);
     const [sortType, setSortType] = useState('');
-
+    const [modal1Open, setModal1Open] = useState(false);
     const vaccines = [
         {
             id: 1,
@@ -41,10 +47,41 @@ export default function BodyVariantsHomePage() {
             image: img11,
             description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
             origin: 'USA'
+        },
+        {
+            id: 5,
+            name: 'Vaccine D',
+            price: 1000000,
+            image: img11,
+            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
+            origin: 'USA'
+        }, {
+            id: 6,
+            name: 'Vaccine D',
+            price: 1000000,
+            image: img11,
+            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
+            origin: 'USA'
         }
     ];
 
     const [sortedVaccines, setSortedVaccines] = useState(vaccines);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+    // add vaccine to selectedVaccines
+    const handleBookVaccine = (vaccine) => {
+        setSelectedVaccines(prev => [...prev, vaccine]);
+    };
+    const calculatedTotal = () => {
+        const total = selectedVaccines.reduce((total, vaccines) => total + vaccines.price, 0)
+        return total;
+    }
+    const handleRemoveVaccine = (indexToRemove) => {
+        setSelectedVaccines(prev => prev.filter((_, index) => index !== indexToRemove));
+    };
+
 
     const handleSort = (type) => {
         setSortType(type);
@@ -67,35 +104,49 @@ export default function BodyVariantsHomePage() {
         setSortedVaccines(sorted);
     };
 
+
+
     useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+        if (location.state?.openModal) {
+            setIsModalOpen(true);
+        }
+    }, [location.state]);
 
-    const handleBookVaccine = (vaccine) => {
-        setSelectedVaccines(prev => [...prev, vaccine]);
-    };
-    const calculateTotal = () => {    
-        return selectedVaccines.reduce((total, vaccine) => total + vaccine.price, 0);
+
+    const handleClose = () => {
+        setIsModalOpen(false);
     };
 
-    const handleRemoveVaccine = (indexToRemove) => {
-        setSelectedVaccines(prev => prev.filter((_, index) => index !== indexToRemove));
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
     };
+
+
+    const handleGetValue = (inputData) => {
+        // get value from modal
+        setInputData(inputData)
+      
+
+
+    }
+
 
     return (
-        <div className="max-w-7xl mx-auto px-4 pt-16 pb-12 z-0">
+        <div className="max-w-7xl mx-auto px-4 pt-16 pb-12 z-0 mt-20">
             <div className="text-center mb-12">
-                <span className="text-blue-500 font-semibold text-xs tracking-wider uppercase 
-                    bg-blue-50 px-3 py-1.5 rounded-full inline-block mb-2">
-                    Our Products
-                </span>
-                <h2 className="text-3xl font-bold text-gray-800 mt-2 mb-3">
-                    Best <span className="text-blue-500">Vaccines</span> Available
-                </h2>
-                <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-blue-400 mx-auto rounded-full mb-4"></div>
-                <p className="text-gray-600 max-w-[35rem] mx-auto text-base">
-                    Choose from our selection of high-quality vaccines, carefully selected for your child's health and safety
-                </p>
+                {inputData.yearold}
+                {inputData.gender}
+                {inputData.allergy}
+                {inputData.disease}
+                <h1 className='text-3xl font-bold'>welcome Alex  </h1>
+                <button onClick={handleOpenModal}>Create</button>
+                <ModalVariants
+                    handleGetValue={handleGetValue}
+                    isVisible={isModalOpen}
+                    onClose={handleClose}
+                    onOpen={handleOpenModal}
+                />
+
             </div>
             <div className="flex flex-col lg:flex-row gap-8">
                 <div className="w-full lg:w-3/4">
@@ -225,7 +276,7 @@ export default function BodyVariantsHomePage() {
                                 <div className="flex justify-between mb-4">
                                     <span className="text-gray-600 text-sm">Total Amount:</span>
                                     <span className="font-semibold text-base text-blue-600">
-                                        {calculateTotal().toLocaleString()} VND
+                                        {formatCurrency(calculatedTotal())} VND
                                     </span>
                                 </div>
                                 <Link to="/paymentPage">

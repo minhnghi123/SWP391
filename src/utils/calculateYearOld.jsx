@@ -10,7 +10,7 @@
     const dayDifference = today.getDate() - birthDate.getDate();
     
     if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-        age--; // Nếu chưa tới sinh nhật trong năm nay, giảm tuổi đi 1
+        age = 0
     }
 
     return age;

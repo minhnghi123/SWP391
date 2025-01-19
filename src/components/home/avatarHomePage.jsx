@@ -1,9 +1,23 @@
 import imgAvatar from '../../assets/p15.jpg'
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 
+import { Link ,useNavigate} from 'react-router-dom';
+
+
+
+// const ButtonAvatar = ({ label, handleClick }) => {
+//     return (
+//         <button className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+//             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d= />
+//             </svg>
+//             <span>{label}</span>
+//         </button>
+//     )
+
+// }
 export default function AvatarHomePage() {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     // const navigate = useNavigate();
@@ -12,7 +26,7 @@ export default function AvatarHomePage() {
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                                       //phần tử được click không nằm bên trong dropdown.
+                //phần tử được click không nằm bên trong dropdown.
                 setIsOpen(false);
             }
         };
@@ -20,7 +34,7 @@ export default function AvatarHomePage() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-    
+
     return (
         <div className="relative" ref={dropdownRef}>
             {/* Avatar Button */}
@@ -63,23 +77,30 @@ export default function AvatarHomePage() {
 
                     {/* Menu Items */}
                     <div className="p-2 space-y-1">
-                        <button className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                        <button onClick={() => navigate('/pageProfile/profile')} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            <span>View Profile</span>
+                            <span>Edit Profile</span>
                         </button>
 
-                        <button className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                        <button onClick={() => navigate('/pageProfile/tracking')} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            <span>Settings</span>
+                            <span>Tracking vaccines</span>
+                        </button>
+                        <button onClick={() => navigate('/pageProfile/history')} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>History</span>
                         </button>
 
                         <div className="my-2 border-t border-gray-100"></div>
-                        <Link to="/loginPage"  className='w-full'>
+                        <Link to="/loginPage" className='w-full'>
                             <button
                                 className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
                             >

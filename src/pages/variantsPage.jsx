@@ -1,17 +1,19 @@
 import { Link } from "react-router-dom";
 
-import FooterHomePage from '../components/home/footerHomPage';
-import BodyVariantsHomePage from "../components/variants/bodyVariantsPage";
 import Header from '../components/home/headerHomePage';
+import BodyVariantsHomePage from "../components/variants/bodyVariantsPage";
+import FooterHomePage from '../components/home/footerHomPage';
 
 const VariantsPage = () => {
+ 
     return (
-        <div className="relative min-h-screen flex flex-col">
-            {/* <Header/> */}
-            <BodyVariantsHomePage/>
-            <FooterHomePage/>
-        </div>
+        <>
+            <Header />
+            <BodyVariantsHomePage  />
+            <FooterHomePage />
+        </>
     )
+
 }
 
 export default VariantsPage;

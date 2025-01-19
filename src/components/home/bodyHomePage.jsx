@@ -13,235 +13,26 @@ import img12 from '../../assets/p12.jpg'
 
 
 
-import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
-import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHandsHoldingChild } from "@fortawesome/free-solid-svg-icons";
+
+
+
 import { useState, useEffect } from 'react';
-import formatCurrency from '../../utils/calculateMony'
+
 import pictureBody from '../../../bodyPicture.json'
-// import VariantsPage from '../pages/variantsPage'
-// import AboutPage from '../pages/aboutPage'
+import Variants from '../home/Variants'
+import BenefitforParents from '../home/BenefitForParents'
+import News from '../home/News'
+import FeedbackParent from '../home/FeddbackParent'
 import { Link } from 'react-router-dom'
 
-const Variants = ({ image, title, description, country, price }) => {
-    return (
-        <div className='bg-white rounded-3xl p-6 hover:shadow-xl hover:scale-105  transition-all duration-300 border border-gray-100'>
-            <div className='space-y-4'>
-                {/* Vaccine Image Placeholder */}
-                <div className='bg-blue-50 rounded-2xl p-4 flex items-center justify-center h-48'>
-                    <img
-                        src={image}
-                        alt="Vaccine A"
-                        className='max-h-full object-contain'
-                    />
-                </div>
-
-                {/* Vaccine Details */}
-                <div className='space-y-3'>
-                    <h2 className='text-xl font-semibold text-gray-800'>{title}</h2>
-                    <p className='text-gray-600 text-sm'>{description}</p>
-
-                    {/* Origin */}
-                    <div className='flex items-center gap-2 text-gray-500'>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
-                        </svg>
-                        <span className='text-sm'>Origin: {country}</span>
-                    </div>
-
-                    {/* Price */}
-                    <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-1 text-blue-600'>
-                            <LocalOfferOutlinedIcon className='h-5 w-5' />
-                            <span className='font-semibold'>{formatCurrency(price)} VND</span>
-                        </div>
-                        <button className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300'>
-                            Book Now
-                        </button>
-                    </div>
-                </div>
-
-                {/* Clinic Info */}
-                <div className='pt-4 border-t border-gray-100'>
-                    <div className='flex items-center gap-2'>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <span className='text-gray-600 text-sm'>Available at: Central Medical Clinic</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-const FeedbackParent = ({ image, description, babyName, parentName, randomNumber }) => {
-    return (
-        <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="flex flex-col h-full">
-                {/* Icon */}
-                <div className="mb-6">
-                    <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-                        <FontAwesomeIcon
-                            icon={faHandsHoldingChild}
-                            className="text-blue-500 text-xl"
-                        />
-                    </div>
-                </div>
-
-                {/* Quote */}
-                <div className="flex-grow">
-                    <p className="text-gray-600 leading-relaxed italic mb-6">
-                        {description}
-                    </p>
-                </div>
-
-                {/* Author Info */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <img
-                            src={image}
-                            alt="Parent"
-                            className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
-                        />
-                        <div>
-                            <h4 className="font-semibold text-gray-800">{parentName}</h4>
-                            <p className="text-sm text-gray-500">{babyName}</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-1">
-                        {
-                            randomNumber === 1 ?
-                                [...Array(5)].map((_, index) => (
-                                    <StarOutlinedIcon
-                                        key={index}
-                                        className={`w-5 h-5 ${index < 4 ? 'text-yellow-400' : 'text-gray-300'
-                                            }`}
-                                    />
-                                )) : (
-                                    [...Array(5)].map((_, index) => (
-                                        <StarOutlinedIcon
-                                            key={index}
-                                            className="w-5 h-5 text-yellow-400"
-                                        />
-                                    ))
-                                )
-                        }
 
 
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-const BenefitforParents = ({ image, title, description }) => {
-    return (
-        <div className='group hover:-translate-y-2 transition-all duration-300'>
-            <div className='flex flex-col items-center space-y-6'>
-                {/* Image Container */}
-                <div className='relative w-48 h-48'>
-                    <div className='absolute inset-0 bg-blue-500/10 rounded-full group-hover:scale-110 transition-transform duration-300'></div>
-                    <div className='absolute inset-2 bg-blue-500/20 rounded-full group-hover:scale-110 transition-transform duration-500'></div>
-                    <img
-                        className='relative w-full h-full rounded-full object-cover p-4 bg-white shadow-lg group-hover:shadow-xl transition-all duration-300'
-                        src={image}
-                        alt="Vaccination Schedule"
-                    />
-                </div>
 
-                {/* Content */}
-                <div className='text-center space-y-4 px-6'>
-                    <h3 className='text-xl font-bold text-gray-800'>
-                        {title}
-                    </h3>
-                    <p className='text-gray-600 leading-relaxed'>
-                        {description}
-                    </p>
-                </div>
-
-                {/* Learn More Link */}
-                {/* <a href="#" className='flex items-center text-blue-500 font-medium hover:text-blue-600 transition-colors group-hover:translate-x-2 duration-300'>
-                    Learn More
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a> */}
-                <div className="flex items-center gap-4 pt-4">
-                    <button className='px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 font-medium flex items-center gap-2'>
-                        <Link to="/aboutPage">Learn More</Link>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </button>
-
-                </div>
-            </div>
-        </div>
-    )
-}
-const News = ({ label, title, description, image, date, author }) => {
-    return (
-
-        <div className='bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group hover:-translate-y-1'>
-            <div className='flex flex-col md:flex-row h-full'>
-                {/* Image Container */}
-                <div className='md:w-2/5 h-60 md:h-auto relative overflow-hidden'>
-                    <div className='absolute inset-0 bg-gradient-to-r from-blue-500/20 to-transparent z-10'></div>
-                    <img
-                        src={image}
-                        alt="Flu Vaccine News"
-                        className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
-                    />
-                </div>
-
-                {/* Content Container */}
-                <div className='md:w-3/5 p-6 md:p-8 flex flex-col justify-between'>
-                    <div className='space-y-4'>
-                        <div className='flex flex-wrap items-center gap-3'>
-                            <span className="text-xs font-semibold px-3 py-1 bg-blue-50 text-blue-500 rounded-full">
-                                {label}
-                            </span>
-                            <span className='text-gray-400 text-sm flex items-center gap-1'>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                {date}
-                            </span>
-                        </div>
-
-                        <h2 className='text-xl font-bold text-gray-800 leading-tight group-hover:text-blue-500 transition-colors'>
-                            {title}
-                        </h2>
-
-                        <p className='text-gray-600 text-sm leading-relaxed line-clamp-3'>
-                            {description}
-                        </p>
-                    </div>
-
-                    <div className='flex items-center justify-between mt-6 pt-6 border-t border-gray-100'>
-                        <div className='flex items-center gap-3'>
-                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                <span className="text-blue-500 font-semibold text-sm">DJ</span>
-                            </div>
-                            <span className='text-sm text-gray-600'>{author}</span>
-                        </div>
-                        <button className='group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 text-sm font-medium'>
-                            Read More
-                            <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    )
-}
 export default function BodyHomePage() {
     const pictures = pictureBody;
     const [currentPicIndex, setCurrentPicIndex] = useState(0);
+        const [modal1Open, setModal1Open] = useState(false);
+
     // Automatic picture change
     useEffect(() => {
         const interval = setInterval(() => {
@@ -433,7 +224,7 @@ export default function BodyHomePage() {
                     <button className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
                         {/* <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>View All Vaccines</span> */}
                         <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>
-                            <Link to="/variantsPage">View All Vaccines</Link>
+                            <Link to="/variantsPage" state={{openModal:true}}>View All Vaccines</Link>
                         </span>
                         <svg
                             className="w-5 h-5 text-blue-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"

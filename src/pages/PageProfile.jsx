@@ -3,7 +3,7 @@ import LeftSide from '../components/Tracking&History/Lefside'
 import RightSide from '../components/Tracking&History/RightSide'
 const PageProfile = () => {
   const { section } = useParams();
-  const id = 5
+  const id = 1
   return (
     <div className="flex min-h-screen bg-white">
       

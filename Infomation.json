@@ -1,59 +1,59 @@
 {
-    "user": [
-        {
-            "id": 1,
-            "name": "Nguyen Duy Tan",
-            "dateOfBirth": "1995-01-01",
-            "createdAt": "2025-01-19T12:00:00Z",
-            "status": "active",
-            "phone": "0123456789",
-            "gender": "male",
-            "email": "nguyenduytan@gmail.com",
-            "role": "user"
-        },
-        {
-            "id": 2,
-            "name": "Tran Thi Hoa",
-            "dateOfBirth": "1993-06-15",
-            "createdAt": "2025-01-18T10:30:00Z",
-            "status": "inactive",
-            "phone": "0987654321",
-            "gender": "female",
-            "email": "tranthihoa@gmail.com",
-            "role": "admin"
-        },
-        {
-            "id": 3,
-            "name": "Le Van An",
-            "dateOfBirth": "2000-03-22",
-            "createdAt": "2025-01-15T09:15:00Z",
-            "status": "active",
-            "phone": "0912345678",
-            "gender": "male",
-            "email": "levanan@gmail.com",
-            "role": "user"
-        },
-        {
-            "id": 4,
-            "name": "Phan Thi Mai",
-            "dateOfBirth": "1990-11-05",
-            "createdAt": "2025-01-20T14:00:00Z",
-            "status": "active",
-            "phone": "0934567890",
-            "gender": "female",
-            "email": "phanthimai@gmail.com",
-            "role": "user"
-        },
-        {
-            "id": 5,
-            "name": "Hoang Minh Tuan",
-            "dateOfBirth": "1992-08-10",
-            "createdAt": "2025-01-10T16:45:00Z",
-            "status": "inactive",
-            "phone": "0945678901",
-            "gender": "male",
-            "email": "hoangminhtuan@gmail.com",
-            "role": "admin"
-        }
-    ]
+  "user": [
+    {
+      "id": "1",
+      "name": "Nguyen Duy Tan",
+      "dateOfBirth": "1995-01-01",
+      "createdAt": "2025-01-19T12:00:00Z",
+      "status": "active",
+      "phone": "123456787",
+      "gender": "male",
+      "email": "nguyenduytan@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "2",
+      "name": "Tran Thi Hoa",
+      "dateOfBirth": "1993-06-15",
+      "createdAt": "2025-01-18T10:30:00Z",
+      "status": "inactive",
+      "phone": "0987654321",
+      "gender": "female",
+      "email": "tranthihoa@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "3",
+      "name": "Le Van An",
+      "dateOfBirth": "2000-03-22",
+      "createdAt": "2025-01-15T09:15:00Z",
+      "status": "active",
+      "phone": "0912345678",
+      "gender": "male",
+      "email": "levanan@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4",
+      "name": "Phan Thi Mai",
+      "dateOfBirth": "1990-11-05",
+      "createdAt": "2025-01-20T14:00:00Z",
+      "status": "active",
+      "phone": "0934567890",
+      "gender": "female",
+      "email": "phanthimai@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "5",
+      "name": "Hoang Minh Tuan",
+      "dateOfBirth": "1992-08-10",
+      "createdAt": "2025-01-10T16:45:00Z",
+      "status": "inactive",
+      "phone": "0945678901",
+      "gender": "male",
+      "email": "hoangminhtuan@gmail.com",
+      "role": "admin"
+    }
+  ]
 }

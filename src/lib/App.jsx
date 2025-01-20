@@ -10,6 +10,7 @@ import Test from '../components/test'
 import VariantsPage from '../pages/variantsPage'
 import AboutPage from '../pages/aboutPage'
 import PageProfile from '../pages/PageProfile'
+import DashboardPage from '../pages/dashboardPage'
 function App() {
 
 
@@ -23,7 +24,7 @@ function App() {
         <Route path="/variantsPage" element={<VariantsPage />} />
         <Route path="/aboutPage" element={<AboutPage />} />
         <Route path="/pageProfile/:section" element={<PageProfile />} />
-       
+        <Route path="/dashboardPage" element={<DashboardPage />} />
        
       </Routes>
 

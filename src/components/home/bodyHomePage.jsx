@@ -31,7 +31,7 @@ import { Link } from 'react-router-dom'
 export default function BodyHomePage() {
     const pictures = pictureBody;
     const [currentPicIndex, setCurrentPicIndex] = useState(0);
-        const [modal1Open, setModal1Open] = useState(false);
+    const [modal1Open, setModal1Open] = useState(false);
 
     // Automatic picture change
     useEffect(() => {
@@ -196,6 +196,7 @@ export default function BodyHomePage() {
                     {/* Vaccine Card */}
 
                     <Variants
+                    key={1}
                         image={img9}
                         title={"Vaccine A"}
                         description={"High-quality vaccine with proven effectiveness"}
@@ -205,6 +206,7 @@ export default function BodyHomePage() {
                     {/* Vaccine Card 2 */}
 
                     <Variants
+                    key={2}
                         image={img10}
                         title={"Vaccine B"}
                         description={"High-quality vaccine with proven effectiveness"}
@@ -213,6 +215,7 @@ export default function BodyHomePage() {
                     {/* Vaccine Card 3 */}
 
                     <Variants
+                    key={3}
                         image={img11}
                         title={"Vaccine C"}
                         description={"High-quality vaccine with proven effectiveness"}
@@ -224,7 +227,7 @@ export default function BodyHomePage() {
                     <button className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
                         {/* <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>View All Vaccines</span> */}
                         <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>
-                            <Link to="/variantsPage" state={{openModal:true}}>View All Vaccines</Link>
+                            <Link to="/variantsPage" >View All Vaccines</Link>
                         </span>
                         <svg
                             className="w-5 h-5 text-blue-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"

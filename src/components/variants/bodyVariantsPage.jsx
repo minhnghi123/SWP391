@@ -8,7 +8,7 @@ import { Link, useLocation } from 'react-router-dom'
 import Variants from '../home/Variants';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import ToUpperCaseWords from '../../utils/upperCaseFirstLetter'
-export default function BodyVariantsHomePage() {
+export default function BodyVariantsHomePage({}) {
     const vaccines = [
         {
             id: 1,
@@ -271,6 +271,7 @@ export default function BodyVariantsHomePage() {
                         {sortVaccines.map((eachvaccine) => (
                             <Variants
                                 key={eachvaccine.id}
+                                id={eachvaccine.id}
                                 image={eachvaccine.image?
                                     (eachvaccine.image)
                                     :
@@ -279,13 +280,14 @@ export default function BodyVariantsHomePage() {
                                 title={eachvaccine.name}
                                 description={eachvaccine.description}
                                 // country={eachvaccine.origin}
-
-                                price={
+                                type={eachvaccine.discount ? 'combos' : 'vaccine'}
+                                priceSale={
                                     eachvaccine.discount ?
                                         (eachvaccine.price * (1 - eachvaccine.discount / 100))
                                         :
                                         (eachvaccine.price)
                                 }
+                                priceGoc = {eachvaccine.discount ? eachvaccine.price : null}
                                 onClick={() => handleBookVaccine(eachvaccine)}
                             />
                         ))}

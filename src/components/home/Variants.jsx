@@ -1,21 +1,31 @@
-import  formatCurrency  from '../../utils/calculateMoney';
+import formatCurrency from '../../utils/calculateMoney';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
-const Variants = ({id, image, title, description, country, price ,onClick}) => {
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { useNavigate, useParams } from 'react-router-dom';
+const Variants = ({ id, image, title, description, country, priceSale, onClick, type, priceGoc }) => {
+    const navigate = useNavigate();
+
     return (
         <div key={id} className='bg-white rounded-3xl p-6 hover:shadow-xl hover:scale-105  transition-all duration-300 border border-gray-100'>
             <div className='space-y-4'>
                 {/* Vaccine Image Placeholder */}
+
                 <div className='bg-blue-50 rounded-2xl p-4 flex items-center justify-center h-48'>
                     <img
                         src={image}
                         alt="Vaccine A"
                         className='max-h-full object-contain'
+
                     />
                 </div>
 
                 {/* Vaccine Details */}
                 <div className='space-y-3'>
-                    <h2 className='text-xl font-semibold text-gray-800'>{title}</h2>
+                    <div className='flex items-center justify-between'>
+                        <h2 className='text-xl font-semibold text-gray-800'>{title}</h2>
+                        <InfoOutlinedIcon onClick={() => navigate(`/detailInformationVaccine/${type}/${id}`)} className='text-blue-400 cursor-pointer' />
+                    </div>
+
                     <p className='text-gray-600 text-sm'>{description}</p>
 
                     {/* Origin */}
@@ -30,7 +40,13 @@ const Variants = ({id, image, title, description, country, price ,onClick}) => {
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-1 text-blue-600'>
                             <LocalOfferOutlinedIcon className='h-5 w-5' />
-                            <span className='font-semibold'>{formatCurrency(price)} VND</span>
+                            <div className='flex flex-col items-center gap-1'>
+                                {
+                                    priceGoc ? <span className='line-through'>{formatCurrency(priceGoc)} VND</span> : null
+                                }
+                                <span className='font-semibold'>{formatCurrency(priceSale)} VND</span>
+                            </div>
+
                         </div>
                         <button onClick={onClick} className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300'>
                             Book Now
@@ -47,6 +63,7 @@ const Variants = ({id, image, title, description, country, price ,onClick}) => {
                         <span className='text-gray-600 text-sm'>Available at: Central Medical Clinic</span>
                     </div>
                 </div>
+
             </div>
         </div>
     )

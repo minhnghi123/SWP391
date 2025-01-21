@@ -8,7 +8,7 @@ const VariantsPage = () => {
 
     return (
         <>
-            <HeaderVariants />
+            {/* <HeaderVariants /> */}
             <BodyVariantsHomePage />
             <FooterHomePage />
         </>

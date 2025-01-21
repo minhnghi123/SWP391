@@ -55,5 +55,150 @@
       "email": "ddadsfg@gmail.com",
       "role": "admin"
     }
+  ],
+  "vaccine": [
+    {
+      "id": 1,
+      "name": "Vaccine A",
+      "price": 2000000,
+      "image": "img9",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 2,
+      "name": "Vaccine B",
+      "price": 1000000,
+      "image": "img9",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 3,
+      "name": "Vaccine C",
+      "price": 1000000,
+      "image": "img11",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 4,
+      "name": "Vaccine D",
+      "price": 1000000,
+      "image": "img10",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 5,
+      "name": "Vaccine D",
+      "price": 1000000,
+      "image": "img11",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 6,
+      "name": "Vaccine D",
+      "price": 1000000,
+      "image": "img11",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 7,
+      "name": "Vaccine A",
+      "price": 2000000,
+      "image": "img9",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 8,
+      "name": "Vaccine B",
+      "price": 1000000,
+      "image": "img9",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 9,
+      "name": "Vaccine C",
+      "price": 1000000,
+      "image": "img11",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 10,
+      "name": "Vaccine D",
+      "price": 1000000,
+      "image": "img10",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 11,
+      "name": "Vaccine D",
+      "price": 1000000,
+      "image": "img11",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    },
+    {
+      "id": 12,
+      "name": "Vaccine D",
+      "price": 1000000,
+      "image": "img11",
+      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+      "origin": "USA"
+    }
+  ],
+  "combos": [
+    {
+      "id": 20,
+      "name": "Combo A + B",
+      "vaccines": [
+        "Vaccine A",
+        "Vaccine B"
+      ],
+      "price": 2800000,
+      "discount": 10,
+      "description": "Combo Vaccine A và B giúp bạn tối ưu hóa khả năng miễn dịch với mức giá ưu đãi."
+    },
+    {
+      "id": 22,
+      "name": "Combo C + D",
+      "vaccines": [
+        "Vaccine C",
+        "Vaccine D"
+      ],
+      "price": 1800000,
+      "discount": 15,
+      "description": "Combo Vaccine C và D đảm bảo bảo vệ toàn diện với mức giá phải chăng."
+    },
+    {
+      "id": 32,
+      "name": "Combo A + C + D",
+      "vaccines": [
+        "Vaccine A",
+        "Vaccine C",
+        "Vaccine D"
+      ],
+      "price": 3700000,
+      "discount": 20,
+      "description": "Combo Vaccine A, C và D cung cấp giải pháp miễn dịch toàn diện với chi phí tối ưu."
+    },
+    {
+      "id": 42,
+      "name": "Combo B + D",
+      "vaccines": [
+        "Vaccine B",
+        "Vaccine D"
+      ],
+      "price": 2500000,
+      "discount": 5,
+      "description": "Combo Vaccine B và D phù hợp cho các nhu cầu miễn dịch cơ bản với giá thành hợp lý."
+    }
   ]
 }

@@ -2,8 +2,9 @@ import formatCurrency from '../../utils/calculateMoney';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
-const Variants = ({ id, image, title, description, country, priceSale, onClick, type, priceGoc }) => {
+const Variants = ({ id, image, title, description, country, priceSale, onClick, type, priceGoc, isBooking }) => {
     const navigate = useNavigate();
+    const isBooked = isBooking && isBooking.includes(id);
 
     return (
         <div key={id} className='bg-white rounded-3xl p-6 hover:shadow-xl hover:scale-105  transition-all duration-300 border border-gray-100'>
@@ -40,17 +41,31 @@ const Variants = ({ id, image, title, description, country, priceSale, onClick, 
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-1 text-blue-600'>
                             <LocalOfferOutlinedIcon className='h-5 w-5' />
-                            <div className='flex flex-col items-center gap-1'>
-                                {
-                                    priceGoc ? <span className='line-through'>{formatCurrency(priceGoc)} VND</span> : null
-                                }
-                                <span className='font-semibold'>{formatCurrency(priceSale)} VND</span>
+                            <div className='flex flex-col'>
+                                {priceGoc && (
+                                    <span className='text-sm text-gray-500 line-through'>
+                                        {formatCurrency(priceGoc)} VND
+                                    </span>
+                                )}
+                                <span className='text-lg font-semibold text-red-500'>
+                                    {formatCurrency(priceSale)} VND
+                                </span>
                             </div>
-
                         </div>
-                        <button onClick={onClick} className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300'>
+
+                        {
+                            <button
+                                onClick={() => onClick()}
+                                className={`px-4 py-2 ${isBooked ? 'bg-gray-400' : 'bg-blue-500'} text-white rounded-lg hover:${isBooked ? 'bg-gray-500' : 'bg-blue-600'} transition-colors duration-300`}
+                         
+                            >
+                                {isBooked ? 'Booking' : 'Book Now'}
+                            </button>
+
+                        }
+                        {/* <button onClick={onClick} className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300'>
                             Book Now
-                        </button>
+                        </button> */}
                     </div>
                 </div>
 

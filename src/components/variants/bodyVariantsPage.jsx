@@ -1,14 +1,14 @@
 import img9 from '../../assets/p9.jpg'
 import img10 from '../../assets/p10.jpg'
 import img11 from '../../assets/p11.jpg'
-import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
+import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import formatCurrency from '../../utils/calculateMoney'
 import { Link, useLocation } from 'react-router-dom'
 import Variants from '../home/Variants';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import ToUpperCaseWords from '../../utils/upperCaseFirstLetter'
-export default function BodyVariantsHomePage({}) {
+export default function BodyVariantsHomePage({ }) {
     const vaccines = [
         {
             id: 1,
@@ -146,34 +146,54 @@ export default function BodyVariantsHomePage({}) {
     const [sortVaccines, setSortVaccines] = useState(vaccines)
     const [selectedVaccines, setSelectedVaccines] = useState([]);
     const [sortType, setSortType] = useState('');
-
-
-
-
-
-
+    const [isBooking, setBooking] = useState([]);
     useEffect(() => {
         window.scrollTo(0, 0);
-        setSortVaccines([...vaccines,...combos]);
+        setSortVaccines([...vaccines, ...combos]);
     }, []);
-    // add vaccine to selectedVaccines
+
     const handleBookVaccine = (vaccine) => {
-        setSelectedVaccines(prev => [...prev, vaccine]);
+        setSelectedVaccines((prev) => {
+            const checkExist = prev.find((item) => item.id === vaccine.id);
+    
+            if (checkExist) {
+               // delete item when click again
+                const updatedVaccines = prev.filter((item) => item.id !== vaccine.id);
+                // remove id from list booking
+                setBooking((prevBooking) => prevBooking.filter((item) => item !== vaccine.id));
+                return updatedVaccines;
+            } else {
+                // add a new item
+                const updatedVaccines = [...prev, vaccine];
+                // add id to list booking
+                setBooking((prevBooking) => [...prevBooking, vaccine.id]);
+                return updatedVaccines;
+            }
+        });
     };
-    const calculatedTotal = () => {
-        const total = selectedVaccines.reduce((total, vaccine) => {
+    
+
+
+
+    const calculatedTotal = useMemo(() => {
+        return selectedVaccines.reduce((total, vaccine) => {
             if (vaccine.discount)
                 return total + vaccine.price * (1 - vaccine.discount / 100);
             else
-                return total + vaccine.price
+                return total + vaccine.price;
+        }, 0);
+    }, [selectedVaccines]);
 
-        }, 0)
 
-        return total;
-    }
-    const handleRemoveVaccine = (indexToRemove) => {
-        setSelectedVaccines(prev => prev.filter((_, index) => index !== indexToRemove));
+    const handleRemoveVaccine = (id) => {
+        setSelectedVaccines(prev => {
+            const newarray = prev.filter(vaccine => vaccine.id !== id);
+            setBooking((prevBooking) => prevBooking.filter((item) => item !== id))
+
+            return newarray
+        });
     };
+
     const handleInput = (e) => {
         setInputData(e.target.value)
 
@@ -205,7 +225,7 @@ export default function BodyVariantsHomePage({}) {
         if (searchValue) {
             const sortByName = vaccines
                 .filter((vaccine) => vaccine.name.includes(searchValue))
-                .sort((a, b) => a.price - b.price);
+
 
             setSortVaccines(sortByName);
         } else {
@@ -213,6 +233,12 @@ export default function BodyVariantsHomePage({}) {
         }
 
     };
+    const handleAction = (vaccine) => {
+        handleBookVaccine(vaccine)
+        handleRemoveVaccine(vaccine.id)
+    }
+
+
 
     return (
 
@@ -272,7 +298,7 @@ export default function BodyVariantsHomePage({}) {
                             <Variants
                                 key={eachvaccine.id}
                                 id={eachvaccine.id}
-                                image={eachvaccine.image?
+                                image={eachvaccine.image ?
                                     (eachvaccine.image)
                                     :
                                     (null)
@@ -281,13 +307,15 @@ export default function BodyVariantsHomePage({}) {
                                 description={eachvaccine.description}
                                 // country={eachvaccine.origin}
                                 type={eachvaccine.discount ? 'combos' : 'vaccine'}
+                                priceGoc={eachvaccine.discount ? eachvaccine.price : null}
                                 priceSale={
                                     eachvaccine.discount ?
                                         (eachvaccine.price * (1 - eachvaccine.discount / 100))
                                         :
                                         (eachvaccine.price)
                                 }
-                                priceGoc = {eachvaccine.discount ? eachvaccine.price : null}
+                                isBooking={isBooking}
+
                                 onClick={() => handleBookVaccine(eachvaccine)}
                             />
                         ))}
@@ -307,8 +335,8 @@ export default function BodyVariantsHomePage({}) {
                             <div className="border-t border-gray-100 pt-4">
                                 <div className="flex flex-col gap-2 mb-3">
                                     <span className="text-gray-600 text-sm">Selected Vaccines:</span>
-                                    {selectedVaccines.map((vaccine, index) => (
-                                        <div key={index} className="flex justify-between items-center bg-gray-50 
+                                    {selectedVaccines.map((vaccine) => (
+                                        <div key={vaccine.id} className="flex justify-between items-center bg-gray-50 
                                     p-2 rounded text-sm group hover:bg-gray-100 transition-all duration-200">
                                             <span className="text-gray-800">{vaccine.name}</span>
                                             <div className="flex items-center gap-3">
@@ -317,28 +345,16 @@ export default function BodyVariantsHomePage({}) {
                                                         vaccine.discount ?
                                                             (formatCurrency(vaccine.price * (1 - vaccine.discount / 100)))
                                                             :
-                                                            (formatCurrency(vaccine.price.toLocaleString()))
+                                                            (formatCurrency(vaccine.price))
                                                     }
                                                     {' '}VND</span>
                                                 <button
-                                                    onClick={() => handleRemoveVaccine(index)}
+                                                    onClick={() => handleRemoveVaccine(vaccine.id)}
                                                     className="text-gray-400 hover:text-red-500 p-1 rounded-full 
                                                 hover:bg-red-50 transition-all duration-200"
                                                     title="Remove vaccine"
                                                 >
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-4 w-4"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M6 18L18 6M6 6l12 12"
-                                                        />
-                                                    </svg>
+                                                    <BackspaceOutlinedIcon />
                                                 </button>
                                             </div>
                                         </div>
@@ -347,7 +363,7 @@ export default function BodyVariantsHomePage({}) {
                                 <div className="flex justify-between mb-4">
                                     <span className="text-gray-600 text-sm">Total Amount:</span>
                                     <span className="font-semibold text-base text-blue-600">
-                                        {formatCurrency(calculatedTotal())} VND
+                                        {formatCurrency(calculatedTotal)} VND
                                     </span>
                                 </div>
                                 <Link to="/paymentPage">

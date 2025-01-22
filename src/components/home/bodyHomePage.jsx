@@ -201,7 +201,7 @@ export default function BodyHomePage() {
                         title={"Vaccine A"}
                         description={"High-quality vaccine with proven effectiveness"}
                         country={"USA"}
-                        price={1000000} />
+                        priceSale={1000000} />
 
                     {/* Vaccine Card 2 */}
 
@@ -210,7 +210,8 @@ export default function BodyHomePage() {
                         image={img10}
                         title={"Vaccine B"}
                         description={"High-quality vaccine with proven effectiveness"}
-                        country={"USA"} price={1000000} />
+                        country={"USA"} 
+                        priceSale={1000000} />
 
                     {/* Vaccine Card 3 */}
 
@@ -220,7 +221,7 @@ export default function BodyHomePage() {
                         title={"Vaccine C"}
                         description={"High-quality vaccine with proven effectiveness"}
                         country={"USA"}
-                        price={1000000} />
+                        priceSale={1000000} />
 
                 </div>
                 <div className='flex justify-end mt-8'>

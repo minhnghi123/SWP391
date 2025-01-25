@@ -1,7 +1,10 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import { VaccineContext } from '../Context/ChildrenSelected';
 import { NumberOfPeopleContext } from "../Context/NumberOfPeopleVacines";
+import formatDecimal from '../../utils/calculateMoney';
+import { use } from 'react';
 export default function Stage2Payment({ isopennextstep }) {
+
     const [paymentMethod, setPaymentMethod] = useState(1);
     const [isOpenDetail, setIsOpenDetail] = useState(false);
     const handleNextStep = () => {
@@ -23,8 +26,11 @@ export default function Stage2Payment({ isopennextstep }) {
     const valueSelectVaccine = useContext(VaccineContext)
     const valueNumberOfPeople = useContext(NumberOfPeopleContext)
 
-    
-    
+    const CalculateTotal = useMemo(() => {
+        const total = valueNumberOfPeople.isSelected.length * valueSelectVaccine.selectedVaccines.reduce((total, item) => total + item.price, 0)
+        return total;
+    },[valueSelectVaccine.selectedVaccines, valueNumberOfPeople.isSelected])
+
 
     return (
         <div className='max-w-7xl mx-auto px-4 py-16'>
@@ -45,8 +51,8 @@ export default function Stage2Payment({ isopennextstep }) {
                                 <tr key={vaccine.id} className="hover:bg-gray-50">
                                     <td className="p-4 text-sm text-gray-700">{index + 1}</td>
                                     <td className="p-4 text-sm text-gray-700">{vaccine.name}</td>
-                                    <td className="p-4 text-sm text-gray-700"> { valueNumberOfPeople.isSelected.length}</td>
-                                    <td className="p-4 text-sm text-gray-700 text-right">{(vaccine.price*valueNumberOfPeople.isSelected.length).toLocaleString()} VNĐ</td>
+                                    <td className="p-4 text-sm text-gray-700"> {valueNumberOfPeople.isSelected.length}</td>
+                                    <td className="p-4 text-sm text-gray-700 text-right">{formatDecimal((vaccine.price * valueNumberOfPeople.isSelected.length))} VNĐ</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -137,7 +143,7 @@ export default function Stage2Payment({ isopennextstep }) {
                                                 <p className="text-sm text-gray-500">Including all fees</p>
                                             </div>
                                         </div>
-                                        <span className="text-2xl font-bold text-blue-600">$120.00</span>
+                                        <span className="text-2xl font-bold text-blue-600">{formatDecimal(CalculateTotal)} {''} VNĐ</span>
                                     </div>
                                 </div>
                             </div>
@@ -304,7 +310,7 @@ export default function Stage2Payment({ isopennextstep }) {
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
-                            Pay $120.00
+                            {formatDecimal(CalculateTotal)} {''} VNĐ
                         </button>
                     </div>
                 </div>

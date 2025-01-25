@@ -1,14 +1,13 @@
-import { useLayoutEffect, useState, useRef } from "react";
+import { useLayoutEffect, useState, useRef,useContext } from "react";
 import Avatar from "../../assets/p3.jpg"
-
+import { NumberOfPeopleContext } from "../Context/NumberOfPeopleVacines";
 import CalculateAge from "../../utils/calculateYearOld"
 
 export default function BodyPaymentPage({ isopennextstep }) {
     // const [api, setApi] = useState([])
-    const [isOpenFirst, setIsOpenFirst] = useState(false); // 
-    const [isSelected, setIsSelected] = useState([]); // add children
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpenFirst, setIsOpenFirst] = useState(false); 
 
+    const [isOpen, setIsOpen] = useState(false);
     const [children, setChildren] = useState([
         {
             id: 1,
@@ -38,18 +37,8 @@ export default function BodyPaymentPage({ isopennextstep }) {
         gender: "",
         advistory: ""
     })
-    const handleChoose = (id) => {
-        setIsSelected(prev => {
-            const checkId = isSelected.includes(id);
-            if (checkId) {
-                return isSelected.filter(item => item !== id);
-            } else {
-                return [...prev, id];
-            }
-        })
 
-
-    }
+  
 
 
     const handleOnchange = (e) => {
@@ -78,7 +67,12 @@ export default function BodyPaymentPage({ isopennextstep }) {
     const handleNextStep = () => {
         isopennextstep(2)
     }
-
+ 
+   const  { 
+    isSelected,
+    handleChoose
+    } = useContext(NumberOfPeopleContext) ;
+  
 
     return (
         <div className="min-h-screen  py-12">
@@ -302,11 +296,11 @@ export default function BodyPaymentPage({ isopennextstep }) {
                                                 <p className="text-sm text-gray-500 mt-1">Add a new child to your vaccination schedule</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-center">
+                                            {/* <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
+                                            </svg> */}
                                             <span className="text-sm font-medium">Required Fields</span>
                                         </div>
                                     </div>

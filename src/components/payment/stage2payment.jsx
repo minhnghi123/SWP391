@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { VaccineContext } from '../Context/ChildrenSelected';
+import { NumberOfPeopleContext } from "../Context/NumberOfPeopleVacines";
 export default function Stage2Payment({ isopennextstep }) {
     const [paymentMethod, setPaymentMethod] = useState(1);
     const [isOpenDetail, setIsOpenDetail] = useState(false);
@@ -17,12 +19,42 @@ export default function Stage2Payment({ isopennextstep }) {
         total: 100000
     }
     ]);
+
+    const valueSelectVaccine = useContext(VaccineContext)
+    const valueNumberOfPeople = useContext(NumberOfPeopleContext)
+
+    
+    
+
     return (
         <div className='max-w-7xl mx-auto px-4 py-16'>
             <div className='flex flex-col lg:flex-row items-center gap-12'>
-                <div className='w-full lg:w-[600px] space-y-8 border bg-black'>
 
+                <div className="w-full lg:w-[600px] border bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <table className="w-full table-auto border-collapse">
+                        <thead className="bg-gray-100 border-b">
+                            <tr>
+                                <th className="p-4 text-left text-sm font-medium text-gray-600">#</th>
+                                <th className="p-4 text-left text-sm font-medium text-gray-600">Vaccine Name</th>
+                                <th className="p-4 text-left text-sm font-medium text-gray-600">Quantity</th>
+                                <th className="p-4 text-right text-sm font-medium text-gray-600">Price (VNĐ)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {valueSelectVaccine.selectedVaccines.map((vaccine, index) => (
+                                <tr key={vaccine.id} className="hover:bg-gray-50">
+                                    <td className="p-4 text-sm text-gray-700">{index + 1}</td>
+                                    <td className="p-4 text-sm text-gray-700">{vaccine.name}</td>
+                                    <td className="p-4 text-sm text-gray-700"> { valueNumberOfPeople.isSelected.length}</td>
+                                    <td className="p-4 text-sm text-gray-700 text-right">{(vaccine.price*valueNumberOfPeople.isSelected.length).toLocaleString()} VNĐ</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
+
+
+
                 <div className="w-full lg:w-[600px] space-y-8">
                     {/* Summary Header Card */}
                     <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl p-8 text-white">

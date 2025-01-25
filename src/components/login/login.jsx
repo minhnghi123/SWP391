@@ -1,11 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGooglePlusG } from '@fortawesome/free-brands-svg-icons';
+
 import { faApple } from '@fortawesome/free-brands-svg-icons';
 import { faFacebook } from '@fortawesome/free-brands-svg-icons';
 import { useEffect, useState } from "react";
-import { LocalTaxi } from '@mui/icons-material';
 
+import LoginButton from './loginGoogle';
+// import LogoutButton from './logoutGoogle';
 
+import { gapi } from 'gapi-script';
 
 const ButtonLogin = ({ label, handleClick, link, d, isActive }) => {
 
@@ -71,8 +73,7 @@ export default function Login({ setRegister }) {
 
 
     const handleChangeAccount = (e) => {
-        const { name, value } = e.target;
-        setInput((prevInput) => ({ ...prevInput, [name]: value }));
+        setInput({ ...input, [e.target.name]: e.target.value })
     }
     const handleChangePhoneNumber = (e) => {
         const newPhoneNumber = e.target.value;
@@ -88,12 +89,11 @@ export default function Login({ setRegister }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (isOpen) {
-            console.log(phoneNumber);
-        } else {
-            console.log(input);
+            console.log(phoneNumber)
         }
-
-
+        else {
+            console.log(input)
+        }
     }
     const isFormValid = () => {
         return (
@@ -101,6 +101,7 @@ export default function Login({ setRegister }) {
             input.password
         )
     }
+  
 
 
 
@@ -211,15 +212,19 @@ export default function Login({ setRegister }) {
 
                             <div className="mt-6 text-center">
                                 <div className="flex justify-center gap-6">
-                                    {[
-                                        { icon: faGooglePlusG, color: 'hover:bg-red-50 hover:text-red-500' },
+                                    <LoginButton />
+                                 
+                                    {[   
+                                        
                                         { icon: faApple, color: 'hover:bg-gray-50 hover:text-gray-900' },
                                         { icon: faFacebook, color: 'hover:bg-blue-50 hover:text-blue-600' }
                                     ].map((social, index) => (
                                         <div key={index}
                                             className={`w-12 h-12 bg-white rounded-full flex justify-center items-center 
-                                                cursor-pointer ${social.color} transition-all duration-300 shadow-sm 
-                                                hover:shadow-md transform `}>
+                                                cursor-pointer ${social.color} transition-all duration-300 shadow-md 
+                                                hover:shadow-lg transform border-2 border-gray-100 
+                                                hover:border-${social.icon === faApple ? 'gray' : 'blue'}-500`}
+                                        >
                                             <FontAwesomeIcon icon={social.icon} className="text-xl text-gray-700" />
                                         </div>
                                     ))}
@@ -272,15 +277,17 @@ export default function Login({ setRegister }) {
 
                         <div className="mt-6 text-center">
                             <div className="flex justify-center gap-6">
+
                                 {[
-                                    { icon: faGooglePlusG, color: 'hover:bg-red-50 hover:text-red-500' },
                                     { icon: faApple, color: 'hover:bg-gray-50 hover:text-gray-900' },
                                     { icon: faFacebook, color: 'hover:bg-blue-50 hover:text-blue-600' }
                                 ].map((social, index) => (
                                     <div key={index}
                                         className={`w-12 h-12 bg-white rounded-full flex justify-center items-center 
-                                                cursor-pointer ${social.color} transition-all duration-300 shadow-sm 
-                                                hover:shadow-md transform `}>
+                                                cursor-pointer ${social.color} transition-all duration-300 shadow-md 
+                                                hover:shadow-lg transform border-2 border-gray-100 
+                                                hover:border-${social.icon === faApple ? 'gray' : 'blue'}-500`}
+                                    >
                                         <FontAwesomeIcon icon={social.icon} className="text-xl text-gray-700" />
                                     </div>
                                 ))}

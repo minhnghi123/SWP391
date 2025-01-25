@@ -1,14 +1,18 @@
-import img9 from '../../assets/p9.jpg'
-import img10 from '../../assets/p10.jpg'
-import img11 from '../../assets/p11.jpg'
+import { useRef, useEffect, useState,useContext } from 'react';
+import { VaccineContext } from '../Context/ChildrenSelected';
+import { Link } from 'react-router-dom';
 import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
-import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
-import formatCurrency from '../../utils/calculateMoney'
-import { Link, useLocation } from 'react-router-dom'
-import Variants from '../home/Variants';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import ToUpperCaseWords from '../../utils/upperCaseFirstLetter'
-export default function BodyVariantsHomePage({ }) {
+import formatCurrency from '../../utils/calculateMoney';
+import ToUpperCaseWords from '../../utils/upperCaseFirstLetter';
+import Variants from '../home/Variants';
+
+import img9 from '../../assets/p9.jpg';
+import img10 from '../../assets/p10.jpg';
+import img11 from '../../assets/p11.jpg';
+
+export default function BodyVariantsHomePage() {
+
     const vaccines = [
         {
             id: 1,
@@ -141,63 +145,31 @@ export default function BodyVariantsHomePage({ }) {
         }
     ];
 
-    const ref = useRef(null)
+
+
+    const ref = useRef(null);
     const [inputData, setInputData] = useState('');
-    const [sortVaccines, setSortVaccines] = useState(vaccines)
-    const [selectedVaccines, setSelectedVaccines] = useState([]);
+    const [sortVaccines, setSortVaccines] = useState([]);
     const [sortType, setSortType] = useState('');
-    const [isBooking, setBooking] = useState([]);
+
+
+    const { 
+        selectedVaccines , 
+        isBooking , 
+        handleBookVaccine , 
+        handleRemoveVaccine , 
+        calculatedTotal 
+    } = useContext(VaccineContext) ;
+
     useEffect(() => {
         window.scrollTo(0, 0);
         setSortVaccines([...vaccines, ...combos]);
     }, []);
 
-    const handleBookVaccine = (vaccine) => {
-        setSelectedVaccines((prev) => {
-            const checkExist = prev.find((item) => item.id === vaccine.id);
-    
-            if (checkExist) {
-               // delete item when click again
-                const updatedVaccines = prev.filter((item) => item.id !== vaccine.id);
-                // remove id from list booking
-                setBooking((prevBooking) => prevBooking.filter((item) => item !== vaccine.id));
-                return updatedVaccines;
-            } else {
-                // add a new item
-                const updatedVaccines = [...prev, vaccine];
-                // add id to list booking
-                setBooking((prevBooking) => [...prevBooking, vaccine.id]);
-                return updatedVaccines;
-            }
-        });
-    };
-    
-
-
-
-    const calculatedTotal = useMemo(() => {
-        return selectedVaccines.reduce((total, vaccine) => {
-            if (vaccine.discount)
-                return total + vaccine.price * (1 - vaccine.discount / 100);
-            else
-                return total + vaccine.price;
-        }, 0);
-    }, [selectedVaccines]);
-
-
-    const handleRemoveVaccine = (id) => {
-        setSelectedVaccines(prev => {
-            const newarray = prev.filter(vaccine => vaccine.id !== id);
-            setBooking((prevBooking) => prevBooking.filter((item) => item !== id))
-
-            return newarray
-        });
-    };
-
     const handleInput = (e) => {
-        setInputData(e.target.value)
+        setInputData(e.target.value);
+    };
 
-    }
     const sortSelect = (type) => {
         setSortType(type);
         let sorted = [];
@@ -219,34 +191,23 @@ export default function BodyVariantsHomePage({ }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        ref.current.focus()
+        ref.current.focus();
         const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
         setInputData('');
         if (searchValue) {
             const sortByName = vaccines
-                .filter((vaccine) => vaccine.name.includes(searchValue))
-
-
+                .filter((vaccine) => vaccine.name.includes(searchValue));
             setSortVaccines(sortByName);
         } else {
             setSortVaccines(vaccines);
         }
-
     };
-    const handleAction = (vaccine) => {
-        handleBookVaccine(vaccine)
-        handleRemoveVaccine(vaccine.id)
-    }
-
-
 
     return (
-
         <div className="max-w-[1400px] mx-auto py-4 px-4 z-0 mt-40 ">
-            {/* header */}
+            {/* Header and search section */}
             <div className="flex flex-row gap-4 items-center justify-between">
                 <h1 className='text-2xl font-semibold text-gray-800'>Thong tin san pham</h1>
-
                 <div className="relative group">
                     <input
                         ref={ref}
@@ -255,57 +216,46 @@ export default function BodyVariantsHomePage({ }) {
                         type="text"
                         placeholder="Search..."
                         className="w-64 pl-11 pr-4 py-2.5 rounded-lg border border-gray-200 
-                                             text-sm placeholder-gray-400
-                                             group-hover:border-gray-300
-                                             focus:outline-none focus:ring-2 focus:ring-blue-50 
-                                             focus:border-blue-500 transition-all duration-200"
+                                   text-sm placeholder-gray-400
+                                   group-hover:border-gray-300
+                                   focus:outline-none focus:ring-2 focus:ring-blue-50 
+                                   focus:border-blue-500 transition-all duration-200"
                     />
                     <button onClick={handleSubmit} type='submit'>
                         <SearchOutlinedIcon
                             className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 
-                                          text-gray-400 group-hover:text-gray-500 transition-colors duration-200"
+                                       text-gray-400 group-hover:text-gray-500 transition-colors duration-200"
                         />
                     </button>
-
                 </div>
-
-
             </div>
+
             <div className="flex flex-row gap-4">
                 <div className="flex-[0.75]">
+                    {/* Sort dropdown */}
                     <div className="flex justify-between items-center mb-6">
-                        <div className="flex gap-3 items-center">
-                            <select
-                                className="block w-52 p-3 text-sm text-gray-700 bg-white border border-gray-200 
-                        rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                        hover:border-gray-300 transition-all duration-200 cursor-pointer shadow-sm "
-                                value={sortType}
-                                onChange={(e) => sortSelect(e.target.value)}
-                            >
-                                <option value="All">All</option>
-                                <option value="Le">Le</option>
-                                <option value="Combo">Combo</option>
-
-                            </select>
-
-
-                        </div>
+                        <select
+                            className="block w-52 p-3 text-sm text-gray-700 bg-white border border-gray-200 
+                            rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+                            hover:border-gray-300 transition-all duration-200 cursor-pointer shadow-sm"
+                            value={sortType}
+                            onChange={(e) => sortSelect(e.target.value)}
+                        >
+                            <option value="All">All</option>
+                            <option value="Le">Le</option>
+                            <option value="Combo">Combo</option>
+                        </select>
                     </div>
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                        {/* Vaccine Card */}
 
+                    {/* Vaccine Grid */}
+                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                         {sortVaccines.map((eachvaccine) => (
                             <Variants
                                 key={eachvaccine.id}
                                 id={eachvaccine.id}
-                                image={eachvaccine.image ?
-                                    (eachvaccine.image)
-                                    :
-                                    (null)
-                                }
+                                image={eachvaccine.image || null}
                                 title={eachvaccine.name}
                                 description={eachvaccine.description}
-                                // country={eachvaccine.origin}
                                 type={eachvaccine.discount ? 'combos' : 'vaccine'}
                                 priceGoc={eachvaccine.discount ? eachvaccine.price : null}
                                 priceSale={
@@ -315,17 +265,16 @@ export default function BodyVariantsHomePage({ }) {
                                         (eachvaccine.price)
                                 }
                                 isBooking={isBooking}
-
                                 onClick={() => handleBookVaccine(eachvaccine)}
                             />
                         ))}
-
                     </div>
                 </div>
 
+                {/* Payment Summary Sidebar */}
                 <div className="flex-[0.25] mt-16">
                     <div className="sticky top-[80px] bg-white rounded-2xl p-6 border border-gray-100 
-                shadow-md hover:shadow-lg transition-all duration-300">
+                    shadow-md hover:shadow-lg transition-all duration-300">
                         <div className='flex justify-between items-center'>
                             <h3 className="text-lg font-semibold text-gray-800 mb-4">Payment Summary</h3>
                             <h3 className='text-gray-600 text-sm mb-4'>{selectedVaccines.length} Items</h3>
@@ -337,7 +286,7 @@ export default function BodyVariantsHomePage({ }) {
                                     <span className="text-gray-600 text-sm">Selected Vaccines:</span>
                                     {selectedVaccines.map((vaccine) => (
                                         <div key={vaccine.id} className="flex justify-between items-center bg-gray-50 
-                                    p-2 rounded text-sm group hover:bg-gray-100 transition-all duration-200">
+                                        p-2 rounded text-sm group hover:bg-gray-100 transition-all duration-200">
                                             <span className="text-gray-800">{vaccine.name}</span>
                                             <div className="flex items-center gap-3">
                                                 <span className="text-blue-600">
@@ -351,7 +300,7 @@ export default function BodyVariantsHomePage({ }) {
                                                 <button
                                                     onClick={() => handleRemoveVaccine(vaccine.id)}
                                                     className="text-gray-400 hover:text-red-500 p-1 rounded-full 
-                                                hover:bg-red-50 transition-all duration-200"
+                                                    hover:bg-red-50 transition-all duration-200"
                                                     title="Remove vaccine"
                                                 >
                                                     <BackspaceOutlinedIcon />
@@ -367,26 +316,20 @@ export default function BodyVariantsHomePage({ }) {
                                     </span>
                                 </div>
                                 <Link to="/paymentPage">
-
                                     <button
                                         className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg 
-                                hover:bg-blue-600 transition-all duration-300 font-medium text-sm
-                                shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                        hover:bg-blue-600 transition-all duration-300 font-medium text-sm
+                                        shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                         disabled={selectedVaccines.length === 0}
                                     >
                                         Proceed to Payment
                                     </button>
                                 </Link>
-
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     );
-
-
-
 }

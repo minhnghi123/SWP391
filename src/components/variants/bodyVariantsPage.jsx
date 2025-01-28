@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState,useContext } from 'react';
+import { useRef, useEffect, useState, useContext } from 'react';
 import { VaccineContext } from '../Context/ChildrenSelected';
 import { Link } from 'react-router-dom';
 import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
@@ -151,15 +151,20 @@ export default function BodyVariantsHomePage() {
     const [inputData, setInputData] = useState('');
     const [sortVaccines, setSortVaccines] = useState([]);
     const [sortType, setSortType] = useState('');
+    const [isOpen, setIsOpen] = useState(true)
 
 
-    const { 
-        selectedVaccines , 
-        isBooking , 
-        handleBookVaccine , 
-        handleRemoveVaccine , 
-        calculatedTotal 
-    } = useContext(VaccineContext) ;
+    const {
+        selectedVaccines,
+        isBooking,
+        handleBookVaccine,
+        handleRemoveVaccine,
+        calculatedTotal
+    } = useContext(VaccineContext);
+
+    // const [valueSelectVaccine, setSelectedVaccines] = useState(() => {
+    //     return JSON.parse(localStorage.getItem('AddItems')) || [];
+    //   });
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -186,20 +191,39 @@ export default function BodyVariantsHomePage() {
             default:
                 sorted = [...vaccines, ...combos];
         }
+        
+        setIsOpen(true)
         setSortVaccines(sorted);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         ref.current.focus();
+
         const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
+        console.log(searchValue);
         setInputData('');
+
         if (searchValue) {
-            const sortByName = vaccines
-                .filter((vaccine) => vaccine.name.includes(searchValue));
-            setSortVaccines(sortByName);
+            const sortByNameVaccine = vaccines
+                .filter((vaccine) => vaccine.name.includes(searchValue))
+                .sort((a, b) => a.price - b.price);
+            const sortByNameCombo = combos
+                .filter((combo) => combo.name.includes(searchValue))
+                .sort((a, b) => a.price - b.price);
+
+            const combinedResults = [...sortByNameVaccine, ...sortByNameCombo];
+
+            if (combinedResults.length > 0) {
+                setSortVaccines(combinedResults); 
+                setIsOpen(true); 
+            } else {
+                setIsOpen(false);
+            }
         } else {
-            setSortVaccines(vaccines);
+
+            setSortVaccines([...vaccines, ...combos]);
+            setIsOpen(true); 
         }
     };
 
@@ -249,25 +273,28 @@ export default function BodyVariantsHomePage() {
 
                     {/* Vaccine Grid */}
                     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                        {sortVaccines.map((eachvaccine) => (
-                            <Variants
-                                key={eachvaccine.id}
-                                id={eachvaccine.id}
-                                image={eachvaccine.image || null}
-                                title={eachvaccine.name}
-                                description={eachvaccine.description}
-                                type={eachvaccine.discount ? 'combos' : 'vaccine'}
-                                priceGoc={eachvaccine.discount ? eachvaccine.price : null}
-                                priceSale={
-                                    eachvaccine.discount ?
-                                        (eachvaccine.price * (1 - eachvaccine.discount / 100))
-                                        :
-                                        (eachvaccine.price)
-                                }
-                                isBooking={isBooking}
-                                onClick={() => handleBookVaccine(eachvaccine)}
-                            />
-                        ))}
+                        {isOpen ? (
+                            sortVaccines && sortVaccines.map((eachvaccine) => (
+                                <Variants
+                                    key={eachvaccine.id}
+                                    id={eachvaccine.id}
+                                    image={eachvaccine.image || null}
+                                    title={eachvaccine.name}
+                                    description={eachvaccine.description}
+                                    type={eachvaccine.discount ? 'combos' : 'vaccine'}
+                                    priceGoc={eachvaccine.discount ? eachvaccine.price : null}
+                                    priceSale={
+                                        eachvaccine.discount
+                                            ? eachvaccine.price * (1 - eachvaccine.discount / 100)
+                                            : eachvaccine.price
+                                    }
+                                    isBooking={isBooking}
+                                    onClick={() => handleBookVaccine(eachvaccine)}
+                                />
+                            ))
+                        ) : (
+                            <h1 className='text-red-800'>Dell coco</h1>
+                        )}
                     </div>
                 </div>
 

@@ -24,12 +24,18 @@ export default function Stage2Payment({ isopennextstep }) {
     ]);
 
     const valueSelectVaccine = useContext(VaccineContext)
-    const valueNumberOfPeople = useContext(NumberOfPeopleContext)
-
-    const CalculateTotal = useMemo(() => {
-        const total = valueNumberOfPeople.isSelected.length * valueSelectVaccine.selectedVaccines.reduce((total, item) => total + item.price, 0)
+    // const [valueSelectVaccine, setSelectedVaccines] = useState(() => {
+    //     return JSON.parse(localStorage.getItem('AddItems')) || [];
+    //   });
+      
+      const valueNumberOfPeople = useContext(NumberOfPeopleContext);
+      
+      const CalculateTotal = useMemo(() => {
+        const totalPrice = valueSelectVaccine.selectedVaccines.reduce((total, vaccine) => total + vaccine.price, 0); 
+        const total = valueNumberOfPeople.isSelected.length * totalPrice; 
         return total;
-    },[valueSelectVaccine.selectedVaccines, valueNumberOfPeople.isSelected])
+      }, [ valueSelectVaccine.selectedVaccines, valueNumberOfPeople.isSelected]);
+      
 
 
     return (
@@ -47,7 +53,7 @@ export default function Stage2Payment({ isopennextstep }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {valueSelectVaccine.selectedVaccines.map((vaccine, index) => (
+                            {valueSelectVaccine.map((vaccine, index) => (
                                 <tr key={vaccine.id} className="hover:bg-gray-50">
                                     <td className="p-4 text-sm text-gray-700">{index + 1}</td>
                                     <td className="p-4 text-sm text-gray-700">{vaccine.name}</td>

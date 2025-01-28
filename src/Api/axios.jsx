@@ -10,8 +10,8 @@ const client = axios.create({
 });
 
 // Hàm lấy danh sách dữ liệu
-export const fetchData = (endpoint) => {
-    return client.get(`/${endpoint}`); 
+export const fetchData = async (endpoint) => {
+    return  await client.get(`/${endpoint}`); 
 };
 
 // Hàm thêm mới dữ liệu
@@ -25,17 +25,17 @@ export const addData = async (endpoint, newData) => {
     newData.id = maxId + 1
 
 
-    return client.post(`/${endpoint}`, newData); 
+    return await client.post(`/${endpoint}`, newData); 
 };
 
 // Hàm cập nhật dữ liệu
-export const updateData = (endpoint, id, updatedData) => {
-    return client.put(`/${endpoint}/${id}`, updatedData);
+export const updateData = async (endpoint, id, updatedData) => {
+    return await client.put(`/${endpoint}/${id}`, updatedData);
 };
 
 // Hàm xóa dữ liệu
-export const deleteData = ( endpoint,id) => {
-    return client.delete(`/${endpoint}/${id}`); 
+export const deleteData = async ( endpoint,id) => {
+    return  await client.delete(`/${endpoint}/${id}`); 
 };
 
 export default client;

@@ -48,9 +48,9 @@ export default function HeaderPayment({ currentStep, setIsopenNextStep }) {
     };
 
     return (
-        <div className="bg-white shadow-md py-10">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center">
+        <div className="bg-white shadow-md py-1 sm:px-6 lg:px-80">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8  ">
+                <div className="flex justify-between items-center ">
                     {/* Back Button */}
                     <button
                         onClick={() =>

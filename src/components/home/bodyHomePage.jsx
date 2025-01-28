@@ -23,12 +23,13 @@ import Variants from '../home/Variants'
 import BenefitforParents from '../home/BenefitForParents'
 import News from '../home/News'
 import FeedbackParent from '../home/FeddbackParent'
-import { Link } from 'react-router-dom'
+import { Link,useNavigate} from 'react-router-dom'
 
 
 
 
 export default function BodyHomePage() {
+    const navigate = useNavigate();
     const pictures = pictureBody;
     const [currentPicIndex, setCurrentPicIndex] = useState(0);
     const [modal1Open, setModal1Open] = useState(false);
@@ -48,7 +49,7 @@ export default function BodyHomePage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto mt-[125px] px-4 py-2 z-0  " id='home'>
+        <div className="max-w-7xl mx-auto mt-4 px-4 py-2 z-0  " id='home'>
             <div className='relative flex flex-col items-center '>
                 {/* Picture Carousel */}
                 <div className="relative w-full h-[600px] overflow-hidden rounded-3xl ">
@@ -225,10 +226,10 @@ export default function BodyHomePage() {
 
                 </div>
                 <div className='flex justify-end mt-8'>
-                    <button className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
-                        {/* <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>View All Vaccines</span> */}
-                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>
-                            <Link to="/variantsPage" >View All Vaccines</Link>
+                    <button onClick={()=>navigate('/variantsPage')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
+                        {/* <span clas=>sName='font-medium text-blue-500 group-hover:text-white transition-colors'>View All Vaccines</span> */}
+                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'> 
+                            View All Vaccines
                         </span>
                         <svg
                             className="w-5 h-5 text-blue-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"

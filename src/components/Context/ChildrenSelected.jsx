@@ -11,18 +11,19 @@ export const VaccineProvider = ({ children }) => {
   const handleBookVaccine = (vaccine) => {
     setSelectedVaccines((prev) => {
       const checkExist = prev.find((item) => item.id === vaccine.id);
-
+      let updatedVaccines;
       if (checkExist) {
         // Remove item when clicked again
-        const updatedVaccines = prev.filter((item) => item.id !== vaccine.id);
+        updatedVaccines = prev.filter((item) => item.id !== vaccine.id);
         setBooking((prevBooking) => prevBooking.filter((item) => item !== vaccine.id));
-        return updatedVaccines;
       } else {
         // Add new item
-        const updatedVaccines = [...prev, vaccine];
+        updatedVaccines = [...prev, vaccine];
         setBooking((prevBooking) => [...prevBooking, vaccine.id]);
-        return updatedVaccines;
+
       }
+      // localStorage.setItem('AddItems', JSON.stringify(updatedVaccines))
+      return updatedVaccines;
     });
   };
 
@@ -30,6 +31,7 @@ export const VaccineProvider = ({ children }) => {
     setSelectedVaccines((prev) => {
       const newArray = prev.filter(vaccine => vaccine.id !== id);
       setBooking((prevBooking) => prevBooking.filter((item) => item !== id));
+      // localStorage.setItem('AddItems', JSON.stringify(newArray))
       return newArray;
     });
   };
@@ -43,7 +45,7 @@ export const VaccineProvider = ({ children }) => {
     }, 0);
   }, [selectedVaccines]);
 
-  
+
   const contextValue = {
     selectedVaccines,
     isBooking,
@@ -52,7 +54,7 @@ export const VaccineProvider = ({ children }) => {
     calculatedTotal
   }
 
-  
+
 
   return (
     <VaccineContext.Provider value={contextValue}>

@@ -277,7 +277,7 @@ export default function Login({ setRegister }) {
 
                         <div className="mt-6 text-center">
                             <div className="flex justify-center gap-6">
-
+                                <LoginButton/>
                                 {[
                                     { icon: faApple, color: 'hover:bg-gray-50 hover:text-gray-900' },
                                     { icon: faFacebook, color: 'hover:bg-blue-50 hover:text-blue-600' }

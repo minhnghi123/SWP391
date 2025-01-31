@@ -5,7 +5,7 @@ import UpcomingAppointments from './UpComingAppointments';
 import CalculateAge  from '../../../../utils/calculateYearOld'
 const ChildCard = ({ child, handleChoose }) => {
     return (
-        <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-200">
+        <div key={child.id} className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-200">
             {/* Child Header with Photo */}
             <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-6 text-white">
                 <div className="flex items-center gap-4">

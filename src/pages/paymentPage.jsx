@@ -1,7 +1,7 @@
 
 import { useState } from 'react'
 import HeaderPayment from '../components/payment/HeaderPayment';
-import BodyPaymentPage from '../components/payment/bodyPayment';
+import Stage1Payment from '../components/payment/stage1payment';
 import FooterHomePage from '../components/home/footerHomPage';
 import Stage2Payment from '../components/payment/stage2payment';
 import Stage3Payment from '../components/payment/stage3payment';
@@ -10,16 +10,17 @@ export default function PaymentPage() {
   const [isopennextstep, setIsopenNextStep] = useState(1);
 
 
+  
   const renderBodyPayment = () => {
     switch (isopennextstep) {
       case 1:
-        return <BodyPaymentPage isopennextstep={setIsopenNextStep} />
+        return <Stage1Payment isopennextstep={setIsopenNextStep} />
       case 2:
         return <Stage2Payment isopennextstep={setIsopenNextStep} />
       case 3:
         return <Stage3Payment isopennextstep={setIsopenNextStep} />
       default:
-        return <BodyPaymentPage isopennextstep={setIsopenNextStep} />
+        return <Stage1Payment isopennextstep={setIsopenNextStep} />
     }
   }
   return (

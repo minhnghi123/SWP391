@@ -21,7 +21,7 @@ export default function HeaderPayment({ currentStep, setIsopenNextStep }) {
                     }
                     className="self-start flex items-center gap-3 text-white bg-blue-600 p-2 rounded-lg hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-300 transition ease-in-out duration-200"
                 >
-                    <ArrowLeft className="w-5 h-5" />
+                   
                     <span className="font-medium">Back</span>
                 </button>
 

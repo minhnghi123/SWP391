@@ -2,10 +2,10 @@ import { useLayoutEffect, useState, useRef, useContext } from "react";
 import Avatar from "../../assets/p3.jpg"
 import { NumberOfPeopleContext } from "../Context/NumberOfPeopleVacines";
 
-import ProfileUser from "./eachCompoentStage1/leftSide/profileUser";
-import FormAddChildren from "./eachCompoentStage1/leftSide/formAddChildren";
-import ChildCard from './eachCompoentStage1/rightSide/ChildCard';
-import ListChild from "./eachCompoentStage1/leftSide/ListChild";
+import ProfileUser from "./eachComponentStage1/leftSide/profileUser";
+import FormAddChildren from "./eachComponentStage1/leftSide/formAddChildren";
+import ChildCard from './eachComponentStage1/rightSide/ChildCard';
+import ListChild from "./eachComponentStage1/leftSide/ListChild";
 export default function BodyPaymentPage({ isopennextstep }) {
     // const [api, setApi] = useState([])
     const [isOpenFirst, setIsOpenFirst] = useState(false);
@@ -28,7 +28,7 @@ export default function BodyPaymentPage({ isopennextstep }) {
             datOfBrith: "2020-01-01",
             dateInject: "2020-01-01",
             gender: "Female",
-            advistory: "no"
+            advistory: ''
 
         }
     ]);
@@ -194,7 +194,7 @@ export default function BodyPaymentPage({ isopennextstep }) {
                                     {/* Detailed Child Information */}
                                     <div className="space-y-8">
                                         {isSelected.map((child, index) => (
-                                           <ChildCard key={index} child={child} handleChoose={handleChoose} />
+                                           <ChildCard key={child.id} child={child} handleChoose={handleChoose} />
                                         ))}
                                     </div>
                                     {/* Checkout Button */}

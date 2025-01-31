@@ -10,31 +10,38 @@ export const VaccineProvider = ({ children }) => {
 
   const handleBookVaccine = (vaccine) => {
     setSelectedVaccines((prev) => {
-      const checkExist = prev.find((item) => item.id === vaccine.id);
-      let updatedVaccines;
-      if (checkExist) {
-        // Remove item when clicked again
-        updatedVaccines = prev.filter((item) => item.id !== vaccine.id);
-        setBooking((prevBooking) => prevBooking.filter((item) => item !== vaccine.id));
-      } else {
-        // Add new item
-        updatedVaccines = [...prev, vaccine];
-        setBooking((prevBooking) => [...prevBooking, vaccine.id]);
+      // some => true/false
+      const exists = prev.some((item) => item.id === vaccine.id);
+      const updatedVaccines = exists
+        ? prev.filter((item) => item.id !== vaccine.id) 
+        : [...prev, vaccine]; 
 
-      }
-      // localStorage.setItem('AddItems', JSON.stringify(updatedVaccines))
+      setBooking((prevBooking) =>
+        exists ? prevBooking.filter((id) => id !== vaccine.id) : [...prevBooking, vaccine.id]
+      );
+
+      updatedVaccines.length
+        ? localStorage.setItem("AddItems", JSON.stringify(updatedVaccines))
+        : localStorage.removeItem("AddItems");
+
       return updatedVaccines;
     });
   };
 
   const handleRemoveVaccine = (id) => {
     setSelectedVaccines((prev) => {
-      const newArray = prev.filter(vaccine => vaccine.id !== id);
-      setBooking((prevBooking) => prevBooking.filter((item) => item !== id));
-      // localStorage.setItem('AddItems', JSON.stringify(newArray))
-      return newArray;
+      const updatedVaccines = prev.filter((vaccine) => vaccine.id !== id);
+
+      setBooking((prevBooking) => prevBooking.filter((vaccineId) => vaccineId !== id));
+
+      updatedVaccines.length
+        ? localStorage.setItem("AddItems", JSON.stringify(updatedVaccines))
+        : localStorage.removeItem("AddItems");
+
+      return updatedVaccines;
     });
   };
+
 
   const calculatedTotal = useMemo(() => {
     return selectedVaccines.reduce((total, vaccine) => {

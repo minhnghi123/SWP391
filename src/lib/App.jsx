@@ -7,6 +7,7 @@ import VariantsPage from '../pages/variantsPage';
 import AboutPage from '../pages/aboutPage';
 import PageProfile from '../pages/PageProfile';
 import DashboardPage from '../pages/dashboardPage';
+import FeedbackPage from '../pages/feedbackPage';
 import Detail from '../components/variants/DetailInformationVaccine';
 import { VaccineProvider } from '../components/Context/ChildrenSelected';
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/pageProfile/:section" element={<PageProfile />} />
         <Route path="/dashboardPage" element={<DashboardPage />} />
         <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
 
         {/* Bọc VaccineProvider chỉ cho 2 trang */}
         <Route

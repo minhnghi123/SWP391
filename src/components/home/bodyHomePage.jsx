@@ -320,9 +320,30 @@ export default function BodyHomePage() {
                         What our parents say about us
                     </p>
                 </div>
-
+                <div className='flex justify-end mb-8'>
+                    <button onClick={()=>navigate('feedback')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
+                       
+                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'> 
+                          View All Feedback
+                        </span>
+                        <svg
+                            className="w-5 h-5 text-blue-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3"
+                            />
+                        </svg>
+                    </button>
+                </div>
                 {/* Feedback Cards Container */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  
                     {/* Feedback Card 1 */}
                     <FeedbackParent
                         randomNumber={randomNumber()}

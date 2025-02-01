@@ -10,7 +10,7 @@ export default function PaymentPage() {
   const [isopennextstep, setIsopenNextStep] = useState(1);
 
 
-  
+
   const renderBodyPayment = () => {
     switch (isopennextstep) {
       case 1:
@@ -25,13 +25,21 @@ export default function PaymentPage() {
   }
   return (
     <>
-      <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />
-      <NumberOfPeopleProvider>
-        {renderBodyPayment()}
-      </NumberOfPeopleProvider>
-
-      {/* <BodyPaymentPage/> */}
-      <FooterHomePage />
+      {
+        isopennextstep === 3 ? (
+          <NumberOfPeopleProvider>
+            {renderBodyPayment()}
+          </NumberOfPeopleProvider>
+        ) : (
+          <>
+            <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />
+            <NumberOfPeopleProvider>
+              {renderBodyPayment()}
+            </NumberOfPeopleProvider>
+            <FooterHomePage />
+          </>
+        )
+      }
     </>
   )
 

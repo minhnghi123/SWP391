@@ -65,7 +65,7 @@ const SummaryCard = ({ CalculateTotal, child }) => {
                             <p className="text-sm text-gray-500">Including all fees</p>
                         </div>
                     </div>
-                    <span className="text-2xl font-bold text-blue-600">{formatDecimal(CalculateTotal + (CalculateTotal * 0.05))} {''} VNĐ</span>
+                    <span className="text-2xl font-bold text-blue-600">{formatDecimal(CalculateTotal + (CalculateTotal * 0.05)+advitoryFee)} {''} VNĐ</span>
                 </div>
             </div>
         </div>

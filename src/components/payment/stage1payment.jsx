@@ -1,7 +1,6 @@
-import { useLayoutEffect, useState, useRef, useContext } from "react";
+import {  useState, useRef, useContext } from "react";
 import Avatar from "../../assets/p3.jpg"
 import { NumberOfPeopleContext } from "../Context/NumberOfPeopleVacines";
-
 import ProfileUser from "./eachComponentStage1/leftSide/profileUser";
 import FormAddChildren from "./eachComponentStage1/leftSide/formAddChildren";
 import ChildCard from './eachComponentStage1/rightSide/ChildCard';
@@ -9,8 +8,6 @@ import ListChild from "./eachComponentStage1/leftSide/ListChild";
 export default function BodyPaymentPage({ isopennextstep }) {
     // const [api, setApi] = useState([])
     const [isOpenFirst, setIsOpenFirst] = useState(false);
-
-    const [isOpen, setIsOpen] = useState(false);
     const [children, setChildren] = useState([
         {
             id: 1,
@@ -40,17 +37,12 @@ export default function BodyPaymentPage({ isopennextstep }) {
         gender: "",
         advistory: ""
     })
-
-
-
-
     const handleOnchange = (e) => {
         const { name, value } = e.target;
         setData(prevInput => ({ ...prevInput, [name]: value }));
     }
     const handleSubmit = (e) => {
         e.preventDefault();
-
         // Add new entry to children
         setChildren((prevInput) => {
             const id = prevInput.length + 1

@@ -346,7 +346,7 @@ export default function BodyHomePage() {
                   
                     {/* Feedback Card 1 */}
                     <FeedbackParent
-                        randomNumber={randomNumber()}
+                        randomNumber={5}
                         image={img12}
                         description={"The doctors here are kind and patient, making my child feel comfortable and at ease during every visit. A wonderful experience!"}
                         babyName={"John"}
@@ -355,7 +355,7 @@ export default function BodyHomePage() {
                     {/* Feedback Card 2 */}
 
                     <FeedbackParent
-                        randomNumber={randomNumber()}
+                        randomNumber={5}
                         image={img12}
                         description={"The vaccination tracking system has made it so much easier to stay on top of my children's immunization schedule. Highly recommended!"}
                         babyName={"John"}
@@ -364,7 +364,7 @@ export default function BodyHomePage() {
                     {/* Feedback Card 3 */}
 
                     <FeedbackParent
-                        randomNumber={randomNumber()}
+                        randomNumber={5}
                         image={img12} description={"The reminders and notifications have been a lifesaver. I never miss an important vaccination appointment anymore!"}
                         babyName={"John"}
                         parentName={"Emma Davis"} />

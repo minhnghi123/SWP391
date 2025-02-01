@@ -2,7 +2,7 @@ import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandsHoldingChild } from '@fortawesome/free-solid-svg-icons';
 
-const FeedbackParent = ({ image, description, babyName, parentName, randomNumber }) => {
+const FeedbackParent = ({ image, description,  username, randomNumber }) => {
     return (
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div className="flex flex-col h-full">
@@ -32,8 +32,7 @@ const FeedbackParent = ({ image, description, babyName, parentName, randomNumber
                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-blue-600 shadow-sm"
                         />
                         <div>
-                            <h4 className="font-semibold text-gray-900 text-lg md:text-xl">{parentName}</h4>
-                            <p className="text-sm text-gray-600">{babyName}</p>
+                            <h4 className="font-semibold text-gray-900 text-lg md:text-xl">{username}</h4>
                         </div>
                     </div>
                     <div className="flex gap-1 mt-2">

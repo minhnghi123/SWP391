@@ -23,9 +23,10 @@ function App() {
       {/* Secret Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
-
         <Route path="/pageProfile/:section" element={<PageProfile />} />
         <Route path="/feedbackPage" element={<FeedbackPage />} />
+=======
+
 
         {/* VaccineProvider applied only for specific pages */}
         <Route path="/paymentPage" element={

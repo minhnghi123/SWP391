@@ -25,7 +25,7 @@ function App() {
         <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
         <Route path="/pageProfile/:section" element={<PageProfile />} />
         <Route path="/feedbackPage" element={<FeedbackPage />} />
-=======
+
 
 
         {/* VaccineProvider applied only for specific pages */}

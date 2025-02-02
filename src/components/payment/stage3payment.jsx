@@ -21,29 +21,29 @@ export default function Stage3Payment() {
     const handleCloseModal = () => {
         setOpenModal(false);
     };
-    // const [username, setUsername] = useState(() => {
-    //     return JSON.parse(localStorage.getItem('account')) || [];
-    // });
+    const [username, setUsername] = useState(() => {
+        return JSON.parse(localStorage.getItem('Account')) || [];
+    });
     // Function to handle form submission
     const handleSubmit = async (data) => {
         const dataInput = {
-            username: "Tri",
+            username: username.user,
             starRating: data.rating,
             description: data.feedback
         }
-        if (!dataInput?.rating || !dataInput?.feedback) {
+        if (!dataInput?.starRating || !dataInput?.description) {
             toast.error("Please provide rating and feedback");
             return;
         }
         try {
-            await addData("patients",dataInput);
+            await addData("patients", dataInput);
             toast.success("Post successfully");
-            setOpenModal(false); 
+            setOpenModal(false);
         } catch (err) {
             setErr("Fail post feedback");
             toast.error("Failed post");
         }
-       
+
 
     };
     return (
@@ -52,7 +52,7 @@ export default function Stage3Payment() {
             {
                 isOpenModal && <ModalRating onClose={handleCloseModal} onSubmit={handleSubmit} />
             }
-                <ToastContainer/>
+            <ToastContainer />
             <div className="min-h-screen flex items-center justify-center p-6">
                 <div className="bg-white/20 backdrop-blur-lg shadow-2xl rounded-2xl p-8 max-w-md w-full text-center border border-white/30 relative overflow-hidden">
                     {/* Background Blob Animation */}
@@ -95,4 +95,3 @@ export default function Stage3Payment() {
 
     )
 }
-

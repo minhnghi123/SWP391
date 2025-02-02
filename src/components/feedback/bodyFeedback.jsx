@@ -1,32 +1,34 @@
-import React, { useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import FeedbackParent from '../home/FeddbackParent';
 import { addData, fetchData } from '../../Api/axios';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FormFeedback from './formFeedback';
-import { FaStar } from 'react-icons/fa'; 
+import { FaStar } from 'react-icons/fa';
 
 
 const BodyFeedback = () => {
-
+    const [username, setUsername] = useState(() => {
+        return JSON.parse(localStorage.getItem('Account')) || [];
+    });
     const [feedback, setFeedback] = useState([]);
     const [currentValue, setCurrentValue] = useState(0);
     const [hoverValue, setHoverValue] = useState(undefined);
     const [isSubmit, setSubmit] = useState(false)
     const [inputData, setData] = useState({
-        username: "Tri",
+        username: username.user,
         description: '',
         starRating: 0,
         babyName: ''
     });
-    
+
 
 
     useEffect(() => {
         if (isSubmit) {
             fetchData('patients')
-            .then(res => setFeedback(res.data))
-            .catch(() => console.log("Failed to fetch data"));
+                .then(res => setFeedback(res.data))
+                .catch(() => console.log("Failed to fetch data"));
             setSubmit(false);
         }
     }, [isSubmit]);
@@ -38,9 +40,9 @@ const BodyFeedback = () => {
             .catch(() => console.log("Failed to fetch data"));
     }, []);
 
-    
 
-   
+
+
 
 
     const handleClick = (value) => {
@@ -70,10 +72,10 @@ const BodyFeedback = () => {
             await addData('patients', inputData);
             toast.success('Successfully posted!');
             setData({
-                parentName: "Tri",
+                parentName: username.user,
                 description: '',
                 starRating: 0,
-              
+
             });
             setCurrentValue(0);
             setSubmit(true)

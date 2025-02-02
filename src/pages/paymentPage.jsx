@@ -27,9 +27,9 @@ export default function PaymentPage() {
     <>
       {
         isopennextstep === 3 ? (
-          <NumberOfPeopleProvider>
-            {renderBodyPayment()}
-          </NumberOfPeopleProvider>
+         
+            renderBodyPayment()
+        
         ) : (
           <>
             <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />

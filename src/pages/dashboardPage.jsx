@@ -14,6 +14,5 @@ const dashboardPage = () => {
     </div>
   );
 };
-
 export default dashboardPage;
 

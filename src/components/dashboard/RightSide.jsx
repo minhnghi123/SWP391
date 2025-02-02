@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
-import Dashboard from "../dashboard/Section/dashboard"; // Import dashboard
-import Appointments from "../dashboard/Section/appointment"; // Import appointments
-import Patients from "../dashboard/Section/patients"; // Import patients
+
+import Dashboard from "../dashboard/Section/dashboard"; 
+import Appointments from "../dashboard/Section/appointments ";
+import Patients from "../dashboard/Section/patients"; 
 import { useRef, useState } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import Avatar from "../../assets/p15.jpg"; // Đường dẫn đến avatar của người dùng
+import Avatar from "../../assets/p15.jpg"; 
+
 
 const RightSide = () => {
   const { section } = useParams(); // Lấy section từ URL
@@ -93,4 +95,6 @@ const RightSide = () => {
   );
 };
 
+
 export default RightSide;
+

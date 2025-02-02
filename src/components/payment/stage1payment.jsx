@@ -1,10 +1,11 @@
-import {  useState, useRef, useContext } from "react";
+import {  useState, useContext } from "react";
 import Avatar from "../../assets/p3.jpg"
 import { NumberOfPeopleContext } from "../Context/NumberOfPeopleVacines";
 import ProfileUser from "./eachComponentStage1/leftSide/profileUser";
 import FormAddChildren from "./eachComponentStage1/leftSide/formAddChildren";
 import ChildCard from './eachComponentStage1/rightSide/ChildCard';
 import ListChild from "./eachComponentStage1/leftSide/ListChild";
+
 export default function BodyPaymentPage({ isopennextstep }) {
     // const [api, setApi] = useState([])
     const [isOpenFirst, setIsOpenFirst] = useState(false);
@@ -68,8 +69,8 @@ export default function BodyPaymentPage({ isopennextstep }) {
         handleChoose
     } = useContext(NumberOfPeopleContext);
 
-
-
+    
+    
     return (
         <div className="min-h-screen  py-12">
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">

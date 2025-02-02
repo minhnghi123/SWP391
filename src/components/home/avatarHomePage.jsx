@@ -1,28 +1,11 @@
 import imgAvatar from '../../assets/p15.jpg'
-import React, { useState, useEffect, useRef } from 'react'
-
+import React, { useState, useEffect, useRef} from 'react'
 import { Link ,useNavigate} from 'react-router-dom';
-
-
-
-// const ButtonAvatar = ({ label, handleClick }) => {
-//     return (
-//         <button className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-//             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d= />
-//             </svg>
-//             <span>{label}</span>
-//         </button>
-//     )
-
-// }
-export default function AvatarHomePage() {
-
+export default function AvatarHomePage({signout,username}) {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
-    // const navigate = useNavigate();
-
+  
     // Click outside handler
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -70,7 +53,7 @@ export default function AvatarHomePage() {
                                 />
                             </div>
                             <div>
-                                <h4 className="text-sm font-semibold text-gray-800">Chris Johnson</h4>
+                                <h4 className="text-sm font-semibold text-gray-800">{username}</h4>
                                 <p className="text-xs text-gray-500">chris.johnson@example.com</p>
                             </div>
                         </div>
@@ -101,8 +84,8 @@ export default function AvatarHomePage() {
                         </button>
 
                         <div className="my-2 border-t border-gray-100"></div>
-                        <Link to="/loginPage" className='w-full'>
-                            <button
+                       
+                            <button onClick={signout}
                                 className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +93,7 @@ export default function AvatarHomePage() {
                                 </svg>
                                 <span>Sign Out</span>
                             </button>
-                        </Link>
+                      
 
                     </div>
                 </div>

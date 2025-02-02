@@ -321,7 +321,7 @@ export default function BodyHomePage() {
                     </p>
                 </div>
                 <div className='flex justify-end mb-8'>
-                    <button onClick={()=>navigate('feedback')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
+                    <button onClick={()=>navigate('feedbackPage')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
                        
                         <span className='font-medium text-blue-500 group-hover:text-white transition-colors'> 
                           View All Feedback

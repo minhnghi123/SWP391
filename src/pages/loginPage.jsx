@@ -21,10 +21,12 @@ const LoginPage = () => {
         }
     }
     return (
-        <div className='flex flex-row h-screen bg-gradient-to-br from-green-50 to-blue-50'>
+        <>
             {renderAuthComponent()}
-            <ImageRight />
-        </div>
+        </>
+
+
+
     )
 }
 

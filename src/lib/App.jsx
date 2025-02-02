@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from '../pages/homePage';
+import { Route, Routes } from 'react-router-dom';
+import HomePage from '../pages/homePage';
 import LoginPage from '../pages/loginPage';
 import PaymentPage from '../pages/paymentPage';
 import Test from '../components/test';
@@ -10,39 +10,38 @@ import DashboardPage from '../pages/dashboardPage';
 import FeedbackPage from '../pages/feedbackPage';
 import Detail from '../components/variants/DetailInformationVaccine';
 import { VaccineProvider } from '../components/Context/ChildrenSelected';
+import ProtectedRoute from '../components/Services/ProtectedRoute ';  
 
 function App() {
   return (
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/loginPage" element={<LoginPage />} />
-        <Route path="/test" element={<Test />} />
-        <Route path="/aboutPage" element={<AboutPage />} />
-        <Route path="/pageProfile/:section" element={<PageProfile />} />
-        <Route path="/dashboardPage" element={<DashboardPage />} />
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/loginPage" element={<LoginPage />} />
+      <Route path="/aboutPage" element={<AboutPage />} />
+      <Route path="/test" element={<Test />} />
+      <Route path="/dashboardPage/:section" element={<DashboardPage />} />
+      {/* Secret Routes */}
+      <Route element={<ProtectedRoute />}>
         <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
-        <Route path="/feedback" element={<FeedbackPage />} />
 
-        {/* Bọc VaccineProvider chỉ cho 2 trang */}
-        <Route
-          path="/paymentPage"
-          element={
-            <VaccineProvider>
-              <PaymentPage />
-            </VaccineProvider>
-          }
-        />
-        <Route
-          path="/variantsPage"
-          element={
-            <VaccineProvider>
-              <VariantsPage />
-            </VaccineProvider>
-          }
-        />
-      </Routes>
+        <Route path="/pageProfile/:section" element={<PageProfile />} />
+        <Route path="/feedbackPage" element={<FeedbackPage />} />
 
+        {/* VaccineProvider applied only for specific pages */}
+        <Route path="/paymentPage" element={
+          <VaccineProvider>
+            <PaymentPage />
+          </VaccineProvider>
+        } />
+      </Route>
+
+      {/* Non-Protected Route */}
+      <Route path="/variantsPage" element={
+        <VaccineProvider>
+          <VariantsPage />
+        </VaccineProvider>
+      } />
+    </Routes>
   );
 }
 

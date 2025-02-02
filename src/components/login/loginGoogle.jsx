@@ -1,19 +1,22 @@
-import React from 'react';
+import React, { useContext } from 'react';
 // import { GoogleLogin } from '@react-oauth/google';
 // import { jwtDecode } from "jwt-decode";
 import { useGoogleLogin } from '@react-oauth/google';
 import { faGooglePlusG } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { AuthContext } from '../Services/AuthLogin';
 function LoginPage() {
-    const login = useGoogleLogin({
+    const { login } = useContext(AuthContext)
+    const loginGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
-              //API google
+                //API google
                 const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                     headers: {
                         Authorization: `Bearer ${tokenResponse.access_token}`,
                     },
                 }).then((res) => res.json());
+                login()
                 console.log("User Info:", userInfo);
             } catch (error) {
                 console.error("Error fetching user info:", error);
@@ -26,7 +29,7 @@ function LoginPage() {
 
     return (
         <div
-            onClick={() => login()}
+            onClick={() => LoginPage()}
             className="w-12 h-12 bg-white rounded-full flex justify-center items-center 
             cursor-pointer hover:bg-red-50 hover:text-red-500 transition-all duration-300 shadow-md 
             hover:shadow-lg transform border-2 border-gray-100 hover:border-blue-500"

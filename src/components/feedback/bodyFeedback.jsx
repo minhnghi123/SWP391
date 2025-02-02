@@ -1,26 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState} from 'react';
 import FeedbackParent from '../home/FeddbackParent';
 import { addData, fetchData } from '../../Api/axios';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FormFeedback from './formFeedback';
-import { FaStar } from 'react-icons/fa'; // Ensure to import this for the star ratings
+import { FaStar } from 'react-icons/fa'; 
+
 
 const BodyFeedback = () => {
+
     const [feedback, setFeedback] = useState([]);
     const [currentValue, setCurrentValue] = useState(0);
     const [hoverValue, setHoverValue] = useState(undefined);
     const [isSubmit, setSubmit] = useState(false)
     const [inputData, setData] = useState({
-        parentName: "Tri",
+        username: "Tri",
         description: '',
         starRating: 0,
         babyName: ''
     });
+    
 
 
     useEffect(() => {
-       
         if (isSubmit) {
             fetchData('patients')
             .then(res => setFeedback(res.data))
@@ -36,7 +38,7 @@ const BodyFeedback = () => {
             .catch(() => console.log("Failed to fetch data"));
     }, []);
 
-
+    
 
    
 

@@ -20,7 +20,7 @@ function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/aboutPage" element={<AboutPage />} />
         <Route path="/pageProfile/:section" element={<PageProfile />} />
-        <Route path="/dashboardPage" element={<DashboardPage />} />
+        <Route path="/dashboardPage/:section" element={<DashboardPage />} />
         <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
         <Route path="/feedback" element={<FeedbackPage />} />
 

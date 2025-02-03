@@ -9,10 +9,11 @@ const FormFeedback = ({
     handleMouseOver,
     currentValue,
     hoverValue,
-   
 }) => {
+
+    
     return (
-        <form className="w-full max-w-lg mx-auto  p-6 md:p-8 rounded-xl " onSubmit={handleSubmit}>
+        <form className="w-full max-w-lg mx-auto p-6 md:p-8 rounded-xl" onSubmit={handleSubmit}>
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
                 Leave Your Feedback
             </h2>
@@ -20,17 +21,18 @@ const FormFeedback = ({
             {/* Parent Name (Read-Only) */}
             <div className="mb-4">
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                   UserName
+                    UserName
                 </label>
                 <input
                     type="text"
                     id="username"
                     name="username"
-                    value={inputData.username}
+                    value={inputData.username || ""}
                     readOnly
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
                 />
             </div>
+
             {/* Feedback Description */}
             <div className="mb-4">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
@@ -39,7 +41,7 @@ const FormFeedback = ({
                 <textarea
                     id="description"
                     name="description"
-                    value={inputData.description || ""}
+                    value={inputData.description || ''}
                     onChange={handleOnChange}
                     placeholder="Share your experience..."
                     rows="4"
@@ -72,9 +74,9 @@ const FormFeedback = ({
             {/* Submit Button */}
             <button
                 type="submit"
-                disabled={!inputData.description}
+                disabled={!inputData.description || currentValue === 0}
                 className={`w-full py-2 px-4 mt-4 rounded-lg text-white transition-colors duration-300 
-                    ${!inputData.description ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                    ${!inputData.description || currentValue === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
                 Submit Feedback
             </button>

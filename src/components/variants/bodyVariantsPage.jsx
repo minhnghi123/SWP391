@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useContext } from 'react';
 import { VaccineContext } from '../Context/ChildrenSelected';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import formatCurrency from '../../utils/calculateMoney';
@@ -12,7 +12,7 @@ import img10 from '../../assets/p10.jpg';
 import img11 from '../../assets/p11.jpg';
 
 export default function BodyVariantsHomePage() {
-
+    const navigate = useNavigate()
     const vaccines = [
         {
             id: 1,
@@ -230,6 +230,7 @@ export default function BodyVariantsHomePage() {
     return (
         <div className="max-w-[1400px] mx-auto py-4 px-4 z-0 mt-40 ">
             {/* Header and search section */}
+            <button onClick={()=>navigate(-1)}>Back</button>
             <div className="flex flex-row gap-4 items-center justify-between">
                 <h1 className='text-2xl font-semibold text-gray-800'>Thong tin san pham</h1>
                 <div className="relative group">

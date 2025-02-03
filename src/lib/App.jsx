@@ -10,8 +10,8 @@ import DashboardPage from '../pages/dashboardPage';
 import FeedbackPage from '../pages/feedbackPage';
 import Detail from '../components/variants/DetailInformationVaccine';
 import { VaccineProvider } from '../components/Context/ChildrenSelected';
-import ProtectedRoute from '../components/Services/ProtectedRoute ';  
-
+import ProtectedRoute from '../components/Services/ProtectedRoute ';
+import { FeedbackProvider } from '../components/Context/FeedbackContext';
 function App() {
   return (
     <Routes>
@@ -21,10 +21,14 @@ function App() {
       <Route path="/test" element={<Test />} />
       <Route path="/dashboardPage/:section" element={<DashboardPage />} />
       {/* Secret Routes */}
-      <Route element={<ProtectedRoute />}>
+      {/* <Route element={<ProtectedRoute />}> */}
         <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
         <Route path="/pageProfile/:section" element={<PageProfile />} />
-        <Route path="/feedbackPage" element={<FeedbackPage />} />
+        <Route path="/feedbackPage" element={
+          <FeedbackProvider>
+            <FeedbackPage />
+          </FeedbackProvider>
+        } />
 
 
 
@@ -34,7 +38,7 @@ function App() {
             <PaymentPage />
           </VaccineProvider>
         } />
-      </Route>
+      {/* </Route> */}
 
       {/* Non-Protected Route */}
       <Route path="/variantsPage" element={

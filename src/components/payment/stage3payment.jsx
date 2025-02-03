@@ -1,57 +1,29 @@
 
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import ModalRating from './eachComponentStage3/modalRating'
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { addData } from '../../Api/axios'
 import "react-toastify/dist/ReactToastify.css";
+import { FeedbackContext } from "../Context/FeedbackContext";
 export default function Stage3Payment() {
     const navigate = useNavigate()
-    const [isOpenModal, setOpenModal] = useState(false)
-    const [err, setErr] = useState()
-
+    const {isOpenModal,handleOpenFeedback,handleCloseModal} = useContext(FeedbackContext)
     useEffect(() => {
         const id = setTimeout(() => {
-            setOpenModal(true)
+            handleOpenFeedback()
         }, 5000)
         return (() => {
             clearTimeout(id)
         })
     }, [])
-    const handleCloseModal = () => {
-        setOpenModal(false);
-    };
-    const [username, setUsername] = useState(() => {
-        return JSON.parse(localStorage.getItem('Account')) || [];
-    });
-    // Function to handle form submission
-    const handleSubmit = async (data) => {
-        const dataInput = {
-            username: username.user,
-            starRating: data.rating,
-            description: data.feedback
-        }
-        if (!dataInput?.starRating || !dataInput?.description) {
-            toast.error("Please provide rating and feedback");
-            return;
-        }
-        try {
-            await addData("patients", dataInput);
-            toast.success("Post successfully");
-            setOpenModal(false);
-        } catch (err) {
-            setErr("Fail post feedback");
-            toast.error("Failed post");
-        }
-
-
-    };
+   
+   
     return (
         <>
-
             {
-                isOpenModal && <ModalRating onClose={handleCloseModal} onSubmit={handleSubmit} />
+                isOpenModal && <ModalRating onClose={handleCloseModal} />
             }
+            <button onClick={handleOpenFeedback}>Feedback</button>
             <ToastContainer />
             <div className="min-h-screen flex items-center justify-center p-6">
                 <div className="bg-white/20 backdrop-blur-lg shadow-2xl rounded-2xl p-8 max-w-md w-full text-center border border-white/30 relative overflow-hidden">

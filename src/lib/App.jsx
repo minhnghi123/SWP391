@@ -15,29 +15,35 @@ import { FeedbackProvider } from '../components/Context/FeedbackContext';
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={
+        <VaccineProvider>
+          <HomePage />
+        </VaccineProvider>
+
+
+      } />
       <Route path="/loginPage" element={<LoginPage />} />
       <Route path="/aboutPage" element={<AboutPage />} />
       <Route path="/test" element={<Test />} />
       <Route path="/dashboardPage/:section" element={<DashboardPage />} />
       {/* Secret Routes */}
       {/* <Route element={<ProtectedRoute />}> */}
-        <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
-        <Route path="/pageProfile/:section" element={<PageProfile />} />
-        <Route path="/feedbackPage" element={
-          <FeedbackProvider>
-            <FeedbackPage />
-          </FeedbackProvider>
-        } />
+      <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
+      <Route path="/pageProfile/:section" element={<PageProfile />} />
+      <Route path="/feedbackPage" element={
+        <FeedbackProvider>
+          <FeedbackPage />
+        </FeedbackProvider>
+      } />
 
 
 
-        {/* VaccineProvider applied only for specific pages */}
-        <Route path="/paymentPage" element={
-          <VaccineProvider>
-            <PaymentPage />
-          </VaccineProvider>
-        } />
+      {/* VaccineProvider applied only for specific pages */}
+      <Route path="/paymentPage" element={
+        <VaccineProvider>
+          <PaymentPage />
+        </VaccineProvider>
+      } />
       {/* </Route> */}
 
       {/* Non-Protected Route */}

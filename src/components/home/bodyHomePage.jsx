@@ -1,38 +1,49 @@
-import img from '../../assets/p1.webp'
 import img2 from '../../assets/p2.webp'
-import img3 from '../../assets/p3.jpg'
 import img4 from '../../assets/p4.webp'
 import img5 from '../../assets/p5.jpg'
 import img6 from '../../assets/p6.webp'
 import img7 from '../../assets/p7.webp'
 import img8 from '../../assets/p8.webp'
-import img9 from '../../assets/p9.jpg'
-import img10 from '../../assets/p10.jpg'
-import img11 from '../../assets/p11.jpg'
 import img12 from '../../assets/p12.jpg'
-
-
-
-
-
-
-import { useState, useEffect } from 'react';
-
+import { useState, useEffect, useContext } from 'react';
 import pictureBody from '../../../bodyPicture.json'
 import Variants from '../home/Variants'
 import BenefitforParents from '../home/BenefitForParents'
 import News from '../home/News'
-import FeedbackParent from '../home/FeddbackParent'
-import { Link,useNavigate} from 'react-router-dom'
-
-
-
+import FeedbackParent from '../home/FeedbackParent'
+import { Link, useNavigate } from 'react-router-dom'
+import { VaccineContext } from '../Context/ChildrenSelected'
+import { fetchData } from '../../Api/axios'
 
 export default function BodyHomePage() {
     const navigate = useNavigate();
     const pictures = pictureBody;
     const [currentPicIndex, setCurrentPicIndex] = useState(0);
-    const [modal1Open, setModal1Open] = useState(false);
+    const [bestVaccine, setBestVaccine] = useState()
+    const {
+        isBooking,
+        handleBookVaccine,
+
+    } = useContext(VaccineContext)
+
+    
+    useEffect(() => {
+        fetchData('vaccine').
+            then((res) => {
+                if (res?.data) {
+                    const sortedTop3 = [...res.data]
+                        .sort((a, b) => b.price - a.price)
+                        .slice(0, 3);
+                    setBestVaccine(sortedTop3);
+                }
+                else {
+                    alert("No data")
+                }
+
+            })
+            .catch((err) => alert("Error"))
+    }, [])
+
 
     // Automatic picture change
     useEffect(() => {
@@ -195,40 +206,38 @@ export default function BodyHomePage() {
 
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                     {/* Vaccine Card */}
+                    {bestVaccine?.length > 0 ? (
+                        bestVaccine.map((eachvaccine) => {
+                            const priceSale = eachvaccine.discount
+                                ? eachvaccine.price * (1 - eachvaccine.discount / 100)
+                                : eachvaccine.price;
 
-                    <Variants
-                    key={1}
-                        image={img9}
-                        title={"Vaccine A"}
-                        description={"High-quality vaccine with proven effectiveness"}
-                        country={"USA"}
-                        priceSale={1000000} />
+                            return (
+                                <Variants
+                                    key={eachvaccine.id}
+                                    id={eachvaccine.id}
+                                    image={eachvaccine.image || null}
+                                    title={eachvaccine.name}
+                                    description={eachvaccine.description}
+                                    type={eachvaccine.discount ? 'combos' : 'vaccine'}
+                                    priceGoc={eachvaccine.discount ? eachvaccine.price : null}
+                                    priceSale={priceSale}
+                                    isBooking={isBooking}
+                                    onClick={() => handleBookVaccine(eachvaccine)}
+                                />
+                            );
+                        })
+                    ) : (
+                        <p>Loading...</p>
+                    )}
 
-                    {/* Vaccine Card 2 */}
 
-                    <Variants
-                    key={2}
-                        image={img10}
-                        title={"Vaccine B"}
-                        description={"High-quality vaccine with proven effectiveness"}
-                        country={"USA"} 
-                        priceSale={1000000} />
-
-                    {/* Vaccine Card 3 */}
-
-                    <Variants
-                    key={3}
-                        image={img11}
-                        title={"Vaccine C"}
-                        description={"High-quality vaccine with proven effectiveness"}
-                        country={"USA"}
-                        priceSale={1000000} />
 
                 </div>
                 <div className='flex justify-end mt-8'>
-                    <button onClick={()=>navigate('/variantsPage')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
+                    <button onClick={() => navigate('/variantsPage')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
                         {/* <span clas=>sName='font-medium text-blue-500 group-hover:text-white transition-colors'>View All Vaccines</span> */}
-                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'> 
+                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>
                             View All Vaccines
                         </span>
                         <svg
@@ -321,10 +330,10 @@ export default function BodyHomePage() {
                     </p>
                 </div>
                 <div className='flex justify-end mb-8'>
-                    <button onClick={()=>navigate('feedbackPage')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
-                       
-                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'> 
-                          View All Feedback
+                    <button onClick={() => navigate('feedbackPage')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>
+
+                        <span className='font-medium text-blue-500 group-hover:text-white transition-colors'>
+                            View All Feedback
                         </span>
                         <svg
                             className="w-5 h-5 text-blue-500 group-hover:text-white transition-colors transform group-hover:translate-x-1"
@@ -343,7 +352,7 @@ export default function BodyHomePage() {
                 </div>
                 {/* Feedback Cards Container */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  
+
                     {/* Feedback Card 1 */}
                     <FeedbackParent
                         randomNumber={5}

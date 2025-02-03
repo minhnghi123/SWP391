@@ -6,145 +6,22 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import formatCurrency from '../../utils/calculateMoney';
 import ToUpperCaseWords from '../../utils/upperCaseFirstLetter';
 import Variants from '../home/Variants';
-
-import img9 from '../../assets/p9.jpg';
-import img10 from '../../assets/p10.jpg';
-import img11 from '../../assets/p11.jpg';
+import { fetchData } from '../../Api/axios';
 
 export default function BodyVariantsHomePage() {
     const navigate = useNavigate()
-    const vaccines = [
-        {
-            id: 1,
-            name: 'Vaccine A',
-            price: 2000000,
-            image: img9,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 2,
-            name: 'Vaccine B',
-            price: 1000000,
-            image: img9,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 3,
-            name: 'Vaccine C',
-            price: 1000000,
-            image: img11,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 4,
-            name: 'Vaccine D',
-            price: 1000000,
-            image: img10,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 5,
-            name: 'Vaccine D',
-            price: 1000000,
-            image: img11,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        }, {
-            id: 6,
-            name: 'Vaccine D',
-            price: 1000000,
-            image: img11,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 7,
-            name: 'Vaccine A',
-            price: 2000000,
-            image: img9,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 8,
-            name: 'Vaccine B',
-            price: 1000000,
-            image: img9,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 9,
-            name: 'Vaccine C',
-            price: 1000000,
-            image: img11,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 10,
-            name: 'Vaccine D',
-            price: 1000000,
-            image: img10,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        },
-        {
-            id: 11,
-            name: 'Vaccine D',
-            price: 1000000,
-            image: img11,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        }, {
-            id: 12,
-            name: 'Vaccine D',
-            price: 1000000,
-            image: img11,
-            description: 'High-quality vaccine with proven effectiveness and long-lasting immunity',
-            origin: 'USA'
-        }
-    ];
+    const [vaccines, setVaccine] = useState([]); 
+    const [combos, setCombos] = useState([]); 
 
-    const combos = [
-        {
-            id: 20,
-            name: 'Combo A + B',
-            vaccines: ['Vaccine A', 'Vaccine B'],
-            price: 2800000,
-            discount: 10, // Giảm giá 10%
-            description: 'Combo Vaccine A và B giúp bạn tối ưu hóa khả năng miễn dịch với mức giá ưu đãi.'
-        },
-        {
-            id: 22,
-            name: 'Combo C + D',
-            vaccines: ['Vaccine C', 'Vaccine D'],
-            price: 1800000,
-            discount: 15, // Giảm giá 15%
-            description: 'Combo Vaccine C và D đảm bảo bảo vệ toàn diện với mức giá phải chăng.'
-        },
-        {
-            id: 32,
-            name: 'Combo A + C + D',
-            vaccines: ['Vaccine A', 'Vaccine C', 'Vaccine D'],
-            price: 3700000,
-            discount: 20, // Giảm giá 20%
-            description: 'Combo Vaccine A, C và D cung cấp giải pháp miễn dịch toàn diện với chi phí tối ưu.'
-        },
-        {
-            id: 42,
-            name: 'Combo B + D',
-            vaccines: ['Vaccine B', 'Vaccine D'],
-            price: 2500000,
-            discount: 5, // Giảm giá 5%
-            description: 'Combo Vaccine B và D phù hợp cho các nhu cầu miễn dịch cơ bản với giá thành hợp lý.'
-        }
-    ];
+    useEffect(() => {
+        fetchData('vaccine')
+            .then((res) => setVaccine(res.data))
+            .catch((err) => console.error("Error fetching vaccines:", err));
 
+        fetchData('combos')
+            .then((res) => setCombos(res.data))
+            .catch((err) => console.error("Error fetching combos:", err));
+    }, []); 
 
 
     const ref = useRef(null);
@@ -169,7 +46,7 @@ export default function BodyVariantsHomePage() {
     useEffect(() => {
         window.scrollTo(0, 0);
         setSortVaccines([...vaccines, ...combos]);
-    }, []);
+    }, [vaccines,combos]);
 
     const handleInput = (e) => {
         setInputData(e.target.value);
@@ -191,7 +68,7 @@ export default function BodyVariantsHomePage() {
             default:
                 sorted = [...vaccines, ...combos];
         }
-        
+
         setIsOpen(true)
         setSortVaccines(sorted);
     };
@@ -215,22 +92,22 @@ export default function BodyVariantsHomePage() {
             const combinedResults = [...sortByNameVaccine, ...sortByNameCombo];
 
             if (combinedResults.length > 0) {
-                setSortVaccines(combinedResults); 
-                setIsOpen(true); 
+                setSortVaccines(combinedResults);
+                setIsOpen(true);
             } else {
                 setIsOpen(false);
             }
         } else {
 
             setSortVaccines([...vaccines, ...combos]);
-            setIsOpen(true); 
+            setIsOpen(true);
         }
     };
 
     return (
         <div className="max-w-[1400px] mx-auto py-4 px-4 z-0 mt-40 ">
             {/* Header and search section */}
-            <button onClick={()=>navigate(-1)}>Back</button>
+            <button onClick={() => navigate(-1)} className='bg-blue-400 p-3 rounded-lg text-white'>Back</button>
             <div className="flex flex-row gap-4 items-center justify-between">
                 <h1 className='text-2xl font-semibold text-gray-800'>Thong tin san pham</h1>
                 <div className="relative group">

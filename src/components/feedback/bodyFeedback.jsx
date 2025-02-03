@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import FeedbackParent from '../home/FeddbackParent';
+import FeedbackParent from '../home/FeedbackParent';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FormFeedback from './formFeedback';

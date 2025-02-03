@@ -2,12 +2,12 @@ import formatCurrency from '../../utils/calculateMoney';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
-const Variants = ({ id, image, title, description, country, priceSale, onClick, type, priceGoc, isBooking }) => {
+const Variants = ({id, image, title, description, country, priceSale, onClick, type, priceGoc, isBooking }) => {
     const navigate = useNavigate();
     const isBooked = isBooking && isBooking.includes(id);
 
     return (
-        <div key={id} className='bg-white rounded-3xl p-6 hover:shadow-xl hover:scale-105  transition-all duration-300 border border-gray-100'>
+        <div  className='bg-white rounded-3xl p-6 hover:shadow-xl hover:scale-105  transition-all duration-300 border border-gray-100'>
             <div className='space-y-4'>
                 {/* Vaccine Image Placeholder */}
 

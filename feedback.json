@@ -41,32 +41,6 @@
       "image": "https://img.thuthuattinhoc.vn/uploads/2019/01/13/hinh-nen-phong-canh-tim-mong-mo_105623354.jpg",
       "description": "Great experience! The clinic is clean, and the doctors are very friendly.",
       "username": "Emily Carter"
-    },
-    {
-      "id": 7,
-      "username": "Tri",
-      "description": "ádasd",
-      "starRating": 3,
-      "babyName": ""
-    },
-    {
-      "id": 8,
-      "username": "Tri",
-      "starRating": 4,
-      "description": "asdasd"
-    },
-    {
-      "id": 9,
-      "username": "mor_2314",
-      "starRating": 3,
-      "description": "asdasd"
-    },
-    {
-      "id": 10,
-      "username": "mor_2314",
-      "description": "asdasd",
-      "starRating": 2,
-      "babyName": ""
     }
   ]
 }

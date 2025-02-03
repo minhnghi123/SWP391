@@ -4,7 +4,6 @@ import FooterHomePage from '../components/home/footerHomPage';
 const FeedbackPage = () => {
     return (
         <>
-
             <BodyFeedback />
             <FooterHomePage />
         </>

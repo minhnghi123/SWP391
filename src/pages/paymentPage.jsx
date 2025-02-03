@@ -6,6 +6,7 @@ import FooterHomePage from '../components/home/footerHomPage';
 import Stage2Payment from '../components/payment/stage2payment';
 import Stage3Payment from '../components/payment/stage3payment';
 import { NumberOfPeopleProvider } from '../components/Context/NumberOfPeopleVacines'
+import { FeedbackProvider } from '../components/Context/FeedbackContext';
 export default function PaymentPage() {
   const [isopennextstep, setIsopenNextStep] = useState(1);
 
@@ -27,9 +28,9 @@ export default function PaymentPage() {
     <>
       {
         isopennextstep === 3 ? (
-         
-            renderBodyPayment()
-        
+          <FeedbackProvider>
+            {renderBodyPayment()}
+          </FeedbackProvider>
         ) : (
           <>
             <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />

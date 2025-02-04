@@ -2,8 +2,7 @@ import { useParams } from 'react-router-dom';
 import LeftSide from '../components/Tracking&History/Lefside'
 import RightSide from '../components/Tracking&History/RightSide'
 const PageProfile = () => {
-  const { section } = useParams();
-  const id = 5
+  const { section,id} = useParams();
   return (
     <div className="flex min-h-screen bg-white">
       

@@ -9,7 +9,7 @@ import Tracking from './Section/tracking'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 
 const RightSide = ({ section, id }) => {
-    
+   
     const searchRef = useRef(null)
     const [search, setSearch] = useState('')
     const handleSearch = (e) => {

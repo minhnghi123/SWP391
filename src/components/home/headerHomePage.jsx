@@ -134,7 +134,7 @@ export default function Header() {
                 </nav>
                 {
                     userLogin  ?
-                        <AvatarHomePage signout={handleLogout} username={userLogin.user} /> :
+                        <AvatarHomePage signout={handleLogout} user={userLogin} /> :
                         <button onClick={() => navigate('/loginPage')}>Login</button>
                 }
 

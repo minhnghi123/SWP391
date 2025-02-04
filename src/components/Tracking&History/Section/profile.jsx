@@ -4,7 +4,6 @@ import { fetchData, updateData } from '../../../Api/axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const Profile = ({ id }) => {
-    // const { id } = useParams();
     const navigate = useNavigate()
     const [profileData, setProfileData] = useState({});
     const [edit, setEdit] = useState(false);

@@ -29,7 +29,7 @@ function App() {
       {/* Secret Routes */}
       {/* <Route element={<ProtectedRoute />}> */}
       <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
-      <Route path="/pageProfile/:section" element={<PageProfile />} />
+      <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
       <Route path="/feedbackPage" element={
         <FeedbackProvider>
           <FeedbackPage />

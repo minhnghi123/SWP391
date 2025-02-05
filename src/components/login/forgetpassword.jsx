@@ -53,7 +53,7 @@ export default function ForgotPassword({ setRegister }) {
     }
 
     return (
-        <div className="flex-[0.5] flex flex-col justify-center items-center p-8 mt-8">
+        <div className="h-screen flex-[0.5] flex flex-col justify-center items-center p-8 mt-8">
             <div className="flex flex-col text-center mb-12">
                 <div className="font-bold text-5xl mb-4 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
                     Reset Password

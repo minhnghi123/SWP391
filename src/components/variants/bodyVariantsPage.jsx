@@ -7,28 +7,40 @@ import formatCurrency from '../../utils/calculateMoney';
 import ToUpperCaseWords from '../../utils/upperCaseFirstLetter';
 import Variants from '../home/Variants';
 import { fetchData } from '../../Api/axios';
-
+import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import '../css/loading.css'
 export default function BodyVariantsHomePage() {
-    const navigate = useNavigate()
-    const [vaccines, setVaccine] = useState([]); 
-    const [combos, setCombos] = useState([]); 
-
-    useEffect(() => {
-        fetchData('vaccine')
-            .then((res) => setVaccine(res.data))
-            .catch((err) => console.error("Error fetching vaccines:", err));
-
-        fetchData('combos')
-            .then((res) => setCombos(res.data))
-            .catch((err) => console.error("Error fetching combos:", err));
-    }, []); 
-
-
+    const navigate = useNavigate();
+    const [vaccines, setVaccine] = useState([]);
+    const [combos, setCombos] = useState([]);
+    const [isOpen, setIsOpen] = useState(false)
     const ref = useRef(null);
     const [inputData, setInputData] = useState('');
     const [sortVaccines, setSortVaccines] = useState([]);
     const [sortType, setSortType] = useState('');
-    const [isOpen, setIsOpen] = useState(true)
+    useEffect(() => {
+        const fetchDataAsync = async () => {
+            try {
+                const [vaccineRes, comboRes] = await Promise.all([
+                    fetchData('vaccine'),
+                    fetchData('combos')
+                ]);
+                setVaccine(vaccineRes.data);
+                setCombos(comboRes.data);
+                setIsOpen(true);
+            } catch (error) {
+                console.error("Error API:", error);
+                setIsOpen(false);
+            }
+        };
+
+        fetchDataAsync();
+    }, []);
+
+
+
+
+
 
 
     const {
@@ -45,8 +57,11 @@ export default function BodyVariantsHomePage() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        setSortVaccines([...vaccines, ...combos]);
-    }, [vaccines,combos]);
+        if (vaccines.length > 0 || combos.length > 0) {
+            setSortVaccines([...vaccines, ...combos]);
+        }
+
+    }, [vaccines, combos]);
 
     const handleInput = (e) => {
         setInputData(e.target.value);
@@ -69,8 +84,11 @@ export default function BodyVariantsHomePage() {
                 sorted = [...vaccines, ...combos];
         }
 
-        setIsOpen(true)
-        setSortVaccines(sorted);
+        if ((vaccines.length > 0 || combos.length > 0)) {
+            setIsOpen(true)
+            setSortVaccines(sorted);
+        }
+
     };
 
     const handleSubmit = (e) => {
@@ -104,12 +122,19 @@ export default function BodyVariantsHomePage() {
         }
     };
 
+
     return (
         <div className="max-w-[1400px] mx-auto py-4 px-4 z-0 mt-40 ">
             {/* Header and search section */}
-            <button onClick={() => navigate(-1)} className='bg-blue-400 p-3 rounded-lg text-white'>Back</button>
+            <button
+                onClick={() => navigate(-1)}
+                className="flex items-center text-blue-600 hover:text-blue-700 transition-colors group"
+            >
+                <ArrowBackIosNewOutlinedIcon className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+                <span className="font-medium">Home</span>
+            </button>
             <div className="flex flex-row gap-4 items-center justify-between">
-                <h1 className='text-2xl font-semibold text-gray-800'>Thong tin san pham</h1>
+                <h1 className='text-2xl font-semibold text-gray-800'>List Vaccines</h1>
                 <div className="relative group">
                     <input
                         ref={ref}
@@ -144,15 +169,16 @@ export default function BodyVariantsHomePage() {
                             onChange={(e) => sortSelect(e.target.value)}
                         >
                             <option value="All">All</option>
-                            <option value="Le">Le</option>
+                            <option value="Le">Single</option>
                             <option value="Combo">Combo</option>
                         </select>
                     </div>
 
                     {/* Vaccine Grid */}
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                        {isOpen ? (
-                            sortVaccines && sortVaccines.map((eachvaccine) => (
+
+                    {isOpen ? (
+                        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                            {sortVaccines && sortVaccines.map((eachvaccine) => (
                                 <Variants
                                     key={eachvaccine.id}
                                     id={eachvaccine.id}
@@ -169,11 +195,12 @@ export default function BodyVariantsHomePage() {
                                     isBooking={isBooking}
                                     onClick={() => handleBookVaccine(eachvaccine)}
                                 />
-                            ))
-                        ) : (
-                            <h1 className='text-red-800'>Dell coco</h1>
-                        )}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="loader absolute right-[50%] left-[45%]"></div>
+                    )}
+
                 </div>
 
                 {/* Payment Summary Sidebar */}

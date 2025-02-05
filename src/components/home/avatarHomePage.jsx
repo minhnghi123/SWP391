@@ -1,12 +1,12 @@
 import imgAvatar from '../../assets/p15.jpg'
-import React, { useState, useEffect, useRef} from 'react'
-import { Link ,useNavigate} from 'react-router-dom';
-export default function AvatarHomePage({signout,user}) {
+import React, { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
+export default function AvatarHomePage({ signout, user }) {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
-    
-   
+
+
     // Click outside handler
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -19,7 +19,7 @@ export default function AvatarHomePage({signout,user}) {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
+    console.log()
     return (
         <div className="relative" ref={dropdownRef}>
             {/* Avatar Button */}
@@ -34,7 +34,7 @@ export default function AvatarHomePage({signout,user}) {
                 <div className="w-full h-full rounded-full overflow-hidden">
                     <img
                         className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
-                        src={imgAvatar}
+                        src={user.picture||imgAvatar}
                         alt="User avatar"
                     />
                 </div>
@@ -49,13 +49,13 @@ export default function AvatarHomePage({signout,user}) {
                             <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-blue-500">
                                 <img
                                     className="w-full h-full object-cover"
-                                    src={imgAvatar}
+                                    src={user.picture||imgAvatar}
                                     alt="User profile"
                                 />
                             </div>
                             <div>
-                                <h4 className="text-sm font-semibold text-gray-800">{user.user}</h4>
-                                <p className="text-xs text-gray-500">chris.johnson@example.com</p>
+                                <h4 className="text-sm font-semibold text-gray-800">{user.name || user.user}</h4>
+                                <p className="text-xs text-gray-500">{user.email || 'chris.johnson@example.com'}</p>
                             </div>
                         </div>
                     </div>
@@ -85,16 +85,16 @@ export default function AvatarHomePage({signout,user}) {
                         </button>
 
                         <div className="my-2 border-t border-gray-100"></div>
-                       
-                            <button onClick={signout}
-                                className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                <span>Sign Out</span>
-                            </button>
-                      
+
+                        <button onClick={signout}
+                            className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span>Sign Out</span>
+                        </button>
+
 
                     </div>
                 </div>

@@ -5,6 +5,7 @@ import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { useState, useEffect,useContext} from 'react';
 import { AuthContext } from '../Services/AuthLogin';
+import { use } from "react";
 export default function Header() {
     const navigate = useNavigate()
     const {logout}=useContext(AuthContext)
@@ -38,6 +39,7 @@ export default function Header() {
     const [userLogin, setUserLogin] = useState(() => {
         return JSON.parse(localStorage.getItem('Account')) || '';
     });
+    console.log(userLogin)
     const handleLogout = () => {
         localStorage.removeItem("Account");
         setUserLogin('');

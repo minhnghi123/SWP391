@@ -21,6 +21,7 @@ export default function BodyVariantsHomePage() {
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
+                // all API 
                 const [vaccineRes, comboRes] = await Promise.all([
                     fetchData('vaccine'),
                     fetchData('combos')
@@ -36,13 +37,6 @@ export default function BodyVariantsHomePage() {
 
         fetchDataAsync();
     }, []);
-
-
-
-
-
-
-
     const {
         selectedVaccines,
         isBooking,

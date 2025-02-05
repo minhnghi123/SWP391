@@ -21,7 +21,6 @@ export default function ImageRight() {
         };
     }, [pictures.length]);
 
- 
     return (
 
         <div className="flex-[0.5] flex justify-center items-center p-8 relative">

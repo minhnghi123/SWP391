@@ -13,26 +13,35 @@ function LoginPage() {
     const loginGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
-                //API google
                 const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                     headers: {
                         Authorization: `Bearer ${tokenResponse.access_token}`,
                     },
-                }).then((res) => res.json());
-                // login()
-                localStorage.setItem("Account", JSON.stringify(userInfo))
+                }).then(res => res.json()); 
+                const userData = {
+                    token: tokenResponse.access_token,
+                    id: userInfo.sub, 
+                    name: userInfo.name,
+                    email: userInfo.email,
+                    picture: userInfo.picture
+                };
+                // Lưu vào localStorage
+                localStorage.setItem("Account", JSON.stringify(userData));
                 toast.success("Login successfully by Google");
+
                 setTimeout(() => {
-                    navigate('/')
-                }, 1000)
+                    navigate('/');
+                }, 1000);
             } catch (error) {
-                toast.error("Error fetching user info:", error);
+                console.error("Error fetching user info:", error);
+                toast.error("Error fetching user info");
             }
         },
         onError: () => {
             toast.error("Login Failed");
         },
     });
+
 
     return (
         <div

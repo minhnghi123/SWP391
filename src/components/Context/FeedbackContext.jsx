@@ -14,20 +14,20 @@ export const FeedbackProvider = ({ children }) => {
     const [currentValue, setCurrentValue] = useState(0);
     const [hoverValue, setHoverValue] = useState(undefined);
     const [isSubmit, setSubmit] = useState(false)
-    const [hasNewFeedback,setHasNewFeedback] = useState(false)
+    const [hasNewFeedback, setHasNewFeedback] = useState(false)
     const [inputData, setData] = useState({
-        username: username.user|| "",
+        username: username.name || username.user || 'Unknown',
         description: '',
         starRating: 0
     });
-    const handleOpenFeedback = ()=>{
+    const handleOpenFeedback = () => {
         setOpenModal(true)
     }
     const handleCloseModal = () => {
         setOpenModal(false);
     };
-   
-    
+
+
     //
     useEffect(() => {
         fetchData('patients')
@@ -50,7 +50,7 @@ export const FeedbackProvider = ({ children }) => {
 
     const handleMouseOver = (value) => setHoverValue(value);
     const handleMouseLeave = () => setHoverValue(undefined);
-   
+
 
     const handleOnChange = (e) => {
         const { name, value } = e.target;
@@ -71,7 +71,7 @@ export const FeedbackProvider = ({ children }) => {
             });
             setCurrentValue(0);
             setSubmit(true);
-            setHasNewFeedback(true); 
+            setHasNewFeedback(true);
             setOpenModal(false)
         } catch (err) {
             toast.error('Failed to submit feedback.');
@@ -95,7 +95,7 @@ export const FeedbackProvider = ({ children }) => {
         setHasNewFeedback,
 
 
-      
+
         handleSubmit,
         handleOnChange,
         handleClick,

@@ -54,7 +54,7 @@ export default function AvatarHomePage({ signout, user }) {
                                 />
                             </div>
                             <div>
-                                <h4 className="text-sm font-semibold text-gray-800">{user.user || user.name}</h4>
+                                <h4 className="text-sm font-semibold text-gray-800">{user.name || user.user}</h4>
                                 <p className="text-xs text-gray-500">{user.email || 'chris.johnson@example.com'}</p>
                             </div>
                         </div>

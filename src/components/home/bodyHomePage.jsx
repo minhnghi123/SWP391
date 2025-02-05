@@ -14,7 +14,7 @@ import FeedbackParent from '../home/FeedbackParent'
 import { Link, useNavigate } from 'react-router-dom'
 import { VaccineContext } from '../Context/ChildrenSelected'
 import { fetchData } from '../../Api/axios'
-
+import '../css/loading.css'
 export default function BodyHomePage() {
     const navigate = useNavigate();
     const pictures = pictureBody;
@@ -26,7 +26,7 @@ export default function BodyHomePage() {
 
     } = useContext(VaccineContext)
 
-    
+
     useEffect(() => {
         fetchData('vaccine').
             then((res) => {
@@ -36,12 +36,8 @@ export default function BodyHomePage() {
                         .slice(0, 3);
                     setBestVaccine(sortedTop3);
                 }
-                else {
-                    alert("No data")
-                }
-
             })
-            .catch((err) => alert("Error"))
+            .catch((err) => console.log("Error"))
     }, [])
 
 
@@ -55,9 +51,7 @@ export default function BodyHomePage() {
 
         return () => clearInterval(interval);
     }, [pictures.length]);
-    const randomNumber = () => {
-        return Math.floor(Math.random() * 2);
-    };
+
 
     return (
         <div className="max-w-7xl mx-auto mt-4 px-4 py-2 z-0  " id='home'>
@@ -204,7 +198,7 @@ export default function BodyHomePage() {
 
 
 
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative'>
                     {/* Vaccine Card */}
                     {bestVaccine?.length > 0 ? (
                         bestVaccine.map((eachvaccine) => {
@@ -228,11 +222,9 @@ export default function BodyHomePage() {
                             );
                         })
                     ) : (
-                        <p>Loading...</p>
+                        <div className="loader absolute right-[50%] left-[45%]"></div>
+
                     )}
-
-
-
                 </div>
                 <div className='flex justify-end mt-8'>
                     <button onClick={() => navigate('/variantsPage')} className='group px-6 py-2.5 bg-white border-2 border-blue-500 rounded-full hover:bg-blue-500  flex items-center gap-2 '>

@@ -109,10 +109,10 @@ const RightSide = ({ section, id }) => {
             section === 'profile' && <Profile  id={id}/>
           }
           {
-            section === 'history' && <History />
+            section === 'history' && <History  id={id}/>
           }
         {
-            section === 'tracking' && <Tracking />
+            section === 'tracking' && <Tracking  id={id}/>
         }
 
         </div>

@@ -3,7 +3,16 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { useNavigate } from 'react-router-dom';
-const LeftSide = () => {
+import { useContext } from 'react';
+import { AuthContext } from '../Services/AuthLogin';
+const LeftSide = ({section,id}) => {
+  const navigate = useNavigate();
+    const {logout}= useContext(AuthContext)
+    const handleLogout=()=>{
+      logout()
+      localStorage.removeItem('Account')
+      navigate('/loginPage')
+    }
   const EachMenu = ({ label, icon, onClick }) => {
     return (
       <div
@@ -16,7 +25,7 @@ const LeftSide = () => {
     );
   };
   
-  const navigate = useNavigate();
+ 
   return (
     <div className="fixed w-64 h-screen bg-white border-r border-gray-200 shadow-sm">
       {/* Logo Section */}
@@ -37,10 +46,10 @@ const LeftSide = () => {
 
         <nav className="space-y-1">
 
-          <EachMenu onClick={() => navigate('/pageProfile/profile')}   label="Your Profile" icon={<Person2OutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/pageProfile/tracking')} label="Tracking Schedule" icon={<CalendarMonthOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/pageProfile/history')} label="History" icon={<RestoreOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/loginPage')} label="Logout" icon={<LoginOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
+          <EachMenu onClick={() => navigate(`/pageProfile/profile/${id}`)}   label="Your Profile" icon={<Person2OutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
+          <EachMenu onClick={() => navigate(`/pageProfile/tracking/${id}`)} label="Tracking Schedule" icon={<CalendarMonthOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
+          <EachMenu onClick={() => navigate(`/pageProfile/history/${id}`)} label="History" icon={<RestoreOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
+          <EachMenu onClick={handleLogout} label="Logout" icon={<LoginOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
 
         </nav>
       </div>

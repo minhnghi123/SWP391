@@ -18,7 +18,8 @@ export const FeedbackProvider = ({ children }) => {
     const [inputData, setData] = useState({
         username: username.name || username.user || 'Unknown',
         description: '',
-        starRating: 0
+        image: username.picture,
+        starRating: 0,
     });
     const handleOpenFeedback = () => {
         setOpenModal(true)
@@ -64,11 +65,13 @@ export const FeedbackProvider = ({ children }) => {
             await addData('patients', inputData);
             toast.success('Successfully posted!');
             setData({
-                parentName: username.user,
+                username: username.name || username.user || 'Unknown',
                 description: '',
+                image: username.picture,
                 starRating: 0,
 
             });
+            console.log()
             setCurrentValue(0);
             setSubmit(true);
             setHasNewFeedback(true);

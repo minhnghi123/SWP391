@@ -11,7 +11,7 @@ export default function Stage3Payment() {
     useEffect(() => {
         const id = setTimeout(() => {
             handleOpenFeedback()
-        }, 5000)
+        }, 3000)
         return (() => {
             clearTimeout(id)
         })

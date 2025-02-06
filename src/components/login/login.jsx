@@ -66,7 +66,7 @@ export default function Login({ setRegister }) {
             const decoded = jwtDecode(token);
             localStorage.setItem("Account", JSON.stringify(decoded));
             toast.success("Login successfully");
-            login()
+            // login()
             setTimeout(() => {
                 navigate('/')
             }, 1000)

@@ -35,9 +35,6 @@ function App() {
           <FeedbackPage />
         </FeedbackProvider>
       } />
-
-
-
       {/* VaccineProvider applied only for specific pages */}
       <Route path="/paymentPage" element={
         <VaccineProvider>

@@ -7,7 +7,7 @@ const PageProfile = () => {
     <div className="flex min-h-screen bg-white">
       
       <div className="w-64">
-        <LeftSide />
+        <LeftSide section={section} id={id} />
       </div>
 
       <div className="flex-1">

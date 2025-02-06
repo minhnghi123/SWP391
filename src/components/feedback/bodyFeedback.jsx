@@ -23,6 +23,7 @@ const BodyFeedback = () => {
         handleMouseOver } =
         useContext(FeedbackContext)
 
+
     const [sorted, setSorted] = useState(feedback);
     useEffect(() => {
         setSorted(feedback.sort((a, b) => (b.id - a.id)));
@@ -39,7 +40,7 @@ const BodyFeedback = () => {
       
         setSorted(newSorted);
     }
-
+    console.log(sorted)
     return (
         <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-100 rounded-xl shadow-lg">
             {/* Feedback Form */}

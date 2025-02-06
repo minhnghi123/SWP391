@@ -43,7 +43,7 @@ export default function Header() {
     const handleLogout = () => {
         localStorage.removeItem("Account");
         setUserLogin('');
-        logout()
+        // logout()
         navigate('/loginPage');
     }
 

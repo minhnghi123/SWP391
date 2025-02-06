@@ -2,8 +2,8 @@ import { useParams } from "react-router-dom";
 
 import Dashboard from "../dashboard/Section/dashboard"; 
 import Appointments from "../dashboard/Section/appointments";
+import DoctorSchedule from "../dashboard/Section/doctorSchedule";
 import Patients from "../dashboard/Section/patients"; 
-import doctorSchedule from "../dashboard/Section/doctorSchedule";
 import { useRef, useState } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
@@ -35,7 +35,7 @@ const RightSide = () => {
       case "patients":
         return <Patients />;
       case "doctorSchedule":
-        return <doctorSchedule />;
+        return <DoctorSchedule />;
       default:
         return <Dashboard />; // Mặc định hiển thị Dashboard nếu không có section
     }

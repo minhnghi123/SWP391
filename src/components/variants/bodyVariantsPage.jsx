@@ -57,6 +57,38 @@ export default function BodyVariantsHomePage() {
 
     }, [vaccines, combos]);
 
+    useEffect(() => {
+        const handleSubmit = (e) => {
+           
+            ref.current.focus();
+            const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
+            
+    
+            if (searchValue) {
+                const sortByNameVaccine = vaccines
+                    .filter((vaccine) => vaccine.name.includes(searchValue))
+                    .sort((a, b) => a.price - b.price);
+                const sortByNameCombo = combos
+                    .filter((combo) => combo.name.includes(searchValue))
+                    .sort((a, b) => a.price - b.price);
+    
+                const combinedResults = [...sortByNameVaccine, ...sortByNameCombo];
+    
+                if (combinedResults.length > 0) {
+                    setSortVaccines(combinedResults);
+                    setIsOpen(true);
+                } else {
+                    setIsOpen(false);
+                }
+            } else {
+    
+                setSortVaccines([...vaccines, ...combos]);
+                setIsOpen(true);
+            }
+        };
+    
+        handleSubmit();
+    }, [inputData]);
     const handleInput = (e) => {
         setInputData(e.target.value);
     };

@@ -1,117 +1,96 @@
-import React, { useState, useEffect } from "react";
-import { FiSun, FiMoon, FiBell, FiUser, FiTrendingUp, FiBox, FiActivity, FiBarChart2 } from "react-icons/fi";
-import { format } from "date-fns";
+import React from "react";
+import { Line, Bar, Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, LineElement, BarElement, PointElement, CategoryScale, LinearScale, ArcElement, Tooltip, Legend } from "chart.js";
+import { FiUser, FiCalendar, FiCheckCircle, FiAlertCircle, FiBarChart2 } from "react-icons/fi";
 
-const dashboard = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
+ChartJS.register(LineElement, BarElement, PointElement, CategoryScale, LinearScale, ArcElement, Tooltip, Legend);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+const DashboardOverview = () => {
+  const totalIncome = 2500000;
+  const newPatients = 35;
+  const pendingAppointments = 12;
+  const remainingStock = 95;
+  const vaccinationsCompleted = 120;
+  const staffOnDuty = 15;
+  const activeDoctors = 8;
+  const dailyVaccinations = 50;
+  const weeklyNewPatients = 200;
+  const doctorToStaffRatio = (activeDoctors / staffOnDuty).toFixed(2);
+  const canceledAppointments = 5;
 
-  const summaryCards = [
-    {
-      title: "Total Items",
-      value: "1,234",
-      icon: <FiBox className="w-6 h-6" />,
-      trend: "+12%",
-      backgroundColor: "bg-blue-100 dark:bg-blue-900"
-    },
-    {
-      title: "Recent Activities",
-      value: "856",
-      icon: <FiActivity className="w-6 h-6" />,
-      trend: "+5%",
-      backgroundColor: "bg-green-100 dark:bg-green-900"
-    },
-    {
-      title: "Performance",
-      value: "92%",
-      icon: <FiTrendingUp className="w-6 h-6" />,
-      trend: "+3%",
-      backgroundColor: "bg-purple-100 dark:bg-purple-900"
-    },
-    {
-      title: "Statistics",
-      value: "45.2k",
-      icon: <FiBarChart2 className="w-6 h-6" />,
-      trend: "+8%",
-      backgroundColor: "bg-orange-100 dark:bg-orange-900"
-    }
-  ];
-
-  const recentUpdates = [
-    { id: 1, text: "New product added to inventory", time: "2 hours ago" },
-    { id: 2, text: "Customer feedback received", time: "4 hours ago" },
-    { id: 3, text: "System maintenance completed", time: "6 hours ago" }
-  ];
+  const lineData = {
+    labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    datasets: [
+      {
+        label: "Revenue",
+        data: [1200, 1900, 800, 1700, 2200, 2800, 3100],
+        borderColor: "#4CAF50",
+        backgroundColor: "rgba(76, 175, 80, 0.2)",
+        borderWidth: 2,
+        tension: 0.4,
+      },
+    ],
+  };
 
   return (
-    <div className={`min-h-screen p-4 transition-colors duration-200 ${isDarkMode ? "dark bg-gray-900" : "bg-gray-50"}`}>
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <header className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-black">
-              Welcome back, John!
-            </h1>
-            <p className="text-black">
-              {format(currentTime, "EEEE, MMMM do yyyy | h:mm a")}
-            </p>
-          </div>
-          
-        </header>
-
-        {/* Summary Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {summaryCards.map((card, index) => (
-            <div
-              key={index}
-              className={`${card.backgroundColor} p-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-200`}
-            >
-              <div className="flex justify-between items-start">
+    <div className="p-8 bg-gray-100 min-h-screen flex flex-col items-center">
+      <div className="w-full max-w-7xl bg-white p-8 rounded-3xl shadow-xl">
+        <h2 className="text-4xl font-bold mb-6 text-gray-800 text-center">Vaccine Center Dashboard</h2>
+        
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          {[{title: "Total Income", value: `$${totalIncome.toLocaleString()}`, icon: <FiBarChart2 className='text-green-500' />},
+            {title: "New Patients", value: newPatients, icon: <FiUser className='text-blue-500' />},
+            {title: "Appointments", value: pendingAppointments, icon: <FiCalendar className='text-orange-500' />},
+            {title: "Vaccinations Done", value: vaccinationsCompleted, icon: <FiCheckCircle className='text-purple-500' />}].map((item, index) => (
+              <div key={index} className="bg-gray-50 p-6 rounded-xl shadow-md flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 dark:text-gray-300 font-medium">{card.title}</p>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mt-2">{card.value}</h3>
-                  <span className="text-green-600 dark:text-green-400 text-sm font-medium">{card.trend}</span>
+                  <h3 className="text-lg font-semibold text-gray-700">{item.title}</h3>
+                  <p className="text-2xl font-bold text-gray-900 mt-2">{item.value}</p>
                 </div>
-                <div className="text-gray-600 dark:text-gray-300">{card.icon}</div>
+                <div className="text-3xl">{item.icon}</div>
               </div>
-            </div>
           ))}
         </div>
 
-        {/* Recent Updates Panel */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Recent Updates</h2>
-          <div className="space-y-4">
-            {recentUpdates.map((update) => (
-              <div key={update.id} className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-4">
-                <p className="text-gray-600 dark:text-gray-300">{update.text}</p>
-                <span className="text-sm text-gray-500 dark:text-gray-400">{update.time}</span>
-              </div>
-            ))}
+        {/* Charts and Reports */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-4 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Revenue Trend</h3>
+            <Line data={lineData} />
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Appointments</h3>
+            <Doughnut data={{labels: ["Completed", "Pending", "Cancelled"], datasets: [{data: [65, 25, 10], backgroundColor: ["#4CAF50", "#FF9800", "#F44336"]}]}} />
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Daily Vaccinations</h3>
+            <Bar data={{labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], datasets: [{label: "Vaccinations", data: [50, 60, 80, 75, 90, 100, 110], backgroundColor: "#2196F3"}]}} />
           </div>
         </div>
-
-        {/* Quick Action Buttons */}
-        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {["Add Item", "Generate Report", "View Analytics", "Settings"].map((action, index) => (
-            <button
-              key={index}
-              className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow text-gray-700 dark:text-gray-300 font-medium"
-            >
-              {action}
-            </button>
-          ))}
+        
+        {/* Doctor Schedule and Reports */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="bg-white p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Doctor Schedule</h3>
+            <ul>
+              {["Dr. Olivia Martinez (Available)", "Dr. Damian Sanchez (Unavailable)", "Dr. Chloe Harrington (Available)"].map((doc, idx) => (
+                <li key={idx} className="border-b last:border-b-0 py-2 text-gray-600">{doc}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Recent Activities</h3>
+            <ul>
+              {["Patient admitted to Room 206", "New inventory restocked", "MRI machine maintenance completed"].map((activity, idx) => (
+                <li key={idx} className="border-b last:border-b-0 py-2 text-gray-600">{activity}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default dashboard;
+export default DashboardOverview;

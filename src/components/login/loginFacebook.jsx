@@ -12,7 +12,7 @@ const LoginForm = () => {
   const handleFacebookCallback = (response) => {
     try {
       if (response && response.status !== 'unknown') {
-        const { accessToken,name, email, picture,id } = response;
+        const { accessToken ,name, email, picture,id } = response;
         const userData = {
           token: accessToken,
           id:response.userID,

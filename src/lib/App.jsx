@@ -22,6 +22,7 @@ function App() {
 
 
       } />
+    
       <Route path="/loginPage" element={<LoginPage />} />
       <Route path="/aboutPage" element={<AboutPage />} />
       <Route path="/test" element={<Test />} />

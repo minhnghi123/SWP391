@@ -1,7 +1,7 @@
 import React from 'react';
 import VaccinationHistory from './VaccineHistory';
 import HealthInformation from './HealthInFormation';
-import UpcomingAppointments from './UpComingAppointments';
+import UpcomingAppointments from '../rightSide/UpComingAppointments';
 import CalculateAge  from '../../../../utils/calculateYearOld'
 const ChildCard = ({ child, handleChoose }) => {
     return (

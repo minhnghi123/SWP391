@@ -44,7 +44,6 @@ const LeftSide = () => {
           <EachMenu onClick={() => navigate('/dashboardPage/doctorSchedule')} label="Doctors' Schedule" icon={<EditCalendarIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
           <EachMenu onClick={() => navigate('/dashboardPage/payments')} label="Payments" icon={<AccountBalanceWalletIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
           <EachMenu onClick={() => navigate('/dashboardPage/inventory')} label="Inventory" icon={<InventoryIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/dashboardPage/message')} label="Message" icon={<MessageIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
         </nav>
       </div>
     </div>

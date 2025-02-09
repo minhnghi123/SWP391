@@ -1,20 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { fetchData } from "../../../Api/axios";
 
-const patients = () => {
-  const [patients, setPatients] = useState([
-    { id: 1, name: "John Doe", age: 30, vaccine: "Pfizer", date: "2025-01-15", status: "Vaccinated" },
-    { id: 2, name: "Jane Smith", age: 25, vaccine: "Moderna", date: "2025-01-18", status: "Pending" },
-    { id: 3, name: "Alice Johnson", age: 35, vaccine: "AstraZeneca", date: "2025-01-20", status: "Vaccinated" },
-  ]);
-
+const Patients = () => {
+  const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDataAsync = async () => {
+      try {
+        setLoading(true);
+        const patientsRes = await fetchData("feedback"); // Lấy dữ liệu từ API
+        setPatients(patientsRes.data); // Gán dữ liệu từ API vào state
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching API:", error);
+        setError("Failed to fetch patients. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDataAsync();
+  }, []);
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
 
   const filteredPatients = patients.filter((patient) =>
-    patient.name.toLowerCase().includes(search.toLowerCase())
+    patient.name.toLowerCase().includes(search.toLowerCase()) // Tìm kiếm theo name thay vì username
   );
 
   return (
@@ -38,60 +54,37 @@ const patients = () => {
         />
       </div>
 
+      {/* Loading & Error Handling */}
+      {loading && <p className="text-center text-gray-500">Loading patients...</p>}
+      {error && <p className="text-center text-red-500">{error}</p>}
+
       {/* Patients Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-100 border-b">
-            <tr>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Name</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Age</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Vaccine</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Date</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
-              <th className="px-6 py-3 text-right text-sm font-medium text-gray-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPatients.map((patient) => (
-              <tr key={patient.id} className="border-b hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm text-gray-800">{patient.name}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{patient.age}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{patient.vaccine}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{patient.date}</td>
-                <td
-                  className={`px-6 py-4 text-sm font-medium ${
-                    patient.status === "Vaccinated"
-                      ? "text-green-600"
-                      : "text-yellow-600"
-                  }`}
-                >
-                  {patient.status}
-                </td>
-                <td className="px-6 py-4 text-right space-x-2">
-                  <button className="px-3 py-1 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600">
-                    Edit
-                  </button>
-                  <button className="px-3 py-1 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredPatients.length === 0 && (
+      {!loading && !error && (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="min-w-full table-auto">
+            <thead className="bg-gray-100 border-b">
               <tr>
-                <td
-                  colSpan="6"
-                  className="px-6 py-4 text-center text-gray-500 text-sm"
-                >
-                  No patients found.
-                </td>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Name</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Date of birth</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Phone</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Vaccine type</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredPatients.map((patient) => (
+                <tr key={patient.id} className="border-b hover:bg-gray-50">
+                  <td className="px-6 py-4 text-sm text-gray-800">{patient.name}</td> {/* Đổi từ username thành name */}
+                  <td className="px-6 py-4 text-sm text-gray-600">{patient.dateOfBirth}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{patient.phone}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{patient.vaccineType}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
 
-export default patients ;
+export default Patients;

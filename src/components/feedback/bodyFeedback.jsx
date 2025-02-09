@@ -7,7 +7,6 @@ import { FaStar } from 'react-icons/fa';
 import { FeedbackContext } from '../Context/FeedbackContext';
 import { useNavigate } from 'react-router-dom';
 import { fetchData } from '../../Api/axios';
-
 const BodyFeedback = () => {
     const navigate = useNavigate()
 

@@ -5,6 +5,7 @@ import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../Services/AuthLogin';
+import EscalatorWarningOutlinedIcon from '@mui/icons-material/EscalatorWarningOutlined';
 const LeftSide = ({section,id}) => {
   const navigate = useNavigate();
     const {logout}= useContext(AuthContext)
@@ -47,6 +48,7 @@ const LeftSide = ({section,id}) => {
         <nav className="space-y-1">
 
           <EachMenu onClick={() => navigate(`/pageProfile/profile/${id}`)}   label="Your Profile" icon={<Person2OutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
+          <EachMenu onClick={() => navigate(`/pageProfile/children/${id}`)}   label="Your Children" icon={<EscalatorWarningOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
           <EachMenu onClick={() => navigate(`/pageProfile/tracking/${id}`)} label="Tracking Schedule" icon={<CalendarMonthOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
           <EachMenu onClick={() => navigate(`/pageProfile/history/${id}`)} label="History" icon={<RestoreOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
           <EachMenu onClick={handleLogout} label="Logout" icon={<LoginOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />

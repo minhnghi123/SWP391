@@ -102,9 +102,9 @@ const FormLogin = ({ handleSubmit, handleChangePhoneNumber, handleClickOTP, hand
             <div className="mt-6 text-center">
                 <div className="flex justify-center gap-6 items-center">
                     <LoginGoogle />
-                    <div>
+                    {/* <div>
                         or
-                    </div>
+                    </div> */}
                     {/* <LoginFaceBook /> */}
                 </div>
             </div>

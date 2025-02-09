@@ -1,6 +1,6 @@
 import { useState } from "react";
 import formatDecimal from '../../../../utils/calculateMoney';
-const MenthodPayment = ({childrenVaccines,handleNextStep,CalculateTotal}) => {
+const MenthodPayment = ({childrenVaccines,handleNextStep}) => {
     const [paymentMethod, setPaymentMethod] = useState(1);
     const menthodPayment =([
         

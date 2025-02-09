@@ -1,5 +1,5 @@
 import LoginGoogle from './loginGoogle';
-import LoginFaceBook from './loginFacebook'
+// import LoginFaceBook from './loginFacebook'
 const FormLogin = ({ handleSubmit, handleChangePhoneNumber, handleClickOTP, handleChangeAccount, input, isFormValid, handleForgotPassword, openOTP, isOpen, sent }) => {
     return (
         <form className="flex flex-col p-10 max-w-[400px] w-full items-center" onSubmit={handleSubmit}>
@@ -105,7 +105,7 @@ const FormLogin = ({ handleSubmit, handleChangePhoneNumber, handleClickOTP, hand
                     <div>
                         or
                     </div>
-                    <LoginFaceBook />
+                    {/* <LoginFaceBook /> */}
                 </div>
             </div>
         </form >

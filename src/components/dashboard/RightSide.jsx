@@ -6,7 +6,6 @@ import DoctorSchedule from "../dashboard/Section/doctorSchedule";
 import Patients from "../dashboard/Section/patients"; 
 import Payments from "../dashboard/Section/payments";
 import Inventory from "../dashboard/Section/inventory";
-import Message from "../dashboard/Section/message";
 import { useRef, useState } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
@@ -65,7 +64,6 @@ const RightSide = () => {
                   {section === "doctorSchedule" && "Doctors' Schedule"}
                   {section === "payments" && "Payments"}
                   {section === "inventory" && "Inventory"}
-                  {section === "message" && "Messages"}
                 </h1>
               </div>
               <p className="text-sm text-gray-500">
@@ -75,7 +73,6 @@ const RightSide = () => {
                 {section === "doctorSchedule" && "Manage Doctor's Schedule"}
                 {section === "payments" && "Manage Payments"}
                 {section === "inventory" && "Manage Inventory"}
-                {section === "message" && "Messages"}
               </p>
             </div>
             <div className="flex items-center space-x-6">

@@ -1,15 +1,35 @@
 {
   "user": [
     {
-      "id": "1",
-      "name": "Nguyen Duy Tan",
+      "id": "117774809364047616251",
+      "name": "Tran Tri",
       "dateOfBirth": "1995-01-01",
       "createdAt": "2025-01-19T12:00:00Z",
       "status": "active",
       "phone": "123456787",
       "gender": "male",
-      "email": "giabao@gmail.com",
-      "role": "user"
+      "email": "ttei8191@gmail.com",
+      "role": "user",
+      "children": [
+        {
+          "id": "1-1",
+          "parentID" :"117774809364047616251",
+          "name": "Shu",
+          "dateOfBirth": "2020-01-01",
+          "gender": "Male",
+          "createDate": "2024-01-01",
+          "status": "active"
+        },
+        {
+          "id": "1-2",
+          "parentID" :"117774809364047616251",
+          "name": "Tam",
+          "dateOfBirth": "2020-01-01",
+          "gender": "Female",
+          "createDate": "2024-01-01",
+          "status": "inactive"
+        }
+      ]
     },
     {
       "id": "2",
@@ -20,7 +40,17 @@
       "phone": "0987654321",
       "gender": "female",
       "email": "tranthihoa@gmail.com",
-      "role": "admin"
+      "role": "admin",
+      "children": [
+        {
+          "id": "2-1",
+          "name": "Nam",
+          "dateOfBirth": "2021-02-15",
+          "gender": "Male",
+          "createDate": "2024-02-01",
+          "status": "active"
+        }
+      ]
     },
     {
       "id": "3",
@@ -31,7 +61,17 @@
       "phone": "0912345678",
       "gender": "male",
       "email": "levanan@gmail.com",
-      "role": "user"
+      "role": "user",
+      "children": [
+        {
+          "id": 3,
+          "name": "Nam",
+          "dateOfBirth": "2021-02-15",
+          "gender": "Male",
+          "createDate": "2024-02-01",
+          "status": "active"
+        }
+      ]
     },
     {
       "id": "4",
@@ -42,7 +82,8 @@
       "phone": "0934567890",
       "gender": "female",
       "email": "phanthimai@gmail.com",
-      "role": "user"
+      "role": "user",
+      "children": []
     },
     {
       "id": "5",
@@ -53,7 +94,17 @@
       "phone": "0945678901",
       "gender": "male",
       "email": "ddadsfg@gmail.com",
-      "role": "admin"
+      "role": "admin",
+      "children": [
+        {
+          "id": 4,
+          "name": "Linh",
+          "dateOfBirth": "2019-07-20",
+          "gender": "Female",
+          "createDate": "2023-12-15",
+          "status": "inactive"
+        }
+      ]
     }
   ],
   "vaccine": [

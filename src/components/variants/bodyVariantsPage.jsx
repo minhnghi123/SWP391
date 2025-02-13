@@ -23,7 +23,7 @@ export default function BodyVariantsHomePage() {
     const [sortType, setSortType] = useState('');
     const itemList = useSelector((state) => state.vaccine.itemList)
     const isBooking = useSelector((state) => state.vaccine.isBooking)
-    const calculatedTotal = useSelector ((state)=>state.vaccine.totalPrice)
+    const calculatedTotal = useSelector((state) => state.vaccine.totalPrice)
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
@@ -43,6 +43,12 @@ export default function BodyVariantsHomePage() {
 
         fetchDataAsync();
     }, []);
+    useEffect(() => {
+        const storedData = localStorage.getItem('ListVaccine');
+        if (storedData) {
+            dispatch(vaccineAction.replaceData(JSON.parse(storedData)));
+        }
+    }, [])
     const handleAddVaccine = (vaccine) => {
         const vaccineList = Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [];
         dispatch(vaccineAction.addVaccine({
@@ -57,14 +63,14 @@ export default function BodyVariantsHomePage() {
     }
 
 
-    console.log(itemList)
-    const {
-        selectedVaccines,
-        // isBooking,
-        handleBookVaccine,
-        handleRemoveVaccine,
-        // calculatedTotal
-    } = useContext(VaccineContext);
+
+    // const {
+    //     selectedVaccines,
+    //     // isBooking,
+    //     handleBookVaccine,
+    //     handleRemoveVaccine,
+    //     // calculatedTotal
+    // } = useContext(VaccineContext);
 
     // const [valueSelectVaccine, setSelectedVaccines] = useState(() => {
     //     return JSON.parse(localStorage.getItem('AddItems')) || [];

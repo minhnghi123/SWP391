@@ -5,7 +5,7 @@ import formatDecimal from '../../../../utils/calculateMoney';
 import HeadsetMicOutlinedIcon from '@mui/icons-material/HeadsetMicOutlined';
 import HeadsetOffOutlinedIcon from '@mui/icons-material/HeadsetOffOutlined';
 const ChildrenList = ({ child, handleRemmoveChildren, valueSelectVaccine }) => {
-
+    
     return (
         <div className=" bg-white rounded-3xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300">
             {/* Child Header */}
@@ -21,7 +21,7 @@ const ChildrenList = ({ child, handleRemmoveChildren, valueSelectVaccine }) => {
                             {ToUpperCaseWords(child.name)}
                         </h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            {CalculateAge(child.datOfBrith)} years old
+                            {CalculateAge(child.dateOfBirth)} years old
                         </p>
                     </div>
                 </div>
@@ -61,7 +61,7 @@ const ChildrenList = ({ child, handleRemmoveChildren, valueSelectVaccine }) => {
             <br />
             {/* Child Total */}
             {/* Service price */}
-            <div className="flex justify-between items-center p-4 mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 shadow-sm">
+            {/* <div className="flex justify-between items-center p-4 mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 shadow-sm">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center">
                         {
@@ -76,7 +76,7 @@ const ChildrenList = ({ child, handleRemmoveChildren, valueSelectVaccine }) => {
                 <span className="text-xl font-bold text-blue-600">
                     {formatDecimal(child.advistory ? 50000 : 0)} VNĐ
                 </span>
-            </div>
+            </div> */}
             {/* total */}
             <div className="flex justify-between items-center p-4 mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 shadow-sm">
 

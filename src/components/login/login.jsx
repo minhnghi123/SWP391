@@ -6,7 +6,10 @@ import FormLogin from './formLogin';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../Services/AuthLogin';
+import { useDispatch, useSelector } from "react-redux";
+import { accountAction } from "../redux/reducers/accountSlice";
 export default function Login({ setRegister }) {
+    const dispatch = useDispatch()
     const navigate = useNavigate()
     const [openOTP, setOTP] = useState(false);
     const [sent, setSent] = useState(false);
@@ -64,7 +67,12 @@ export default function Login({ setRegister }) {
                 return;
             }
             const decoded = jwtDecode(token);
-            localStorage.setItem("Account", JSON.stringify(decoded));
+            const data = {
+                id: decoded.sub,
+                token: decoded.iat,
+                name: decoded.user
+            }
+            dispatch(accountAction.setUser(data))
             toast.success("Login successfully");
             // login()
             setTimeout(() => {

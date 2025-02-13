@@ -1,3 +1,4 @@
+
 const ProfileUser = ({id,name,img,status,email}) => {
     return (
 

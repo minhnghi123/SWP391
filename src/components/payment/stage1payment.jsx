@@ -1,74 +1,85 @@
-import {  useState, useContext } from "react";
-import Avatar from "../../assets/p3.jpg"
+import { useState, useContext, useEffect } from "react";
+import Avatar from "../../assets/p5.jpg"
 import { NumberOfPeopleContext } from "../Context/NumberOfPeopleVacines";
 import ProfileUser from "./eachComponentStage1/leftSide/profileUser";
 import FormAddChildren from "./eachComponentStage1/leftSide/formAddChildren";
 import ChildCard from './eachComponentStage1/rightSide/ChildCard';
 import ListChild from "./eachComponentStage1/leftSide/ListChild";
+import { useSelector, useDispatch } from "react-redux";
+import { childAction } from "../redux/reducers/selectChildren";
+import { fetchData } from "../../Api/axios";
 
 export default function BodyPaymentPage({ isopennextstep }) {
     // const [api, setApi] = useState([])
     const [isOpenFirst, setIsOpenFirst] = useState(false);
-    const [children, setChildren] = useState([
-        {
-            id: 1,
-            name: "Shu",
-            datOfBrith: "2020-01-01",
-            dateInject: "2020-01-01",
-            gender: "Male",
-            advistory: "yes"
-        }
-        , {
-            id: 2,
-            name: "Tam",
-            datOfBrith: "2020-01-01",
-            dateInject: "2020-01-01",
-            gender: "Female",
-            advistory: ''
-
-        }
-    ]);
-    const [inputDat, setData] = useState({
-        id: children.length + 1,
-        name: "",
-        datOfBrith: "",
-        dateInject: "",
-        gender: "",
-        advistory: ""
-    })
-    const handleOnchange = (e) => {
-        const { name, value } = e.target;
-        setData(prevInput => ({ ...prevInput, [name]: value }));
+    const dispatch = useDispatch()
+    const [user, setUser] = useState()
+    const [err, setErr] = useState()
+    const account = useSelector((state) => state.account.user)
+    const listChildren = useSelector((state) => state.children.listChildren)
+    useEffect(() => {
+        const getUserData = async () => {
+            try {
+                const res = await fetchData(`user/${account.id}`);
+                if (res.status === 200 && res?.data) {
+                    setUser(res.data)
+                }
+            } catch (error) {
+                setErr('Fetch failed');
+            }
+        };
+        getUserData(); // Gọi hàm bất đồng bộ trong useEffect
+    }, []);
+    // useEffect(() => {
+    //     const storedData = localStorage.getItem('ListChildren');
+    //     if (storedData) {
+    //         dispatch(childAction.replaceData(storedData))
+    //     }
+    // }, [])
+    const handleAddChildren = (child) => {
+        dispatch(childAction.chooseChildren({
+            parentID: account.id,
+            id: child.id,
+            name: child.name,
+            dateOfBirth: child.dateOfBirth,
+            gender: child.gender,
+            status: child.status,
+            createDate: child.createDate
+        }))
     }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Add new entry to children
-        setChildren((prevInput) => {
-            const id = prevInput.length + 1
-            return [...prevInput, { ...inputDat, id }]
-        })
-        setData({
-            id: children.length + 2, // Prepare for the next ID
-            name: "",
-            datOfBrith: "",
-            dateInject: "",
-            gender: "",
-            advistory: "",
-        });
+    console.log(account.id)
+    const [inputDat, setData] = useState({
+        parentID: account.id,
+        id: '',
+        name: '',
+        dateOfBirth: '',
+        gender: '',
+        status: true,
+        createDate: ''
 
-        setIsOpenFirst(!isOpenFirst);
+    })
+
+    const handleSubmit = (e) => {
+        // e.preventDefault();
+        // // Add new entry to children
+        // setChildren((prevInput) => {
+        //     const id = prevInput.length + 1
+        //     return [...prevInput, { ...inputDat, id }]
+        // })
+        // setData({
+
+        // });
+
+        // setIsOpenFirst(!isOpenFirst);
     };
     const handleNextStep = () => {
         isopennextstep(2)
     }
 
-    const {
-        isSelected,
-        handleChoose
-    } = useContext(NumberOfPeopleContext);
 
-    
-    
+
+   
+
     return (
         <div className="min-h-screen  py-12">
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -79,7 +90,7 @@ export default function BodyPaymentPage({ isopennextstep }) {
                         <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-3xl p-8 text-white">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h1 className="text-2xl font-bold mb-2">Welcome Back, Alex!</h1>
+                                    <h1 className="text-2xl font-bold mb-2">Welcome Back, {account.name}!</h1>
                                     <p className="text-teal-100">Complete your payment information below</p>
                                 </div>
                                 <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
@@ -94,11 +105,11 @@ export default function BodyPaymentPage({ isopennextstep }) {
 
                         {/* Patient Profile Card */}
                         <ProfileUser
-                            id={'PT-2024-089'}
-                            name={'Alex Parker'}
-                            email={'alex@example.com'}
-                            status={'Active Patient'}
-                            img={Avatar}
+                            id={account?.id || ''}
+                            name={account?.name || ''}
+                            email={account?.email || ''}
+                            status={user?.status ? 'Active' : 'No Active'}
+                            img={account.picture}
                         />
 
 
@@ -111,7 +122,7 @@ export default function BodyPaymentPage({ isopennextstep }) {
                                         Children List
                                         <div className="flex items-center gap-2">
                                             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-100 text-sm font-medium text-teal-600">
-                                                {isSelected.length}
+                                                {listChildren.length}
                                             </span>
                                             <span className="text-sm font-medium text-gray-500">selected</span>
                                         </div>
@@ -130,13 +141,13 @@ export default function BodyPaymentPage({ isopennextstep }) {
 
                             {/* List Children */}
                             <div className="grid gap-4">
-                                {children.map((child, index) => (
-                                  <ListChild key={index} child={child} isSelected={isSelected} handleChoose={()=>handleChoose(child)}/>
+                                {user?.children.map((child, index) => (
+                                    <ListChild key={child.id} child={child} isSelected={listChildren} handleChoose={() => handleAddChildren(child)} />
                                 ))}
                             </div>
 
                             {/* Add Child Button*/}
-                            {children.length === 0 && (
+                            {user?.children.length === 0 && (
                                 <div className="mt-6 text-center">
                                     <button
                                         onClick={() => setIsOpenFirst(!isOpenFirst)}
@@ -157,7 +168,7 @@ export default function BodyPaymentPage({ isopennextstep }) {
                         {
                             isOpenFirst && (
                                 <FormAddChildren
-                                    handleOnchange={handleOnchange}
+                                    handleOnchange={() => dispatch(childAction.handleOnChange(child))}
                                     handleSubmit={handleSubmit}
                                 />
                             )
@@ -172,21 +183,22 @@ export default function BodyPaymentPage({ isopennextstep }) {
                     {/* right section */}
                     <div className="w-full lg:w-[650px] space-y-6">
                         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 sticky top-6">
-                            {isSelected.length > 0 ? (
+                            {listChildren.length > 0 ? (
                                 <>
                                     {/* Header */}
                                     <div className="flex items-center justify-between mb-6">
                                         <h3 className="text-xl font-bold text-gray-900">Child Details</h3>
                                         <span className="px-4 py-1.5 bg-teal-50 text-teal-600 rounded-full text-sm font-medium">
-                                            {isSelected.length} Selected
+                                            {listChildren.length} Selected
                                         </span>
                                     </div>
 
                                     {/* Detailed Child Information */}
                                     <div className="space-y-8">
-                                        {isSelected.map((child, index) => (
-                                           <ChildCard key={child.id} child={child} handleChoose={handleChoose} />
+                                        {listChildren.map((child) => (
+                                            <ChildCard key={child.id} child={child} handleChoose={() => handleAddChildren(child)} />
                                         ))}
+
                                     </div>
                                     {/* Checkout Button */}
                                     <button onClick={handleNextStep} className="w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 

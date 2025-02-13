@@ -39,7 +39,7 @@ const ListChild = ({ child, index,isSelected,handleChoose }) => {
                         </h4>
                         <div className="flex items-center gap-4 text-sm">
                             <span className="text-gray-600">
-                                {CalculateAge(child.datOfBrith)} years old
+                                {CalculateAge(child.dateOfBirth)} years old
                             </span>
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium
                                                                 ${child.gender.toLowerCase() === 'male'

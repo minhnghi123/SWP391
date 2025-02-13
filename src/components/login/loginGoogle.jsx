@@ -7,8 +7,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AuthContext } from '../Services/AuthLogin';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { accountAction } from '../redux/reducers/accountSlice';
 function LoginPage() {
     // const { login } = useContext(AuthContext)
+    const dispatch = useDispatch()
     const navigate = useNavigate()
     const loginGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
@@ -17,16 +20,17 @@ function LoginPage() {
                     headers: {
                         Authorization: `Bearer ${tokenResponse.access_token}`,
                     },
-                }).then(res => res.json()); 
-                const userData = {
+                }).then(res => res.json());
+
+                const data = {
                     token: tokenResponse.access_token,
-                    id: userInfo.sub, 
+                    id: userInfo.sub,
                     name: userInfo.name,
                     email: userInfo.email,
                     picture: userInfo.picture
                 };
                 // Lưu vào localStorage
-                localStorage.setItem("Account", JSON.stringify(userData));
+                dispatch(accountAction.setUser(data))
                 toast.success("Login successfully by Google");
                 // login()
                 setTimeout(() => {

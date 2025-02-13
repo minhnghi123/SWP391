@@ -3,25 +3,14 @@ import AvatarHomePage from "./avatarHomePage";
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import { useState, useEffect,useContext} from 'react';
-import { AuthContext } from '../Services/AuthLogin';
-
+import { useState, useEffect, useContext } from 'react';
+// import { AuthContext } from '../Services/AuthLogin';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import { useSelector, useDispatch } from "react-redux";
 export default function Header() {
     const navigate = useNavigate()
-    const {logout}=useContext(AuthContext)
-    const [search, setSearch] = useState("");
-    const [isOpen, setIsOpen] = useState(false);
-    const handleSearch = (e) => {
-        setSearch(e.target.value);
-    }
-    const handleOpen = () => {
-        setIsOpen(!isOpen);
-    }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log(search);
-        setSearch('')
-    }
+    const itemList = useSelector((state) => state.vaccine.itemList)
+    console.log(itemList.length)
     const navItems = [
         { label: "Home", id: "home" },
         { label: "About", id: "about" },
@@ -39,7 +28,7 @@ export default function Header() {
     const [userLogin, setUserLogin] = useState(() => {
         return JSON.parse(localStorage.getItem('Account')) || '';
     });
-    console.log(userLogin)
+
     const handleLogout = () => {
         localStorage.removeItem("Account");
         setUserLogin('');
@@ -77,70 +66,33 @@ export default function Header() {
             <div className="flex flex-row justify-between items-center gap-3">
                 <nav className="bg-gray-50/80 px-8 py-3 rounded-full shadow-sm backdrop-blur-sm w-full ">
                     <ul className="flex flex-row gap-8 items-center">
-                        {!isOpen ? (
-                            <>
-                                {navItems.map((item, index) => (
-                                    <li
-                                        key={index}
-                                        onClick={() => handleScroll(item.id)}
-                                        className="px-4 py-1.5 rounded-full text-gray-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-400 font-medium cursor-pointer transition-all duration-300"
-                                    >
-                                        {item.label}
-                                    </li>
-                                ))}
-                                <li
-                                    onClick={handleOpen}
-                                    className="px-4 py-1.5 rounded-full text-gray-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-400 font-medium cursor-pointer transition-all duration-300"
-                                >
-                                    <SearchOutlinedIcon />
-                                </li>
-                            </>
-                        ) : (
-
-
-                            <form
-                                onSubmit={handleSubmit}
-                                className="w-[630px] flex flex-row gap-2 items-center 
-                                bg-gray-50 p-2 rounded-full shadow-md
-                                transform hover:scale-[1.01] transition-all duration-300
-                                "
+                        {navItems.map((item, index) => (
+                            <li
+                                key={index}
+                                onClick={() => handleScroll(item.id)}
+                                className="px-4 py-1.5 rounded-full text-gray-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-400 font-medium cursor-pointer transition-all duration-300"
                             >
-                                {/* Input Field */}
-                                <input
-                                    type="text"
-                                    placeholder="Search..."
-                                    onChange={handleSearch}
-                                    value={search}
-                                    className="flex-grow border-none bg-transparent px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                />
-
-                                {/* Search Button */}
-                                <button
-                                    type="submit"
-                                    className="flex items-center justify-center w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-                                >
-                                    <SearchOutlinedIcon />
-                                </button>
-
-                                {/* Close Button */}
-                                <button
-                                    type="button"
-                                    onClick={() => setIsOpen(false)}
-                                    className="flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                >
-                                    <CloseOutlinedIcon />
-                                </button>
-                            </form>
-                        )}
+                                {item.label}
+                            </li>
+                        ))}
                     </ul>
                 </nav>
+                <div onClick={()=>navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1 ">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full ">
+                        <ShoppingCartOutlinedIcon className="text-gray-600" />
+                    </div>
+                    {itemList.length > 0 && (
+                        <p className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                            {itemList.length}
+                        </p>
+                    )}
+                </div>
+
                 {
-                    userLogin  ?
+                    userLogin ?
                         <AvatarHomePage signout={handleLogout} user={userLogin} /> :
                         <button onClick={() => navigate('/loginPage')}>Login</button>
                 }
-
-
             </div>
 
 

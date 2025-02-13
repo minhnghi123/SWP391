@@ -8,7 +8,7 @@ import { AuthContext } from '../Services/AuthLogin';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 function LoginPage() {
-    const { login } = useContext(AuthContext)
+    // const { login } = useContext(AuthContext)
     const navigate = useNavigate()
     const loginGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {

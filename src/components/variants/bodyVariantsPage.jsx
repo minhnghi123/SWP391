@@ -9,8 +9,11 @@ import Variants from '../home/Variants';
 import { fetchData } from '../../Api/axios';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import '../css/loading.css'
+import { useSelector, useDispatch } from "react-redux";
+import { vaccineAction } from '../redux/reducers/SelectVaccine';
 export default function BodyVariantsHomePage() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [vaccines, setVaccine] = useState([]);
     const [combos, setCombos] = useState([]);
     const [isOpen, setIsOpen] = useState(false)
@@ -18,6 +21,9 @@ export default function BodyVariantsHomePage() {
     const [inputData, setInputData] = useState('');
     const [sortVaccines, setSortVaccines] = useState([]);
     const [sortType, setSortType] = useState('');
+    const itemList = useSelector((state) => state.vaccine.itemList)
+    const isBooking = useSelector((state) => state.vaccine.isBooking)
+    const calculatedTotal = useSelector ((state)=>state.vaccine.totalPrice)
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
@@ -37,12 +43,27 @@ export default function BodyVariantsHomePage() {
 
         fetchDataAsync();
     }, []);
+    const handleAddVaccine = (vaccine) => {
+        const vaccineList = Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [];
+        dispatch(vaccineAction.addVaccine({
+            id: vaccine.id,
+            name: vaccine.name,
+            price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+            description: vaccine.description,
+            country: vaccine.origin,
+            image: vaccine.image,
+            vaccine: vaccineList
+        }))
+    }
+
+
+    console.log(itemList)
     const {
         selectedVaccines,
-        isBooking,
+        // isBooking,
         handleBookVaccine,
         handleRemoveVaccine,
-        calculatedTotal
+        // calculatedTotal
     } = useContext(VaccineContext);
 
     // const [valueSelectVaccine, setSelectedVaccines] = useState(() => {
@@ -59,11 +80,11 @@ export default function BodyVariantsHomePage() {
 
     useEffect(() => {
         const handleSubmit = (e) => {
-           
+
             ref.current.focus();
             const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
-            
-    
+
+
             if (searchValue) {
                 const sortByNameVaccine = vaccines
                     .filter((vaccine) => vaccine.name.includes(searchValue))
@@ -71,9 +92,9 @@ export default function BodyVariantsHomePage() {
                 const sortByNameCombo = combos
                     .filter((combo) => combo.name.includes(searchValue))
                     .sort((a, b) => a.price - b.price);
-    
+
                 const combinedResults = [...sortByNameVaccine, ...sortByNameCombo];
-    
+
                 if (combinedResults.length > 0) {
                     setSortVaccines(combinedResults);
                     setIsOpen(true);
@@ -81,12 +102,12 @@ export default function BodyVariantsHomePage() {
                     setIsOpen(false);
                 }
             } else {
-    
+
                 setSortVaccines([...vaccines, ...combos]);
                 setIsOpen(true);
             }
         };
-    
+
         handleSubmit();
     }, [inputData]);
     const handleInput = (e) => {
@@ -219,7 +240,7 @@ export default function BodyVariantsHomePage() {
                                             : eachvaccine.price
                                     }
                                     isBooking={isBooking}
-                                    onClick={() => handleBookVaccine(eachvaccine)}
+                                    onClick={() => handleAddVaccine(eachvaccine)}
                                 />
                             ))}
                         </div>
@@ -235,14 +256,14 @@ export default function BodyVariantsHomePage() {
                     shadow-md hover:shadow-lg transition-all duration-300">
                         <div className='flex justify-between items-center'>
                             <h3 className="text-lg font-semibold text-gray-800 mb-4">Payment Summary</h3>
-                            <h3 className='text-gray-600 text-sm mb-4'>{selectedVaccines.length} Items</h3>
+                            <h3 className='text-gray-600 text-sm mb-4'>{itemList.length} Items</h3>
                         </div>
 
                         <div className="space-y-4">
                             <div className="border-t border-gray-100 pt-4">
                                 <div className="flex flex-col gap-2 mb-3">
                                     <span className="text-gray-600 text-sm">Selected Vaccines:</span>
-                                    {selectedVaccines.map((vaccine) => (
+                                    {itemList.map((vaccine) => (
                                         <div key={vaccine.id} className="flex justify-between items-center bg-gray-50 
                                         p-2 rounded text-sm group hover:bg-gray-100 transition-all duration-200">
                                             <span className="text-gray-800">{vaccine.name}</span>
@@ -256,7 +277,7 @@ export default function BodyVariantsHomePage() {
                                                     }
                                                     {' '}VND</span>
                                                 <button
-                                                    onClick={() => handleRemoveVaccine(vaccine.id)}
+                                                    onClick={() => dispatch(vaccineAction.deleteVaccine(vaccine.id))}
                                                     className="text-gray-400 hover:text-red-500 p-1 rounded-full 
                                                     hover:bg-red-50 transition-all duration-200"
                                                     title="Remove vaccine"
@@ -278,7 +299,7 @@ export default function BodyVariantsHomePage() {
                                         className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg 
                                         hover:bg-blue-600 transition-all duration-300 font-medium text-sm
                                         shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                                        disabled={selectedVaccines.length === 0}
+                                        disabled={itemList.length === 0}
                                     >
                                         Proceed to Payment
                                     </button>

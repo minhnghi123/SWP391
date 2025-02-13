@@ -7,29 +7,42 @@ const childrenSelectSlice = createSlice({
         user: null,
         listChildren: [],
         inputData: {},
-        loading: false, 
+        loading: false,
         error: null,
     },
     reducers: {
+        replaceData(state, action) {
+            state.listChildren = action.payload
+        },
         chooseChildren(state, action) {
             const newChild = action.payload;
             const existingChild = state.listChildren.find(child => child.id === newChild.id);
 
             if (existingChild) {
                 state.listChildren = state.listChildren.filter(child => child.id !== newChild.id);
+
             } else {
                 state.listChildren.push({
+                    parentID: newChild.parentID,
                     id: newChild.id,
                     name: newChild.name,
                     dateOfBirth: newChild.dateOfBirth,
-                    dateInject: newChild.dateInject,
                     gender: newChild.gender,
-                    advisory: newChild.advisory, // Fixed typo
+                    status: newChild.status,
+                    createDate: newChild.createDate
+
                 });
             }
+            localStorage.setItem('ListChildren', JSON.stringify(state.listChildren));
+
         },
         deleteChild(state, action) {
-            state.listChildren = state.listChildren.filter(child => child.id !== action.payload.id);
+            const id = action.payload;
+            const existingChild = state.listChildren.find(child => child.id === id);
+            if (!existingChild) return;
+            state.listChildren = state.listChildren.filter(child => child.id !== id);
+            localStorage.setItem('ListChildren', JSON.stringify(state.listChildren));
+
         },
         handleOnChange(state, action) {
             const { name, value } = action.payload;

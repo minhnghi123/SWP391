@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import formatDecimal from '../../../../utils/calculateMoney';
 const SummaryCard = ({ CalculateTotal, child }) => {
-    const advitoryFee = useMemo(() => {
-        const childrenWithAdvistory = child.filter(children => children.advistory !== null && children.advistory !== '');
-        return (childrenWithAdvistory.length)*50000
-    }, [child.length]);
+    // const advitoryFee = useMemo(() => {
+    //     const childrenWithAdvistory = child.filter(children => children.advistory !== null && children.advistory !== '');
+    //     return (childrenWithAdvistory.length)*50000
+    // }, [child.length]);
 
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100  hover:shadow-xl transition-all duration-300"
@@ -35,7 +35,7 @@ const SummaryCard = ({ CalculateTotal, child }) => {
                             <p className="text-sm text-gray-500">General checkup</p>
                         </div>
                     </div>
-                    <span className="text-lg font-semibold text-gray-900">{formatDecimal(advitoryFee)}  {''} VNĐ</span>
+                    <span className="text-lg font-semibold text-gray-900">{0}  {''} VNĐ</span>
                 </div>
 
                 <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:shadow-sm transition-all">
@@ -65,7 +65,7 @@ const SummaryCard = ({ CalculateTotal, child }) => {
                             <p className="text-sm text-gray-500">Including all fees</p>
                         </div>
                     </div>
-                    <span className="text-2xl font-bold text-blue-600">{formatDecimal(CalculateTotal + (CalculateTotal * 0.05)+advitoryFee)} {''} VNĐ</span>
+                    <span className="text-2xl font-bold text-blue-600">{formatDecimal(CalculateTotal + (CalculateTotal * 0.05))} {''} VNĐ</span>
                 </div>
             </div>
         </div>

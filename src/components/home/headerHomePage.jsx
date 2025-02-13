@@ -4,13 +4,16 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { useState, useEffect, useContext } from 'react';
-// import { AuthContext } from '../Services/AuthLogin';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from 'react-redux';
+import { accountAction } from "../redux/reducers/accountSlice";
+
 export default function Header() {
-    const navigate = useNavigate()
-    const itemList = useSelector((state) => state.vaccine.itemList)
-    console.log(itemList.length)
+    const dispatch = useDispatch()
+    const navigate = useNavigate();
+    const itemList = useSelector((state) => state.vaccine.itemList);
+    const user = useSelector((state) => state.account.user);
+    console.log(user)
     const navItems = [
         { label: "Home", id: "home" },
         { label: "About", id: "about" },
@@ -25,24 +28,16 @@ export default function Header() {
             block: "start",     // Cuộn đến phần trên của phần tử
         });
     };
-    const [userLogin, setUserLogin] = useState(() => {
-        return JSON.parse(localStorage.getItem('Account')) || '';
-    });
 
-    const handleLogout = () => {
-        localStorage.removeItem("Account");
-        setUserLogin('');
-        // logout()
-        navigate('/loginPage');
-    }
+ 
 
-    console.log()
 
+ 
     return (
         <div className="flex flex-row justify-between items-center px-8 py-6 mx-auto max-w-[1400px]
-          border border-gray-200 rounded-3xl sticky top-0 left-0 right-0  bg-white z-50 shadow-lg mt-4" >
+          border border-gray-200 rounded-3xl sticky top-0 left-0 right-0  bg-white z-50 shadow-lg mt-4">
             <Link to="/">
-                <div className=" cursor-pointer flex flex-row gap-2 items-center text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                <div className="cursor-pointer flex flex-row gap-2 items-center text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                     <div className="flex items-center space-x-2">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center">
                             <span className="text-2xl font-bold text-white">H</span>
@@ -58,13 +53,10 @@ export default function Header() {
                         />
                     </div>
                 </div>
-
             </Link>
 
-
-
             <div className="flex flex-row justify-between items-center gap-3">
-                <nav className="bg-gray-50/80 px-8 py-3 rounded-full shadow-sm backdrop-blur-sm w-full ">
+                <nav className="bg-gray-50/80 px-8 py-3 rounded-full shadow-sm backdrop-blur-sm w-full">
                     <ul className="flex flex-row gap-8 items-center">
                         {navItems.map((item, index) => (
                             <li
@@ -77,8 +69,8 @@ export default function Header() {
                         ))}
                     </ul>
                 </nav>
-                <div onClick={()=>navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1 ">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full ">
+                <div onClick={() => navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full">
                         <ShoppingCartOutlinedIcon className="text-gray-600" />
                     </div>
                     {itemList.length > 0 && (
@@ -88,15 +80,12 @@ export default function Header() {
                     )}
                 </div>
 
-                {
-                    userLogin ?
-                        <AvatarHomePage signout={handleLogout} user={userLogin} /> :
-                        <button onClick={() => navigate('/loginPage')}>Login</button>
-                }
+                {user?.id ? (
+                    <AvatarHomePage/>
+                ) : (
+                    <button onClick={() => navigate('/loginPage')}>Login</button>
+                )}
             </div>
-
-
-
-        </div >
-    )
+        </div>
+    );
 }

@@ -8,9 +8,7 @@ import CakeIcon from '@mui/icons-material/Cake';
 import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import WorkIcon from '@mui/icons-material/Work';
-import SecurityIcon from '@mui/icons-material/Security';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-
+import ToUpperCaseWords from '../../../utils/upperCaseFirstLetter'
 const Profile = ({ id }) => {
     const navigate = useNavigate();
     const [profileData, setProfileData] = useState({});
@@ -203,7 +201,7 @@ const Profile = ({ id }) => {
                                 { icon: <LocationOnIcon />, label: 'Location', value: profileData.location },
                                 { icon: <WorkIcon />, label: 'Specialization', value: profileData.specialization },
                                 { icon: <CakeIcon />, label: 'Date of Birth', value: profileData.dateOfBirth },
-                                { icon: <PersonIcon />, label: 'Gender', value: profileData.gender }
+                                { icon: <PersonIcon />, label: 'Gender', value: ToUpperCaseWords(profileData.gender) }
                             ].map((item, index) => (
                                 <div key={index} className="flex items-center p-4 bg-gray-50 rounded-lg">
                                     <div className="p-2 bg-white rounded-lg shadow-sm text-blue-500">

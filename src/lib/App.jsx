@@ -38,17 +38,17 @@ function App() {
       } />
       {/* VaccineProvider applied only for specific pages */}
       <Route path="/paymentPage" element={
-        <VaccineProvider>
+       
           <PaymentPage />
-        </VaccineProvider>
+      
       } />
       {/* </Route> */}
 
       {/* Non-Protected Route */}
       <Route path="/variantsPage" element={
-        <VaccineProvider>
+       
           <VariantsPage />
-        </VaccineProvider>
+      
       } />
     </Routes>
   );

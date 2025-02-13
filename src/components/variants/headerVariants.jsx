@@ -6,7 +6,7 @@ import { VaccineContext } from '../Context/ChildrenSelected';
 const HeaderVariants = () => {
     const location = useLocation();
     const [searchQuery, setSearchQuery] = useState('');
-    const { selectedVaccines } = useContext(VaccineContext);
+    // const { selectedVaccines } = useContext(VaccineContext);
 
     return (
         <>

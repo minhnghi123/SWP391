@@ -5,12 +5,14 @@ import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined
 import EscalatorWarningOutlinedIcon from '@mui/icons-material/EscalatorWarningOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined';
-export default function AvatarHomePage({ signout, user }) {
+import { useDispatch, useSelector } from 'react-redux';
+import { accountAction } from '../redux/reducers/accountSlice';
+export default function AvatarHomePage() {
+    const dispatch= useDispatch()
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
-
-
+    const user = useSelector((state) => state.account.user);
     // Click outside handler
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -23,6 +25,10 @@ export default function AvatarHomePage({ signout, user }) {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+    const handleLogout = () => {
+        dispatch(accountAction.clearUser())
+        navigate('/loginPage');
+    };
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -67,24 +73,24 @@ export default function AvatarHomePage({ signout, user }) {
                     {/* Menu Items */}
                     <div className="p-2 space-y-1">
                         <button onClick={() => navigate(`/pageProfile/profile/${user.id || user.sub}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                           <AccountCircleOutlinedIcon/>
+                            <AccountCircleOutlinedIcon />
                             <span>Your Profile</span>
                         </button>
                         <button onClick={() => navigate(`/pageProfile/children/${user.id || user.sub}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                          <EscalatorWarningOutlinedIcon/>
+                            <EscalatorWarningOutlinedIcon />
                             <span>Your Children</span>
                         </button>
 
                         <button onClick={() => navigate(`/pageProfile/tracking/${user.id || user.sub}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                           <CalendarMonthOutlinedIcon/>
+                            <CalendarMonthOutlinedIcon />
                             <span>Tracking vaccines</span>
                         </button>
                         <button onClick={() => navigate(`/pageProfile/history/${user.id || user.sub}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                            <RestoreOutlinedIcon/>
+                            <RestoreOutlinedIcon />
                             <span>History</span>
                         </button>
                         <div className="my-2 border-t border-gray-100"></div>
-                        <button onClick={signout}
+                        <button onClick={handleLogout}
                             className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

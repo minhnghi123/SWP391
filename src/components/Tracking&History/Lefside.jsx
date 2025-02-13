@@ -8,9 +8,9 @@ import { AuthContext } from '../Services/AuthLogin';
 import EscalatorWarningOutlinedIcon from '@mui/icons-material/EscalatorWarningOutlined';
 const LeftSide = ({section,id}) => {
   const navigate = useNavigate();
-    const {logout}= useContext(AuthContext)
+    // const {logout}= useContext(AuthContext)
     const handleLogout=()=>{
-      logout()
+      // logout()
       localStorage.removeItem('Account')
       navigate('/loginPage')
     }

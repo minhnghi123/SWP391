@@ -14,19 +14,31 @@ import FeedbackParent from '../home/FeedbackParent'
 import { Link, useNavigate } from 'react-router-dom'
 import { VaccineContext } from '../Context/ChildrenSelected'
 import { fetchData } from '../../Api/axios'
+import { useSelector, useDispatch } from "react-redux";
 import '../css/loading.css'
+import { vaccineAction } from '../redux/reducers/SelectVaccine'
+
 export default function BodyHomePage() {
     const navigate = useNavigate();
+    const dispatch = useDispatch()
     const pictures = pictureBody;
     const [currentPicIndex, setCurrentPicIndex] = useState(0);
     const [bestVaccine, setBestVaccine] = useState()
-    const {
-        isBooking,
-        handleBookVaccine,
-
-    } = useContext(VaccineContext)
 
 
+    const isBooking = useSelector((state) => state.vaccine.isBooking)
+    const handleAddVaccine = (vaccine) => {
+        const vaccineList = Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [];
+        dispatch(vaccineAction.addVaccine({
+            id: vaccine.id,
+            name: vaccine.name,
+            price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+            description: vaccine.description,
+            country: vaccine.origin,
+            image: vaccine.image,
+            vaccine: vaccineList
+        }))
+    }
     useEffect(() => {
         fetchData('vaccine').
             then((res) => {
@@ -217,7 +229,7 @@ export default function BodyHomePage() {
                                     priceGoc={eachvaccine.discount ? eachvaccine.price : null}
                                     priceSale={priceSale}
                                     isBooking={isBooking}
-                                    onClick={() => handleBookVaccine(eachvaccine)}
+                                    onClick={() => handleAddVaccine(eachvaccine)}
                                 />
                             );
                         })

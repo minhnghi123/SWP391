@@ -7,8 +7,9 @@ import ChildrenListSection from './eachComponentStage2/leftSide/childrenListSect
 import SummaryHeaderCard from './eachComponentStage2/rightSide/headerSummary';
 import PaymentSummaryCard from './eachComponentStage2/rightSide/paymentSummaryCard';
 import PaymentMethodCard from './eachComponentStage2/rightSide/PaymentMethodCard';
-
+import { useSelector, useDispatch } from "react-redux";
 export default function Stage2Payment({ isopennextstep }) {
+    const itemList = useSelector((state) => state.vaccine.itemList)
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -43,7 +44,7 @@ export default function Stage2Payment({ isopennextstep }) {
                 {/* leftSide */}
                 <div className="w-full lg:w-[600px] space-y-8">
                     <HeaderSection childrenVaccines={childrenVaccines} />
-                    <ChildrenListSection childrenVaccines={childrenVaccines} valueSelectVaccine={valueSelectVaccine} handleRemmoveChildren={handleRemmoveChildren} />
+                    <ChildrenListSection childrenVaccines={childrenVaccines} valueSelectVaccine={itemList} handleRemmoveChildren={handleRemmoveChildren} />
                 </div>
 
                 {/* rightSide */}

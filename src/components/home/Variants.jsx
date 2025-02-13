@@ -2,8 +2,18 @@ import formatCurrency from '../../utils/calculateMoney';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector, useDispatch } from "react-redux";
+import { vaccineAction } from '../redux/reducers/SelectVaccine';
+
 const Variants = ({id, image, title, description, country, priceSale, onClick, type, priceGoc, isBooking }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch()
+    const handleBookVaccine =()=>{
+        dispatch (vaccineAction.addVaccine({
+            id,name,image,description,country
+        }))
+
+    }
     const isBooked = isBooking && isBooking.includes(id);
 
     return (
@@ -55,7 +65,7 @@ const Variants = ({id, image, title, description, country, priceSale, onClick, t
 
                         {
                             <button
-                                onClick={() => onClick()}
+                                onClick={onClick}
                                 className={`px-4 py-2 ${isBooked ? 'bg-gray-400' : 'bg-blue-500'} text-white rounded-lg hover:${isBooked ? 'bg-gray-500' : 'bg-blue-600'} transition-colors duration-300`}
                          
                             >

@@ -42,7 +42,7 @@ export default function Login({ setRegister }) {
     const handleClickOTP = () => {
         setOTP(true)
     }
-    const { login } = useContext(AuthContext)
+    // const { login } = useContext(AuthContext)
     const handleSubmit = async (e) => {
         e.preventDefault();
 

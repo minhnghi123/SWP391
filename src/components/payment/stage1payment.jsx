@@ -17,8 +17,6 @@ export default function BodyPaymentPage({ isopennextstep }) {
             dateInject: "2020-01-01",
             gender: "Male",
             advistory: "yes"
-
-
         }
         , {
             id: 2,

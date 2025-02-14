@@ -1,15 +1,15 @@
-import { useRef, useEffect, useState,useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import formatCurrency from '../../utils/calculateMoney';
-import ToUpperCaseWords from '../../utils/upperCaseFirstLetter';
 import Variants from '../home/Variants';
 import { fetchData } from '../../Api/axios';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
-import '../css/loading.css'
+import '../css/loading.css';
 import { useSelector, useDispatch } from "react-redux";
-import { vaccineAction } from '../redux/reducers/SelectVaccine';
+import { vaccineAction } from '../redux/reducers/selectVaccine';
+
 export default function BodyVariantsHomePage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -21,9 +21,11 @@ export default function BodyVariantsHomePage() {
     const [isLoading, setLoading] = useState(true);
     const [err, setErr] = useState(false);
     const ref = useRef(null);
-    const itemList= useSelector((state)=>state.vaccine.itemList)
-    const calculatedTotal= useSelector((state)=>(state.vaccine.totalPrice))
-    const isBooking= useSelector((state)=>(state.vaccine.isBooking))
+    const itemList = useSelector((state) => state.vaccine?.itemList || []);
+    const calculatedTotal = useSelector((state) => state.vaccine.totalPrice);
+    const isBooking = useSelector((state) => state.vaccine.isBooking);
+
+    // Fetch data on initial render
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
@@ -40,16 +42,8 @@ export default function BodyVariantsHomePage() {
                 setLoading(false);
             }
         };
-
         fetchDataAsync();
     }, []);
-
-    useEffect(() => {
-        const storedData = localStorage.getItem('ListVaccine');
-        if (storedData) {
-            dispatch(vaccineAction.replaceData(JSON.parse(storedData)));
-        }
-    }, [dispatch]);
 
     const handleAddVaccine = (vaccine) => {
         dispatch(
@@ -70,18 +64,18 @@ export default function BodyVariantsHomePage() {
         setSortVaccines([...vaccines, ...combos]);
     }, [vaccines, combos]);
 
+    // Improved search function
     const handleSearch = useCallback(() => {
-        const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
-
+        const searchValue = inputData.trim().toLowerCase();
         if (!searchValue) {
             setSortVaccines([...vaccines, ...combos]);
             return;
         }
 
-        const filteredVaccines = vaccines.filter((v) => v.name.includes(searchValue));
-        const filteredCombos = combos.filter((c) => c.name.includes(searchValue));
-
+        const filteredVaccines = vaccines.filter((v) => v.name.toLowerCase().includes(searchValue));
+        const filteredCombos = combos.filter((c) => c.name.toLowerCase().includes(searchValue));
         setSortVaccines([...filteredVaccines, ...filteredCombos]);
+
     }, [inputData, vaccines, combos]);
 
     useEffect(() => {
@@ -102,10 +96,11 @@ export default function BodyVariantsHomePage() {
         } else if (type === "Combo") {
             setSortVaccines([...combos]);
         }
+
     };
 
     return (
-        <div className="max-w-[1400px] mx-auto py-4 px-4 z-0 mt-40 ">
+        <div className="max-w-[1400px] mx-auto py-4 px-4 z-0 mt-40">
             {/* Header and search section */}
             <button
                 onClick={() => navigate(-1)}
@@ -129,7 +124,6 @@ export default function BodyVariantsHomePage() {
                                    focus:outline-none focus:ring-2 focus:ring-blue-50 
                                    focus:border-blue-500 transition-all duration-200"
                     />
-                    
                 </div>
             </div>
 
@@ -151,31 +145,34 @@ export default function BodyVariantsHomePage() {
                     </div>
 
                     {/* Vaccine Grid */}
-
-
                     {isLoading ? (
                         <div className="loader absolute right-[50%] left-[45%]"></div>
                     ) : err ? (
                         <div className="text-red-500 text-center mt-4">
-                            <img src="https://cdn2.cellphones.com.vn/x,webp/media/wysiwyg/Search-Empty.png" alt="Error" />
-                            {err}
+                            <p>Fetch Data Failed</p>
                         </div>
                     ) : (
                         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                            {sortVaccines.map((eachvaccine) => (
-                                <Variants
-                                    key={eachvaccine.id}
-                                    {...eachvaccine}
-                                    priceSale={eachvaccine.discount
-                                        ? Math.round(eachvaccine.price * (1 - eachvaccine.discount / 100))
-                                        : eachvaccine.price || 0}
-                                    isBooking={isBooking}
-                                    onClick={() => handleAddVaccine(eachvaccine)}
-                                />
-                            ))}
+                            {sortVaccines.length > 0 ? (
+                                sortVaccines.map((eachvaccine) => (
+                                    <Variants
+                                        key={eachvaccine.id}
+                                        image={eachvaccine.image}
+                                        name={eachvaccine.name}
+                                        description={eachvaccine.description}
+                                        country={eachvaccine.origin}
+                                        priceSale={eachvaccine.discount
+                                            ? Math.round(eachvaccine.price * (1 - eachvaccine.discount / 100))
+                                            : eachvaccine.price || 0}
+                                        isBooking={isBooking}
+                                        onClick={() => handleAddVaccine(eachvaccine)}
+                                    />
+                                ))
+                            ) : (
+                                <p className="text-gray-600 text-center mt-6">No results found</p>
+                            )}
                         </div>
                     )}
-
                 </div>
 
                 {/* Payment Summary Sidebar */}
@@ -184,7 +181,7 @@ export default function BodyVariantsHomePage() {
                     shadow-md hover:shadow-lg transition-all duration-300">
                         <div className='flex justify-between items-center'>
                             <h3 className="text-lg font-semibold text-gray-800 mb-4">Payment Summary</h3>
-                            <h3 className='text-gray-600 text-sm mb-4'>{itemList.length} Items</h3>
+                            <h3 className='text-gray-600 text-sm mb-4'>{itemList.length || 0} Items</h3>
                         </div>
 
                         <div className="space-y-4">
@@ -197,13 +194,11 @@ export default function BodyVariantsHomePage() {
                                             <span className="text-gray-800">{vaccine.name}</span>
                                             <div className="flex items-center gap-3">
                                                 <span className="text-blue-600">
-                                                    {
-                                                        vaccine.discount ?
-                                                            (formatCurrency(vaccine.price * (1 - vaccine.discount / 100)))
-                                                            :
-                                                            (formatCurrency(vaccine.price))
-                                                    }
-                                                    {' '}VND</span>
+                                                    {vaccine.discount
+                                                        ? formatCurrency(vaccine.price * (1 - vaccine.discount / 100))
+                                                        : formatCurrency(vaccine.price)
+                                                    }{' '}VND
+                                                </span>
                                                 <button
                                                     onClick={() => dispatch(vaccineAction.deleteVaccine(vaccine.id))}
                                                     className="text-gray-400 hover:text-red-500 p-1 rounded-full 

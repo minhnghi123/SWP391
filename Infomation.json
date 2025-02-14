@@ -13,7 +13,7 @@
       "children": [
         {
           "id": "1-1",
-          "parentID" :"117774809364047616251",
+          "parentID": "117774809364047616251",
           "name": "Shu",
           "dateOfBirth": "2020-01-01",
           "gender": "Male",
@@ -22,7 +22,7 @@
         },
         {
           "id": "1-2",
-          "parentID" :"117774809364047616251",
+          "parentID": "117774809364047616251",
           "name": "Tam",
           "dateOfBirth": "2020-01-01",
           "gender": "Female",
@@ -215,7 +215,8 @@
       ],
       "price": 2800000,
       "discount": 10,
-      "description": "Combo Vaccine A và B giúp bạn tối ưu hóa khả năng miễn dịch với mức giá ưu đãi."
+      "description": "Combo Vaccine A và B giúp bạn tối ưu hóa khả năng miễn dịch với mức giá ưu đãi.",
+      "origin": "USA"
     },
     {
       "id": "22",
@@ -226,7 +227,8 @@
       ],
       "price": 1800000,
       "discount": 15,
-      "description": "Combo Vaccine C và D đảm bảo bảo vệ toàn diện với mức giá phải chăng."
+      "description": "Combo Vaccine C và D đảm bảo bảo vệ toàn diện với mức giá phải chăng.",
+      "origin": "USA"
     },
     {
       "id": "32",
@@ -238,7 +240,8 @@
       ],
       "price": 3700000,
       "discount": 20,
-      "description": "Combo Vaccine A, C và D cung cấp giải pháp miễn dịch toàn diện với chi phí tối ưu."
+      "description": "Combo Vaccine A, C và D cung cấp giải pháp miễn dịch toàn diện với chi phí tối ưu.",
+      "origin": "USA"
     },
     {
       "id": "42",
@@ -249,7 +252,8 @@
       ],
       "price": 2500000,
       "discount": 5,
-      "description": "Combo Vaccine B và D phù hợp cho các nhu cầu miễn dịch cơ bản với giá thành hợp lý."
+      "description": "Combo Vaccine B và D phù hợp cho các nhu cầu miễn dịch cơ bản với giá thành hợp lý.",
+      "origin": "USA"
     }
   ],
   "patients": [

@@ -1,5 +1,4 @@
-import { useRef, useEffect, useState, useContext } from 'react';
-import { VaccineContext } from '../Context/ChildrenSelected';
+import { useRef, useEffect, useState,useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
@@ -14,167 +13,96 @@ import { vaccineAction } from '../redux/reducers/SelectVaccine';
 export default function BodyVariantsHomePage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [vaccines, setVaccine] = useState([]);
+    const [vaccines, setVaccines] = useState([]);
     const [combos, setCombos] = useState([]);
-    const [isOpen, setIsOpen] = useState(false)
-    const ref = useRef(null);
-    const [inputData, setInputData] = useState('');
     const [sortVaccines, setSortVaccines] = useState([]);
-    const [sortType, setSortType] = useState('');
-    const itemList = useSelector((state) => state.vaccine.itemList)
-    const isBooking = useSelector((state) => state.vaccine.isBooking)
-    const calculatedTotal = useSelector((state) => state.vaccine.totalPrice)
+    const [inputData, setInputData] = useState('');
+    const [sortType, setSortType] = useState('All');
+    const [isLoading, setLoading] = useState(true);
+    const [err, setErr] = useState(false);
+    const ref = useRef(null);
+    const itemList= useSelector((state)=>state.vaccine.itemList)
+    const calculatedTotal= useSelector((state)=>(state.vaccine.totalPrice))
+    const isBooking= useSelector((state)=>(state.vaccine.isBooking))
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
-                // all API 
                 const [vaccineRes, comboRes] = await Promise.all([
                     fetchData('vaccine'),
-                    fetchData('combos')
+                    fetchData('combos'),
                 ]);
-                setVaccine(vaccineRes.data);
+                setVaccines(vaccineRes.data);
                 setCombos(comboRes.data);
-                setIsOpen(true);
+                setSortVaccines([...vaccineRes.data, ...comboRes.data]);
             } catch (error) {
-                console.error("Error API:", error);
-                setIsOpen(false);
+                setErr(true);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchDataAsync();
     }, []);
+
     useEffect(() => {
         const storedData = localStorage.getItem('ListVaccine');
         if (storedData) {
             dispatch(vaccineAction.replaceData(JSON.parse(storedData)));
         }
-    }, [])
+    }, [dispatch]);
+
     const handleAddVaccine = (vaccine) => {
-        const vaccineList = Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [];
-        dispatch(vaccineAction.addVaccine({
-            id: vaccine.id,
-            name: vaccine.name,
-            price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
-            description: vaccine.description,
-            country: vaccine.origin,
-            image: vaccine.image,
-            vaccine: vaccineList
-        }))
-    }
-
-
-
-    // const {
-    //     selectedVaccines,
-    //     // isBooking,
-    //     handleBookVaccine,
-    //     handleRemoveVaccine,
-    //     // calculatedTotal
-    // } = useContext(VaccineContext);
-
-    // const [valueSelectVaccine, setSelectedVaccines] = useState(() => {
-    //     return JSON.parse(localStorage.getItem('AddItems')) || [];
-    //   });
+        dispatch(
+            vaccineAction.addVaccine({
+                id: vaccine.id,
+                name: vaccine.name,
+                price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+                description: vaccine.description,
+                country: vaccine.origin,
+                image: vaccine.image,
+                vaccine: Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [],
+            })
+        );
+    };
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        if (vaccines.length > 0 || combos.length > 0) {
-            setSortVaccines([...vaccines, ...combos]);
-        }
-
+        setSortVaccines([...vaccines, ...combos]);
     }, [vaccines, combos]);
 
+    const handleSearch = useCallback(() => {
+        const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
+
+        if (!searchValue) {
+            setSortVaccines([...vaccines, ...combos]);
+            return;
+        }
+
+        const filteredVaccines = vaccines.filter((v) => v.name.includes(searchValue));
+        const filteredCombos = combos.filter((c) => c.name.includes(searchValue));
+
+        setSortVaccines([...filteredVaccines, ...filteredCombos]);
+    }, [inputData, vaccines, combos]);
+
     useEffect(() => {
-        const handleSubmit = (e) => {
+        const timer = setTimeout(handleSearch, 300);
+        return () => clearTimeout(timer);
+    }, [inputData, handleSearch]);
 
-            ref.current.focus();
-            const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
-
-
-            if (searchValue) {
-                const sortByNameVaccine = vaccines
-                    .filter((vaccine) => vaccine.name.includes(searchValue))
-                    .sort((a, b) => a.price - b.price);
-                const sortByNameCombo = combos
-                    .filter((combo) => combo.name.includes(searchValue))
-                    .sort((a, b) => a.price - b.price);
-
-                const combinedResults = [...sortByNameVaccine, ...sortByNameCombo];
-
-                if (combinedResults.length > 0) {
-                    setSortVaccines(combinedResults);
-                    setIsOpen(true);
-                } else {
-                    setIsOpen(false);
-                }
-            } else {
-
-                setSortVaccines([...vaccines, ...combos]);
-                setIsOpen(true);
-            }
-        };
-
-        handleSubmit();
-    }, [inputData]);
     const handleInput = (e) => {
         setInputData(e.target.value);
     };
 
     const sortSelect = (type) => {
         setSortType(type);
-        let sorted = [];
-        switch (type) {
-            case "All":
-                sorted = [...vaccines, ...combos];
-                break;
-            case "Le":
-                sorted = [...vaccines];
-                break;
-            case "Combo":
-                sorted = [...combos];
-                break;
-            default:
-                sorted = [...vaccines, ...combos];
-        }
-
-        if ((vaccines.length > 0 || combos.length > 0)) {
-            setIsOpen(true)
-            setSortVaccines(sorted);
-        }
-
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        ref.current.focus();
-
-        const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
-        console.log(searchValue);
-        setInputData('');
-
-        if (searchValue) {
-            const sortByNameVaccine = vaccines
-                .filter((vaccine) => vaccine.name.includes(searchValue))
-                .sort((a, b) => a.price - b.price);
-            const sortByNameCombo = combos
-                .filter((combo) => combo.name.includes(searchValue))
-                .sort((a, b) => a.price - b.price);
-
-            const combinedResults = [...sortByNameVaccine, ...sortByNameCombo];
-
-            if (combinedResults.length > 0) {
-                setSortVaccines(combinedResults);
-                setIsOpen(true);
-            } else {
-                setIsOpen(false);
-            }
-        } else {
-
+        if (type === "All") {
             setSortVaccines([...vaccines, ...combos]);
-            setIsOpen(true);
+        } else if (type === "Le") {
+            setSortVaccines([...vaccines]);
+        } else if (type === "Combo") {
+            setSortVaccines([...combos]);
         }
     };
-
 
     return (
         <div className="max-w-[1400px] mx-auto py-4 px-4 z-0 mt-40 ">
@@ -201,12 +129,7 @@ export default function BodyVariantsHomePage() {
                                    focus:outline-none focus:ring-2 focus:ring-blue-50 
                                    focus:border-blue-500 transition-all duration-200"
                     />
-                    <button onClick={handleSubmit} type='submit'>
-                        <SearchOutlinedIcon
-                            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 
-                                       text-gray-400 group-hover:text-gray-500 transition-colors duration-200"
-                        />
-                    </button>
+                    
                 </div>
             </div>
 
@@ -229,29 +152,28 @@ export default function BodyVariantsHomePage() {
 
                     {/* Vaccine Grid */}
 
-                    {isOpen ? (
+
+                    {isLoading ? (
+                        <div className="loader absolute right-[50%] left-[45%]"></div>
+                    ) : err ? (
+                        <div className="text-red-500 text-center mt-4">
+                            <img src="https://cdn2.cellphones.com.vn/x,webp/media/wysiwyg/Search-Empty.png" alt="Error" />
+                            {err}
+                        </div>
+                    ) : (
                         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                            {sortVaccines && sortVaccines.map((eachvaccine) => (
+                            {sortVaccines.map((eachvaccine) => (
                                 <Variants
                                     key={eachvaccine.id}
-                                    id={eachvaccine.id}
-                                    image={eachvaccine.image || null}
-                                    title={eachvaccine.name}
-                                    description={eachvaccine.description}
-                                    type={eachvaccine.discount ? 'combos' : 'vaccine'}
-                                    priceGoc={eachvaccine.discount ? eachvaccine.price : null}
-                                    priceSale={
-                                        eachvaccine.discount
-                                            ? eachvaccine.price * (1 - eachvaccine.discount / 100)
-                                            : eachvaccine.price
-                                    }
+                                    {...eachvaccine}
+                                    priceSale={eachvaccine.discount
+                                        ? Math.round(eachvaccine.price * (1 - eachvaccine.discount / 100))
+                                        : eachvaccine.price || 0}
                                     isBooking={isBooking}
                                     onClick={() => handleAddVaccine(eachvaccine)}
                                 />
                             ))}
                         </div>
-                    ) : (
-                        <div className="loader absolute right-[50%] left-[45%]"></div>
                     )}
 
                 </div>

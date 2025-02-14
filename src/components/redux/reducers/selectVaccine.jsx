@@ -8,15 +8,15 @@ const selectVaccineSlice = createSlice({
         totalPrice: 0
     },
     reducers: {
-        replaceData(state,action){
-            state.itemList=action.payload
+        replaceData(state, action) {
+            state.itemList = action.payload
         },
         addVaccine(state, action) {
             const newVaccine = action.payload;
             const check = state.itemList.find((vaccine) => vaccine.id === newVaccine.id);
             if (check) {
                 state.itemList = state.itemList.filter((vaccine) => vaccine.id !== check.id);
-                state.totalPrice -= check.price;
+                state.totalPrice -= check.price || 0;
                 state.isBooking = state.isBooking.filter((id) => id !== newVaccine.id)
             } else {
 
@@ -31,9 +31,11 @@ const selectVaccineSlice = createSlice({
 
                 });
                 state.isBooking.push(newVaccine.id)
-                state.totalPrice += newVaccine.price;
+                state.totalPrice += newVaccine.price
             }
-            localStorage.setItem('ListVaccine', JSON.stringify(state.itemList));
+            state.itemList.length > 0
+                ? localStorage.setItem('ListVaccine', JSON.stringify(state.itemList))
+                : localStorage.removeItem('ListVaccine');
 
         },
         deleteVaccine(state, action) {
@@ -44,17 +46,15 @@ const selectVaccineSlice = createSlice({
             //avoid undefind
             state.isBooking = state.isBooking.filter((vaccineID) => vaccineID !== id)
             state.totalPrice -= check.price || 0;
-            localStorage.setItem('ListVaccine', JSON.stringify(state.itemList));
-
-        },
-        sortVaccine (state,action){
-            const type = action.payload
+            state.itemList.length > 0
+                ? localStorage.setItem('ListVaccine', JSON.stringify(state.itemList))
+                : localStorage.removeItem('ListVaccine');
 
         }
 
     }
-    
-    
+
+
 })
 export const vaccineAction = selectVaccineSlice.actions;
 export default selectVaccineSlice

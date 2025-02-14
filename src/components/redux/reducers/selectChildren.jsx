@@ -33,7 +33,9 @@ const childrenSelectSlice = createSlice({
 
                 });
             }
-            localStorage.setItem('ListChildren', JSON.stringify(state.listChildren));
+            state.listChildren.length > 0
+                ? localStorage.setItem('ListChildren', JSON.stringify(state.listChildren))
+                : localStorage.removeItem('ListChildren');
 
         },
         deleteChild(state, action) {
@@ -41,13 +43,18 @@ const childrenSelectSlice = createSlice({
             const existingChild = state.listChildren.find(child => child.id === id);
             if (!existingChild) return;
             state.listChildren = state.listChildren.filter(child => child.id !== id);
-            localStorage.setItem('ListChildren', JSON.stringify(state.listChildren));
-
-        },
+            state.listChildren.length > 0
+                ? localStorage.setItem('ListChildren', JSON.stringify(state.listChildren))
+                : localStorage.removeItem('ListChildren');
+        },  
         handleOnChange(state, action) {
             const { name, value } = action.payload;
-            state.inputData[name] = value;
-        },
+            state.inputData = {
+                ...state.inputData,
+                [name]: value,
+            };
+        }
+
         // addChild(state, action) { 
         //     state.listChildren.push(action.payload);
         // }

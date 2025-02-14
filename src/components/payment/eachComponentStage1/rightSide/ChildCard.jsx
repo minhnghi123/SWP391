@@ -3,7 +3,7 @@ import VaccinationHistory from './VaccineHistory';
 import HealthInformation from './HealthInFormation';
 import UpcomingAppointments from '../rightSide/UpComingAppointments';
 import CalculateAge  from '../../../../utils/calculateYearOld'
-const ChildCard = ({ child, handleChoose }) => {
+const ChildCard = ({ child, handleRemove }) => {
     return (
         <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-200">
             {/* Child Header with Photo */}
@@ -32,7 +32,7 @@ const ChildCard = ({ child, handleChoose }) => {
                         </div>
                     </div>
                     <button
-                        onClick={() => handleChoose(child)}
+                        onClick={handleRemove}
                         className="p-2 hover:bg-white/10 rounded-xl transition-all"
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

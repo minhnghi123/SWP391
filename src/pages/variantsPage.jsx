@@ -8,12 +8,14 @@ const VariantsPage = () => {
 
     return (
         <>
+        <VaccineProvider>
            <HeaderVariants/>
 
             <BodyVariantsHomePage />
 
 
             <FooterHomePage />
+        </VaccineProvider>
         </>
     )
 

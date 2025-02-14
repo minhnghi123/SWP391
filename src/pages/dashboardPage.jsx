@@ -1,7 +1,9 @@
 import LeftSide from '../components/dashboard/LeftSide' 
 import RightSide from '../components/dashboard/RightSide'
+import { AuthProvider } from '../components/Services/AuthLogin';
 const dashboardPage = () => {
   return (
+    <AuthProvider>
     <div className="flex min-h-screen bg-white">
       
       <div className="w-64">
@@ -12,6 +14,7 @@ const dashboardPage = () => {
         <RightSide />
       </div>
     </div>
+    </AuthProvider>
   );
 };
 export default dashboardPage;

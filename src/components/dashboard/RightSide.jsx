@@ -1,21 +1,50 @@
-import { useParams } from "react-router-dom";
-
-import Dashboard from "../dashboard/Section/dashboard"; 
-import Appointments from "../dashboard/Section/appointments";
-import DoctorSchedule from "../dashboard/Section/doctorSchedule";
-import Patients from "../dashboard/Section/patients"; 
-import Payments from "../dashboard/Section/payments";
-import Inventory from "../dashboard/Section/inventory";
-import { useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useRef, useState, useEffect, useContext } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import Avatar from "../../assets/p15.jpg"; 
+import imgAvatar from '../../assets/p15.jpg'
+import { AuthContext } from "../Services/AuthLogin";
 
-
+import Dashboard from "../dashboard/Section/dashboard";
+import Appointments from "../dashboard/Section/appointments";
+import DoctorSchedule from "../dashboard/Section/doctorSchedule";
+import Patients from "../dashboard/Section/patients";
+import Payments from "../dashboard/Section/payments";
+import Inventory from "../dashboard/Section/inventory";
+import LoginPage from "../../pages/loginPage";
+import AvatarHomePage from "../home/avatarHomePage";
 const RightSide = () => {
+  const {logout} = useContext(AuthContext);
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem('Account');
+    navigate('../loginPage');
+  }
+  const navigate = useNavigate();
   const { section } = useParams(); // Lấy section từ URL
   const searchRef = useRef(null);
   const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+      const dropdownRef = useRef(null);
+  
+  
+      // Click outside handler
+      useEffect(() => {
+          const handleClickOutside = (event) => {
+              if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                  //phần tử được click không nằm bên trong dropdown.
+                  setIsOpen(false);
+              }
+          };
+  
+          document.addEventListener('mousedown', handleClickOutside);
+          return () => document.removeEventListener('mousedown', handleClickOutside);
+      }, []);
+
+  const user ={
+    name:'Shu',
+    email:'teei8191@gmail.com'
+  }
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -27,7 +56,7 @@ const RightSide = () => {
     setSearch("");
   };
 
-  // Hàm render section
+  // Hàm render section với ID user
   const renderSection = () => {
     switch (section) {
       case "dashboard":
@@ -42,10 +71,8 @@ const RightSide = () => {
         return <Payments />;
       case "inventory":
         return <Inventory />;
-      case "message":
-        return <Message />;
       default:
-        return <Dashboard />; // Mặc định hiển thị Dashboard nếu không có section
+        return <Dashboard />;
     }
   };
 
@@ -56,26 +83,17 @@ const RightSide = () => {
         <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <div className="flex items-center space-x-3">
-                <h1 className="text-2xl font-bold text-gray-800 capitalize">
-                  {section === "dashboard" && "Dashboard"}
-                  {section === "appointments" && "Appointments"}
-                  {section === "patients" && "Patients"}
-                  {section === "doctorSchedule" && "Doctors' Schedule"}
-                  {section === "payments" && "Payments"}
-                  {section === "inventory" && "Inventory"}
-                </h1>
-              </div>
-              <p className="text-sm text-gray-500">
-                {section === "dashboard" && "Overview"}
-                {section === "appointments" && "Manage Appointments"}
-                {section === "patients" && "Manage Patients"}
-                {section === "doctorSchedule" && "Manage Doctor's Schedule"}
-                {section === "payments" && "Manage Payments"}
-                {section === "inventory" && "Manage Inventory"}
-              </p>
+              <h1 className="text-2xl font-bold text-gray-800 capitalize">
+                {section === "dashboard" && "Dashboard"}
+                {section === "appointments" && "Appointments"}
+                {section === "patients" && "Patients"}
+                {section === "doctorSchedule" && "Doctors' Schedule"}
+                {section === "payments" && "Payments"}
+                {section === "inventory" && "Inventory"}
+              </h1>
             </div>
-            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-6">
+    {/* Search Bar */}
               <div className="relative group">
                 <input
                   ref={searchRef}
@@ -86,34 +104,70 @@ const RightSide = () => {
                   className="w-64 pl-11 pr-4 py-2.5 rounded-lg border border-gray-200 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-500 transition-all duration-200"
                 />
                 <button onClick={handleSubmit}>
-                  <SearchOutlinedIcon
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                  />
+                  <SearchOutlinedIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </button>
               </div>
-              <div className="relative">
-                <button className="p-2 rounded-lg hover:bg-gray-100 transition-all duration-200">
+
+              {/* Avatar và Notification cùng hàng */}
+              <div className="flex items-center space-x-4">
+                {/* Notification */}
+                <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-200">
                   <NotificationsNoneOutlinedIcon className="w-6 h-6 text-gray-600" />
-                  <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                 </button>
-              </div>
-              <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-blue-100 hover:ring-blue-200">
-                <img
-                  src={Avatar}
-                  alt="User avatar"
-                  className="w-full h-full object-cover"
-                />
+
+                {/* Avatar */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`w-10 h-10 rounded-full ${isOpen ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'} transition-all duration-300 focus:outline-none`}>
+                    <div className="w-full h-full rounded-full overflow-hidden">
+                      <img
+                        className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
+                        src={user.picture || imgAvatar}
+                        alt="User avatar"
+                      />
+                    </div>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isOpen && (
+                    <div className="absolute top-14 right-0 w-64 bg-white rounded-2xl shadow-lg border border-gray-100 transform transition-all duration-200 ease-out z-50">
+                      {/* User Info */}
+                      <div className="p-4 border-b border-gray-100">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-blue-500">
+                            <img className="w-full h-full object-cover" src={user.picture || imgAvatar} alt="User profile" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold text-gray-800">{user.name || user.user}</h4>
+                            <p className="text-xs text-gray-500">{user.email || ''}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Menu Items */}
+                      <div className="p-2 space-y-1">
+                        <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          </svg>
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      
       {/* Section rendering */}
       <div>{renderSection()}</div>
     </div>
   );
 };
 
-
 export default RightSide;
-

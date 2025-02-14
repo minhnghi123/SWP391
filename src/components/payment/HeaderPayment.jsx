@@ -1,64 +1,130 @@
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Stethoscope, CreditCard, CheckCircle } from "lucide-react";
+import React from 'react';
+import { styled } from '@mui/material/styles';
+import Stack from '@mui/material/Stack';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import Check from '@mui/icons-material/Check';
+import SettingsIcon from '@mui/icons-material/Settings';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import VideoLabelIcon from '@mui/icons-material/VideoLabel';
+import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
 
-export default function HeaderPayment({ currentStep, setIsopenNextStep }) {
-    const navigate = useNavigate();
+const QontoConnector = styled(StepConnector)(({ theme }) => ({
+  [`&.${stepConnectorClasses.alternativeLabel}`]: {
+    top: 10,
+    left: 'calc(-50% + 16px)',
+    right: 'calc(50% + 16px)',
+  },
+  [`&.${stepConnectorClasses.active}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: '#784af4',
+    },
+  },
+  [`&.${stepConnectorClasses.completed}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: '#784af4',
+    },
+  },
+  [`& .${stepConnectorClasses.line}`]: {
+    borderColor: '#eaeaf0',
+    borderTopWidth: 3,
+    borderRadius: 1,
+  },
+}));
 
-    const steps = [
-        { id: 1, title: "Patient Info", description: "Child’s medical details", icon: <Stethoscope className="w-6 h-6" /> },
-        { id: 2, title: "Payment", description: "Secure online payment", icon: <CreditCard className="w-6 h-6" /> },
-        { id: 3, title: "Confirmation", description: "Appointment booked", icon: <CheckCircle className="w-6 h-6" /> }
-    ];
+const QontoStepIconRoot = styled('div')(({ theme, ownerState }) => ({
+  color: ownerState.active ? '#784af4' : '#eaeaf0',
+  display: 'flex',
+  height: 22,
+  alignItems: 'center',
+  '& .QontoStepIcon-completedIcon': {
+    color: '#784af4',
+    zIndex: 1,
+    fontSize: 18,
+  },
+  '& .QontoStepIcon-circle': {
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    backgroundColor: 'currentColor',
+  },
+}));
 
-    return (
-        <div className="bg-white shadow-md py-6 px-4 sm:px-8 lg:px-16">
-            <div className="max-w-4xl mx-auto flex flex-col items-center space-y-6">
+function QontoStepIcon({ active, completed }) {
+  return (
+    <QontoStepIconRoot ownerState={{ active }}>
+      {completed ? <Check className="QontoStepIcon-completedIcon" /> : <div className="QontoStepIcon-circle" />}
+    </QontoStepIconRoot>
+  );
+}
 
-                {/* Back Button */}
-                <button
-                    onClick={() =>
-                        currentStep === 1 ? navigate(-1) : setIsopenNextStep(currentStep - 1)
-                    }
-                    className="self-start flex items-center gap-3 text-white bg-blue-600 p-2 rounded-lg hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-300 transition ease-in-out duration-200"
-                >
-                   
-                    <span className="font-medium">Back</span>
-                </button>
+const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
+  [`&.${stepConnectorClasses.alternativeLabel}`]: {
+    top: 22,
+  },
+  [`&.${stepConnectorClasses.active}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      backgroundImage: 'linear-gradient(95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
+    },
+  },
+  [`&.${stepConnectorClasses.completed}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      backgroundImage: 'linear-gradient(95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
+    },
+  },
+  [`& .${stepConnectorClasses.line}`]: {
+    height: 3,
+    border: 0,
+    backgroundColor: '#eaeaf0',
+    borderRadius: 1,
+  },
+}));
 
+const ColorlibStepIconRoot = styled('div')(({ ownerState }) => ({
+  backgroundColor: ownerState.active || ownerState.completed ? 'linear-gradient(136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)' : '#ccc',
+  zIndex: 1,
+  color: '#fff',
+  width: 50,
+  height: 50,
+  display: 'flex',
+  borderRadius: '50%',
+  justifyContent: 'center',
+  alignItems: 'center',
+}));
 
-                {/* Steps */}
-                <div className="flex justify-between w-full max-w-lg space-x-6">
-                    {steps.map((step, index) => (
-                        <div key={step.id} className="flex flex-col items-center relative">
+function ColorlibStepIcon({ active, completed, icon }) {
+  const icons = {
+    1: <SettingsIcon />,
+    2: <GroupAddIcon />,
+    3: <VideoLabelIcon />,
+  };
+  return (
+    <ColorlibStepIconRoot ownerState={{ completed, active }}>
+      {icons[icon]}
+    </ColorlibStepIconRoot>
+  );
+}
 
-                            {/* Step Circle */}
-                            <div
-                                className={`w-14 h-14 flex items-center justify-center rounded-full text-lg font-bold transition-all duration-300
-                                ${currentStep === step.id
-                                        ? "bg-blue-500 text-white shadow-lg"
-                                        : currentStep > step.id
-                                            ? "bg-blue-200 text-blue-600"
-                                            : "bg-gray-100 text-gray-400"}`}
-                            >
-                                {step.icon}
-                            </div>
+const steps = ['Select campaign settings', 'Create an ad group', 'Create an ad'];
 
-                            {/* Step Title */}
-                            <div className="text-center mt-2">
-                                <h3 className="text-sm font-semibold text-gray-900">{step.title}</h3>
-                                <p className="text-xs text-gray-500">{step.description}</p>
-                            </div>
-
-                            {/* Connector Line */}
-                            {index !== steps.length - 1 && (
-                                <div className={`absolute top-7 left-[100%] w-16 h-[3px] 
-                                ${currentStep > step.id ? "bg-blue-500" : "bg-gray-300"}`}>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
+export default function CustomizedSteppers() {
+  return (
+    <Stack sx={{ width: '100%' }} spacing={4}>
+      <Stepper alternativeLabel activeStep={1} connector={<QontoConnector />}>
+        {steps.map((label, index) => (
+          <Step key={label}>
+            <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      <Stepper alternativeLabel activeStep={1} connector={<ColorlibConnector />}>
+        {steps.map((label, index) => (
+          <Step key={label}>
+            <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+    </Stack>
+  );
 }

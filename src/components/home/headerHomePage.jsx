@@ -13,7 +13,7 @@ export default function Header() {
     const navigate = useNavigate();
     const itemList = useSelector((state) => state.vaccine.itemList);
     const user = useSelector((state) => state.account.user);
-    console.log(user)
+   
     const navItems = [
         { label: "Home", id: "home" },
         { label: "About", id: "about" },

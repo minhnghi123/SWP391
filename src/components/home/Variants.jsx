@@ -1,19 +1,12 @@
 import formatCurrency from '../../utils/calculateMoney';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from "react-redux";
-import { vaccineAction } from '../redux/reducers/SelectVaccine';
+import { useNavigate} from 'react-router-dom';
 
-const Variants = ({id, image, title, description, country, priceSale, onClick, type, priceGoc, isBooking }) => {
+
+
+const Variants = ({id, image, name, description, country, priceSale, onClick, type, priceGoc, isBooking }) => {
     const navigate = useNavigate();
-    const dispatch = useDispatch()
-    const handleBookVaccine =()=>{
-        dispatch (vaccineAction.addVaccine({
-            id,name,image,description,country
-        }))
-
-    }
     const isBooked = isBooking && isBooking.includes(id);
 
     return (
@@ -33,7 +26,7 @@ const Variants = ({id, image, title, description, country, priceSale, onClick, t
                 {/* Vaccine Details */}
                 <div className='space-y-3'>
                     <div className='flex items-center justify-between'>
-                        <h2 className='text-xl font-semibold text-gray-800'>{title}</h2>
+                        <h2 className='text-xl font-semibold text-gray-800'>{name}</h2>
                         <InfoOutlinedIcon onClick={() => navigate(`/detailInformationVaccine/${type}/${id}`)} className='text-blue-400 cursor-pointer' />
                     </div>
 

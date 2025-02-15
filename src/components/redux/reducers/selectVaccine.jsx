@@ -1,8 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 // Load data from localStorage
-const storedItemList = JSON.parse(localStorage.getItem('ListVaccine')) || [];
-const storedTotalPrice = JSON.parse(localStorage.getItem('TotalVaccine')) || 0;
+let storedItemList = [];
+let storedTotalPrice = 0;
+
+try {
+    storedItemList = JSON.parse(localStorage.getItem('ListVaccine')) || [];
+    storedTotalPrice = JSON.parse(localStorage.getItem('TotalVaccine')) || 0;
+} catch (error) {
+    console.error('Error loading data from localStorage:', error);
+}
+
 
 const selectVaccineSlice = createSlice({
     name: 'vaccine',
@@ -48,7 +56,17 @@ const selectVaccineSlice = createSlice({
             state.totalPrice > 0
                 ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice))
                 : localStorage.removeItem('TotalVaccine');
+        },
+        completePayment(state) {
+            state.itemList = [];
+            state.isBooking = [];
+            state.totalPrice = 0;
+
+            // Clear localStorage
+            localStorage.removeItem('ListVaccine');
+            localStorage.removeItem('TotalVaccine');
         }
+
     }
 });
 

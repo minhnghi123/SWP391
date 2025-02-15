@@ -21,7 +21,7 @@ export default function BodyPaymentPage({ isopennextstep }) {
         dispatch(childAction.handleOnChange({ name: e.target.name, value: e.target.value }));
     };
     const handleRemove =(id)=>{
-        console.log(id)
+    
         dispatch(childAction.deleteChild(id))
     }
     // Lấy dữ liệu từ LocalStorage & API

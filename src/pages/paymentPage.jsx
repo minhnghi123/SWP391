@@ -34,9 +34,9 @@ export default function PaymentPage() {
         ) : (
           <>
             <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />
-            <NumberOfPeopleProvider>
+            
               {renderBodyPayment()}
-            </NumberOfPeopleProvider>
+        
             <FooterHomePage />
           </>
         )

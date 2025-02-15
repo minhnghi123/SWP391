@@ -1,11 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 // import { fetchDataChild } from "../actions/fetchChildrenUser";
+let storeChildList = [];
+try {
+    storeChildList = JSON.parse(localStorage.getItem('ListChildren')) || [];
+} catch (error) {
+    console.error('Error parsing ListChildren from localStorage:', error);
+}
 
 const childrenSelectSlice = createSlice({
     name: "children",
     initialState: {
         user: null,
-        listChildren: [],
+        listChildren: storeChildList,
         inputData: {},
         loading: false,
         error: null,
@@ -46,34 +52,26 @@ const childrenSelectSlice = createSlice({
             state.listChildren.length > 0
                 ? localStorage.setItem('ListChildren', JSON.stringify(state.listChildren))
                 : localStorage.removeItem('ListChildren');
-        },  
+        },
         handleOnChange(state, action) {
             const { name, value } = action.payload;
             state.inputData = {
                 ...state.inputData,
                 [name]: value,
             };
+        },
+        completePayment(state) {
+            state.listChildren = [];
+            state.inputData = {};
+
+            // Remove from localStorage
+            localStorage.removeItem('ListChildren');
+
         }
 
-        // addChild(state, action) { 
-        //     state.listChildren.push(action.payload);
-        // }
+
     },
-    // extraReducers: (builder) => {
-    //     builder
-    //         .addCase(fetchDataChild.pending, (state) => {
-    //             state.loading = true;
-    //             state.error = null;
-    //         })
-    //         .addCase(fetchDataChild.fulfilled, (state, action) => {
-    //             state.loading = false;
-    //             state.user = action.payload;
-    //         })
-    //         .addCase(fetchDataChild.rejected, (state, action) => {
-    //             state.loading = false;
-    //             state.error = action.payload;
-    //         });
-    // }
+
 });
 
 export const childAction = childrenSelectSlice.actions;

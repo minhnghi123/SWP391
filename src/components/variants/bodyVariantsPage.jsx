@@ -199,8 +199,9 @@ export default function BodyVariantsHomePage() {
                                 ))}
                             </motion.div>
                         ) : (
-                            <div className="flex justify-center items-center h-64">
-                                <p className="text-gray-600 text-center">No results found</p>
+                            <div className="flex flex-col justify-center items-center h-64 gap-4">
+                                <img src="https://cdn2.cellphones.com.vn/x,webp/media/wysiwyg/Search-Empty.png"></img>
+                                <p className="text-gray-600 text-center text-lg">No results found</p>
                             </div>
                         )}
                     </div>

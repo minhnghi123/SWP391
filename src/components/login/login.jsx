@@ -3,6 +3,7 @@
 import { jwtDecode } from "jwt-decode";
 import { useState, useContext } from "react";
 import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import FormLogin from './formLogin';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -71,14 +72,22 @@ export default function Login({ setRegister }) {
             const data = {
                 id: decoded.sub,
                 token: decoded.iat,
-                name: decoded.user
+                name: decoded.user,
+                role: decoded.role || 'admin' // Ensure this is dynamic
             }
-            dispatch(accountAction.setUser(data))
-            toast.success("Login successfully");
-            // login()
+           
+            dispatch(accountAction.setUser(data));
             setTimeout(() => {
-                navigate('/')
-            }, 1000)
+                if (data && data.role === 'admin') {
+                   toast.success("Welcome Admin Come Back")
+                    navigate('/dashboardPage/dashboard');
+                } else if (data && data.role) {
+                    toast.success("Login successfully");
+                    navigate('/');
+                } else {
+                    toast.error("Invalid role or login details");
+                }
+            },1000);
         } catch (err) {
             toast.error("Login Failed");
         }

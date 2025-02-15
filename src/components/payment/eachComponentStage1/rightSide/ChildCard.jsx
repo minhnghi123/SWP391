@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { FaChild, FaMars, FaVenus, FaCalendarAlt, FaChevronDown, FaChevronUp, FaHeartbeat, FaHistory  } from "react-icons/fa";
+import { FaChild, FaMars, FaVenus, FaCalendarAlt, FaChevronDown, FaChevronUp, FaHeartbeat, FaHistory, FaTrashAlt } from "react-icons/fa";
 import { MdFamilyRestroom } from "react-icons/md";
 import CalculateAge from '../../../../utils/calculateYearOld'
 import ToUperCaseFirstLetter from '../../../../utils/upperCaseFirstLetter'
 
-const ChildInfoCard = ({ child, handleRemove,parentName}) => {
+const ChildInfoCard = ({ child, handleRemove, parentName }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+
     return (
         <div className="max-w-2xl mx-auto p-4">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300">
@@ -36,14 +37,24 @@ const ChildInfoCard = ({ child, handleRemove,parentName}) => {
                             </div>
                         </div>
 
-                        <button
-                            onClick={() => setIsExpanded(!isExpanded)}
-                            className="text-gray-600 hover:text-gray-800 transition-colors"
-                        >
-                            {isExpanded ? <FaChevronUp size={24} /> : <FaChevronDown size={24} />}
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => handleRemove(child.id)}
+                                className="text-red-500 hover:text-red-700 transition-colors p-2 rounded-full hover:bg-red-100"
+                                aria-label="Remove child"
+                            >
+                                <FaTrashAlt size={20} />
                         </button>
-                    </div>
-                </div>
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className="text-gray-600 hover:text-gray-800 transition-colors p-2 rounded-full hover:bg-gray-100"
+                                aria-label={isExpanded ? "Collapse details" : "Expand details"}
+                            >
+                                {isExpanded ? <FaChevronUp size={20} /> : <FaChevronDown size={20} />}
+                            </button>
+                        </div>
+                                </div>
+                                    </div>
                 {isExpanded && (
                     <div className="p-6 space-y-6 bg-gray-50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -57,38 +68,38 @@ const ChildInfoCard = ({ child, handleRemove,parentName}) => {
                                         <MdFamilyRestroom/>
                                         <span className="font-medium">Parent Name:</span>
                                         <span className="">{parentName}</span>
-                                    </div>
+                                            </div>
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         <FaCalendarAlt className="text-blue-400" />
                                         <span className="font-medium">Birth Date:</span>
                                         <span>{child.dateOfBirth}</span>
-                                    </div>
+                                            </div>
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         {child.gender === "Male" ?
                                             <FaMars className="text-blue-400" /> :
                                             <FaVenus className="text-pink-400" />}
                                         <span className="font-medium">Gender:</span>
                                         <span>{child.gender}</span>
-                                    </div>
+                                        </div>
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         <FaHeartbeat className="text-green-400" />
                                         <span className="font-medium">Status:</span>
                                         <span className={`px-2 py-1 rounded-full text-sm ${child.status === "Good" ? "bg-green-100 text-green-800" : "bg-gray-100 text-red-500"}`}>
                                             {child.status}
                                         </span>
-                                    </div>
+                            </div>
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         <FaCalendarAlt className="text-purple-400" />
                                         <span className="font-medium">Created:</span>
                                         <span>{new Date(child.createDate).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
+            </div>
                             <div className="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
                                 <div className="flex items-center space-x-2 mb-4">
                                     <FaHistory className="text-purple-500 text-xl" />
                                     <h3 className="font-semibold text-gray-800 text-lg">History</h3>
-                                </div>
+        </div>
                                 <div className="space-y-4">
                                     <div className="border-l-2 border-purple-200 pl-4 space-y-3">
                                         <div className="relative">

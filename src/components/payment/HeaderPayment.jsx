@@ -1,64 +1,83 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Stethoscope, CreditCard, CheckCircle } from "lucide-react";
+import { Stethoscope, CreditCard, CheckCircle, ChevronLeft } from "lucide-react";
+
+const steps = [
+    { id: 1, title: "Patient Info", description: "Child's medical details", icon: Stethoscope },
+    { id: 2, title: "Payment", description: "Secure online payment", icon: CreditCard },
+    { id: 3, title: "Confirmation", description: "Appointment booked", icon: CheckCircle },
+];
+
+const StepIcon = ({ Icon, isActive, isCompleted }) => (
+    <div
+        className={`w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full transition-all duration-300 ${isActive
+                ? "bg-blue-600 text-white shadow-lg ring-4 ring-blue-100"
+                : isCompleted
+                    ? "bg-green-500 text-white shadow-md"
+                    : "bg-gray-200 text-gray-400"
+            }`}
+    >
+        <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
+    </div>
+);
+
+const StepConnector = ({ isCompleted }) => (
+    <div className="hidden sm:block absolute top-1/2 left-[calc(50%+2rem)] right-[calc(50%+2rem)] h-1 -translate-y-1/2">
+        <div
+            className={`h-full ${isCompleted ? "bg-green-500" : "bg-gray-300"
+                } transition-all duration-300 rounded-full`}
+        />
+    </div>
+);
 
 export default function HeaderPayment({ currentStep, setIsopenNextStep }) {
     const navigate = useNavigate();
 
-    const steps = [
-        { id: 1, title: "Patient Info", description: "Child’s medical details", icon: <Stethoscope className="w-6 h-6" /> },
-        { id: 2, title: "Payment", description: "Secure online payment", icon: <CreditCard className="w-6 h-6" /> },
-        { id: 3, title: "Confirmation", description: "Appointment booked", icon: <CheckCircle className="w-6 h-6" /> }
-    ];
+    const handleBack = () => {
+        currentStep === 1 ? navigate(-1) : setIsopenNextStep(currentStep - 1);
+    };
 
     return (
-        <div className="bg-white shadow-md py-6 px-4 sm:px-8 lg:px-16">
-            <div className="max-w-4xl mx-auto flex flex-col items-center space-y-6">
-
+        <header className="bg-white shadow-lg py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto relative">
                 {/* Back Button */}
                 <button
-                    onClick={() =>
-                        currentStep === 1 ? navigate(-1) : setIsopenNextStep(currentStep - 1)
-                    }
-                    className="self-start flex items-center gap-3 text-white bg-blue-600 p-2 rounded-lg hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-300 transition ease-in-out duration-200"
+                    onClick={handleBack}
+                    className="absolute bottom-[50%] flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                   
+                    <ChevronLeft className="w-5 h-5 text-gray-600" />
                     <span className="font-medium">Back</span>
                 </button>
 
 
-                {/* Steps */}
-                <div className="flex justify-between w-full max-w-lg space-x-6">
-                    {steps.map((step, index) => (
-                        <div key={step.id} className="flex flex-col items-center relative">
-
-                            {/* Step Circle */}
-                            <div
-                                className={`w-14 h-14 flex items-center justify-center rounded-full text-lg font-bold transition-all duration-300
-                                ${currentStep === step.id
-                                        ? "bg-blue-500 text-white shadow-lg"
-                                        : currentStep > step.id
-                                            ? "bg-blue-200 text-blue-600"
-                                            : "bg-gray-100 text-gray-400"}`}
-                            >
-                                {step.icon}
-                            </div>
-
-                            {/* Step Title */}
-                            <div className="text-center mt-2">
-                                <h3 className="text-sm font-semibold text-gray-900">{step.title}</h3>
-                                <p className="text-xs text-gray-500">{step.description}</p>
-                            </div>
-
-                            {/* Connector Line */}
-                            {index !== steps.length - 1 && (
-                                <div className={`absolute top-7 left-[100%] w-16 h-[3px] 
-                                ${currentStep > step.id ? "bg-blue-500" : "bg-gray-300"}`}>
+                {/* Progress Navigation */}
+                <nav aria-label="Progress">
+                    <ol className="flex items-center justify-between w-full max-w-4xl mx-auto">
+                        {steps.map((step, stepIdx) => (
+                            <li key={step.id} className="relative flex flex-col items-center text-center">
+                                <StepIcon
+                                    Icon={step.icon}
+                                    isActive={currentStep === step.id}
+                                    isCompleted={currentStep > step.id}
+                                />
+                                <div className="mt-4">
+                                    <p
+                                        className={`text-sm font-medium ${currentStep >= step.id ? "text-blue-600" : "text-gray-500"
+                                            }`}
+                                    >
+                                        Step {step.id}
+                                    </p>
+                                    <p className="text-sm font-medium text-gray-900">{step.title}</p>
+                                    <p className="text-xs text-gray-500 mt-1 hidden sm:block">{step.description}</p>
                                 </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                                {stepIdx < steps.length - 1 && (
+                                    <StepConnector isCompleted={currentStep > step.id} />
+                                )}
+                            </li>
+                        ))}
+                    </ol>
+                </nav>
             </div>
-        </div>
+        </header>
     );
 }

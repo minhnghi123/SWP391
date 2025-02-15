@@ -39,4 +39,3 @@ export const deleteData = async ( endpoint,id) => {
 };
 
 export default client;
-

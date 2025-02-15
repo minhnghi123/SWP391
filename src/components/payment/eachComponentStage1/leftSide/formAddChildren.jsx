@@ -100,7 +100,7 @@ const FormAddChildren = ({handleSubmit,handleOnchange}) => {
                     </div>
 
                     {/* Advisory Section */}
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             Does the child need special medical attention?
                         </label>
@@ -141,7 +141,7 @@ const FormAddChildren = ({handleSubmit,handleOnchange}) => {
                                 />
                             </div>
                         )}
-                    </div>
+                    </div> */}
 
                     {/* Submit Button */}
                     <button

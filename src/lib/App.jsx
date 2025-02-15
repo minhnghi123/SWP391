@@ -9,20 +9,14 @@ import PageProfile from '../pages/PageProfile';
 import DashboardPage from '../pages/dashboardPage';
 import FeedbackPage from '../pages/feedbackPage';
 import Detail from '../components/variants/DetailInformationVaccine';
-import { VaccineProvider } from '../components/Context/ChildrenSelected';
-import ProtectedRoute from '../components/Services/ProtectedRoute ';
 import { FeedbackProvider } from '../components/Context/FeedbackContext';
 function App() {
   return (
     <Routes>
       <Route path="/" element={
-        <VaccineProvider>
-          <HomePage />
-        </VaccineProvider>
-
-
+        <HomePage />
       } />
-    
+
       <Route path="/loginPage" element={<LoginPage />} />
       <Route path="/aboutPage" element={<AboutPage />} />
       <Route path="/test" element={<Test />} />
@@ -38,17 +32,17 @@ function App() {
       } />
       {/* VaccineProvider applied only for specific pages */}
       <Route path="/paymentPage" element={
-       
-          <PaymentPage />
-      
+
+        <PaymentPage />
+
       } />
       {/* </Route> */}
 
       {/* Non-Protected Route */}
       <Route path="/variantsPage" element={
-       
-          <VariantsPage />
-      
+
+        <VariantsPage />
+
       } />
     </Routes>
   );

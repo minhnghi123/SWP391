@@ -1,157 +1,104 @@
-import { useRef, useEffect, useState, useContext } from 'react';
-import { motion, AnimatePresence } from "framer-motion";
-import { VaccineContext } from '../Context/ChildrenSelected';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import formatCurrency from '../../utils/calculateMoney';
-import ToUpperCaseWords from '../../utils/upperCaseFirstLetter';
 import Variants from '../home/Variants';
 import { fetchData } from '../../Api/axios';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
-import '../css/loading.css'
-
-
-const BodyVariantsHomePage = () => {
+import '../css/loading.css';
+import { useSelector, useDispatch } from "react-redux";
+import { vaccineAction } from '../redux/reducers/selectVaccine';
+import { motion, AnimatePresence } from "framer-motion";
+export default function BodyVariantsHomePage() {
     const navigate = useNavigate();
-    const [vaccines, setVaccine] = useState([]);
+    const dispatch = useDispatch();
+    const [vaccines, setVaccines] = useState([]);
     const [combos, setCombos] = useState([]);
-    const [isOpen, setIsOpen] = useState(false);
-    const ref = useRef(null);
-    const [inputData, setInputData] = useState('');
     const [sortVaccines, setSortVaccines] = useState([]);
-    const [sortType, setSortType] = useState('');
-    const [showFilters, setShowFilters] = useState(false);
+    const [inputData, setInputData] = useState('');
+    const [sortType, setSortType] = useState('All');
+    const [isLoading, setLoading] = useState(true);
+    const [err, setErr] = useState(false);
+    const ref = useRef(null);
+    const itemList = useSelector((state) => state.vaccine?.itemList || []);
+    const calculatedTotal = useSelector((state) => state.vaccine.totalPrice);
+    const isBooking = useSelector((state) => state.vaccine.isBooking)
+
+
+
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
-                // all API 
                 const [vaccineRes, comboRes] = await Promise.all([
                     fetchData('vaccine'),
-                    fetchData('combos')
+                    fetchData('combos'),
                 ]);
-                setVaccine(vaccineRes.data);
+                setVaccines(vaccineRes.data);
                 setCombos(comboRes.data);
-                setIsOpen(true);
+                setSortVaccines([...vaccineRes.data, ...comboRes.data]);
             } catch (error) {
-                console.error("Error API:", error);
-                setIsOpen(false);
+                setErr(true);
+            } finally {
+                setLoading(false);
             }
         };
-
         fetchDataAsync();
     }, []);
-    const {
-        selectedVaccines,
-        isBooking,
-        handleBookVaccine,
-        handleRemoveVaccine,
-        calculatedTotal
-    } = useContext(VaccineContext);
 
-    // const [valueSelectVaccine, setSelectedVaccines] = useState(() => {
-    //     return JSON.parse(localStorage.getItem('AddItems')) || [];
-    //   });
+    const handleAddVaccine = (vaccine) => {
+        dispatch(
+            vaccineAction.addVaccine({
+                id: vaccine.id,
+                name: vaccine.name,
+                price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+                description: vaccine.description,
+                country: vaccine.origin,
+                image: vaccine.image,
+                vaccine: Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [],
+            })
+        );
+    };
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        if (vaccines.length > 0 || combos.length > 0) {
-            setSortVaccines([...vaccines, ...combos]);
-        }
-
+        setSortVaccines([...vaccines, ...combos]);
     }, [vaccines, combos]);
 
+    // Improved search function
+    const handleSearch = useCallback(() => {
+        const searchValue = inputData.trim().toLowerCase();
+        if (!searchValue) {
+            setSortVaccines([...vaccines, ...combos]);
+            return;
+        }
+
+        const filteredVaccines = vaccines.filter((v) => v.name.toLowerCase().includes(searchValue));
+        const filteredCombos = combos.filter((c) => c.name.toLowerCase().includes(searchValue));
+        setSortVaccines([...filteredVaccines, ...filteredCombos]);
+
+    }, [inputData, vaccines, combos]);
+
     useEffect(() => {
-        const handleSubmit = (e) => {
-           
-            ref.current.focus();
-            const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
-            
-    
-            if (searchValue) {
-                const sortByNameVaccine = vaccines
-                    .filter((vaccine) => vaccine.name.includes(searchValue))
-                    .sort((a, b) => a.price - b.price);
-                const sortByNameCombo = combos
-                    .filter((combo) => combo.name.includes(searchValue))
-                    .sort((a, b) => a.price - b.price);
-    
-                const combinedResults = [...sortByNameVaccine, ...sortByNameCombo];
-    
-                if (combinedResults.length > 0) {
-                    setSortVaccines(combinedResults);
-                    setIsOpen(true);
-                } else {
-                    setIsOpen(false);
-                }
-            } else {
-    
-                setSortVaccines([...vaccines, ...combos]);
-                setIsOpen(true);
-            }
-        };
-    
-        handleSubmit();
-    }, [inputData]);
+        const timer = setTimeout(handleSearch, 300);
+        return () => clearTimeout(timer);
+    }, [inputData, handleSearch]);
+
     const handleInput = (e) => {
         setInputData(e.target.value);
     };
 
     const sortSelect = (type) => {
         setSortType(type);
-        let sorted = [];
-        switch (type) {
-            case "All":
-                sorted = [...vaccines, ...combos];
-                break;
-            case "Le":
-                sorted = [...vaccines];
-                break;
-            case "Combo":
-                sorted = [...combos];
-                break;
-            default:
-                sorted = [...vaccines, ...combos];
-        }
-
-        if ((vaccines.length > 0 || combos.length > 0)) {
-            setIsOpen(true)
-            setSortVaccines(sorted);
-        }
-
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        ref.current.focus();
-
-        const searchValue = ToUpperCaseWords(inputData.trim().toLowerCase());
-        console.log(searchValue);
-        setInputData('');
-
-        if (searchValue) {
-            const sortByNameVaccine = vaccines
-                .filter((vaccine) => vaccine.name.includes(searchValue))
-                .sort((a, b) => a.price - b.price);
-            const sortByNameCombo = combos
-                .filter((combo) => combo.name.includes(searchValue))
-                .sort((a, b) => a.price - b.price);
-
-            const combinedResults = [...sortByNameVaccine, ...sortByNameCombo];
-
-            if (combinedResults.length > 0) {
-                setSortVaccines(combinedResults);
-                setIsOpen(true);
-            } else {
-                setIsOpen(false);
-            }
-        } else {
-
+        if (type === "All") {
             setSortVaccines([...vaccines, ...combos]);
-            setIsOpen(true);
+        } else if (type === "Le") {
+            setSortVaccines([...vaccines]);
+        } else if (type === "Combo") {
+            setSortVaccines([...combos]);
         }
-    };
 
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -201,21 +148,37 @@ const BodyVariantsHomePage = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-12">
+                <div className="flex flex-col lg:flex-row gap-8 ">
                     {/* Main Content */}
+
                     <div className="flex-1">
-                        {isOpen ? (
-                            <motion.div 
+                        {isLoading ? (
+                            <div className="flex justify-center items-center h-64">
+                                <div className="loader"></div> {/* Ensure you have proper CSS for the loader */}
+                            </div>
+                        ) : err ? (
+                            <div className="flex justify-center items-center h-64">
+                                <p className="text-red-500 text-center">Failed to fetch data. Please try again later.</p>
+                            </div>
+                        ) : sortVaccines.length > 0 ? (
+                            <motion.div
                                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                                initial="hidden"
+                                animate="visible"
+                                exit="hidden"
+                                variants={{
+                                    hidden: { opacity: 0 },
+                                    visible: { opacity: 1, transition: { duration: 0.3 } },
+                                }}
                             >
-                                {sortVaccines && sortVaccines.map((vaccine) => (
+                                {sortVaccines.map((vaccine) => (
                                     <motion.div
                                         key={vaccine.id}
                                         layout
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -20 }}
-                                        className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1"
+                                        className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-transform duration-300 ease-in-out transform hover:-translate-y-1"
                                     >
                                         <Variants
                                             id={vaccine.id}
@@ -230,29 +193,32 @@ const BodyVariantsHomePage = () => {
                                                     : vaccine.price
                                             }
                                             isBooking={isBooking}
-                                            onClick={() => handleBookVaccine(vaccine)}
+                                            onClick={() => handleAddVaccine(vaccine)}
                                         />
                                     </motion.div>
                                 ))}
                             </motion.div>
                         ) : (
                             <div className="flex justify-center items-center h-64">
-                                <div className="loader"></div>
+                                <p className="text-gray-600 text-center">No results found</p>
                             </div>
                         )}
                     </div>
 
+
+
+
                     {/* Cart Sidebar được cải thiện */}
-                    <div className="lg:w-[420px]">
+                    <div className="max-lg:w-[420px]">
                         <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 sticky top-28">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-2xl font-bold text-gray-800">Payment Summary</h2>
-                                <span className="text-sm text-gray-600">{selectedVaccines.length} Items</span>
+                                <span className="text-lg text-gray-600">{itemList.length} Items</span>
                             </div>
 
                             <div className="space-y-4 mb-8">
                                 <AnimatePresence>
-                                    {selectedVaccines.map((vaccine) => (
+                                    {itemList.map((vaccine) => (
                                         <motion.div
                                             key={vaccine.id}
                                             initial={{ opacity: 0, height: 0 }}
@@ -263,13 +229,13 @@ const BodyVariantsHomePage = () => {
                                             <span className="text-gray-800">{vaccine.name}</span>
                                             <div className="flex items-center gap-3">
                                                 <span className="text-blue-600 font-medium">
-                                                    {formatCurrency(vaccine.discount ? 
-                                                        vaccine.price * (1 - vaccine.discount / 100) : 
+                                                    {formatCurrency(vaccine.discount ?
+                                                        vaccine.price * (1 - vaccine.discount / 100) :
                                                         vaccine.price
                                                     )} VND
                                                 </span>
                                                 <button
-                                                    onClick={() => handleRemoveVaccine(vaccine.id)}
+                                                    onClick={() => dispatch(vaccineAction.deleteVaccine(vaccine.id))}
                                                     className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-all"
                                                 >
                                                     <BackspaceOutlinedIcon />
@@ -293,11 +259,11 @@ const BodyVariantsHomePage = () => {
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                         className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg
-                                            ${selectedVaccines.length > 0
+                                        ${itemList.length > 0
                                                 ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl"
-                                                : "bg-gray-400 cursor-not-allowed"
+                                                : "bg-gray-400 cursor-not-allowed "
                                             }`}
-                                        disabled={selectedVaccines.length === 0}
+                                        disabled={itemList.length === 0}
                                     >
                                         Proceed to Payment
                                     </motion.button>
@@ -309,6 +275,6 @@ const BodyVariantsHomePage = () => {
             </main>
         </div>
     );
-}
 
-export default BodyVariantsHomePage;
+
+}

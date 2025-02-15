@@ -16,7 +16,7 @@ import { VaccineContext } from '../Context/ChildrenSelected'
 import { fetchData } from '../../Api/axios'
 import { useSelector, useDispatch } from "react-redux";
 import '../css/loading.css'
-import { vaccineAction } from '../redux/reducers/SelectVaccine'
+import { vaccineAction } from '../redux/reducers/selectVaccine'
 
 export default function BodyHomePage() {
     const navigate = useNavigate();
@@ -232,7 +232,8 @@ export default function BodyHomePage() {
                                     onClick={() => handleAddVaccine(eachvaccine)}
                                 />
                             );
-                        })
+                        }
+                    )
                     ) : (
                         <div className="loader absolute right-[50%] left-[45%]"></div>
 

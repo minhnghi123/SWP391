@@ -1,8 +1,8 @@
 import React from 'react';
 import SummaryCard from './summaryCard';
 
-const PaymentSummaryCard = ({ CalculateTotal ,child}) => (
-    <SummaryCard CalculateTotal={CalculateTotal} child={child} />
+const PaymentSummaryCard = ({ CalculateTotal }) => (
+    <SummaryCard CalculateTotal={CalculateTotal} />
 );
 
 export default PaymentSummaryCard;

@@ -1,56 +1,129 @@
-import React from 'react';
-import VaccinationHistory from './VaccineHistory';
-import HealthInformation from './HealthInFormation';
-import UpcomingAppointments from '../rightSide/UpComingAppointments';
-import CalculateAge  from '../../../../utils/calculateYearOld'
-const ChildCard = ({ child, handleRemove }) => {
+import React, { useState } from "react";
+import { FaChild, FaMars, FaVenus, FaCalendarAlt, FaChevronDown, FaChevronUp, FaHeartbeat, FaHistory  } from "react-icons/fa";
+import { MdFamilyRestroom } from "react-icons/md";
+import CalculateAge from '../../../../utils/calculateYearOld'
+import ToUperCaseFirstLetter from '../../../../utils/upperCaseFirstLetter'
+
+const ChildInfoCard = ({ child, handleRemove,parentName}) => {
+    const [isExpanded, setIsExpanded] = useState(false);
     return (
-        <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-200">
-            {/* Child Header with Photo */}
-            <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-6 text-white">
-                <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-4xl">
-                        {child.gender.toLowerCase() === 'male' ? '👦' : '👧'}
+        <div className="max-w-2xl mx-auto p-4">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300">
+                <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            <div className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md flex items-center justify-center text-4xl">
+                                {ToUperCaseFirstLetter(child?.gender) === 'Male' ? '👦' : '👧'}
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-gray-800">{child.name}</h2>
+                                <div className="flex items-center space-x-2 text-gray-600">
+                                    {ToUperCaseFirstLetter(child?.gender) === "Male" ? (
+                                        <FaMars className="text-blue-500 text-2xl" /> 
+                                    ) : (
+                                        <FaVenus className="text-pink-500 text-2xl" /> 
+                                    )}
+                                    <span>{CalculateAge(child.dateOfBirth)} years old</span>
+                                </div>
+
+                                {/* Status and Creation Date */}
+                                <div className="mt-1 text-sm">
+                                    <span className={`px-2 py-1 rounded-full ${child.status === "Good" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+                                        {child.status}
+                                    </span>
+                                    <span className="ml-2 text-gray-600">Created: {child.createDate}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            className="text-gray-600 hover:text-gray-800 transition-colors"
+                        >
+                            {isExpanded ? <FaChevronUp size={24} /> : <FaChevronDown size={24} />}
+                        </button>
                     </div>
-                    <div className="flex-1">
-                        <h4 className="text-2xl font-bold">{child.name}</h4>
-                        <div className="flex items-center gap-4 mt-2">
-                            <span className="flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                        d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" />
-                                </svg>
-                                {CalculateAge(child.dateOfBirth)} years old
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                {child.gender}
-                            </span>
+                </div>
+                {isExpanded && (
+                    <div className="p-6 space-y-6 bg-gray-50">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
+                                <div className="flex items-center space-x-2 mb-4">
+                                    <FaChild className="text-blue-500 text-xl" />
+                                    <h3 className="font-semibold text-gray-800 text-lg ">Basic Information</h3>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center space-x-2 text-gray-700">
+                                        <MdFamilyRestroom/>
+                                        <span className="font-medium">Parent Name:</span>
+                                        <span className="">{parentName}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2 text-gray-700">
+                                        <FaCalendarAlt className="text-blue-400" />
+                                        <span className="font-medium">Birth Date:</span>
+                                        <span>{child.dateOfBirth}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2 text-gray-700">
+                                        {child.gender === "Male" ?
+                                            <FaMars className="text-blue-400" /> :
+                                            <FaVenus className="text-pink-400" />}
+                                        <span className="font-medium">Gender:</span>
+                                        <span>{child.gender}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2 text-gray-700">
+                                        <FaHeartbeat className="text-green-400" />
+                                        <span className="font-medium">Status:</span>
+                                        <span className={`px-2 py-1 rounded-full text-sm ${child.status === "Good" ? "bg-green-100 text-green-800" : "bg-gray-100 text-red-500"}`}>
+                                            {child.status}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center space-x-2 text-gray-700">
+                                        <FaCalendarAlt className="text-purple-400" />
+                                        <span className="font-medium">Created:</span>
+                                        <span>{new Date(child.createDate).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
+                                <div className="flex items-center space-x-2 mb-4">
+                                    <FaHistory className="text-purple-500 text-xl" />
+                                    <h3 className="font-semibold text-gray-800 text-lg">History</h3>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="border-l-2 border-purple-200 pl-4 space-y-3">
+                                        <div className="relative">
+                                            <div className="absolute -left-5 top-1 w-3 h-3 bg-purple-400 rounded-full"></div>
+                                            <div className="text-sm">
+                                                <p className="text-gray-700 font-medium">Checkup Appointment</p>
+                                                <p className="text-gray-500">February 15, 2024</p>
+                                                <p className="text-gray-600 mt-1">Regular health checkup completed</p>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <div className="absolute -left-5 top-1 w-3 h-3 bg-purple-400 rounded-full"></div>
+                                            <div className="text-sm">
+                                                <p className="text-gray-700 font-medium">Vaccination</p>
+                                                <p className="text-gray-500">January 10, 2024</p>
+                                                <p className="text-gray-600 mt-1">Routine vaccination administered</p>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <div className="absolute -left-5 top-1 w-3 h-3 bg-purple-400 rounded-full"></div>
+                                            <div className="text-sm">
+                                                <p className="text-gray-700 font-medium">Initial Registration</p>
+                                                <p className="text-gray-500">{new Date(child.createDate).toLocaleDateString()}</p>
+                                                <p className="text-gray-600 mt-1">Child profile created</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button
-                        onClick={handleRemove}
-                        className="p-2 hover:bg-white/10 rounded-xl transition-all"
-                    >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            {/* Medical Information */}
-            <div className="p-6 space-y-6">
-                <VaccinationHistory />
-                <HealthInformation child={child} />
-                <UpcomingAppointments />
+                )}
             </div>
         </div>
     );
 };
 
-export default ChildCard;
+export default ChildInfoCard;

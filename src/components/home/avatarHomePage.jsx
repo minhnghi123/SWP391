@@ -7,8 +7,10 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined';
 import { useDispatch, useSelector } from 'react-redux';
 import { accountAction } from '../redux/reducers/accountSlice';
+import { vaccineAction } from '../redux/reducers/selectVaccine';
+import { childAction } from '../redux/reducers/selectChildren';
 export default function AvatarHomePage() {
-    const dispatch= useDispatch()
+    const dispatch = useDispatch()
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -27,6 +29,8 @@ export default function AvatarHomePage() {
     }, []);
     const handleLogout = () => {
         dispatch(accountAction.clearUser())
+        dispatch(vaccineAction.completePayment())
+        dispatch(childAction.completePayment())
         navigate('/loginPage');
     };
 

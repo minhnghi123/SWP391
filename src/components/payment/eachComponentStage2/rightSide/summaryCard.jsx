@@ -1,25 +1,24 @@
-import { useMemo } from 'react';
+
 import formatDecimal from '../../../../utils/calculateMoney';
-const SummaryCard = ({ CalculateTotal, child }) => {
-    // const advitoryFee = useMemo(() => {
-    //     const childrenWithAdvistory = child.filter(children => children.advistory !== null && children.advistory !== '');
-    //     return (childrenWithAdvistory.length)*50000
-    // }, [child.length]);
+import { Switch } from '@mui/material';
+const SummaryCard = ({ CalculateTotal}) => {
 
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100  hover:shadow-xl transition-all duration-300"
         >
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-
-                        Payment Summary
-                    </h3>
-
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2"> Payment Summary</h3>
                 </div>
-                <span className="px-4 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-emerald-600 rounded-full text-sm font-medium border border-emerald-100">
-                    Due Today
-                </span>
+                <div className='flex flex-row'>
+                    <div>
+                        {/* <Switch /> */}
+                    </div>
+                    <span className="px-4 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-emerald-600 rounded-full text-sm font-medium border border-emerald-100">
+                        Due Today
+                    </span>
+                </div>
+
             </div>
 
             <div className="space-y-4">

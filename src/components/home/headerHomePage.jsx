@@ -1,12 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import AvatarHomePage from "./avatarHomePage";
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import { useState, useEffect, useContext } from 'react';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { useDispatch, useSelector } from 'react-redux';
-import { accountAction } from "../redux/reducers/accountSlice";
 
 export default function Header() {
     const dispatch = useDispatch()

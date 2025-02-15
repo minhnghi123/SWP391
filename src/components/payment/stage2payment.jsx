@@ -69,7 +69,7 @@ export default function Stage2Payment({ isopennextstep }) {
 
                 {/* rightSide */}
                 <div className="w-full lg:w-[600px] space-y-8">
-                    <button onClick={handleSubmit}>Post</button>
+                    {/* <button onClick={handleSubmit}>Post</button> */}
                     <SummaryHeaderCard />
                     <PaymentSummaryCard CalculateTotal={CalculateTotal} />
                     <PaymentMethodCard childrenVaccines={listChildren} handleNextStep={handleNextStep} CalculateTotal={CalculateTotal} />

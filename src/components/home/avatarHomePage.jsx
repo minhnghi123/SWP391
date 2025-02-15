@@ -75,36 +75,52 @@ export default function AvatarHomePage() {
                     </div>
 
                     {/* Menu Items */}
-                    <div className="p-2 space-y-1">
-                        <button onClick={() => navigate(`/pageProfile/profile/${user.id || user.sub}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                            <AccountCircleOutlinedIcon />
-                            <span>Your Profile</span>
-                        </button>
-                        <button onClick={() => navigate(`/pageProfile/children/${user.id || user.sub}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                            <EscalatorWarningOutlinedIcon />
-                            <span>Your Children</span>
-                        </button>
+                    {
+                        user?.role === 'admin' ?
+                            (<div className=' p-2 space-y-1'>
+                                <button onClick={handleLogout}
+                                    className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    <span>Sign Out</span>
+                                </button>
+                            </div>)
+                            :
+                            (<div className="p-2 space-y-1">
+                                <button onClick={() => navigate(`/pageProfile/profile/${user.id}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                                    <AccountCircleOutlinedIcon />
+                                    <span>Your Profile</span>
+                                </button>
+                                <button onClick={() => navigate(`/pageProfile/children/${user.id}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                                    <EscalatorWarningOutlinedIcon />
+                                    <span>Your Children</span>
+                                </button>
 
-                        <button onClick={() => navigate(`/pageProfile/tracking/${user.id || user.sub}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                            <CalendarMonthOutlinedIcon />
-                            <span>Tracking vaccines</span>
-                        </button>
-                        <button onClick={() => navigate(`/pageProfile/history/${user.id || user.sub}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                            <RestoreOutlinedIcon />
-                            <span>History</span>
-                        </button>
-                        <div className="my-2 border-t border-gray-100"></div>
-                        <button onClick={handleLogout}
-                            className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            <span>Sign Out</span>
-                        </button>
+                                <button onClick={() => navigate(`/pageProfile/tracking/${user.id}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                                    <CalendarMonthOutlinedIcon />
+                                    <span>Tracking vaccines</span>
+                                </button>
+                                <button onClick={() => navigate(`/pageProfile/history/${user.id}`)} className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                                    <RestoreOutlinedIcon />
+                                    <span>History</span>
+                                </button>
+                                <div className="my-2 border-t border-gray-100"></div>
+                                <button onClick={handleLogout}
+                                    className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    <span>Sign Out</span>
+                                </button>
 
 
-                    </div>
+                            </div>)
+                    }
+
+
                 </div>
             )}
         </div>

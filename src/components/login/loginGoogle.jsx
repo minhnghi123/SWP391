@@ -27,7 +27,8 @@ function LoginPage() {
                     id: userInfo.sub,
                     name: userInfo.name,
                     email: userInfo.email,
-                    picture: userInfo.picture
+                    picture: userInfo.picture,
+                    role: 'user'
                 };
                 // Lưu vào localStorage
                 dispatch(accountAction.setUser(data))

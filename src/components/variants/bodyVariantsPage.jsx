@@ -183,7 +183,7 @@ export default function BodyVariantsHomePage() {
                                         <Variants
                                             id={vaccine.id}
                                             image={vaccine.image || null}
-                                            title={vaccine.name}
+                                            name={vaccine.name}
                                             description={vaccine.description}
                                             type={vaccine.discount ? 'combos' : 'vaccine'}
                                             priceGoc={vaccine.discount ? vaccine.price : null}

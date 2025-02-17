@@ -9,9 +9,9 @@ import ChildCard from "./eachComponentStage1/rightSide/ChildCard";
 import ListChild from "./eachComponentStage1/leftSide/ListChild";
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 import DatePicker from "react-datepicker";
-import { format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
-import { RefreshCcw } from "lucide-react"; // Import icon từ lucide-react
+import { RefreshCcw } from "lucide-react";
+import { arriveActions } from "../redux/reducers/arriveDate";
 export default function Stage1Payment({ isopennextstep }) {
     const dispatch = useDispatch();
     const [user, setUser] = useState(null);
@@ -24,7 +24,6 @@ export default function Stage1Payment({ isopennextstep }) {
     const [selectedDate, setSelectedDate] = useState(null);
     const [checkSent, setSent] = useState(false)
     const advitory = useSelector((state) => state.children.advitory_detail)
-
     const handleInputAdvisory = (e) => {
         e.preventDefault();
         if (inputAdvisory.trim() === "") {
@@ -42,6 +41,9 @@ export default function Stage1Payment({ isopennextstep }) {
         dispatch(childAction.resetForm())
         setSent(false)
     }
+    useEffect(() => {
+        dispatch(arriveActions.setArriveDate(selectedDate))
+    }, [selectedDate])
 
     const handleChange = (e) => {
         dispatch(childAction.handleOnChange({ name: e.target.name, value: e.target.value }));
@@ -114,7 +116,7 @@ export default function Stage1Payment({ isopennextstep }) {
     };
 
     const handleNextStep = () => isopennextstep(2);
-    console.log(selectedDate)
+
     return (
         <div className="min-h-screen py-12">
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -257,7 +259,7 @@ export default function Stage1Payment({ isopennextstep }) {
                                         </div>
 
                                     </div>
-                                  
+
 
                                     <div className="space-y-1 border-gray-200 border-b mb-5 ">
                                         {listChildren.map((child) => (
@@ -307,10 +309,14 @@ export default function Stage1Payment({ isopennextstep }) {
                                         </>
                                     )}
 
-
                                     <button
-                                        onClick={handleNextStep}
-                                        className="w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-lg hover:from-teal-600 hover:to-teal-700 transition-all duration-300"
+                                        onClick={selectedDate !== null ? handleNextStep : undefined}
+                                        className={`w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-lg 
+        transition-all duration-300
+        ${selectedDate !== null
+                                                ? 'hover:from-teal-600 hover:to-teal-700'
+                                                : 'pointer-events-none opacity-50' 
+                                            }`}
                                     >
                                         Proceed to Payment
                                     </button>

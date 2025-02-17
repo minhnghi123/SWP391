@@ -58,18 +58,16 @@ export default function Stage2Payment({ isopennextstep }) {
 
     return (
         <div className='max-w-7xl mx-auto px-4 py-16'>
-
+ <ToastContainer />
             <div className='flex flex-col lg:flex-row gap-12'>
                 {/* leftSide */}
                 <div className="w-full lg:w-[600px] space-y-8">
-                    <ToastContainer />
+                   
                     <HeaderSection childrenVaccines={listChildren} />
                     <ChildrenListSection childrenVaccines={listChildren} valueSelectVaccine={itemList}  advitory_detail={advitory_detail} />
                 </div>
-
                 {/* rightSide */}
                 <div className="w-full lg:w-[600px] space-y-8">
-                    {/* <button onClick={handleSubmit}>Post</button> */}
                     <SummaryHeaderCard />
                     <PaymentSummaryCard CalculateTotal={CalculateTotal} />
                     <PaymentMethodCard childrenVaccines={listChildren} handleNextStep={handleNextStep} CalculateTotal={CalculateTotal} />

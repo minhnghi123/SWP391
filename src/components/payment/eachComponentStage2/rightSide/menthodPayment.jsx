@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import formatDecimal from '../../../../utils/calculateMoney';
-const MenthodPayment = ({childrenVaccines,handleNextStep}) => {
+import { useDispatch } from "react-redux";
+import { methodPaymentAction } from "../../../redux/reducers/methodPaymentlice";
+const MenthodPayment = ({ childrenVaccines, handleNextStep }) => {
     const [paymentMethod, setPaymentMethod] = useState(1);
-    const menthodPayment =([
-        
-            { id: 1, name: 'Credit Card', icon: '💳', desc: 'All cards accepted' },
-            { id: 2, name: 'MoMo', icon: '📱', desc: 'Mobile payment' },
-            { id: 3, name: 'VnPay', icon: '🏦', desc: 'Online banking' },
-            { id: 4, name: 'Cash', icon: '💵', desc: 'Pay at location' }
-        
+    const dispatch = useDispatch()
+    useEffect(() => {
+        dispatch(methodPaymentAction.setMethodPayment(paymentMethod))
+    }, [paymentMethod])
+    const menthodPayment = ([
+
+        { id: 1, name: 'Credit Card', icon: '💳', desc: 'All cards accepted' },
+        { id: 2, name: 'MoMo', icon: '📱', desc: 'Mobile payment' },
+        { id: 3, name: 'VnPay', icon: '🏦', desc: 'Online banking' },
+        { id: 4, name: 'Cash', icon: '💵', desc: 'Pay at location' }
+
     ])
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
@@ -83,8 +89,8 @@ const MenthodPayment = ({childrenVaccines,handleNextStep}) => {
                 </div>
             )}
 
-            <button onClick={handleNextStep} 
-            className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-medium shadow-lg hover:from-blue-600
+            <button onClick={handleNextStep}
+                className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-medium shadow-lg hover:from-blue-600
           hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={childrenVaccines.length === 0} >
                 Payment

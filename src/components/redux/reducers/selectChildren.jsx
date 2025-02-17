@@ -7,6 +7,7 @@ const childrenSelectSlice = createSlice({
         advitory_detail: {},
         listChildren: [],
         inputData: {},
+        // arrvieAt:{},
         loading: false,
         error: null,
 

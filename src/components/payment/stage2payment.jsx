@@ -17,6 +17,8 @@ export default function Stage2Payment({ isopennextstep }) {
     const totalPrice = useSelector((state) => state.vaccine.totalPrice)
     const user = useSelector((state) => state.account.user);
     const advitory_detail = useSelector((state) => state.children.advitory_detail)
+    const paymentMenthod = useSelector((state) => state.methodPayment.methodPayment)
+    const arriveDate = useSelector(state => state.arriveDate.arriveDate);
     const dispatch = useDispatch()
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -32,16 +34,19 @@ export default function Stage2Payment({ isopennextstep }) {
     const handleSubmit = async () => {
         const value = {
             parentId: user.id,
-            totalPrice: CalculateTotal + (CalculateTotal * 0.05),
             advitory_detail: advitory_detail ? advitory_detail : '',
-            itemList: itemList.map((vaccine) => vaccine.id),
+            totalPrice: CalculateTotal + (CalculateTotal * 0.05),
+            paymentMenthod: paymentMenthod,
+            arrvieDate : arriveDate,
             listChildren: listChildren.map((child) => child.id),
+            listVaccine: itemList.map((vaccine) => vaccine.id),
+
         };
 
         const postData = async () => {
             try {
                 const res = await axios.post('http://localhost:3000/payments', value);
-                if (res?.status === 201 ) {
+                if (res?.status === 201) {
                     toast.success('Post success');
                     dispatch(vaccineAction.completePayment());
                     dispatch(childAction.completePayment());
@@ -58,16 +63,17 @@ export default function Stage2Payment({ isopennextstep }) {
 
     return (
         <div className='max-w-7xl mx-auto px-4 py-16'>
- <ToastContainer />
+            <ToastContainer />
             <div className='flex flex-col lg:flex-row gap-12'>
                 {/* leftSide */}
                 <div className="w-full lg:w-[600px] space-y-8">
-                   
+
                     <HeaderSection childrenVaccines={listChildren} />
-                    <ChildrenListSection childrenVaccines={listChildren} valueSelectVaccine={itemList}  advitory_detail={advitory_detail} />
+                    <ChildrenListSection childrenVaccines={listChildren} valueSelectVaccine={itemList} advitory_detail={advitory_detail} />
                 </div>
                 {/* rightSide */}
                 <div className="w-full lg:w-[600px] space-y-8">
+                    <button onClick={handleSubmit}> Post</button>
                     <SummaryHeaderCard />
                     <PaymentSummaryCard CalculateTotal={CalculateTotal} />
                     <PaymentMethodCard childrenVaccines={listChildren} handleNextStep={handleNextStep} CalculateTotal={CalculateTotal} />

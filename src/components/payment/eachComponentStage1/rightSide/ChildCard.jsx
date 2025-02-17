@@ -10,7 +10,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
     return (
         <div className="max-w-2xl mx-auto p-4">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300">
-                <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-4">
+                <div className="bg-gradient-to-r from-blue-50 via-white to-purple-100 p-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                             <div className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md flex items-center justify-center text-4xl">
@@ -32,7 +32,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                     <span className={`px-2 py-1 rounded-full ${child.status === "Good" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
                                         {child.status}
                                     </span>
-                                    <span className="ml-2 text-gray-600">Created: {child.createDate}</span>
+                                    <span className="ml-2 text-gray-600">Created: {new Date(child.dateOfBirth).toLocaleDateString('vi-VN')}</span>
                                 </div>
                             </div>
                         </div>
@@ -72,7 +72,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         <FaCalendarAlt className="text-blue-400" />
                                         <span className="font-medium">Birth Date:</span>
-                                        <span>{child.dateOfBirth}</span>
+                                        <span>{  new Date(child.dateOfBirth).toLocaleDateString('vi-VN')}</span>
                                             </div>
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         {child.gender === "Male" ?
@@ -91,7 +91,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         <FaCalendarAlt className="text-purple-400" />
                                         <span className="font-medium">Created:</span>
-                                        <span>{new Date(child.createDate).toLocaleDateString()}</span>
+                                        <span>{new Date(child.createDate).toLocaleDateString('vi-VN')}</span>
                         </div>
                     </div>
             </div>
@@ -122,7 +122,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                             <div className="absolute -left-5 top-1 w-3 h-3 bg-purple-400 rounded-full"></div>
                                             <div className="text-sm">
                                                 <p className="text-gray-700 font-medium">Initial Registration</p>
-                                                <p className="text-gray-500">{new Date(child.createDate).toLocaleDateString()}</p>
+                                                <p className="text-gray-500">{new Date(child.createDate).toLocaleDateString('vi-VN')}</p>
                                                 <p className="text-gray-600 mt-1">Child profile created</p>
                                             </div>
                                         </div>

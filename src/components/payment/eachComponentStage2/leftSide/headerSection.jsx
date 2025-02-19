@@ -1,12 +1,12 @@
 import React from 'react';
 
-const HeaderSection = ({ childrenVaccines }) => (
+const HeaderSection = ({ listChildren }) => (
     <div className="bg-gradient-to-r from-blue-600 to-indigo-500 rounded-3xl p-8 text-white shadow-lg">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
                 <h2 className="text-2xl font-bold">Children Vaccination</h2>
                 <p className="text-blue-100 text-sm">
-                    Review selected vaccines for {childrenVaccines.length} children
+                    Review selected vaccines for {listChildren.length} children
                 </p>
             </div>
             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">

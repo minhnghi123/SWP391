@@ -1,8 +1,8 @@
 import React from 'react';
 import MenthodPayment from './menthodPayment';
 
-const PaymentMethodCard = ({ childrenVaccines, handleNextStep, CalculateTotal }) => (
-    <MenthodPayment childrenVaccines={childrenVaccines} handleNextStep={handleNextStep} CalculateTotal={CalculateTotal} />
+const PaymentMethodCard = ({ listChildren, CalculateTotal, handleSubmit }) => (
+    <MenthodPayment listChildren={listChildren} CalculateTotal={CalculateTotal} handleSubmit={handleSubmit} />
 );
 
 export default PaymentMethodCard;

@@ -9,6 +9,7 @@ import axios from 'axios'
 import { toast, ToastContainer } from 'react-toastify';
 import { vaccineAction } from '../redux/reducers/selectVaccine';
 import { childAction } from '../redux/reducers/selectChildren';
+import { arriveActions } from '../redux/reducers/arriveDate';
 
 
 export default function Stage2Payment({ isopennextstep }) {
@@ -23,9 +24,8 @@ export default function Stage2Payment({ isopennextstep }) {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-    const handleNextStep = () => {
-        isopennextstep(3);
-    };
+
+
     const CalculateTotal = useMemo(() => {
         const totalPriceVaccine = totalPrice
         const total = listChildren.length * totalPriceVaccine;
@@ -34,10 +34,10 @@ export default function Stage2Payment({ isopennextstep }) {
     const handleSubmit = async () => {
         const value = {
             parentId: user.id,
-            advitory_detail: advitory_detail ? advitory_detail : '',
+            advitory_detail: advitory_detail ? advitory_detail : null,
             totalPrice: CalculateTotal + (CalculateTotal * 0.05),
             paymentMenthod: paymentMenthod,
-            arrvieDate : arriveDate,
+            arrvieDate: arriveDate,
             listChildren: listChildren.map((child) => child.id),
             listVaccine: itemList.map((vaccine) => vaccine.id),
 
@@ -47,13 +47,16 @@ export default function Stage2Payment({ isopennextstep }) {
             try {
                 const res = await axios.post('http://localhost:3000/payments', value);
                 if (res?.status === 201) {
+                    isopennextstep(3);
                     toast.success('Post success');
                     dispatch(vaccineAction.completePayment());
                     dispatch(childAction.completePayment());
+                    dispatch(arriveActions.resetArriveDate());
+
                 }
 
             } catch (error) {
-                toast.error(`Failed: ${error.message || 'An error occurred'}`);
+                toast.error(`Failed: ${error?.msg || 'An error occurred'}`);
                 console.error('Failed', error);
             }
         };
@@ -68,15 +71,15 @@ export default function Stage2Payment({ isopennextstep }) {
                 {/* leftSide */}
                 <div className="w-full lg:w-[600px] space-y-8">
 
-                    <HeaderSection childrenVaccines={listChildren} />
-                    <ChildrenListSection childrenVaccines={listChildren} valueSelectVaccine={itemList} advitory_detail={advitory_detail} />
+                    <HeaderSection listChildren={listChildren} />
+                    <ChildrenListSection childrenVaccines={listChildren} listVaccine={itemList} advitory_detail={advitory_detail} />
                 </div>
                 {/* rightSide */}
                 <div className="w-full lg:w-[600px] space-y-8">
-                    <button onClick={handleSubmit}> Post</button>
+                    {/* <button onClick={handleSubmit}> Post</button> */}
                     <SummaryHeaderCard />
                     <PaymentSummaryCard CalculateTotal={CalculateTotal} />
-                    <PaymentMethodCard childrenVaccines={listChildren} handleNextStep={handleNextStep} CalculateTotal={CalculateTotal} />
+                    <PaymentMethodCard listChildren={listChildren} CalculateTotal={CalculateTotal} handleSubmit={handleSubmit} />
                 </div>
             </div>
         </div>

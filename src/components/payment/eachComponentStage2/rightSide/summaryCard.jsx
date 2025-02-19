@@ -1,27 +1,30 @@
-
+import { useSelector } from 'react-redux';
 import formatDecimal from '../../../../utils/calculateMoney';
-import { Switch } from '@mui/material';
-const SummaryCard = ({ CalculateTotal}) => {
+import { useMemo } from 'react';
+
+const SummaryCard = ({ CalculateTotal }) => {
+    const advitory_detail = useSelector((state) => state.children?.advitory_detail || {});
+    const listChildren = useSelector((state) => state.children?.listChildren || []);
+    
+    // Calculate the total advisory fee
+    const totalPriceAdvitory = useMemo(() => {
+        if (Object.keys(advitory_detail).length > 0) {
+            return listChildren.length * 50000;
+        }
+        return 0;
+    }, [listChildren, advitory_detail]);
 
     return (
-        <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100  hover:shadow-xl transition-all duration-300"
-        >
+        <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2"> Payment Summary</h3>
-                </div>
-                <div className='flex flex-row'>
-                    <div>
-                        {/* <Switch /> */}
-                    </div>
-                    <span className="px-4 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-emerald-600 rounded-full text-sm font-medium border border-emerald-100">
-                        Due Today
-                    </span>
-                </div>
-
+                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">Payment Summary</h3>
+                <span className="px-4 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-emerald-600 rounded-full text-sm font-medium border border-emerald-100">
+                    Due Today
+                </span>
             </div>
 
             <div className="space-y-4">
+                {/* Consultation Fee */}
                 <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:shadow-sm transition-all">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -34,9 +37,12 @@ const SummaryCard = ({ CalculateTotal}) => {
                             <p className="text-sm text-gray-500">General checkup</p>
                         </div>
                     </div>
-                    <span className="text-lg font-semibold text-gray-900">{0}  {''} VNĐ</span>
+                    <span className="text-lg font-semibold text-gray-900">
+                        {formatDecimal(totalPriceAdvitory)} VNĐ
+                    </span>
                 </div>
 
+                {/* Service Fee */}
                 <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:shadow-sm transition-all">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
@@ -49,9 +55,12 @@ const SummaryCard = ({ CalculateTotal}) => {
                             <p className="text-sm text-gray-500">Processing fee</p>
                         </div>
                     </div>
-                    <span className="text-lg font-semibold text-gray-900">{formatDecimal(CalculateTotal * 0.05)} {''} VNĐ</span>
+                    <span className="text-lg font-semibold text-gray-900">
+                        {formatDecimal(CalculateTotal * 0.05)} VNĐ
+                    </span>
                 </div>
 
+                {/* Total Amount */}
                 <div className="flex justify-between items-center p-5 mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
@@ -64,11 +73,13 @@ const SummaryCard = ({ CalculateTotal}) => {
                             <p className="text-sm text-gray-500">Including all fees</p>
                         </div>
                     </div>
-                    <span className="text-2xl font-bold text-blue-600">{formatDecimal(CalculateTotal + (CalculateTotal * 0.05))} {''} VNĐ</span>
+                    <span className="text-2xl font-bold text-blue-600">
+                        {formatDecimal(CalculateTotal + (CalculateTotal * 0.05) + totalPriceAdvitory)} VNĐ
+                    </span>
                 </div>
             </div>
         </div>
-    )
+    );
+};
 
-}
-export default SummaryCard
+export default SummaryCard;

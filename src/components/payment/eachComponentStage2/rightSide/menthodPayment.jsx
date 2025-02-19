@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import formatDecimal from '../../../../utils/calculateMoney';
 import { useDispatch } from "react-redux";
 import { methodPaymentAction } from "../../../redux/reducers/methodPaymentlice";
-const MenthodPayment = ({ childrenVaccines, handleNextStep }) => {
+const MenthodPayment = ({ listChildren ,handleSubmit }) => {
     const [paymentMethod, setPaymentMethod] = useState(1);
     const dispatch = useDispatch()
     useEffect(() => {
@@ -89,10 +89,10 @@ const MenthodPayment = ({ childrenVaccines, handleNextStep }) => {
                 </div>
             )}
 
-            <button onClick={handleNextStep}
+            <button onClick={handleSubmit}
                 className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-medium shadow-lg hover:from-blue-600
           hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={childrenVaccines.length === 0} >
+                disabled={listChildren.length === 0} >
                 Payment
             </button>
 

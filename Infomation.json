@@ -2,14 +2,15 @@
   "user": [
     {
       "id": "117774809364047616251",
-      "name": "Tran Tri",
-      "dateOfBirth": "1995-01-01",
-      "createdAt": "2025-01-19T12:00:00Z",
+      "name": "Tran Minh Tri",
+      "dateOfBirth": "2004-12-28",
+      "createdAt": "2025-01-19",
       "status": "active",
-      "phone": "123456787",
-      "gender": "male",
+      "phone": "0966506438",
+      "gender": "Male",
       "email": "ttei8191@gmail.com",
       "role": "user",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocLcLQak5Ye2V-jB3hpXEIQVg-8FKMFAEynXWUk-4kR8plC5NQ=s96-c",
       "children": [
         {
           "id": "1-1",
@@ -107,7 +108,7 @@
       ]
     }
   ],
-  "vaccine": [
+  "vaccines": [
     {
       "id": "1",
       "name": "Vaccine A",
@@ -122,84 +123,20 @@
       "price": 1000000,
       "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
       "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
+      "origin": "France"
     },
     {
       "id": "3",
       "name": "Vaccine C",
-      "price": 1000000,
+      "price": 1200000,
       "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
       "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
+      "origin": "Germany"
     },
     {
       "id": "4",
       "name": "Vaccine D",
-      "price": 1000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "5",
-      "name": "Vaccine E",
-      "price": 1000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "6",
-      "name": "Vaccine F",
-      "price": 1000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "7",
-      "name": "Vaccine G",
-      "price": 5000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "8",
-      "name": "Vaccine H",
-      "price": 1000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "9",
-      "name": "Vaccine K",
-      "price": 1000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "10",
-      "name": "Vaccine L",
-      "price": 1000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "11",
-      "name": "Vaccine M",
-      "price": 1000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "12",
-      "name": "Vaccine P",
-      "price": 1000000,
+      "price": 1500000,
       "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
       "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
       "origin": "USA"
@@ -210,10 +147,24 @@
       "id": "20",
       "name": "Combo A + B",
       "vaccines": [
-        "Vaccine A",
-        "Vaccine B"
+        {
+          "id": "1",
+          "name": "Vaccine A",
+          "price": 2000000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "USA"
+        },
+        {
+          "id": "2",
+          "name": "Vaccine B",
+          "price": 1000000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "France"
+        }
       ],
-      "price": 2800000,
+      "price": 2700000,
       "discount": 10,
       "description": "Combo Vaccine A và B giúp bạn tối ưu hóa khả năng miễn dịch với mức giá ưu đãi.",
       "origin": "USA"
@@ -222,10 +173,24 @@
       "id": "22",
       "name": "Combo C + D",
       "vaccines": [
-        "Vaccine C",
-        "Vaccine D"
+        {
+          "id": "3",
+          "name": "Vaccine C",
+          "price": 1200000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "Germany"
+        },
+        {
+          "id": "4",
+          "name": "Vaccine D",
+          "price": 1500000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "USA"
+        }
       ],
-      "price": 1800000,
+      "price": 2295000,
       "discount": 15,
       "description": "Combo Vaccine C và D đảm bảo bảo vệ toàn diện với mức giá phải chăng.",
       "origin": "USA"
@@ -234,11 +199,32 @@
       "id": "32",
       "name": "Combo A + C + D",
       "vaccines": [
-        "Vaccine A",
-        "Vaccine C",
-        "Vaccine D"
+        {
+          "id": "1",
+          "name": "Vaccine A",
+          "price": 2000000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "USA"
+        },
+        {
+          "id": "3",
+          "name": "Vaccine C",
+          "price": 1200000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "Germany"
+        },
+        {
+          "id": "4",
+          "name": "Vaccine D",
+          "price": 1500000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "USA"
+        }
       ],
-      "price": 3700000,
+      "price": 3720000,
       "discount": 20,
       "description": "Combo Vaccine A, C và D cung cấp giải pháp miễn dịch toàn diện với chi phí tối ưu.",
       "origin": "USA"
@@ -247,10 +233,24 @@
       "id": "42",
       "name": "Combo B + D",
       "vaccines": [
-        "Vaccine B",
-        "Vaccine D"
+        {
+          "id": "2",
+          "name": "Vaccine B",
+          "price": 1000000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "France"
+        },
+        {
+          "id": "4",
+          "name": "Vaccine D",
+          "price": 1500000,
+          "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
+          "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
+          "origin": "USA"
+        }
       ],
-      "price": 2500000,
+      "price": 2375000,
       "discount": 5,
       "description": "Combo Vaccine B và D phù hợp cho các nhu cầu miễn dịch cơ bản với giá thành hợp lý.",
       "origin": "USA"

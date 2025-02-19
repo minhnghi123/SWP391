@@ -31,7 +31,7 @@ export default function BodyVariantsHomePage() {
         const fetchDataAsync = async () => {
             try {
                 const [vaccineRes, comboRes] = await Promise.all([
-                    fetchData('vaccine'),
+                    fetchData('vaccines'),
                     fetchData('combos'),
                 ]);
                 setVaccines(vaccineRes.data);
@@ -193,6 +193,7 @@ export default function BodyVariantsHomePage() {
                                                     : vaccine.price
                                             }
                                             isBooking={isBooking}
+                                            country={vaccine.origin}
                                             onClick={() => handleAddVaccine(vaccine)}
                                         />
                                     </motion.div>

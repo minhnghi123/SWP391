@@ -111,7 +111,6 @@ const BodyDoctorManage = () => {
     </div>
   );
 };
-
 const PatientQueue = () => (
   <Card>
     <div className="flex items-center justify-between mb-6">

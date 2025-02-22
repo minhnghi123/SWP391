@@ -68,6 +68,7 @@ const tasks = [
   { id: 4, title: "Medical conference", priority: "Low", time: "5:00 PM", progress: 0 }
 ];
 
+
 const BodyDoctorManage = () => {
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");

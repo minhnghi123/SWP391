@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Input } from '@mui/material';
 import { accountAction } from '../../redux/reducers/accountSlice';
 const Profile = ({ id }) => {
-    const dipatch=useDispatch()
+    const dispatch = useDispatch()
     const [profileData, setProfileData] = useState({});
     const [edit, setEdit] = useState(false);
     const [note, setNote] = useState('');
@@ -32,21 +32,15 @@ const Profile = ({ id }) => {
             file.preview = URL.createObjectURL(file);
 
             setAvatar(file)
-            setProfileData(prev => ({
-                ...prev,
-                picture: file,
-            }));
+
         }
     };
-
-
-
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/user/${id}`);
                 if (response.status === 200 && response.data) {
-                    const {id, name, email, phone, dateOfBirth, gender, createdAt, status, picture ,role} = response?.data;
+                    const { id, name, email, phone, dateOfBirth, gender, createdAt, status, picture, role } = response?.data;
                     setProfileData({
                         id,
                         name,
@@ -80,49 +74,62 @@ const Profile = ({ id }) => {
     const handleSave = async (e) => {
         e.preventDefault();
         if (!id) {
-            setNote('Invalid user ID');
+            setNote("Invalid user ID");
             return;
         }
 
         try {
+            let imageUrl = profileData.picture; 
 
+            if (avatar) {
+               
+                const formData = new FormData();
+                formData.append("file", avatar);
+                formData.append("upload_preset", "First_time_using"); 
+                formData.append("cloud_name", "dzmx76ojp"); 
+
+        
+                const uploadResponse = await axios.post(
+                    "https://api.cloudinary.com/v1_1/dzmx76ojp/image/upload",
+                    formData
+                );
+
+              
+                imageUrl = uploadResponse.data.secure_url;
+            }
+
+           
             const value = {
-                name:profileData.name,
-                email:profileData.email,
-                phone:profileData.phone,
-                dateOfBirth:profileData.dateOfBirth,
-                gender:profileData.gender,
-               }
+                name: profileData.name,
+                email: profileData.email,
+                phone: profileData.phone,
+                dateOfBirth: profileData.dateOfBirth,
+                gender: profileData.gender,
+                picture: imageUrl, 
+            };
 
-            // Tạo đối tượng FormData
-            // const formData = new FormData();
-            // formData.append("name", profileData.name);
-            // formData.append("email", profileData.email);
-            // formData.append("phone", profileData.phone);
-            // formData.append("dateOfBirth", profileData.dateOfBirth);
-            // formData.append("gender", profileData.gender);
-            // if (avatar) {
-            //     formData.append("picture", avatar);
-            // }
+            const response = await axios.patch(
+                `http://localhost:3000/user/${id}`,
+                value
+            );
 
-            // Gửi yêu cầu cập nhật với FormData
-            const response = await axios.patch(`http://localhost:3000/user/${id}`, value);
             if (response?.status === 200) {
-                setNote('Profile updated successfully');
+                setNote("Profile updated successfully");
                 setEdit(false);
-                setTimeout(() => setNote(''), 3000);
-                dipatch(accountAction.setUser({
-                  id:profileData.id,
-                  name:profileData.name,
-                  email:profileData.email,
-                  role:profileData.user,
-                  picture:''
+                setTimeout(() => setNote(""), 3000);
 
-
-                }))
+             
+                dispatch(
+                    accountAction.setUser({
+                        id: profileData.id,
+                        name: profileData.name,
+                        role: profileData.role,
+                        picture: imageUrl, 
+                    })
+                );
             }
         } catch (err) {
-            setNote(err.response?.data?.message || 'Error updating profile');
+            setNote(err.response?.data?.message || "Error updating profile");
         }
     };
 

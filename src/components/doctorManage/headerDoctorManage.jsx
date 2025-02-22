@@ -22,10 +22,9 @@ const HeaderDoctorManage = () => {
           {/* Notification */}
           <button className="relative p-2 rounded-lg hover:bg-gray-200">
             <BellIcon className="w-6 h-6 text-gray-700" />
-            <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+            <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full" />
           </button>
           
-          {/* Profile & Dark Mode */}
           <div className="flex items-center space-x-4">
             <div className="text-right">
               <p className="text-base font-medium text-gray-900">Dr. Sarah</p>

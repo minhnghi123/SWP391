@@ -1,133 +1,116 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import Avatar from "../../assets/p5.jpg";
 import { childAction } from "../redux/reducers/selectChildren";
+import { arriveActions } from "../redux/reducers/arriveDate";
 import { fetchData } from "../../Api/axios";
-import ProfileUser from "./eachComponentStage1/leftSide/profileUser";
+import { format, set } from "date-fns";
+import HeaderLeftSide from "./eachComponentStage1/leftSide/HeaderLeftSide";
+import ChildrenList from "./eachComponentStage1/leftSide/ChildrenList";
 import FormAddChildren from "./eachComponentStage1/leftSide/formAddChildren";
 import ChildCard from "./eachComponentStage1/rightSide/ChildCard";
-import ListChild from "./eachComponentStage1/leftSide/ListChild";
-import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { RefreshCcw } from "lucide-react";
-import { arriveActions } from "../redux/reducers/arriveDate";
-import { format } from 'date-fns';
-export default function Stage1Payment({ isopennextstep }) {
-    const dispatch = useDispatch();
-    const [user, setUser] = useState(null);
-    const [err, setErr] = useState(null);
-    const [isOpenFirst, setIsOpenFirst] = useState(false);
-    const account = useSelector((state) => state.account.user);
-    const listChildren = useSelector((state) => state.children.listChildren);
-    const [inputAdvisory, setInputAdvisory] = useState("");
-    const [showCalendar, setShowCalendar] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(null);
-    const arriveDate = useSelector((state) => state.arriveDate.arriveDate)
-    const [checkSent, setSent] = useState(false)
-    const advitory = useSelector((state) => state.children.advitory_detail)
+import ChooseDateVaccination from "./eachComponentStage1/rightSide/ChooseDateVaccination,";
+import FormAdvitory_detail from "./eachComponentStage1/rightSide/FormAdvitory_detail";
+import NoSelectChildren from "./eachComponentStage1/rightSide/NoSelectChildren";
+import axios from "axios";
+
+export default function Stage1Payment({ id, isopennextstep }) {
+
+  const [err, setErr] = useState(null);
+  const [loading, setLoading] = useState(false);
 
 
-    const handleInputAdvisory = (e) => {
-        e.preventDefault();
-        if (inputAdvisory.trim() === "") {
-            alert("Please enter your advisory message.");
-            return;
-        }
-        dispatch(childAction.replaceAdvitory(inputAdvisory))
-        setInputAdvisory("")
-        setSent(true)
-
-        // Reset input field
-        setInputAdvisory(""); // This will clear the input after submission
-    };
-    const resetForm = () => {
-        dispatch(childAction.resetForm())
-        setSent(false)
-    }
-
-    useEffect(() => {
-        if (selectedDate) {
-            dispatch(arriveActions.setArriveDate(format(selectedDate, 'yyyy/MM/dd')));
-        }
-    }, [selectedDate, dispatch]);
-
-
+  const dispatch = useDispatch();
+  const listChildren = useSelector((state) => state.children.listChildren);
+  const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
+  const advitory = useSelector((state) => state.children.advitory_detail);
   
+  const [user, setUser] = useState(null);
+  const [isOpenFirst, setIsOpenFirst] = useState(false);
+  const [inputAdvisory, setInputAdvisory] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [checkSent, setSent] = useState(false);
+  const [inputDat, setData] = useState({
+    parentID: user?.id || "",
+    id: "",
+    name: "",
+    dateOfBirth: "",
+    gender: "",
+    status: true,
+    createDate: "",
+  });
 
-    const handleChange = (e) => {
-        dispatch(childAction.handleOnChange({ name: e.target.name, value: e.target.value }));
-    };
-    const handleRemove = (id) => {
-        dispatch(childAction.deleteChild(id))
+
+  useEffect(() => {
+    if (selectedDate) {
+      dispatch(arriveActions.setArriveDate(format(selectedDate, "yyyy/MM/dd")));
     }
-    // Lấy dữ liệu từ LocalStorage & API
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        if (!account?.id) return;
-
-        const getUserData = async () => {
-            try {
-                const res = await fetchData(`user/${account.id}`);
-                if (res.status === 200 && res?.data) {
-                    setUser(res.data);
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                setErr('Fetch failed');
-            }
-        };
-        getUserData();
-    }, [account?.id]);
+  }, [selectedDate, dispatch]);
 
 
-    const handleAddChildren = (child) => {
-        dispatch(childAction.chooseChildren({
-            parentID: account.id,
-            id: child.id,
-            name: child.name,
-            dateOfBirth: child.dateOfBirth,
-            gender: child.gender,
-            status: child.status,
-            createDate: child.createDate
-
-        }));
-    };
-
-
-    const [inputDat, setData] = useState({
-        parentID: account?.id || '',
-        id: '',
-        name: '',
-        dateOfBirth: '',
-        gender: '',
-        status: true,
-        createDate: ''
-    });
-
-
-    // add children
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!inputDat.name || !inputDat.dateOfBirth) {
-            alert("Vui lòng nhập đủ thông tin!");
-            return;
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100); // Đợi 100ms trước khi scroll
+  }, []);
+  useEffect(() => {
+    if (!id) return;
+    const getUserData = async () => {
+      setLoading(true)
+      setErr(null);
+      try {
+        const res = await axios.get(`http://localhost:3000/user/${id}`);
+        if (res.status === 200 && res?.data) {
+          setUser(res.data);
         }
-        setData({
-            parentID: account.id,
-            id: '',
-            name: '',
-            dateOfBirth: '',
-            gender: '',
-            status: true,
-
-        });
-
-        setIsOpenFirst(false);
+      } catch (error) {
+        console.error("Fetch error:", error);
+        setErr("Fetch failed");
+      } finally {
+        setLoading(false)
+      }
     };
 
-    const handleNextStep = () => isopennextstep(2);
+    getUserData();
+  }, [id]); 
 
+  const handleInputAdvisory = (e) => {
+    e.preventDefault();
+    if (!inputAdvisory.trim()) return alert("Please enter your advisory message.");
+    dispatch(childAction.replaceAdvitory(inputAdvisory));
+    setInputAdvisory("");
+    setSent(true);
+  };
+  
+  const resetForm = () => {
+    dispatch(childAction.resetForm());
+    setSent(false);
+  };
+
+  //remove child on list vaccination
+  const handleRemove = (id) => {
+    dispatch(childAction.deleteChild(id));
+  };
+    // add child on list vaccination
+  const handleAddChildren = (child) => {
+    dispatch(
+      childAction.chooseChildren({
+        parentID: user.id,
+        ...child,
+      })
+    );
+  };
+
+  const handleChange = (e) => {
+    dispatch(childAction.handleOnChange({ name: e.target.name, value: e.target.value }));
+  };
+
+  //add new children
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!inputDat.name || !inputDat.dateOfBirth) return alert("Vui lòng nhập đủ thông tin!");
+    setData({ parentID: user.id, id: "", name: "", dateOfBirth: "", gender: "", status: true });
+    setIsOpenFirst(false);
+  };
 
     return (
         <div className="min-h-screen py-12">
@@ -136,7 +119,7 @@ export default function Stage1Payment({ isopennextstep }) {
                     {/* Left section */}
                     <div className="w-full lg:w-[550px] space-y-8">
                         {/* Welcome Section */}
-                        <div className="bg-gradient-to-r from-blue-500 to-blue-400 rounded-3xl p-8 text-white">
+                        <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-3xl p-8 text-white">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h1 className="text-2xl font-bold mb-2">

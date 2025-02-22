@@ -10,7 +10,7 @@
       "gender": "Male",
       "email": "ttei8191@gmail.com",
       "role": "user",
-      "picture": "https://lh3.googleusercontent.com/a/ACg8ocLcLQak5Ye2V-jB3hpXEIQVg-8FKMFAEynXWUk-4kR8plC5NQ=s96-c",
+      "picture": "https://res.cloudinary.com/dzmx76ojp/image/upload/v1740149218/zpqpgg3hc7nxooxlanms.png",
       "children": [
         {
           "id": "1-1",
@@ -42,6 +42,7 @@
       "gender": "female",
       "email": "tranthihoa@gmail.com",
       "role": "admin",
+      "picture": "https://res.cloudinary.com/dzmx76ojp/image/upload/v1740195457/wvo4yavqgznydtrf5znb.png",
       "children": [
         {
           "id": "2-1",

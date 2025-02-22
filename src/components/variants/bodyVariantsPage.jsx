@@ -24,7 +24,7 @@ export default function BodyVariantsHomePage() {
     const itemList = useSelector((state) => state.vaccine?.itemList || []);
     const calculatedTotal = useSelector((state) => state.vaccine.totalPrice);
     const isBooking = useSelector((state) => state.vaccine.isBooking)
-
+    const user=useSelector(state=>state.account.user)
 
 
     useEffect(() => {
@@ -255,7 +255,7 @@ export default function BodyVariantsHomePage() {
                                     </span>
                                 </div>
 
-                                <Link to="/paymentPage">
+                                <Link to={`/paymentPage/${user.id}`}>
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}

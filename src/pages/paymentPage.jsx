@@ -5,23 +5,24 @@ import Stage1Payment from '../components/payment/stage1payment';
 import FooterHomePage from '../components/home/footerHomPage';
 import Stage2Payment from '../components/payment/stage2payment';
 import Stage3Payment from '../components/payment/stage3payment';
-import { NumberOfPeopleProvider } from '../components/Context/NumberOfPeopleVacines'
 import { FeedbackProvider } from '../components/Context/FeedbackContext';
+import { useParams } from 'react-router-dom';
+
 export default function PaymentPage() {
   const [isopennextstep, setIsopenNextStep] = useState(1);
-
+  const { id } = useParams();
 
 
   const renderBodyPayment = () => {
     switch (isopennextstep) {
       case 1:
-        return <Stage1Payment isopennextstep={setIsopenNextStep} />
+        return <Stage1Payment id={id} isopennextstep={setIsopenNextStep} />
       case 2:
-        return <Stage2Payment isopennextstep={setIsopenNextStep} />
+        return <Stage2Payment id={id} isopennextstep={setIsopenNextStep} />
       case 3:
-        return <Stage3Payment isopennextstep={setIsopenNextStep} />
+        return <Stage3Payment id={id} isopennextstep={setIsopenNextStep} />
       default:
-        return <Stage1Payment isopennextstep={setIsopenNextStep} />
+        return <Stage1Payment id={id} isopennextstep={setIsopenNextStep} />
     }
   }
   return (
@@ -34,9 +35,9 @@ export default function PaymentPage() {
         ) : (
           <>
             <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />
-            
-              {renderBodyPayment()}
-        
+
+            {renderBodyPayment()}
+
             <FooterHomePage />
           </>
         )

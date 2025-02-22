@@ -1,6 +1,6 @@
 import LoginGoogle from './loginGoogle';
 // import LoginFaceBook from './loginFacebook'
-const FormLogin = ({ handleSubmit, handleChangePhoneNumber, handleClickOTP, handleChangeAccount, input, isFormValid, handleForgotPassword, openOTP, isOpen, sent }) => {
+const FormLogin = ({ handleSubmit, handleChangePhoneNumber, handleClickOTP, handleChangeAccount, input, isFormValid, handleForgotPassword, openOTP, isOpen, sent ,loading}) => {
     return (
         <form className="flex flex-col p-10 max-w-[400px] w-full items-center" onSubmit={handleSubmit}>
             {
@@ -87,7 +87,7 @@ const FormLogin = ({ handleSubmit, handleChangePhoneNumber, handleClickOTP, hand
         shadow-md hover:shadow-lg active:scale-[0.99]`}
                             disabled={!isFormValid()}
                         >
-                            Login
+                           {loading ? 'Loading...' : 'Login'}
                         </button>
 
 

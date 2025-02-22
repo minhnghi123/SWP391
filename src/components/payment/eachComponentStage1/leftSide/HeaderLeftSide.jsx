@@ -1,6 +1,6 @@
  import React from 'react';
 import ProfileUser from './profileUser';
- const  HeaderLeftSide = ({account,user}) => {
+ const  HeaderLeftSide = ({user}) => {
     return (
         <>
             {/* Welcome Section */}
@@ -8,7 +8,7 @@ import ProfileUser from './profileUser';
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold mb-2">
-                            Welcome Back, {account?.name}!
+                            Welcome Back, {user?.name}!
                         </h1>
                         <p className="text-teal-100">
                             Complete your payment information below
@@ -19,11 +19,11 @@ import ProfileUser from './profileUser';
 
             {/* Patient Profile */}
             <ProfileUser
-                id={account?.id || ''}
-                name={account?.name || ''}
-                email={account?.email || ''}
+                id={user?.id || ''}
+                name={user?.name || ''}
+                email={user?.email || ''}
                 status={user?.status ? 'Active' : 'No Active'}
-                img={account?.picture || Avatar}
+                img={user?.picture }
             />
         </>
 

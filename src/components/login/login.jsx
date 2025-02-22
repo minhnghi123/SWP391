@@ -10,9 +10,12 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../Services/AuthLogin';
 import { useDispatch, useSelector } from "react-redux";
 import { accountAction } from "../redux/reducers/accountSlice";
+import { set } from "date-fns";
 export default function Login({ setRegister }) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
+
     const [openOTP, setOTP] = useState(false);
     const [sent, setSent] = useState(false);
     const [isOpen, setOpen] = useState(true)
@@ -50,47 +53,56 @@ export default function Login({ setRegister }) {
     // const { login } = useContext(AuthContext)
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // phone 
         if (isOpen) {
-            console.log(phoneNumber);
-            return;
+            console.log("OTP")
+            
+
         }
+        // phone 
+
         // check input
-        if (!input || !input.username || !input.password) {
-            toast.error("You need to provide a username or password");
-            return;
-        }
-        try {
-            const response = await axios.post('https://fakestoreapi.com/auth/login', input);
-            const token = response?.data?.token;
-            if (!token) {
-                toast.error("Login Failed: No token received");
+        else {
+
+            setLoading(true)
+            if (!input || !input.username || !input.password) {
+                toast.error("You need to provide a username or password");
                 return;
             }
-            const decoded = jwtDecode(token);
-            const data = {
-                id: decoded.sub,
-                token: decoded.iat,
-                name: decoded.user,
-                role: decoded.role || 'admin' // Ensure this is dynamic
-            }
-           
-            dispatch(accountAction.setUser(data));
-            setTimeout(() => {
-                if (data && data.role === 'admin') {
-                   toast.success("Welcome Admin Come Back")
-                    navigate('/dashboardPage/dashboard');
-                } else if (data && data.role) {
-                    toast.success("Login successfully");
-                    navigate('/');
+            try {
+                const response = await axios.post('https://fakestoreapi.com/auth/login', input);
+                const token = response?.data?.token;
+                if (!token) {
+                    toast.error("Login Failed: No token received");
+                    return;
+                }
+                const decoded = jwtDecode(token);
+                const data = {
+                    id: decoded.sub,
+                    name: decoded.user,
+                    role: decoded.role ,
+                    picture:decoded.picture
+                }
+
+                dispatch(accountAction.setUser(data));
+                if (data?.role) {
+                    toast.success(data.role === 'admin' ? "Welcome Admin Come Back" : "Login successfully");
+
+                    setTimeout(() => {
+                        navigate(data.role === 'admin' ? '/dashboardPage/dashboard' : '/');
+                        setLoading(false)
+                    }, 1000);
                 } else {
                     toast.error("Invalid role or login details");
                 }
-            },1000);
-        } catch (err) {
-            toast.error("Login Failed");
+
+
+            } catch (err) {
+                toast.error("Login Failed");
+            }
+
+
         }
+
     };
 
     const isFormValid = () => {
@@ -143,6 +155,7 @@ export default function Login({ setRegister }) {
                     isOpen={isOpen}
                     isFormValid={isFormValid}
                     sent={sent}
+                    loading={loading}
 
 
                 />

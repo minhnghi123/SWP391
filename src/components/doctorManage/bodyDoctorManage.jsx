@@ -53,7 +53,6 @@ const patients = [
     bloodPressure: "118/75"
   }
 ];
-
 const stats = {
   totalPatients: 45,
   appointments: 12,

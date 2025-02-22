@@ -136,7 +136,7 @@ export default function Stage1Payment({ isopennextstep }) {
                     {/* Left section */}
                     <div className="w-full lg:w-[550px] space-y-8">
                         {/* Welcome Section */}
-                        <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-3xl p-8 text-white">
+                        <div className="bg-gradient-to-r from-blue-500 to-blue-400 rounded-3xl p-8 text-white">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h1 className="text-2xl font-bold mb-2">

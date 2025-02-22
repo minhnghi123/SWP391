@@ -75,17 +75,25 @@ const Payments = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredPayments.map((payment) => (
-                <tr key={payment.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-800">{payment.name}</td> {/* Đổi từ username thành name */}
-                  <td className="px-6 py-4 text-sm text-gray-600">{payment.amount}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{payment.method}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{payment.date}</td>
-                  <td className="px-6 py-4 text-sm text-gray-800">{payment.phone}</td> {/* Đổi từ username thành name */}
-                  <td className="px-6 py-4 text-sm text-gray-600">{payment.email}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{payment.notes}</td>
+              {filteredPayments.length > 0 ? (
+                filteredPayments.map((payment) => (
+                  <tr key={payment.id} className="border-b hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm text-gray-800">{payment.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{payment.amount}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{payment.method}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{payment.date}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800">{payment.phone}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{payment.email}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{payment.notes}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                    No payments found.
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

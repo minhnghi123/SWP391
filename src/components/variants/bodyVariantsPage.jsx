@@ -214,14 +214,14 @@ export default function BodyVariantsHomePage() {
                     <div className="max-lg:w-[420px]">
                         <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 sticky top-28">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-gray-800">Payment Summary</h2>
+                                <h2 className="text-2xl font-bold text-gray-800 p-2">Payment Summary</h2>
                                 <span className="text-lg text-gray-600">{itemList.length} Items</span>
                             </div>
 
                             <div className="space-y-4 mb-8">
-                                <AnimatePresence>
+                                
                                     {itemList.map((vaccine) => (
-                                        <motion.div
+                                        <div
                                             key={vaccine.id}
                                             initial={{ opacity: 0, height: 0 }}
                                             animate={{ opacity: 1, height: "auto" }}
@@ -243,9 +243,8 @@ export default function BodyVariantsHomePage() {
                                                     <BackspaceOutlinedIcon />
                                                 </button>
                                             </div>
-                                        </motion.div>
+                                        </div>
                                     ))}
-                                </AnimatePresence>
                             </div>
 
                             <div className="border-t border-gray-200 pt-6">
@@ -277,6 +276,4 @@ export default function BodyVariantsHomePage() {
             </main>
         </div>
     );
-
-
 }

@@ -6,24 +6,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FeedbackContext } from "../Context/FeedbackContext";
 export default function Stage3Payment() {
-    const navigate = useNavigate()
-    const {isOpenModal,handleOpenFeedback,handleCloseModal} = useContext(FeedbackContext)
+    const navigate = useNavigate();
     useEffect(() => {
-        const id = setTimeout(() => {
-            handleOpenFeedback()
-        }, 3000)
-        return (() => {
-            clearTimeout(id)
-        })
-    }, [])
-   
-   
+        window.scrollTo(0, 0);
+    }, []);
+
+
     return (
         <>
-            {
-                isOpenModal && <ModalRating onClose={handleCloseModal} />
-            }
-            <button onClick={handleOpenFeedback}>Feedback</button>
+
+        
             <ToastContainer />
             <div className="min-h-screen flex items-center justify-center p-6">
                 <div className="bg-white/20 backdrop-blur-lg shadow-2xl rounded-2xl p-8 max-w-md w-full text-center border border-white/30 relative overflow-hidden">

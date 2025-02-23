@@ -454,4 +454,19 @@
       "notes": "Pending"
     }
   ]
+  ,"paymentMenthod":[
+    {
+      "id": "1",
+      "payUrl":"https://www.paypal.com"
+     
+    },
+    {
+      "id": "2",
+      "payUrl":"https://www.momo.vn"
+    },
+    {
+      "id": "3",
+      "payUrl":"https://www.paypal.com"
+    }
+  ]
 }

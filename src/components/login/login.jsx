@@ -79,8 +79,8 @@ export default function Login({ setRegister }) {
                 const data = {
                     id: decoded.sub,
                     name: decoded.user,
-                    role: decoded.role ,
-                    picture:decoded.picture
+                    role: decoded.role  || 'user' ,
+                    // picture:decoded.picture
                 }
 
                 dispatch(accountAction.setUser(data));

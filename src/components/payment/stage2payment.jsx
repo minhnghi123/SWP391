@@ -1,26 +1,26 @@
-import { useMemo, useEffect, useState } from 'react';
-import HeaderSection from './eachComponentStage2/leftSide/headerSection';
-import ChildrenListSection from './eachComponentStage2/leftSide/childrenListSection';
-import SummaryHeaderCard from './eachComponentStage2/rightSide/headerSummary';
-import PaymentSummaryCard from './eachComponentStage2/rightSide/paymentSummaryCard';
-import PaymentMethodCard from './eachComponentStage2/rightSide/PaymentMethodCard';
+import { useMemo, useEffect, useState } from "react";
+import HeaderSection from "./eachComponentStage2/leftSide/headerSection";
+import ChildrenListSection from "./eachComponentStage2/leftSide/childrenListSection";
+import SummaryHeaderCard from "./eachComponentStage2/rightSide/headerSummary";
+import PaymentSummaryCard from "./eachComponentStage2/rightSide/paymentSummaryCard";
+import PaymentMethodCard from "./eachComponentStage2/rightSide/PaymentMethodCard";
 import { useDispatch, useSelector } from "react-redux";
-import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import { vaccineAction } from '../redux/reducers/selectVaccine';
-import { childAction } from '../redux/reducers/selectChildren';
-import { arriveActions } from '../redux/reducers/arriveDate';
-import PaymentStatusModal from './eachComponentStage3/modalStatusPayment';
-import { set } from 'date-fns';
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import { vaccineAction } from "../redux/reducers/selectVaccine";
+import { childAction } from "../redux/reducers/selectChildren";
+import { arriveActions } from "../redux/reducers/arriveDate";
+import PaymentStatusModal from "./eachComponentStage3/modalStatusPayment";
 
-export default function Stage2Payment({id}) {
+export default function Stage2Payment({ id ,isopennextstep}) {
     const [showModal, setShowModal] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const [paymentUrl, setPaymentUrl] = useState("");
 
-
-    const arriveDate = useSelector(state => state.arriveDate.arriveDate);
+    const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
     const user = useSelector((state) => state.account.user);
-    const paymentMenthod = useSelector((state) => state.methodPayment.methodPayment)
+    const paymentMenthod = useSelector((state) => state.methodPayment.methodPayment);
     const itemList = useSelector((state) => state.vaccine.itemList);
     const listChildren = useSelector((state) => state.children.listChildren);
     const totalPrice = useSelector((state) => state.vaccine.totalPrice);
@@ -28,209 +28,117 @@ export default function Stage2Payment({id}) {
 
     const dispatch = useDispatch();
 
+
+    
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
     const CalculateTotal = useMemo(() => {
         const totalPriceVaccine = totalPrice;
-        const total = listChildren.length * totalPriceVaccine;
-        return total;
+        return listChildren.length * totalPriceVaccine;
     }, [listChildren, itemList]);
 
-    // Handle payment function
-    // const handleSubmit = async () => {
-    //     try {
-    //         const value = {
-    //             parentId: user.id,
-    //             advitory_detail: advitory_detail ? advitory_detail : null,
-    //             totalPrice: CalculateTotal + (CalculateTotal * 0.05),
-    //             paymentMenthod: paymentMenthod,
-    //             arrvieDate: arriveDate,
-    //             listChildren: listChildren.map((child) => child.id),
-    //             listVaccine: itemList.map((vaccine) => vaccine.id),
-
-    //         };
-    //         const res = await axios.post('', value);
-    //         if (res?.status === 201) {
-    //             // isopennextstep(3);
-    //             toast.success("Payment successful");
-    //             dispatch(vaccineAction.completePayment());
-    //             dispatch(childAction.completePayment());
-    //             dispatch(arriveActions.resetArriveDate());
-
-    //             // Show success modal
-    //             setIsSuccess(true);
-    //             setShowModal(true);
-    //         } else {
-    //             throw new Error(response?.data?.msg || "Payment failed");
-    //         }
-    //     } catch (error) {
-    //         toast.error(`Failed: ${error?.response?.data?.message || error.message}`);
-    //         console.error("Payment Error:", error);
-
-    //         // Show failure modal
-    //         setIsSuccess(false);
-    //         setShowModal(true);
-    //     }
-    // };
-
+    // Xử lý thanh toán
     const handleSubmit = async () => {
         try {
-            // get url payment menthod
-            const res = await axios.get(`/${paymentMenthod}`);
-            if (res?.status === 200 && res?.data?.payUrl
-            ) {
-                // open new tab payment
-                const paymentWindow =window.open(res.data.payUrl, '_blank');
-             
-                // tracking close tab payment
-                const interval = setInterval(async () => {
-                    if (paymentWindow.closed) {
+            // Bước 1: Gọi API lấy URL thanh toán
+            const res = await axios.get(`http://localhost:3000/paymentMenthod/${paymentMenthod}`);
+            if (res?.status === 200 && res?.data?.payUrl) {
+                setPaymentUrl(res.data.payUrl);
+                setIsOpen(true);
+            } else {
+                toast.error("Không thể lấy URL thanh toán!");
+                return;
+            }
+
+            // Bước 2: Theo dõi trạng thái thanh toán
+            const interval = setInterval(async () => {
+                try {
+                    const statusRes = await axios.get(`http://localhost:3000/paymentMenthod/status/${paymentMenthod}`);
+                    if (statusRes?.data?.message === "success") {
                         clearInterval(interval);
 
-
-                        const paymentStatusRes = await axios.get(`/${paymentMenthod}`);
-                        if (paymentStatusRes?.data?.message === 'success') {
-
-                            const value = {
-                                parentId: user.id,
-                                advitory_detail: advitory_detail || null,
-                                totalPrice: CalculateTotal + (CalculateTotal * 0.05) + (advitory_detail ? listChildren.length * 50000 : 0),
-                                paymentMenthod: paymentMenthod,
-                                arrvieDate: arriveDate,
-                                listChildren: listChildren.map((child) => child.id),
-                                listVaccine: itemList.map((vaccine) => vaccine.id),
-                            };
-                            const saveRes = await axios.post('http://localhost:3000/payments', value);
-                            if (saveRes?.status === 200) {
-                                setIsSuccess(true);
-                                setShowModal(true);
-                            } else {
-                                setIsSuccess(false);
-                                setShowModal(true);
-                            }
-                        } else {
-                            setIsSuccess(false);
-                            setShowModal(true);
-                        }
-                    }
-                }, 20000);
-            } else {
-                toast.error('Failed to get the payment URL');
-            }
-        } catch (error) {
-            const errorMessage = error?.response?.data?.message || error.message || 'An error occurred';
-            toast.error(`Failed: ${errorMessage}`);
-            console.error('Error:', error);
-        }
-    };
-
-
-    const handleSubmit1 = async () => {
-        try {
-            //  get url payment menthod
-            const res = await axios.get(`/${paymentMenthod}`);
-            if (res?.status === 200 && res?.data?.payUrl) {
-               // open tab payment
-                const paymentWindow = window.open(res.data.payUrl, '_blank');
-    
-              //  tracking msg success or fail
-                window.addEventListener('message', async (event) => {
-                    if (event.origin !== 'http://localhost:3000') {
-                        // Ensure the message is coming from your backend or trusted source
-                        return;
-                    }
-    
-                   // check 
-                    const { status } = event.data;
-                    if (status === 'success') {
-                        // if success , post value on db
+                        // Lưu dữ liệu thanh toán
                         const value = {
                             parentId: user.id,
                             advitory_detail: advitory_detail || null,
-                            totalPrice: CalculateTotal + (CalculateTotal * 0.05) + (advitory_detail ? listChildren.length * 50000 : 0),
+                            totalPrice: CalculateTotal + CalculateTotal * 0.05,
                             paymentMenthod: paymentMenthod,
                             arrvieDate: arriveDate,
                             listChildren: listChildren.map((child) => child.id),
                             listVaccine: itemList.map((vaccine) => vaccine.id),
                         };
-                        const saveRes = await axios.post('http://localhost:3000/payments', value);
-                        if (saveRes?.status === 200) {
+
+                        const saveRes = await axios.post("http://localhost:3000/payment/save", value);
+                        if (saveRes?.status === 201) {
+                            toast.success("Thanh toán thành công!");
+                            dispatch(vaccineAction.completePayment());
+                            dispatch(childAction.completePayment());
+                            dispatch(arriveActions.resetArriveDate());
                             setIsSuccess(true);
-                            setShowModal(true);
                         } else {
-                            setIsSuccess(false);
-                            setShowModal(true);
+                            throw new Error("Lưu thông tin thất bại!");
                         }
-                    } else {
-                     
-                        toast.error('Payment failed');
-                        setIsSuccess(false);
-                        setShowModal(true);
+                    } else if (statusRes?.data?.message === "failed") {
+                        clearInterval(interval);
+                        throw new Error("Thanh toán thất bại!");
                     }
-    
-                  
-                    if (paymentWindow) paymentWindow.close();
-                });
-            } else {
-                toast.error('Failed to get the payment URL');
-            }
+                } catch (error) {
+                    clearInterval(interval);
+                    toast.error(`Lỗi: ${error.message}`);
+                    setIsSuccess(false);
+                } finally {
+                    setShowModal(true);
+                    setIsOpen(false);
+                }
+            }, 18000);
         } catch (error) {
-            const errorMessage = error?.response?.data?.message || error.message || 'An error occurred';
-            toast.error(`Failed: ${errorMessage}`);
-            console.error('Error:', error);
+            toast.error(`Lỗi: ${error.message}`);
         }
     };
-    
-
-
-
-
 
     return (
+        <div className="max-w-7xl mx-auto px-4 py-16">
+            {/* <ToastContainer /> */}
 
-        <div className='max-w-7xl mx-auto px-4 py-16'>
-            <ToastContainer />
-            {/* <button onClick={() => setIsOpen(!isOpen)}>Alalo</button> */}
-            {/* {
-                isOpen && <div className="iframe-container fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                    <iframe
-                        src={url}
-                        width="600"
-                        height="400"
-                        sandbox="allow-scripts allow-same-origin"
-                    ></iframe>
-                </div>
-
-            } */}
-            <PaymentStatusModal
+            {/* Modal trạng thái thanh toán */}
+            {/* <PaymentStatusModal
                 isSuccess={isSuccess}
                 setIsSuccess={setIsSuccess}
                 showModal={showModal}
                 setShowModal={setShowModal}
-            />
+            /> */}
 
-            <div className='flex flex-col lg:flex-row gap-12'>
-                {/* leftSide */}
+            {/* Modal thanh toán */}
+            {isOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-[800px] relative z-50">
+                        <iframe src={paymentUrl} width="100%" height="500px" className="rounded-md"></iframe>
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
+                        >
+                            Đóng
+                        </button>
+                    </div>
+                </div>
+            )}
+
+
+            <div className="flex flex-col lg:flex-row gap-12">
+                {/* Left Side */}
                 <div className="w-full lg:w-[600px] space-y-8">
                     <HeaderSection listChildren={listChildren} />
-                    <ChildrenListSection
-                        childrenVaccines={listChildren}
-                        listVaccine={itemList}
-                        advitory_detail={advitory_detail}
-                    />
+                    <ChildrenListSection childrenVaccines={listChildren} listVaccine={itemList} advitory_detail={advitory_detail} />
                 </div>
 
-                {/* rightSide */}
+                {/* Right Side */}
                 <div className="w-full lg:w-[600px] space-y-8">
                     <SummaryHeaderCard />
                     <PaymentSummaryCard CalculateTotal={CalculateTotal} />
-                    <PaymentMethodCard
-                        listChildren={listChildren}
-                        CalculateTotal={CalculateTotal}
-                        handleSubmit={handleSubmit} // Ensure this prop is passed
-                    />
+                    <PaymentMethodCard listChildren={listChildren} CalculateTotal={CalculateTotal} handleSubmit={()=>isopennextstep(3)} />
                 </div>
             </div>
         </div>

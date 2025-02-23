@@ -49,6 +49,7 @@ export default function ForgotPassword({ setRegister }) {
                 setCountdown((prev) => {
                     if (prev <= 1) {
                         setCanResend(true);
+                        setCheckCode([]);
                         return 30;
                     }
                     return prev - 1;

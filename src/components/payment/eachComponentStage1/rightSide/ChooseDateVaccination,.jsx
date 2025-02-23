@@ -2,8 +2,14 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { RefreshCcw } from "lucide-react";
 import { useState } from "react";
-const ChooseDateVaccination = ({arriveDate,setSelectedDate,selectedDate}) => {
-     const [showCalendar, setShowCalendar] = useState(false);
+import { useDispatch } from "react-redux";
+import { arriveActions } from "../../../redux/reducers/arriveDate";
+import { format } from "date-fns";
+
+const ChooseDateVaccination = ({ arriveDate }) => {
+    const [showCalendar, setShowCalendar] = useState(false);
+    const dispatch = useDispatch();
+
     return (
         <div className="h-[100px] flex flex-row justify-between items-center p-4 bg-gradient-to-r from-blue-50 via-white to-blue-100 shadow-md rounded-lg">
             <h3 className="text-xl font-bold text-gray-900">Danh sách trẻ được chích</h3>
@@ -29,9 +35,9 @@ hover:from-blue-400 hover:to-blue-600"
                         aria-label="Calendar picker"
                     >
                         <DatePicker
-                            selected={selectedDate}
+                            selected={arriveDate ? new Date(arriveDate) : null}
                             onChange={(date) => {
-                                setSelectedDate(date);
+                                dispatch(arriveActions.setArriveDate(format(date, "yyyy/MM/dd")));
                                 setShowCalendar(false);
                             }}
                             inline
@@ -60,11 +66,7 @@ hover:from-blue-400 hover:to-blue-600"
                         </p>
                         <button
                             aria-label="Xóa ngày đã chọn"
-                            onClick={() => {
-                                setSelectedDate(null);
-                                setShowCalendar(false);
-                            }}
-
+                            onClick={() => dispatch(arriveActions.resetArriveDate())} // Bọc trong arrow function
                             className="p-2 bg-gray-200 text-gray-700 rounded-full transition duration-300 hover:bg-gray-300"
                         >
                             <RefreshCcw className="w-5 h-5" />
@@ -73,6 +75,7 @@ hover:from-blue-400 hover:to-blue-600"
                 )}
             </div>
         </div>
-    )
-}
+    );
+};
+
 export default ChooseDateVaccination;

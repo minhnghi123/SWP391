@@ -11,10 +11,10 @@ const steps = [
 const StepIcon = ({ Icon, isActive, isCompleted }) => (
     <div
         className={`w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full transition-all duration-300 ${isActive
-                ? "bg-blue-600 text-white shadow-lg ring-4 ring-blue-100"
-                : isCompleted
-                    ? "bg-green-500 text-white shadow-md"
-                    : "bg-gray-200 text-gray-400"
+            ? "bg-blue-600 text-white shadow-lg ring-4 ring-blue-100"
+            : isCompleted
+                ? "bg-green-500 text-white shadow-md"
+                : "bg-gray-200 text-gray-400"
             }`}
     >
         <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
@@ -41,13 +41,16 @@ export default function HeaderPayment({ currentStep, setIsopenNextStep }) {
         <header className="bg-white shadow-lg py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto relative">
                 {/* Back Button */}
-                <button
-                    onClick={handleBack}
-                    className="absolute bottom-[50%] flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
+                {
+                    currentStep !== 3 &&  <button
+                        onClick={handleBack}
+                        className="absolute bottom-[50%] flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
                     <ChevronLeft className="w-5 h-5 text-gray-600" />
                     <span className="font-medium">Back</span>
                 </button>
+
+               }
 
 
                 {/* Progress Navigation */}

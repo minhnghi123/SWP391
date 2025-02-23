@@ -27,21 +27,15 @@ export default function PaymentPage() {
   }
   return (
     <>
-      {
-        isopennextstep === 3 ? (
-          <FeedbackProvider>
-            {renderBodyPayment()}
-          </FeedbackProvider>
-        ) : (
-          <>
-            <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />
 
-            {renderBodyPayment()}
+      <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />
 
-            <FooterHomePage />
-          </>
-        )
-      }
+      {renderBodyPayment()}
+
+      <FooterHomePage />
+
+      )
+
     </>
   )
 

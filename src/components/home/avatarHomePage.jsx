@@ -1,6 +1,6 @@
 import imgAvatar from '../../assets/p15.jpg'
 import React, { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import { data, Link, useNavigate } from 'react-router-dom';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EscalatorWarningOutlinedIcon from '@mui/icons-material/EscalatorWarningOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { accountAction } from '../redux/reducers/accountSlice';
 import { vaccineAction } from '../redux/reducers/selectVaccine';
 import { childAction } from '../redux/reducers/selectChildren';
+import { arriveActions } from '../redux/reducers/arriveDate';
 export default function AvatarHomePage() {
     const dispatch = useDispatch()
     const navigate = useNavigate();
@@ -31,6 +32,7 @@ export default function AvatarHomePage() {
         dispatch(accountAction.clearUser())
         dispatch(vaccineAction.completePayment())
         dispatch(childAction.completePayment())
+         dispatch(arriveActions.resetArriveDate());
         navigate('/loginPage');
     };
 

@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { childAction } from "../redux/reducers/selectChildren";
 import { arriveActions } from "../redux/reducers/arriveDate";
 import { fetchData } from "../../Api/axios";
-import { format, set } from "date-fns";
+
 import HeaderLeftSide from "./eachComponentStage1/leftSide/HeaderLeftSide";
 import ChildrenList from "./eachComponentStage1/leftSide/ChildrenList";
 import FormAddChildren from "./eachComponentStage1/leftSide/formAddChildren";
@@ -23,13 +23,15 @@ export default function Stage1Payment({ id, isopennextstep }) {
   const listChildren = useSelector((state) => state.children.listChildren);
   const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
   const advitory = useSelector((state) => state.children.advitory_detail);
-  
+
+
   const [user, setUser] = useState(null);
   const [isOpenFirst, setIsOpenFirst] = useState(false);
   const [inputAdvisory, setInputAdvisory] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [checkSent, setSent] = useState(false);
   const [inputDat, setData] = useState({
+
     parentID: user?.id || "",
     id: "",
     name: "",
@@ -40,18 +42,11 @@ export default function Stage1Payment({ id, isopennextstep }) {
   });
 
 
-  useEffect(() => {
-    if (selectedDate) {
-      dispatch(arriveActions.setArriveDate(format(selectedDate, "yyyy/MM/dd")));
-    }
-  }, [selectedDate, dispatch]);
-
 
   useEffect(() => {
-    setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 100); // Đợi 100ms trước khi scroll
+    window.scrollTo(0, 0);
   }, []);
+
   useEffect(() => {
     if (!id) return;
     const getUserData = async () => {
@@ -71,7 +66,7 @@ export default function Stage1Payment({ id, isopennextstep }) {
     };
 
     getUserData();
-  }, [id]); 
+  }, [id]);
 
   const handleInputAdvisory = (e) => {
     e.preventDefault();
@@ -80,7 +75,7 @@ export default function Stage1Payment({ id, isopennextstep }) {
     setInputAdvisory("");
     setSent(true);
   };
-  
+
   const resetForm = () => {
     dispatch(childAction.resetForm());
     setSent(false);
@@ -90,7 +85,7 @@ export default function Stage1Payment({ id, isopennextstep }) {
   const handleRemove = (id) => {
     dispatch(childAction.deleteChild(id));
   };
-    // add child on list vaccination
+  // add child on list vaccination
   const handleAddChildren = (child) => {
     dispatch(
       childAction.chooseChildren({
@@ -99,6 +94,7 @@ export default function Stage1Payment({ id, isopennextstep }) {
       })
     );
   };
+
 
   const handleChange = (e) => {
     dispatch(childAction.handleOnChange({ name: e.target.name, value: e.target.value }));
@@ -111,7 +107,6 @@ export default function Stage1Payment({ id, isopennextstep }) {
     setData({ parentID: user.id, id: "", name: "", dateOfBirth: "", gender: "", status: true });
     setIsOpenFirst(false);
   };
-
   return (
     <div className="min-h-screen py-12">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -133,8 +128,8 @@ export default function Stage1Payment({ id, isopennextstep }) {
                 <>
                   <ChooseDateVaccination
                     arriveDate={arriveDate}
-                    setSelectedDate={setSelectedDate}
-                    selectedDate={selectedDate}
+
+
                   />
                   <div className="space-y-1 border-gray-200 border-b mb-5">
                     {listChildren.map((child) => (

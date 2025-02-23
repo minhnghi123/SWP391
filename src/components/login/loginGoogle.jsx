@@ -21,7 +21,7 @@ function LoginPage() {
                         Authorization: `Bearer ${tokenResponse.access_token}`,
                     },
                 }).then(res => res.json());
-
+                console.log(userInfo);
                 const data = {
                     token: tokenResponse.access_token,
                     id: userInfo.sub,

@@ -10,6 +10,7 @@ import DashboardPage from '../pages/dashboardPage';
 import FeedbackPage from '../pages/feedbackPage';
 import Detail from '../components/variants/DetailInformationVaccine';
 import DoctorPage from '../pages/doctorPage';
+import StaffPage from '../pages/staffPage';
 import { FeedbackProvider } from '../components/Context/FeedbackContext';
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
 
       } />
       <Route path="/doctorPage" element={<DoctorPage />} />
+      <Route path="/staffPage" element={<StaffPage />} />
     </Routes>
   );
 }

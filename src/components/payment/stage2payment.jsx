@@ -1,23 +1,22 @@
 import { useMemo, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom"; // ✅ Thêm useNavigate
+import axios from "axios";
 import HeaderSection from "./eachComponentStage2/leftSide/headerSection";
 import ChildrenListSection from "./eachComponentStage2/leftSide/childrenListSection";
 import SummaryHeaderCard from "./eachComponentStage2/rightSide/headerSummary";
 import PaymentSummaryCard from "./eachComponentStage2/rightSide/paymentSummaryCard";
 import PaymentMethodCard from "./eachComponentStage2/rightSide/PaymentMethodCard";
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
 import { vaccineAction } from "../redux/reducers/selectVaccine";
 import { childAction } from "../redux/reducers/selectChildren";
 import { arriveActions } from "../redux/reducers/arriveDate";
-import PaymentStatusModal from "./eachComponentStage3/modalStatusPayment";
+import { ToastContainer, toast } from "react-toastify";
+import { currenStepAction } from "../redux/reducers/currentStepSlice";
 
-export default function Stage2Payment({ id ,isopennextstep}) {
-    const [showModal, setShowModal] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
-    const [paymentUrl, setPaymentUrl] = useState("");
-
+export default function Stage2Payment({ id }) {
+    const navigate = useNavigate(); // ✅ Khởi tạo navigate
+    const [isLoading, setLoading] = useState(false);
+    const dispatch = useDispatch()
     const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
     const user = useSelector((state) => state.account.user);
     const paymentMenthod = useSelector((state) => state.methodPayment.methodPayment);
@@ -25,11 +24,6 @@ export default function Stage2Payment({ id ,isopennextstep}) {
     const listChildren = useSelector((state) => state.children.listChildren);
     const totalPrice = useSelector((state) => state.vaccine.totalPrice);
     const advitory_detail = useSelector((state) => state.children.advitory_detail);
-
-    const dispatch = useDispatch();
-
-
-    
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -40,107 +34,84 @@ export default function Stage2Payment({ id ,isopennextstep}) {
         return listChildren.length * totalPriceVaccine;
     }, [listChildren, itemList]);
 
-    // Xử lý thanh toán
+
     const handleSubmit = async () => {
+        setLoading(true);
         try {
-            // Bước 1: Gọi API lấy URL thanh toán
-            const res = await axios.get(`http://localhost:3000/paymentMenthod/${paymentMenthod}`);
-            if (res?.status === 200 && res?.data?.payUrl) {
-                setPaymentUrl(res.data.payUrl);
-                setIsOpen(true);
+            const value = {
+                parentId: user.id,
+                advitory_detail: advitory_detail || null,
+                totalPrice: CalculateTotal + CalculateTotal * 0.05,
+                paymentMenthod: paymentMenthod,
+                arriveDate: arriveDate,
+                listChildren: listChildren.map((child) => child.id),
+                listVaccine: itemList.map((vaccine) => vaccine.id),
+            };
+
+            const res = await axios.post(`/${paymentMenthod}`, value, { timeout: 900000 }); // 15 phút
+
+            if (res?.status === 200 && res.data.status === "success") {
+                // ✅ Thanh toán thành công
+                dispatch(vaccineAction.completePayment());
+                dispatch(childAction.completePayment());
+                dispatch(arriveActions.resetArriveDate());
+                dispatch(childAction.resetForm());
+                dispatch(currenStepAction.increaseStep());
+
+                setTimeout(() => {
+                    dispatch(currenStepAction.increaseStep());
+                    setLoading(false);
+                    navigate(`/payment/success`);
+                }, 1500); // Giữ setTimeout để tạo hiệu ứng
             } else {
-                toast.error("Không thể lấy URL thanh toán!");
-                return;
+                // ❌ Thanh toán thất bại
+                setTimeout(() => {
+                    dispatch(currenStepAction.increaseStep());
+                    setLoading(false);
+                    navigate(`/payment/failed`);
+                }, 1500);
             }
-
-            // Bước 2: Theo dõi trạng thái thanh toán
-            const interval = setInterval(async () => {
-                try {
-                    const statusRes = await axios.get(`http://localhost:3000/paymentMenthod/status/${paymentMenthod}`);
-                    if (statusRes?.data?.message === "success") {
-                        clearInterval(interval);
-
-                        // Lưu dữ liệu thanh toán
-                        const value = {
-                            parentId: user.id,
-                            advitory_detail: advitory_detail || null,
-                            totalPrice: CalculateTotal + CalculateTotal * 0.05,
-                            paymentMenthod: paymentMenthod,
-                            arrvieDate: arriveDate,
-                            listChildren: listChildren.map((child) => child.id),
-                            listVaccine: itemList.map((vaccine) => vaccine.id),
-                        };
-
-                        const saveRes = await axios.post("http://localhost:3000/payment/save", value);
-                        if (saveRes?.status === 201) {
-                            toast.success("Thanh toán thành công!");
-                            dispatch(vaccineAction.completePayment());
-                            dispatch(childAction.completePayment());
-                            dispatch(arriveActions.resetArriveDate());
-                            setIsSuccess(true);
-                        } else {
-                            throw new Error("Lưu thông tin thất bại!");
-                        }
-                    } else if (statusRes?.data?.message === "failed") {
-                        clearInterval(interval);
-                        throw new Error("Thanh toán thất bại!");
-                    }
-                } catch (error) {
-                    clearInterval(interval);
-                    toast.error(`Lỗi: ${error.message}`);
-                    setIsSuccess(false);
-                } finally {
-                    setShowModal(true);
-                    setIsOpen(false);
-                }
-            }, 18000);
-        } catch (error) {
-            toast.error(`Lỗi: ${error.message}`);
+        } catch (err) {
+            // ❌ Xử lý lỗi API
+            console.error("Payment error:", err);
+            setTimeout(() => {
+                dispatch(currenStepAction.increaseStep());
+                setLoading(false);
+                navigate(`/payment/failed`);
+            }, 1500);
         }
     };
 
+
+
+
     return (
-        <div className="max-w-7xl mx-auto px-4 py-16">
-            {/* <ToastContainer /> */}
+        <>
+            <div className="max-w-7xl mx-auto px-4 py-16">
+                <div className="flex flex-col lg:flex-row gap-12">
+                    {/* Left Side */}
+                    <div className="w-full lg:w-[600px] space-y-8">
+                        <HeaderSection listChildren={listChildren} />
+                        <ChildrenListSection
+                            childrenVaccines={listChildren}
+                            listVaccine={itemList}
+                            advitory_detail={advitory_detail}
+                        />
+                    </div>
 
-            {/* Modal trạng thái thanh toán */}
-            {/* <PaymentStatusModal
-                isSuccess={isSuccess}
-                setIsSuccess={setIsSuccess}
-                showModal={showModal}
-                setShowModal={setShowModal}
-            /> */}
-
-            {/* Modal thanh toán */}
-            {isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-[800px] relative z-50">
-                        <iframe src={paymentUrl} width="100%" height="500px" className="rounded-md"></iframe>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
-                        >
-                            Đóng
-                        </button>
+                    {/* Right Side */}
+                    <div className="w-full lg:w-[600px] space-y-8">
+                        <SummaryHeaderCard />
+                        <PaymentSummaryCard CalculateTotal={CalculateTotal} />
+                        <PaymentMethodCard
+                            listChildren={listChildren}
+                            handleSubmit={handleSubmit}
+                            isLoading={isLoading}
+                        />
                     </div>
                 </div>
-            )}
-
-
-            <div className="flex flex-col lg:flex-row gap-12">
-                {/* Left Side */}
-                <div className="w-full lg:w-[600px] space-y-8">
-                    <HeaderSection listChildren={listChildren} />
-                    <ChildrenListSection childrenVaccines={listChildren} listVaccine={itemList} advitory_detail={advitory_detail} />
-                </div>
-
-                {/* Right Side */}
-                <div className="w-full lg:w-[600px] space-y-8">
-                    <SummaryHeaderCard />
-                    <PaymentSummaryCard CalculateTotal={CalculateTotal} />
-                    <PaymentMethodCard listChildren={listChildren} CalculateTotal={CalculateTotal} handleSubmit={()=>isopennextstep(3)} />
-                </div>
             </div>
-        </div>
+        </>
+
     );
 }

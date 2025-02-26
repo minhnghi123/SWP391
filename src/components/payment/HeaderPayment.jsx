@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Stethoscope, CreditCard, CheckCircle, ChevronLeft } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { currenStepAction } from "../redux/reducers/currentStepSlice";
 
 const steps = [
     { id: 1, title: "Patient Info", description: "Child's medical details", icon: Stethoscope },
@@ -30,27 +32,24 @@ const StepConnector = ({ isCompleted }) => (
     </div>
 );
 
-export default function HeaderPayment({ currentStep, setIsopenNextStep }) {
-    const navigate = useNavigate();
-
-    const handleBack = () => {
-        currentStep === 1 ? navigate(-1) : setIsopenNextStep(currentStep - 1);
-    };
-
+export default function HeaderPayment() {
+    const dispatch = useDispatch()
+    const currentStep = useSelector((state) => state.payment.currentStep)
+    const navigate = useNavigate()
     return (
         <header className="bg-white shadow-lg py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto relative">
                 {/* Back Button */}
                 {
-                    currentStep !== 3 &&  <button
-                        onClick={handleBack}
+                    currentStep !== 3 && <button
+                        onClick={currentStep !== 1 ? () => dispatch(currenStepAction.decreaseStep()) : ()=>navigate('/variantsPage')}
                         className="absolute bottom-[50%] flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
-                    <ChevronLeft className="w-5 h-5 text-gray-600" />
-                    <span className="font-medium">Back</span>
-                </button>
+                        <ChevronLeft className="w-5 h-5 text-gray-600" />
+                        <span className="font-medium">Back</span>
+                    </button>
 
-               }
+                }
 
 
                 {/* Progress Navigation */}

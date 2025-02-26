@@ -4,31 +4,27 @@ import HeaderPayment from '../components/payment/HeaderPayment';
 import Stage1Payment from '../components/payment/stage1payment';
 import FooterHomePage from '../components/home/footerHomPage';
 import Stage2Payment from '../components/payment/stage2payment';
-import Stage3Payment from '../components/payment/stage3payment';
-import { FeedbackProvider } from '../components/Context/FeedbackContext';
 import { useParams } from 'react-router-dom';
-
+import { useSelector } from 'react-redux';
+import Stage3Payment from '../pages/paymentStatusPage'
 export default function PaymentPage() {
-  const [isopennextstep, setIsopenNextStep] = useState(1);
+
   const { id } = useParams();
-
-
+  const currentStep = useSelector((state) => state.payment.currentStep)
   const renderBodyPayment = () => {
-    switch (isopennextstep) {
+    switch (currentStep) {
       case 1:
-        return <Stage1Payment id={id} isopennextstep={setIsopenNextStep} />
+        return <Stage1Payment id={id} />
       case 2:
-        return <Stage2Payment id={id} isopennextstep={setIsopenNextStep} />
-      case 3:
-        return <Stage3Payment id={id} isopennextstep={setIsopenNextStep} />
+        return <Stage2Payment id={id} />
       default:
-        return <Stage1Payment id={id} isopennextstep={setIsopenNextStep} />
+        return <Stage1Payment id={id} />
     }
   }
   return (
     <>
 
-      <HeaderPayment currentStep={isopennextstep} setIsopenNextStep={setIsopenNextStep} />
+      <HeaderPayment />
 
       {renderBodyPayment()}
 

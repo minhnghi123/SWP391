@@ -39,8 +39,6 @@ export default function ForgotPassword({ setRegister }) {
     const inputRefs = useRef([]);
     const [canResend, setCanResend] = useState(true);
     const [countdown, setCountdown] = useState(30);
-    const [checkCode, setCheckCode] = useState([]);
-    console.log(checkCode)
     const [notification, setNotification] = useState('');
 
     useEffect(() => {
@@ -49,8 +47,7 @@ export default function ForgotPassword({ setRegister }) {
                 setCountdown((prev) => {
                     if (prev <= 1) {
                         setCanResend(true);
-                        setCheckCode([]);
-                        return 30;
+                        return 60;
                     }
                     return prev - 1;
                 });
@@ -61,32 +58,22 @@ export default function ForgotPassword({ setRegister }) {
 
     const handleSendCode = async () => {
         if (!validateEmail(email)) return;
-
-        setCanResend(false); // after 30s can resend
+        setCanResend(false); // after 60s can resend
         setEmailSent(true); // no show code
-        setCountdown(30);    // countdown
-        setCheckCode([]);
-
-        try {
-            const res = await axios.post('', { email });
-            if (res.status === 200 && res.data?.code) {
-                const formattedCode = res.data.code.split('');
-                if (formattedCode.length === 6) {
-                    setCheckCode(formattedCode);
-                    setEmailSent(true);
-                    setTimeout(() => inputRefs.current[0]?.focus(), 100);
-                } else {
-                    setError("Invalid code format from server.");
-                    setCanResend(true);
-                }
-            } else {
-                setError("Failed to send code. Please try again.");
-                setCanResend(true);
-            }
-        } catch (error) {
-            setError("Failed to send code. Try again.");
-            setCanResend(true);
-        }
+        setCountdown(60);    // countdown
+        // try {
+        //     const res = await axios.post('', { email });
+        //     if (res.status === 200 ) {
+        //         setEmailSent(true);
+        //         setTimeout(() => inputRefs.current[0]?.focus(), 100);
+        //     } else {
+        //         setError("Failed to send code. Please try again.");
+        //         setCanResend(true);
+        //     }
+        // } catch (error) {
+        //     setError("Failed to send code. Try again.");
+        //     setCanResend(true);
+        // }
     };
 
 
@@ -117,11 +104,21 @@ export default function ForgotPassword({ setRegister }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        const codeString = code.join('');
         if (step === 1) {
-            if (checkCode.length !== 6 || code.join('') !== checkCode.join('')) {
-                setError("Code is incorrect");
-                return;
+            try {
+                const value ={
+                    code : codeString
+                }
+                const res = await axios.post('', value);
+                if (res?.status === 200 && res?.data.msg === 'success') {
+                    setStep(2);
+                } else {
+                    setError('Incorrect code. Please try again.');
+                }
+            } catch (error) {
+                setError("Server error. Please try again later.");
+
             }
             setStep(2);
         } else {
@@ -131,12 +128,13 @@ export default function ForgotPassword({ setRegister }) {
                 return;
             }
             try {
+                console.log(input)
                 const res = await axios.post('', input);
                 if (res?.status === 200) {
                     setNotification("Password changed successfully");
                     setTimeout(() => setRegister(0), 1000);
                 } else {
-                    setError("Failed to change password.");
+                    setNotification("Failed to change password.");
                 }
             } catch (error) {
                 setError("Error occurred. Try again.");
@@ -146,7 +144,7 @@ export default function ForgotPassword({ setRegister }) {
 
     const isFormValid = () => {
         if (step === 1) {
-            return validateEmail(email) && emailSent && checkCode.length === 6 && code.every(digit => digit.trim().length === 1);
+            return validateEmail(email) && emailSent && code.every(digit => digit.trim().length === 1);
         }
         return input.password && input.confirmPassword;
     };
@@ -200,7 +198,7 @@ export default function ForgotPassword({ setRegister }) {
                                 </div>
                                 {error && <p className="text-red-500">{error}</p>}
 
-                                {emailSent && checkCode.length === 6 && (
+                                {emailSent && (
                                     <div className="space-y-3">
                                         <div className="flex justify-between space-x-3">
                                             {code.map((digit, index) => (

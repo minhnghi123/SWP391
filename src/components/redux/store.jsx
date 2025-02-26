@@ -7,6 +7,7 @@ import selectVaccineSlice from "./reducers/SelectVaccine";
 import accountSlice from "./reducers/accountSlice";
 import menthodPaymentSlice from "./reducers/methodPaymentlice";
 import arrvieDateSlice from "./reducers/arriveDate";
+import paymentSlice from "./reducers/currentStepSlice";
 
 
 // import feedbackSlice from "./reducers/feebackSlice";
@@ -18,7 +19,8 @@ const store = configureStore({
         vaccine: selectVaccineSlice.reducer,
         children: childrenSelectSlice.reducer,
         methodPayment: menthodPaymentSlice.reducer,
-        arriveDate : arrvieDateSlice.reducer,
+        arriveDate: arrvieDateSlice.reducer,
+        payment: paymentSlice.reducer
 
 
 

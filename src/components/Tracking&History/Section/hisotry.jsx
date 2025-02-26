@@ -3,8 +3,13 @@ import PriceChangeOutlinedIcon from '@mui/icons-material/PriceChangeOutlined';
 import formatCurrency from '../../../utils/calculateMoney';
 import PlayCircleFilledWhiteOutlinedIcon from '@mui/icons-material/PlayCircleFilledWhiteOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const History = () => {
+const History = ({ id }) => {
+    const [data, setData] = useState()
+    const [err, setErr] = useState('')
+    const [sorted, setSorted] = useState()
     const AppointmentCard = ({ name, time, price, date, status }) => {
         const getStatusColor = (status) => {
             const statusColors = {
@@ -52,21 +57,68 @@ const History = () => {
             </div>
         );
     };
+    const sortByProcess = (style) => {
+        let sorted;
+        switch (style) {
+            case 'Completed':
+                sorted = data.filter((bill) => bill.status === style);
+                break;
+            case 'Pending':
+                sorted = data.filter((bill) => bill.status === style);
+                break;
+            case 'In Progress':
+                sorted = data.filter((bill) => bill.status === style);
+                break;
+            default:
+                sorted = [...data]; 
+                break;
+        }
+
+        setSorted(sorted);
+    };
+
+    // useEffect(() => {
+    //     try {
+    //         const res = axios.get('')
+    //         if (res?.status === 200 && res?.data) {
+    //             setData(res?.data)
+    //         }else {
+    //           setErr('Fetch Api Faild')
+    //         }
+
+    //     } catch (error) {
+    //         setErr('Faild to fetch ')
+    //     }
+    // }, [])
     return (
 
-        <div className='p-4 grid grid-cols-4 gap-4'>
+        <>
+            <div className='w--[90%] shadow-sm bg-blue-300 rounded-lg flex flex-row items-center justify-end p-2 gap-2'>
+                <button className='px-4 py-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-500 hover:text-white transition-colors duration-200 font-medium text-sm uppercase tracking-wide shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'>
+                    Complete
+                </button>
+                <button className='px-4 py-2 rounded-lg bg-amber-100 text-amber-800 hover:bg-amber-500 hover:text-white transition-colors duration-200 font-medium text-sm uppercase tracking-wide shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2'>
+                    Pending
+                </button>
+                <button className='px-4 py-2 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-500 hover:text-white transition-colors duration-200 font-medium text-sm uppercase tracking-wide shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'>
+                    Process
+                </button>
+            </div>
 
-            <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Completed' />
-            <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Pending' />
-            <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Completed' />
-            <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Progress' />
-            <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Completed' />
-            <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Pending' />
-            <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Completed' />
-            <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Progress' />
+            <div className='p-4 grid grid-cols-4 gap-4'>
+                <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Completed' />
+                <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Pending' />
+                <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Completed' />
+                <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Progress' />
+                <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Completed' />
+                <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Pending' />
+                <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Completed' />
+                <AppointmentCard name='Minh Tam' time='10:00' price={Number(1000000)} date='10/10/2024' status='Progress' />
+            </div>
+        </>
 
 
-        </div>
+
 
 
 

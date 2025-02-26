@@ -12,13 +12,14 @@ import ChooseDateVaccination from "./eachComponentStage1/rightSide/ChooseDateVac
 import FormAdvitory_detail from "./eachComponentStage1/rightSide/FormAdvitory_detail";
 import NoSelectChildren from "./eachComponentStage1/rightSide/NoSelectChildren";
 import axios from "axios";
+import { currenStepAction } from "../redux/reducers/currentStepSlice";
 
-export default function Stage1Payment({ id, isopennextstep }) {
+export default function Stage1Payment({ id}) {
 
   const [err, setErr] = useState(null);
   const [loading, setLoading] = useState(false);
 
-
+  const currestep = useSelector((state)=>state.payment.currestep)
   const dispatch = useDispatch();
   const listChildren = useSelector((state) => state.children.listChildren);
   const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
@@ -150,7 +151,7 @@ export default function Stage1Payment({ id, isopennextstep }) {
                     resetForm={resetForm}
                   />
                   <button
-                    onClick={arriveDate !== null ? () => isopennextstep(2) : undefined}
+                    onClick={arriveDate !== null ? ()=>dispatch(currenStepAction.increaseStep()) : undefined}
                     className={`w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-lg transition-all duration-300 ${arriveDate !== null ? "hover:from-teal-600 hover:to-teal-700" : "pointer-events-none opacity-50"
                       }`}
                   >

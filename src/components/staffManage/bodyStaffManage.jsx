@@ -1,9 +1,37 @@
 import { useState } from "react";
-import { UserRound, Calendar, Syringe, TrendingUp, FlaskRound as Flask, PenSquare, Clock, CheckCircle2, AlertCircle, Plus, Search, MoreVertical, X, Bell, Settings, User, ShieldCheck, Thermometer, HeartPulse, Beaker, CalendarClock, ClipboardCheck, Refrigerator, Pill, ShieldAlert, BadgeCheck, UserCheck } from "lucide-react";
+import {
+  UserRound,
+  Calendar,
+  Syringe,
+  TrendingUp,
+  FlaskRound as Flask,
+  PenSquare,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Plus,
+  Search,
+  MoreVertical,
+  X,
+  Bell,
+  Settings,
+  User,
+  ShieldCheck,
+  Thermometer,
+  HeartPulse,
+  Beaker,
+  CalendarClock,
+  ClipboardCheck,
+  Refrigerator,
+  Pill,
+  ShieldAlert,
+  BadgeCheck,
+  UserCheck,
+} from "lucide-react";
 
 const vaccineInventory = [
-  { 
-    id: 1, 
+  {
+    id: 1,
     name: "Pfizer COVID-19",
     batchNumber: "PFZ-2023-001",
     expiryDate: "2024-12-31",
@@ -14,10 +42,10 @@ const vaccineInventory = [
     storageLocation: "Ultra-cold Freezer 1",
     reorderPoint: 50,
     lastChecked: "2 hours ago",
-    nextDelivery: "2024-03-20"
+    nextDelivery: "2024-03-20",
   },
-  { 
-    id: 2, 
+  {
+    id: 2,
     name: "Moderna COVID-19",
     batchNumber: "MOD-2023-045",
     expiryDate: "2024-11-30",
@@ -28,10 +56,10 @@ const vaccineInventory = [
     storageLocation: "Medical Freezer 2",
     reorderPoint: 100,
     lastChecked: "1 hour ago",
-    nextDelivery: "2024-03-15"
+    nextDelivery: "2024-03-15",
   },
-  { 
-    id: 3, 
+  {
+    id: 3,
     name: "Influenza Vaccine",
     batchNumber: "FLU-2023-089",
     expiryDate: "2024-06-30",
@@ -42,22 +70,46 @@ const vaccineInventory = [
     storageLocation: "Refrigerator 3",
     reorderPoint: 75,
     lastChecked: "30 mins ago",
-    nextDelivery: "2024-04-01"
-  }
+    nextDelivery: "2024-04-01",
+  },
 ];
 
 const stats = {
   vaccinesAdministered: 145,
   scheduledToday: 28,
   vaccineStock: 450,
-  adverseReactions: 0
+  adverseReactions: 0,
 };
 
 const tasks = [
-  { id: 1, title: "Check vaccine storage temperature", priority: "High", time: "11:00 AM", progress: 75 },
-  { id: 2, title: "Restock vaccination supplies", priority: "Medium", time: "1:30 PM", progress: 30 },
-  { id: 3, title: "Update immunization records", priority: "High", time: "3:00 PM", progress: 50 },
-  { id: 4, title: "Vaccine inventory count", priority: "Low", time: "5:00 PM", progress: 0 }
+  {
+    id: 1,
+    title: "Check vaccine storage temperature",
+    priority: "High",
+    time: "11:00 AM",
+    progress: 75,
+  },
+  {
+    id: 2,
+    title: "Restock vaccination supplies",
+    priority: "Medium",
+    time: "1:30 PM",
+    progress: 30,
+  },
+  {
+    id: 3,
+    title: "Update immunization records",
+    priority: "High",
+    time: "3:00 PM",
+    progress: 50,
+  },
+  {
+    id: 4,
+    title: "Vaccine inventory count",
+    priority: "Low",
+    time: "5:00 PM",
+    progress: 0,
+  },
 ];
 
 const recentActivities = [
@@ -66,50 +118,166 @@ const recentActivities = [
     type: "Temperature Alert",
     description: "Freezer 2 temperature deviation detected",
     time: "10 mins ago",
-    severity: "high"
+    severity: "high",
   },
   {
     id: 2,
     type: "Stock Update",
     description: "New Pfizer vaccine batch received",
     time: "1 hour ago",
-    severity: "info"
+    severity: "info",
   },
   {
     id: 3,
     type: "Certification",
     description: "Staff training certificates updated",
     time: "2 hours ago",
-    severity: "success"
-  }
+    severity: "success",
+  },
 ];
 
 const BodyStaffManage = () => {
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [showForm, setShowForm] = useState(false);
+  const [showFormCombo, setShowFormCombo] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50">
       {/* Header */}
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-r from-teal-500 to-emerald-500 p-2 rounded-lg">
-                <Flask className="w-6 h-6 text-white" />
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-r from-teal-500 to-emerald-500 p-2 rounded-lg">
+              <Flask className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-500 to-blue-400 bg-clip-text text-transparent">
+              Staff Dashboard
+            </h1>
+          </div>
+
+          <div className=" flex items-center gap-6">
+            <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
+              <Settings className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
+            >
+              <Plus className="w-5 h-5" />
+              Add Vaccine Stock
+            </button>
+            {showForm && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-6 rounded-2xl shadow-2xl w-[400px] text-center relative">
+                  <h2 className="text-xl font-bold mb-4 text-gray-700">
+                    Add Vaccines
+                  </h2>
+
+                  {/* Dropdown chọn loại vaccine */}
+                  <div className="mb-3 text-left">
+                    <label
+                      htmlFor="vaccine"
+                      className="block text-gray-600 font-medium mb-1"
+                    >
+                      Choose options:
+                    </label>
+                    <select
+                      name="vaccine"
+                      id="vaccine"
+                      className="border border-gray-300 p-3 w-full rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-300"
+                      onChange={(e) =>
+                        setShowFormCombo(e.target.value === "combo")
+                      }
+                    >
+                      <option value="single">Single Vaccine</option>
+                      <option value="combo">Combo Vaccines</option>
+                    </select>
+                  </div>
+
+                  {/* Inputs cho Single Vaccine */}
+                  {!showFormCombo &&
+                    ["Vaccine Name", "Quantity", "Price", "Discount"].map(
+                      (placeholder, index) => (
+                        <input
+                          key={index}
+                          type="text"
+                          placeholder={placeholder}
+                          className="border border-gray-300 p-3 w-full rounded-lg mb-3 focus:border-blue-500 focus:ring focus:ring-blue-300"
+                        />
+                      )
+                    )}
+
+                  {/* Inputs cho Combo Vaccine */}
+                  {showFormCombo &&
+                    [
+                      "Combo Vaccine Name",
+                      "Quantity",
+                      "Total Price",
+                      "Discount",
+                    ].map((placeholder, index) => (
+                      <div key={index} className="w-full">
+                        {placeholder === "Combo Vaccine Name" ? (
+                          <div className="border border-gray-300 p-3 w-full rounded-lg mb-3">
+                            <span>Choose Vaccine: </span> <br></br>
+                            <button
+                              onClick={() => setShowOptions(!showOptions)}
+                              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+                            >
+                              {showOptions ? "Hide" : "Show"}
+                            </button>
+                            {showOptions && (
+                              <div className="flex flex-col mt-2">
+                                {[
+                                  "Vaccine A",
+                                  "Vaccine B",
+                                  "Vaccine C",
+                                  "Vaccine D",
+                                ].map((vaccine, idx) => (
+                                  <label
+                                    key={idx}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      className="w-5 h-5"
+                                    />
+                                    <span>{vaccine}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <input
+                            type="text"
+                            placeholder={placeholder}
+                            className="border border-gray-300 p-3 w-full rounded-lg mb-3 focus:border-blue-500 focus:ring focus:ring-blue-300"
+                          />
+                        )}
+                      </div>
+                    ))}
+
+                  {/* Nút Close & Add */}
+                  <div className="mt-4 flex justify-between">
+                    <button
+                      onClick={() => setShowForm(false)}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                    >
+                      Close
+                    </button>
+                    <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+                      Add
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-6">
-              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
-                <Settings className="w-5 h-5" />
-              </button>
-              <button className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20">
-                <Plus className="w-5 h-5" />
-                Add Vaccine Stock
-              </button>
-            </div>
+            )}
           </div>
         </div>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
@@ -145,8 +313,10 @@ const VaccineInventoryManager = () => (
     </div>
     <div className="space-y-4">
       {vaccineInventory.map((vaccine) => (
-        <div key={vaccine.id} 
-          className="group relative overflow-hidden flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-100 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300">
+        <div
+          key={vaccine.id}
+          className="group relative overflow-hidden flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-100 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300"
+        >
           <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-teal-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div className="w-14 h-14 rounded-full bg-teal-50 flex items-center justify-center">
             <Refrigerator className="w-8 h-8 text-teal-600" />
@@ -154,13 +324,15 @@ const VaccineInventoryManager = () => (
           <div className="flex-1">
             <div className="flex items-center gap-3">
               <h3 className="font-bold text-gray-900">{vaccine.name}</h3>
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                vaccine.status === "Available" 
-                  ? "bg-emerald-100 text-emerald-700" 
-                  : vaccine.status === "Low Stock" 
-                    ? "bg-amber-100 text-amber-700" 
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  vaccine.status === "Available"
+                    ? "bg-emerald-100 text-emerald-700"
+                    : vaccine.status === "Low Stock"
+                    ? "bg-amber-100 text-amber-700"
                     : "bg-rose-100 text-rose-700"
-              }`}>
+                }`}
+              >
                 {vaccine.status}
               </span>
             </div>
@@ -206,18 +378,25 @@ const RecentActivities = () => (
   <Card>
     <div className="flex items-center justify-between mb-6">
       <h2 className="text-xl font-bold text-gray-900">Recent Activities</h2>
-      <button className="text-sm text-teal-600 hover:text-teal-700 font-medium">View All</button>
+      <button className="text-sm text-teal-600 hover:text-teal-700 font-medium">
+        View All
+      </button>
     </div>
     <div className="space-y-4">
       {recentActivities.map((activity) => (
-        <div key={activity.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            activity.severity === "high" 
-              ? "bg-rose-100" 
-              : activity.severity === "info"
+        <div
+          key={activity.id}
+          className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+        >
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              activity.severity === "high"
+                ? "bg-rose-100"
+                : activity.severity === "info"
                 ? "bg-blue-100"
                 : "bg-emerald-100"
-          }`}>
+            }`}
+          >
             {activity.severity === "high" ? (
               <ShieldAlert className={`w-5 h-5 text-rose-600`} />
             ) : activity.severity === "info" ? (
@@ -241,27 +420,27 @@ const VaccinationStatsCard = () => (
   <Card>
     <h2 className="text-xl font-bold text-gray-900 mb-6">Today's Overview</h2>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatBox 
-        icon={<Syringe className="w-6 h-6 text-teal-600" />} 
-        value={stats.vaccinesAdministered} 
+      <StatBox
+        icon={<Syringe className="w-6 h-6 text-teal-600" />}
+        value={stats.vaccinesAdministered}
         label="Vaccines Administered"
         trend="+12% this week"
       />
-      <StatBox 
-        icon={<Calendar className="w-6 h-6 text-emerald-600" />} 
-        value={stats.scheduledToday} 
+      <StatBox
+        icon={<Calendar className="w-6 h-6 text-emerald-600" />}
+        value={stats.scheduledToday}
         label="Scheduled Today"
         trend="4 pending"
       />
-      <StatBox 
-        icon={<Flask className="w-6 h-6 text-cyan-600" />} 
-        value={stats.vaccineStock} 
+      <StatBox
+        icon={<Flask className="w-6 h-6 text-cyan-600" />}
+        value={stats.vaccineStock}
         label="Vaccine Stock"
         trend="Stock sufficient"
       />
-      <StatBox 
-        icon={<HeartPulse className="w-6 h-6 text-rose-600" />} 
-        value={stats.adverseReactions} 
+      <StatBox
+        icon={<HeartPulse className="w-6 h-6 text-rose-600" />}
+        value={stats.adverseReactions}
         label="Adverse Reactions"
         trend="All clear today"
       />
@@ -273,7 +452,7 @@ const VaccinationNotesCard = ({ notes, setNotes }) => (
   <Card>
     <div className="flex items-center justify-between mb-6">
       <h2 className="text-xl font-bold text-gray-900">Staff Notes</h2>
-      <button 
+      <button
         onClick={() => setNotes("")}
         className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded-full transition-colors"
       >
@@ -299,15 +478,20 @@ const TaskList = () => (
   <Card>
     <div className="flex items-center justify-between mb-6">
       <h2 className="text-xl font-bold text-gray-900">Today's Tasks</h2>
-      <button className="text-sm text-teal-600 hover:text-teal-700 font-medium">View All</button>
+      <button className="text-sm text-teal-600 hover:text-teal-700 font-medium">
+        View All
+      </button>
     </div>
     <div className="space-y-4">
       {tasks.map((task) => (
-        <div key={task.id} className="group relative overflow-hidden flex items-start gap-3 p-4 rounded-xl hover:bg-gray-50 transition-all duration-300">
+        <div
+          key={task.id}
+          className="group relative overflow-hidden flex items-start gap-3 p-4 rounded-xl hover:bg-gray-50 transition-all duration-300"
+        >
           <div className="mt-1">
             <div className="relative">
               <CheckCircle2 className="w-5 h-5 text-gray-400 group-hover:text-teal-500 transition-colors" />
-              <div 
+              <div
                 className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-teal-500 transition-all duration-300"
                 style={{ width: `${task.progress}%` }}
               ></div>
@@ -318,20 +502,24 @@ const TaskList = () => (
               {task.title}
             </h3>
             <div className="flex items-center gap-3 mt-2">
-              <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                task.priority === "High" 
-                  ? "bg-rose-100 text-rose-700"
-                  : task.priority === "Medium"
+              <span
+                className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                  task.priority === "High"
+                    ? "bg-rose-100 text-rose-700"
+                    : task.priority === "Medium"
                     ? "bg-amber-100 text-amber-700"
                     : "bg-emerald-100 text-emerald-700"
-              }`}>
+                }`}
+              >
                 {task.priority}
               </span>
               <span className="text-sm text-gray-500 flex items-center gap-1">
                 <Clock className="w-4 h-4" />
                 {task.time}
               </span>
-              <span className="text-xs text-gray-500">{task.progress}% complete</span>
+              <span className="text-xs text-gray-500">
+                {task.progress}% complete
+              </span>
             </div>
           </div>
         </div>
@@ -346,12 +534,7 @@ const Card = ({ children }) => (
   </div>
 );
 
-const StatBox = ({ 
-  icon, 
-  value, 
-  label,
-  trend 
-}) => (
+const StatBox = ({ icon, value, label, trend }) => (
   <div className="relative overflow-hidden p-6 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:border-teal-200 transition-all duration-300 group">
     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-500/5 to-emerald-500/5 rounded-full transform translate-x-16 -translate-y-8"></div>
     <div className="relative">

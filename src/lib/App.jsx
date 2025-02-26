@@ -10,6 +10,7 @@ import DashboardPage from '../pages/dashboardPage';
 import FeedbackPage from '../pages/feedbackPage';
 import Detail from '../components/variants/DetailInformationVaccine';
 import DoctorPage from '../pages/doctorPage';
+import StaffPage from '../pages/staffPage';
 import { FeedbackProvider } from '../components/Context/FeedbackContext';
 import PaymentStatusPage from '../pages/paymentStatusPage'
 
@@ -17,7 +18,6 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={ <HomePage />} />
-
       <Route path="/loginPage" element={<LoginPage />} />
       <Route path="/aboutPage" element={<AboutPage />} />
       <Route path="/test" element={<Test />} />
@@ -30,11 +30,11 @@ function App() {
       {/* VaccineProvider applied only for specific pages */}
       <Route path="/paymentPage/:id" element={<PaymentPage />} />
       {/* </Route> */}
-
       {/* Non-Protected Route */}
       <Route path="/variantsPage" element={ <VariantsPage />} />
       <Route path="/doctorPage" element={<DoctorPage />} />
       <Route path="/payment/:status" element={<PaymentStatusPage />} />
+      <Route path="/staffPage" element={<StaffPage />} />
     </Routes>
   );
 }

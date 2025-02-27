@@ -22,6 +22,8 @@ function App() {
       <Route path="/aboutPage" element={<AboutPage />} />
       <Route path="/test" element={<Test />} />
       <Route path="/dashboardPage/:section" element={<DashboardPage />} />
+      <Route path="/staffPage/:section" element={<StaffPage />} />
+
       {/* Secret Routes */}
       {/* <Route element={<ProtectedRoute />}> */}
       <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
@@ -34,7 +36,6 @@ function App() {
       <Route path="/variantsPage" element={ <VariantsPage />} />
       <Route path="/doctorPage" element={<DoctorPage />} />
       <Route path="/payment/:status" element={<PaymentStatusPage />} />
-      <Route path="/staffPage" element={<StaffPage />} />
     </Routes>
   );
 }

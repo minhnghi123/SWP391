@@ -27,6 +27,7 @@ import {
   ShieldAlert,
   BadgeCheck,
   UserCheck,
+  CalendarDays,
 } from "lucide-react";
 
 const vaccineInventory = [
@@ -136,13 +137,26 @@ const recentActivities = [
   },
 ];
 
-const BodyStaffManage = () => {
+const BodyDoctorManage = () => {  
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [showFormCombo, setShowFormCombo] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [dateValues, setDateValues] = useState({
+    dosesTime: "",
+    expiredTime: "",
+    minInterval: "",
+    maxInterval: "",
+  });
+
+  const handleDateChange = (field, value) => {
+    setDateValues((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50">
@@ -171,23 +185,23 @@ const BodyStaffManage = () => {
             </button>
             {showForm && (
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                <div className="bg-white p-6 rounded-2xl shadow-2xl w-[400px] text-center relative">
-                  <h2 className="text-xl font-bold mb-4 text-gray-700">
+                <div className="bg-white p-8 rounded-2xl shadow-2xl w-[600px] max-w-[90%] text-center relative">
+                  <h2 className="text-2xl font-bold mb-6 text-gray-800">
                     Add Vaccines
                   </h2>
 
                   {/* Dropdown chọn loại vaccine */}
-                  <div className="mb-3 text-left">
+                  <div className="mb-6 text-left">
                     <label
                       htmlFor="vaccine"
-                      className="block text-gray-600 font-medium mb-1"
+                      className="block text-gray-700 font-medium mb-2"
                     >
                       Choose options:
                     </label>
                     <select
                       name="vaccine"
                       id="vaccine"
-                      className="border border-gray-300 p-3 w-full rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-300"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                       onChange={(e) =>
                         setShowFormCombo(e.target.value === "combo")
                       }
@@ -198,78 +212,145 @@ const BodyStaffManage = () => {
                   </div>
 
                   {/* Inputs cho Single Vaccine */}
-                  {!showFormCombo &&
-                    ["Vaccine Name", "Quantity", "Price", "Discount"].map(
-                      (placeholder, index) => (
-                        <input
-                          key={index}
-                          type="text"
-                          placeholder={placeholder}
-                          className="border border-gray-300 p-3 w-full rounded-lg mb-3 focus:border-blue-500 focus:ring focus:ring-blue-300"
+                  {!showFormCombo && (
+                    <>
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        {[
+                          "Vaccine Name",
+                          "Quantity",
+                          "Description",
+                          "Price",
+                          "Age Min",
+                          "Age Max",
+                          "From Country",
+                        ].map((placeholder, index) => (
+                          <div key={index} className="flex flex-col space-y-1">
+                            <input
+                              type="text"
+                              placeholder={placeholder}
+                              className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Enhanced Date Inputs */}
+                      <div className="grid grid-cols-2 gap-6 mb-6">
+                        <DateInput
+                          label="Doses Time"
+                          value={dateValues.dosesTime}
+                          onChange={(e) =>
+                            handleDateChange("dosesTime", e.target.value)
+                          }
+                          icon={<Syringe className="w-5 h-5 text-teal-500" />}
+                          description="When doses should be administered"
                         />
-                      )
-                    )}
+
+                        <DateInput
+                          label="Expired Time"
+                          value={dateValues.expiredTime}
+                          onChange={(e) =>
+                            handleDateChange("expiredTime", e.target.value)
+                          }
+                          icon={<Clock className="w-5 h-5 text-rose-500" />}
+                          description="When vaccine expires"
+                        />
+
+                        <DateInput
+                          label="Minimum Interval"
+                          value={dateValues.minInterval}
+                          onChange={(e) =>
+                            handleDateChange("minInterval", e.target.value)
+                          }
+                          icon={
+                            <CalendarDays className="w-5 h-5 text-blue-500" />
+                          }
+                          description="Minimum days between doses"
+                        />
+
+                        <DateInput
+                          label="Maximum Interval"
+                          value={dateValues.maxInterval}
+                          onChange={(e) =>
+                            handleDateChange("maxInterval", e.target.value)
+                          }
+                          icon={
+                            <CalendarClock className="w-5 h-5 text-purple-500" />
+                          }
+                          description="Maximum days between doses"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   {/* Inputs cho Combo Vaccine */}
-                  {showFormCombo &&
-                    [
-                      "Combo Vaccine Name",
-                      "Quantity",
-                      "Total Price",
-                      "Discount",
-                    ].map((placeholder, index) => (
-                      <div key={index} className="w-full">
-                        {placeholder === "Combo Vaccine Name" ? (
-                          <div className="border border-gray-300 p-3 w-full rounded-lg mb-3">
-                            <span>Choose Vaccine: </span> <br></br>
-                            <button
-                              onClick={() => setShowOptions(!showOptions)}
-                              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
-                            >
-                              {showOptions ? "Hide" : "Show"}
-                            </button>
-                            {showOptions && (
-                              <div className="flex flex-col mt-2">
-                                {[
-                                  "Vaccine A",
-                                  "Vaccine B",
-                                  "Vaccine C",
-                                  "Vaccine D",
-                                ].map((vaccine, idx) => (
-                                  <label
-                                    key={idx}
-                                    className="flex items-center space-x-2"
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      className="w-5 h-5"
-                                    />
-                                    <span>{vaccine}</span>
-                                  </label>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <input
-                            type="text"
-                            placeholder={placeholder}
-                            className="border border-gray-300 p-3 w-full rounded-lg mb-3 focus:border-blue-500 focus:ring focus:ring-blue-300"
-                          />
-                        )}
-                      </div>
-                    ))}
+                  {showFormCombo && (
+                    <div className="space-y-4">
+                      {[
+                        "Combo Vaccine Name",
+                        "Vaccines",
+                        "Quantity",
+                        "Total Price",
+                        "Discount",
+                      ].map((placeholder, index) => (
+                        <div key={index} className="w-full">
+                          {placeholder === "Vaccines" ? (
+                            <div className="border border-gray-300 p-4 rounded-lg">
+                              <span className="text-gray-700">
+                                Choose Vaccine:
+                              </span>
+                              <button
+                                onClick={() => setShowOptions(!showOptions)}
+                                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                              >
+                                {showOptions ? "Hide" : "Show"}
+                              </button>
+                              {showOptions && (
+                                <div className="mt-3 space-y-2">
+                                  {[
+                                    "Vaccine A",
+                                    "Vaccine B",
+                                    "Vaccine C",
+                                    "Vaccine D",
+                                  ].map((vaccine, idx) => (
+                                    <label
+                                      key={idx}
+                                      className="flex items-center space-x-2"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        className="w-5 h-5 text-blue-500 rounded focus:ring-blue-200"
+                                      />
+                                      <span className="text-gray-700">
+                                        {vaccine}
+                                      </span>
+                                    </label>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <input
+                              type="text"
+                              placeholder={placeholder}
+                              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Nút Close & Add */}
-                  <div className="mt-4 flex justify-between">
+                  <div className="mt-6 flex justify-end space-x-4">
                     <button
                       onClick={() => setShowForm(false)}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                      className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                     >
-                      Close
+                      Cancel
                     </button>
-                    <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
-                      Add
+                    <button className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-lg hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 shadow-lg shadow-teal-500/20">
+                      Add Vaccine
                     </button>
                   </div>
                 </div>
@@ -296,6 +377,28 @@ const BodyStaffManage = () => {
     </div>
   );
 };
+
+// Enhanced Date Input Component
+const DateInput = ({ label, value, onChange, icon, description }) => (
+  <div className="relative">
+    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+      {label}
+    </label>
+    <div className="relative group">
+      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+        {icon}
+      </div>
+      <input
+        type="date"
+        value={value}
+        onChange={onChange}
+        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 shadow-sm group-hover:shadow-md"
+      />
+      <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-teal-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+    </div>
+    {description && <p className="mt-1 text-xs text-gray-500">{description}</p>}
+  </div>
+);
 
 const VaccineInventoryManager = () => (
   <Card>
@@ -550,4 +653,4 @@ const StatBox = ({ icon, value, label, trend }) => (
   </div>
 );
 
-export default BodyStaffManage;
+export default BodyDoctorManage;

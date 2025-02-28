@@ -44,22 +44,24 @@ const Dashboard = () => {
             key={child.id}
             onClick={() => setSelectedChild(child.id)}
             className={`px-5 py-4 rounded-lg flex items-center transition-all ${selectedChild === child.id
-                ? 'bg-white shadow-md border-l-4 border-indigo-500'
-                : 'bg-white shadow-sm hover:shadow'
+              ? 'bg-white shadow-md border-l-4 border-indigo-500'
+              : 'bg-white shadow-sm hover:shadow'
               }`}
           >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedChild === child.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-600'
+            <div className={`w-10 h-10 rounded-full flex object-cover items-center justify-center ${selectedChild === child.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-600'
               }`}>
-              {/* <User size={20} /> */}
-              {ToUpperCaseWords(child?.gender) === 'Male' ? '👦' : '👧'}
+              <User size={24} />
+
+              {/* {ToUpperCaseWords(child?.gender) === 'Male' ? '👦' : '👧'} */}
             </div>
             <div className="ml-3 text-left">
               <p className={`font-medium ${selectedChild === child.id ? 'text-indigo-700' : 'text-gray-700'}`}>
                 {child.name}
               </p>
-              {/* <p className="text-sm text-gray-500">
-                    {calculateAge(child.dob)}
-                  </p> */}
+
+              <p className={`text-sm ${child.gender === 'Male' ? 'text-blue-500' : 'text-pink-500'}    `}>
+                {child.gender}
+              </p>
             </div>
           </button>
         ))}

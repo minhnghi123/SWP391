@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Input } from '@mui/material';
 import { accountAction } from '../../redux/reducers/accountSlice';
 const Profile = ({ id }) => {
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const [profileData, setProfileData] = useState({});
     const [edit, setEdit] = useState(false);
     const [note, setNote] = useState('');
@@ -30,30 +30,16 @@ const Profile = ({ id }) => {
         const file = e.target.files[0];
         if (file) {
             file.preview = URL.createObjectURL(file);
-
-            setAvatar(file)
-
+            setAvatar(file);
         }
     };
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/user/${id}`);
-                if (response.status === 200 && response.data) {
-                    const { id, name, email, phone, dateOfBirth, gender, createdAt, status, picture, role } = response?.data;
-                    setProfileData({
-                        id,
-                        name,
-                        email,
-                        phone,
-                        dateOfBirth,
-                        gender,
-                        createdAt,
-                        status,
-                        picture,
-                        role,
-
-                    });
+                const res = await axios.get(`http://localhost:5272/api/User/get-user-by-id/${id}`);
+                if (res?.status === 200 && res?.data) {
+                    setProfileData(res?.data?.user);
                 }
             } catch (error) {
                 console.error("Error fetching profile:", error);
@@ -63,13 +49,11 @@ const Profile = ({ id }) => {
         if (id) fetchProfile();
     }, [id]);
 
-
-
     const handleEdit = (e) => {
         const { name, value } = e.target;
-
         setProfileData({ ...profileData, [name]: value });
     };
+
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -77,39 +61,40 @@ const Profile = ({ id }) => {
             setNote("Invalid user ID");
             return;
         }
-
         try {
-            let imageUrl = profileData.picture; 
+            let imageUrl = profileData.avatar;
 
             if (avatar) {
-               
                 const formData = new FormData();
                 formData.append("file", avatar);
-                formData.append("upload_preset", "First_time_using"); 
-                formData.append("cloud_name", "dzmx76ojp"); 
+                formData.append("upload_preset", "First_time_using");
+                formData.append("cloud_name", "dzmx76ojp");
 
-        
                 const uploadResponse = await axios.post(
                     "https://api.cloudinary.com/v1_1/dzmx76ojp/image/upload",
                     formData
                 );
 
-              
                 imageUrl = uploadResponse.data.secure_url;
             }
 
-           
+
             const value = {
-                name: profileData.name,
-                email: profileData.email,
-                phone: profileData.phone,
-                dateOfBirth: profileData.dateOfBirth,
-                gender: profileData.gender,
-                picture: imageUrl, 
+                name: profileData.name?.trim(),
+                phoneNumber: profileData.phoneNumber?.trim(),
+                gmail: profileData.gmail?.trim(),
+                gender: profileData.gender !== undefined ?
+                    (profileData.gender === "Male" ? 0 : profileData.gender === "Female" ? 1 : profileData.gender)
+                    : undefined,
+                dateOfBirth: profileData.dateOfBirth
+                    ? new Date(profileData.dateOfBirth).toISOString()
+                    : null,
+                avatar: imageUrl
             };
 
-            const response = await axios.patch(
-                `http://localhost:3000/user/${id}`,
+
+            const response = await axios.post(
+                `http://localhost:5272/api/User/update-user/${id}`,
                 value
             );
 
@@ -118,13 +103,12 @@ const Profile = ({ id }) => {
                 setEdit(false);
                 setTimeout(() => setNote(""), 3000);
 
-             
                 dispatch(
                     accountAction.setUser({
                         id: profileData.id,
                         name: profileData.name,
                         role: profileData.role,
-                        picture: imageUrl, 
+                        avatar: imageUrl
                     })
                 );
             }
@@ -132,6 +116,7 @@ const Profile = ({ id }) => {
             setNote(err.response?.data?.message || "Error updating profile");
         }
     };
+
 
 
 
@@ -152,14 +137,14 @@ const Profile = ({ id }) => {
                             ) : (
                                 <img
                                     className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg transition-transform hover:scale-105"
-                                    src={profileData.picture}
+                                    src={profileData.avatar || Avatar}
                                     alt="Profile Picture"
                                 />
                             )}
                             <div className="absolute w-5 h-5 rounded-full bg-green-400 right-1 bottom-1 border-2 border-white"></div>
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-white mb-1">Chi_kai123</h2>
+                            <h2 className="text-2xl font-bold text-white mb-1">{profileData.username}</h2>
                             <div className="flex items-center gap-3">
 
 
@@ -219,7 +204,7 @@ const Profile = ({ id }) => {
                                 <input
                                     type="text"
                                     name="name"
-                                    value={profileData.name || ''}
+                                    value={ToUpperCaseWords(profileData.name) || ''}
                                     onChange={handleEdit}
                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
@@ -231,7 +216,7 @@ const Profile = ({ id }) => {
                                 <input
                                     type="email"
                                     name="email"
-                                    value={profileData.email || ''}
+                                    value={profileData.gmail || ''}
                                     onChange={handleEdit}
                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
@@ -243,10 +228,11 @@ const Profile = ({ id }) => {
                                 <input
                                     type="date"
                                     name="dateOfBirth"
-                                    value={profileData.dateOfBirth || ''}
+                                    value={profileData.dateOfBirth ? profileData.dateOfBirth.split("T")[0] : ""}
                                     onChange={handleEdit}
                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
+
                             </div>
                         </div>
 
@@ -258,7 +244,7 @@ const Profile = ({ id }) => {
                                 <input
                                     type="number"
                                     name="phone"
-                                    value={profileData.phone || ''}
+                                    value={profileData.phoneNumber || ''}
                                     onChange={handleEdit}
                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
@@ -269,7 +255,7 @@ const Profile = ({ id }) => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                                 <select
                                     name="gender"
-                                    value={ToUpperCaseWords(profileData.gender) || ''}
+                                    value={profileData.gender === 0 ? 'Male' : 'Female' || ''}
                                     onChange={handleEdit}
                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 >
@@ -308,11 +294,11 @@ const Profile = ({ id }) => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {[
-                            { icon: <AccountCircleOutlinedIcon />, label: 'Full Name', value: profileData.name },
-                            { icon: <EmailIcon />, label: 'Email', value: profileData.email },
+                            { icon: <AccountCircleOutlinedIcon />, label: 'Full Name', value: ToUpperCaseWords(profileData.name) },
+                            { icon: <EmailIcon />, label: 'Email', value: profileData.gmail },
                             { icon: <CakeIcon />, label: 'Date of Birth', value: profileData.dateOfBirth },
-                            { icon: <PhoneIcon />, label: 'Phone', value: profileData.phone },
-                            { icon: <PersonIcon />, label: 'Gender', value: ToUpperCaseWords(profileData.gender) },
+                            { icon: <PhoneIcon />, label: 'Phone', value: profileData.phoneNumber },
+                            { icon: <PersonIcon />, label: 'Gender', value: profileData.gender === 0 ? 'Male' : 'Female' },
                             { icon: <CalendarTodayOutlinedIcon />, label: 'Create Account', value: profileData.createdAt }
                         ].map((item, index) => (
                             <div key={index} className="flex items-center p-4 bg-gray-50 rounded-lg">

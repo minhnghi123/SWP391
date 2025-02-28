@@ -13,6 +13,7 @@ import FormAdvitory_detail from "./eachComponentStage1/rightSide/FormAdvitory_de
 import NoSelectChildren from "./eachComponentStage1/rightSide/NoSelectChildren";
 import axios from "axios";
 import { currenStepAction } from "../redux/reducers/currentStepSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function Stage1Payment({ id}) {
 
@@ -25,7 +26,7 @@ export default function Stage1Payment({ id}) {
   const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
   const advitory = useSelector((state) => state.children.advitory_detail);
 
-
+  const navigate = useNavigate()
   const [user, setUser] = useState(null);
   const [isOpenFirst, setIsOpenFirst] = useState(false);
   const [inputAdvisory, setInputAdvisory] = useState("");
@@ -42,7 +43,8 @@ export default function Stage1Payment({ id}) {
     createDate: "",
   });
 
-
+  const baseURL = import.meta.env.VITE_BASE_URL_DB;
+  console.log(baseURL);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -110,6 +112,7 @@ export default function Stage1Payment({ id}) {
   };
   return (
     <div className="min-h-screen py-12">
+     
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8 justify-center">
           <div className="w-full lg:w-[550px] space-y-8">

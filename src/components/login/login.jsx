@@ -1,5 +1,4 @@
 
-
 import { jwtDecode } from "jwt-decode";
 import { useState, useContext } from "react";
 import { ToastContainer, toast } from "react-toastify";
@@ -62,25 +61,27 @@ export default function Login({ setRegister }) {
 
         // check input
         else {
-
+            console.log(input)
             setLoading(true)
             if (!input || !input.username || !input.password) {
                 toast.error("You need to provide a username or password");
                 return;
             }
             try {
-                const response = await axios.post('https://fakestoreapi.com/auth/login', input);
-                const token = response?.data?.token;
+
+                const response = await axios.post('http://localhost:5272/api/User/login-by-account', input);
+                const token = response?.data?.loginResponse?.accessToken;
                 if (!token) {
                     toast.error("Login Failed: No token received");
                     return;
                 }
                 const decoded = jwtDecode(token);
                 const data = {
-                    id: decoded.sub,
-                    name: decoded.user,
-                    role: decoded.role  || 'user' ,
-                    // picture:decoded.picture
+                    id: decoded.Id,
+                    name: decoded.Username,
+                    role: decoded.Role ,
+                    avatar :decoded.Avatar 
+                   
                 }
 
                 dispatch(accountAction.setUser(data));

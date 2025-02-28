@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-        
+const baseURL = import.meta.env.VITE_BASE_URL_DB       
 const client = axios.create({
-    baseURL: 'http://localhost:3000', 
+    baseURL: `${baseURL}`, 
     timeout: 10000, 
     headers: {
         'Content-Type': 'application/json',
@@ -16,15 +16,6 @@ export const fetchData = async (endpoint) => {
 
 // Hàm thêm mới dữ liệu
 export const addData = async (endpoint, newData) => {
-    //call api get data
-    const res = await fetchData(endpoint)
-    const item = res.data
-
-    // find max id
-    const maxId = Math.max(...item.map((item => item.id)))
-    newData.id = maxId + 1
-
-
     return await client.post(`/${endpoint}`, newData); 
 };
 

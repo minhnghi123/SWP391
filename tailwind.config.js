@@ -23,7 +23,7 @@ export default {
       animation: {
         slideLeftIn: 'slideLeftIn 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
         slideRightIn: 'slideRightIn 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-        fadeIn: 'fadeIn 0.3s ease-out',
+        fadeIn: 'fadeIn 0.5s ease-in-out',
       },
       colors: {
         primary: {

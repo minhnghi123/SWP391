@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-
+import Avatar from '../../../avatar.json'
 const InputRegister = ({ type, placeholder, onChange, name, value }) => {
     return (
         <div className="mb-4">
@@ -23,7 +23,7 @@ const InputRegister = ({ type, placeholder, onChange, name, value }) => {
 };
 
 export default function Register({ setRegister }) {
-    const navigate = useNavigate();
+    const avatar = Avatar
     const [err, setErr] = useState("");
     const [input, setInput] = useState({
         firstName: "",
@@ -59,15 +59,30 @@ export default function Register({ setRegister }) {
 
         );
     };
+    const handleRandomAvatar = () => {
+        const randomIndex = Math.floor(Math.random() * avatar.length);
+        return avatar[randomIndex]["avatar"];
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
+        // Kiểm tra form trước khi gửi
+        if (!isFormValid()) {
+            setErr("Please fill in all fields correctly.");
+            return;
+        }
+
+        // Kiểm tra mật khẩu có khớp không
         if (input.password !== input.confirmPassword) {
             setErr("Passwords do not match");
             return;
         }
-    
+
+        // Lấy avatar ngẫu nhiên
+        const avatarUrl = handleRandomAvatar();
+
+        // Tạo object gửi API
         const value = {
             name: `${input.firstName} ${input.lastName}`,
             dateofBirth: input.birthDay,
@@ -75,17 +90,20 @@ export default function Register({ setRegister }) {
             password: input.password,
             phoneNumber: input.phone,
             gmail: input.email,
-            gender: input.gender.toLowerCase() === "male" ? 0 : 1,
-            avatar:
-                "https://a.storyblok.com/f/191576/1200x800/a3640fdc4c/profile_picture_maker_before.webp",
+            gender: input.gender?.toLowerCase() === "male" ? 0 : 1,
+            avatar: avatarUrl,
         };
-    
-        console.log(value);
-    
+
+        console.log(value)
+
         try {
             const res = await axios.post("http://localhost:5272/api/User/register", value);
+
             if (res?.status === 200) {
-                setInput({   
+                toast.success("Registered successfully");
+
+                // Reset form
+                setInput({
                     firstName: "",
                     lastName: "",
                     birthDay: "",
@@ -96,7 +114,7 @@ export default function Register({ setRegister }) {
                     gender: "",
                     email: "",
                 });
-                toast.success("Registered successfully");
+
                 setTimeout(() => {
                     setRegister(0);
                 }, 1500);
@@ -108,7 +126,8 @@ export default function Register({ setRegister }) {
             toast.error(errorMsg);
         }
     };
-    
+
+
     return (
         <>
             <ToastContainer />

@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  BellIcon, CalendarDays, Search, Menu, X, 
-  Clock, PhoneCall, ChevronRight, Users, FileText, 
-  Syringe, Home 
+import {
+  BellIcon, CalendarDays, Search, Menu, X,
+  Clock, PhoneCall, ChevronRight, Users, FileText,
+  Syringe, Home
 } from 'lucide-react';
 
 import AvatarHomePage from '../home/avatarHomePage';
+import { useSelector } from 'react-redux';
 
 const ModernHeader = () => {
   const [darkMode, setDarkMode] = useState(false);
-
+  const user = useSelector((state) => state.account.user)
   return (
     <div className="w-full">
       {/* Full Width Navigation Bar */}
-      <div className="block top-0 left-0 w-full z-50" >
+      <div className="block top-0 left-0 w-full " >
         <div className="bg-white/90 backdrop-blur-lg shadow-lg border-b border-gray-100 w-full">
           <div className="flex items-center justify-between px-10 lg:px-20 h-24">
-            
+
             {/* Logo */}
             <div className="flex flex-row items-center gap-8 p-4">
               <Link to="/" className="flex items-center space-x-4">
@@ -61,14 +62,18 @@ const ModernHeader = () => {
               {/* Profile */}
               <div className="hidden lg:flex items-center space-x-4 cursor-pointer group">
                 <div className="text-right">
-                  <p className="text-base font-medium text-gray-900">Dr. Sarah</p>
-                  <p className="text-sm text-[#2F3A8F]">Medical Staff</p>
+                  <p className="text-base font-medium text-gray-900">{user.name}</p>
+                  <p className="text-sm text-[#2F3A8F]">{user.role}</p>
                 </div>
-                <div className="relative">
-                    <div className="w-full h-full rounded-lg bg-white flex items-center justify-center">
-                      <span className="text-[#2F3A8F] font-medium text-lg"><AvatarHomePage/></span>
-                    </div>
+                <div className=" w-12 h-12 rounded-full  overflow-hidden border-2 border-gray-300">
+                  <img
+                    src={user?.avatar || ''}
+                    alt="User Avatar"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
+
+
               </div>
             </div>
           </div>

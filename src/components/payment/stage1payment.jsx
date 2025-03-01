@@ -15,19 +15,18 @@ import axios from "axios";
 import { currenStepAction } from "../redux/reducers/currentStepSlice";
 import { useNavigate } from "react-router-dom";
 
-export default function Stage1Payment({ id}) {
+export default function Stage1Payment({ id }) {
 
   const [err, setErr] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const currestep = useSelector((state)=>state.payment.currestep)
+  const navigate = useNavigate()
+  const currestep = useSelector((state) => state.payment.currestep)
   const dispatch = useDispatch();
   const listChildren = useSelector((state) => state.children.listChildren);
   const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
   const advitory = useSelector((state) => state.children.advitory_detail);
-
-  const navigate = useNavigate()
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null)
+  const [child, setChild] = useState(null);
   const [isOpenFirst, setIsOpenFirst] = useState(false);
   const [inputAdvisory, setInputAdvisory] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
@@ -43,33 +42,40 @@ export default function Stage1Payment({ id}) {
     createDate: "",
   });
 
-  const baseURL = import.meta.env.VITE_BASE_URL_DB;
-  console.log(baseURL);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
   useEffect(() => {
     if (!id) return;
+
     const getUserData = async () => {
-      setLoading(true)
+      setLoading(true);
       setErr(null);
+
       try {
-        const res = await axios.get(`http://localhost:3000/user/${id}`);
-        if (res.status === 200 && res?.data) {
-          setUser(res.data);
+        // Fetch user data
+        const response = await axios.get(`http://localhost:5272/api/User/get-user-by-id/${id}`);
+        if (response.status === 200) {
+          setUser(response.data);
+        }
+
+        // Fetch child data
+        const res = await axios.get(`http://localhost:5272/api/Child/get-child-by-parents-id/${id}`);
+        if (res.status === 200) {
+          setChild(res.data);
         }
       } catch (error) {
-        console.error("Fetch error:", error);
+       
         setErr("Fetch failed");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     };
 
     getUserData();
   }, [id]);
+
 
   const handleInputAdvisory = (e) => {
     e.preventDefault();
@@ -110,15 +116,18 @@ export default function Stage1Payment({ id}) {
     setData({ parentID: user.id, id: "", name: "", dateOfBirth: "", gender: "", status: true });
     setIsOpenFirst(false);
   };
+  console.log(user?.user)
+  console.log(child)
+  console.log(listChildren)
   return (
-    <div className="min-h-screen py-12">
-     
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+   
+
+      <div className="max-w-[1400px] my-10 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8 justify-center">
           <div className="w-full lg:w-[550px] space-y-8">
-            <HeaderLeftSide user={user} />
+            <HeaderLeftSide user={user?.user} />
             <ChildrenList
-              user={user}
+             child={child}
               listChildren={listChildren}
               handleAddChildren={handleAddChildren}
               isOpenFirst={isOpenFirst}
@@ -141,7 +150,7 @@ export default function Stage1Payment({ id}) {
                         key={child.id}
                         child={child}
                         handleRemove={() => handleRemove(child.id)}
-                        parentName={user?.name}
+                        parentName={user?.user?.name}
                       />
                     ))}
                   </div>
@@ -154,7 +163,7 @@ export default function Stage1Payment({ id}) {
                     resetForm={resetForm}
                   />
                   <button
-                    onClick={arriveDate !== null ? ()=>dispatch(currenStepAction.increaseStep()) : undefined}
+                    onClick={arriveDate !== null ? () => dispatch(currenStepAction.increaseStep()) : undefined}
                     className={`w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-lg transition-all duration-300 ${arriveDate !== null ? "hover:from-teal-600 hover:to-teal-700" : "pointer-events-none opacity-50"
                       }`}
                   >
@@ -168,6 +177,6 @@ export default function Stage1Payment({ id}) {
           </div>
         </div>
       </div>
-    </div>
+ 
   );
 }

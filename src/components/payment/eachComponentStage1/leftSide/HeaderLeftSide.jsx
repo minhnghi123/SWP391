@@ -21,9 +21,9 @@ import ProfileUser from './profileUser';
             <ProfileUser
                 id={user?.id || ''}
                 name={user?.name || ''}
-                email={user?.email || ''}
+                email={user?.gmail || ''}
                 status={user?.status ? 'Active' : 'No Active'}
-                img={user?.picture }
+                img={user?.avatar }
             />
         </>
 

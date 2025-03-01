@@ -68,19 +68,19 @@ const Profile = ({ id }) => {
             let imageUrl = profileData.avatar || '';
 
             // Nếu có avatar mới thì upload lên Cloudinary
-            // if (avatar) {
-            //     const formData = new FormData();
-            //     formData.append("file", avatar);
-            //     formData.append("upload_preset", "First_time_using");
-            //     formData.append("cloud_name", "dzmx76ojp");
+            if (avatar) {
+                const formData = new FormData();
+                formData.append("file", avatar);
+                formData.append("upload_preset", "First_time_using");
+                formData.append("cloud_name", "dzmx76ojp");
 
-            //     const uploadResponse = await axios.post(
-            //         "https://api.cloudinary.com/v1_1/dzmx76ojp/image/upload",
-            //         formData
-            //     );
+                const uploadResponse = await axios.post(
+                    "https://api.cloudinary.com/v1_1/dzmx76ojp/image/upload",
+                    formData
+                );
 
-            //     imageUrl = uploadResponse.data.secure_url;
-            // }
+                imageUrl = uploadResponse.data.secure_url;
+            }
             if (editProfile.gender === undefined || editProfile.gender === null || editProfile.gender === '') {
              setNote('Plase choose your gender , You are gay???')
                 return;
@@ -93,7 +93,7 @@ const Profile = ({ id }) => {
                 gmail: editProfile.gmail?.trim(),
                 gender: editProfile.gender,
                 dateOfBirth: editProfile.dateOfBirth ? new Date(editProfile.dateOfBirth).toISOString() : null,
-                // avatar: imageUrl
+                avatar: imageUrl
 
             };
 

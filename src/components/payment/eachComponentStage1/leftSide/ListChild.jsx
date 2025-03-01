@@ -1,5 +1,5 @@
 import CalculateAge from "../../../../utils/calculateYearOld"
-const ListChild = ({ child, index,isSelected,handleChoose }) => {
+const ListChild = ({ child, index, isSelected, handleChoose }) => {
     return (
         <div
             key={index}
@@ -12,13 +12,13 @@ const ListChild = ({ child, index,isSelected,handleChoose }) => {
                 {/* Left Section: Child Info */}
                 <div className="flex items-center gap-5">
                     {/* Avatar Container */}
-                    <div className={`relative ${child.gender.toLowerCase() === 'male'
+                    <div className={`relative ${child.gender === 0
                         ? 'bg-blue-100'
                         : 'bg-pink-100'
                         } w-14 h-14 rounded-xl flex items-center justify-center`}
                     >
                         <span className="text-2xl">
-                            {child.gender.toLowerCase() === 'male' ? '👦' : '👧'}
+                            {child.gender === 0 ? '👦' : '👧'}
                         </span>
                         {isSelected.some((children) => children.id === child.id) && (
                             <div className="absolute -top-2 -right-2 w-5 h-5 bg-teal-500 rounded-full 
@@ -42,11 +42,11 @@ const ListChild = ({ child, index,isSelected,handleChoose }) => {
                                 {CalculateAge(child.dateOfBirth)} years old
                             </span>
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                                ${child.gender.toLowerCase() === 'male'
+                                                                ${child.gender === 0
                                     ? 'bg-blue-100 text-blue-700'
                                     : 'bg-pink-100 text-pink-700'}`}
                             >
-                                {child.gender}
+                                {child.gender ===0 ?'Male':'Female'}
                             </span>
                         </div>
                     </div>

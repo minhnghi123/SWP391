@@ -54,51 +54,51 @@ export default function Login({ setRegister }) {
         e.preventDefault();
         if (isOpen) {
             console.log("OTP")
-            
+
 
         }
         // phone 
 
         // check input
         else {
-            console.log(input)
-            setLoading(true)
+            setLoading(true);
             if (!input || !input.username || !input.password) {
                 toast.error("You need to provide a username or password");
+                setLoading(false);
                 return;
             }
-            try {
 
+            try {
                 const response = await axios.post('http://localhost:5272/api/User/login-by-account', input);
                 const token = response?.data?.loginResponse?.accessToken;
+
                 if (!token) {
                     toast.error("Login Failed: No token received");
+                    setLoading(false);
                     return;
                 }
+
                 const decoded = jwtDecode(token);
                 const data = {
                     id: decoded.Id,
                     name: decoded.Username,
-                    role: decoded.Role ,
-                    avatar :decoded.Avatar 
-                   
-                }
+                    role: decoded.Role,
+                    avatar: decoded.Avatar
+                };
 
                 dispatch(accountAction.setUser(data));
-                if (data?.role) {
-                    toast.success(data.role === 'admin' ? "Welcome Admin Come Back" : "Login successfully");
 
-                    setTimeout(() => {
-                        navigate(data.role === 'admin' ? '/dashboardPage/dashboard' : '/');
-                        setLoading(false)
-                    }, 1000);
-                } else {
-                    toast.error("Invalid role or login details");
-                }
-
+                toast.success(data.role === 'admin' ? "Welcome Admin Come Back" : "Login successfully");
+                setTimeout(() => {
+                    navigate(data.role === 'admin' ? '/dashboardPage/dashboard' : '/');
+                    setLoading(false);
+                }, 1000);
 
             } catch (err) {
-                toast.error("Login Failed");
+                const errorMessage = err.response?.data?.error || "An error occurred";
+                toast.error(errorMessage);
+            } finally {
+                setLoading(false);
             }
 
 

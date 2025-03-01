@@ -37,7 +37,7 @@ export default function AvatarHomePage() {
     };
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative z-[1000]" ref={dropdownRef} >
             {/* Avatar Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}

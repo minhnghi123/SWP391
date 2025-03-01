@@ -55,17 +55,19 @@ const ProfileForm = ({ editProfile, profileData, handleEdit, handleSave, setEdit
                     />
                 </div>
 
-                <select
-                    name="gender"
-                    value={editProfile.gender} 
-                    onChange={handleEdit}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                >
-                    <option value="">Select Gender</option>
-                    <option value="0">Male</option>   {/* Giá trị là 0 */}
-                    <option value="1">Female</option> {/* Giá trị là 1 */}
-                </select>
-
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Gender</label>
+                    <select
+                        name="gender"
+                        value={editProfile.gender} 
+                        onChange={handleEdit}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    >
+                        <option value="">Select Gender</option>
+                        <option value="0">Male</option>
+                        <option value="1">Female</option>
+                    </select>
+                </div>
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Account Created</label>

@@ -1,5 +1,5 @@
 import ListChild from "./ListChild";
-const ChildrenList = ({ listChildren,user,handleAddChildren,isOpenFirst,setIsOpenFirst}) => {
+const ChildrenList = ({ listChildren, child, handleAddChildren, isOpenFirst, setIsOpenFirst }) => {
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
             <div className="flex items-center justify-between mb-8">
@@ -25,9 +25,14 @@ const ChildrenList = ({ listChildren,user,handleAddChildren,isOpenFirst,setIsOpe
 
             {/* Danh sách trẻ */}
             <div className="grid gap-4">
-                {user?.children ? (
-                    user?.children.map((child) => (
-                        <ListChild key={child.id} child={child} isSelected={listChildren} handleChoose={() => handleAddChildren(child)} />
+                {child && child.length > 0 ? (
+                    child.map((child) => (
+                        <ListChild
+                            key={child.id}
+                            child={child}
+                            isSelected={listChildren}
+                            handleChoose={() => handleAddChildren(child)}
+                        />
                     ))
                 ) : (
                     <div>Not Found</div>
@@ -35,7 +40,7 @@ const ChildrenList = ({ listChildren,user,handleAddChildren,isOpenFirst,setIsOpe
             </div>
 
             {/* Nếu không có trẻ nào */}
-            {user?.children?.length === 0 && (
+            {child?.length === 0 && (
                 <div className="mt-6 text-center">
                     <button
                         onClick={() => setIsOpenFirst(!isOpenFirst)}

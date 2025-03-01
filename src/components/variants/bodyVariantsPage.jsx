@@ -31,8 +31,8 @@ export default function BodyVariantsHomePage() {
         const fetchDataAsync = async () => {
             try {
                 const [vaccineRes, comboRes] = await Promise.all([
-                    fetchData('vaccines'),
-                    fetchData('combos'),
+                    fetchData('Vaccine/getAllVacines'),
+                    fetchData('VaccineCombo/getVaccineCombo'),
                 ]);
                 setVaccines(vaccineRes.data);
                 setCombos(comboRes.data);
@@ -107,7 +107,7 @@ export default function BodyVariantsHomePage() {
                 <div className="container mx-auto px-4 py-6">
                     <div className="flex items-center justify-between">
                         <button
-                            onClick={() => navigate(-1)}
+                            onClick={() => navigate('/')}
                             className="flex items-center text-gray-600 hover:text-blue-600 transition-all duration-300 ease-in-out"
                         >
                             <ArrowBackIosNewOutlinedIcon className="mr-2" />

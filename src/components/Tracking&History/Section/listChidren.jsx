@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Dialog, DialogContent, DialogTitle, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -55,6 +55,9 @@ const ListChildren = () => {
         },
         // Add more mock data here
     ]);
+    // useEffect(()=>{
+
+    // },[])
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedChild, setSelectedChild] = useState(null);

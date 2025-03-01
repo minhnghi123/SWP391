@@ -18,9 +18,9 @@ const ChildrenList = ({ child, handleRemmoveChildren, listVaccine, advitory_deta
             {/* Child Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-full ${child.gender.toLowerCase() === 'male' ? 'bg-blue-50' : 'bg-pink-50'}`}>
+                    <div className={`p-3 rounded-full ${child.gender === 0 ? 'bg-blue-50' : 'bg-pink-50'}`}>
                         <span className="text-3xl">
-                            {child.gender.toLowerCase() === 'male' ? '👦' : '👧'}
+                            {child.gender === 0 ? '👦' : '👧'}
                         </span>
                     </div>
                     <div>
@@ -98,16 +98,16 @@ const ChildrenList = ({ child, handleRemmoveChildren, listVaccine, advitory_deta
                                             {expandedIndex === idx && (
                                                 <div className="mt-2 pl-4 border-l-2 border-blue-100">
                                                     {item.vaccine.map((subVaccine, subIdx) => (
-                                                       <div
-                                                       key={subIdx}
-                                                       className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:shadow-sm transition-all duration-300"
-                                                   >
-                                                       <span className="text-gray-800 font-medium">{subVaccine.name}</span>
-                                                       <span className="text-gray-700 font-semibold">
-                                                           {formatDecimal(subVaccine.price)} VNĐ
-                                                       </span>
-                                                   </div>
-                                                   
+                                                        <div
+                                                            key={subIdx}
+                                                            className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:shadow-sm transition-all duration-300"
+                                                        >
+                                                            <span className="text-gray-800 font-medium">{subVaccine.name}</span>
+                                                            <span className="text-gray-700 font-semibold">
+                                                                {formatDecimal(subVaccine.price)} VNĐ
+                                                            </span>
+                                                        </div>
+
                                                     ))}
                                                 </div>
                                             )}

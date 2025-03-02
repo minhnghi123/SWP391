@@ -24,14 +24,12 @@ export default function BodyVariantsHomePage() {
     const itemList = useSelector((state) => state.vaccine?.itemList || []);
     const calculatedTotal = useSelector((state) => state.vaccine.totalPrice);
     const isBooking = useSelector((state) => state.vaccine.isBooking)
-    const user=useSelector(state=>state.account.user)
-
-
+    const user = useSelector(state => state.account.user)
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
                 const [vaccineRes, comboRes] = await Promise.all([
-                    fetchData('Vaccine/getAllVacines'),
+                    fetchData('Vaccine/getAllVaccines'),
                     fetchData('VaccineCombo/getVaccineCombo'),
                 ]);
                 setVaccines(vaccineRes.data);
@@ -45,20 +43,36 @@ export default function BodyVariantsHomePage() {
         };
         fetchDataAsync();
     }, []);
- 
+console.log(isBooking)
     const handleAddVaccine = (vaccine) => {
-        dispatch(
-            vaccineAction.addVaccine({
-                id: vaccine.id,
-                name: vaccine.name,
-                price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
-                description: vaccine.description,
-                country: vaccine.origin,
-                image: vaccine.image,
-                vaccine: Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [],
-            })
-        );
+        const isCombo = Array.isArray(vaccine.vaccines) && vaccine.vaccines.length > 0;
+
+        if (isCombo) {
+            dispatch(
+                vaccineAction.addComboVaccine({
+                    id: vaccine.id,
+                    name: vaccine.name,
+                    price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+                    description: vaccine.description,
+                    country: vaccine.origin,
+                    image: vaccine.image,
+                    vaccines: vaccine.vaccines, 
+                })
+            );
+        } else {
+            dispatch(
+                vaccineAction.addVaccine({
+                    id: vaccine.id,
+                    name: vaccine.name,
+                    price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+                    description: vaccine.description,
+                    country: vaccine.origin,
+                    image: vaccine.image,
+                })
+            );
+        }
     };
+
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -183,17 +197,17 @@ export default function BodyVariantsHomePage() {
                                         <Variants
                                             id={vaccine.id}
                                             image={vaccine.image || null}
-                                            name={vaccine.name}
+                                            name={vaccine?.name || vaccine?.comboName || ''}
                                             description={vaccine.description}
                                             type={vaccine.discount ? 'combos' : 'vaccine'}
-                                            priceGoc={vaccine.discount ? vaccine.price : null}
+                                            priceGoc={vaccine.discount ? vaccine.totalPrice : ''}
                                             priceSale={
                                                 vaccine.discount
-                                                    ? vaccine.price * (1 - vaccine.discount / 100)
+                                                    ? vaccine.finalPrice
                                                     : vaccine.price
                                             }
                                             isBooking={isBooking}
-                                            country={vaccine.origin}
+                                            country={vaccine.fromCountry}
                                             onClick={() => handleAddVaccine(vaccine)}
                                         />
                                     </motion.div>
@@ -219,32 +233,32 @@ export default function BodyVariantsHomePage() {
                             </div>
 
                             <div className="space-y-4 mb-8">
-                                
-                                    {itemList.map((vaccine) => (
-                                        <div
-                                            key={vaccine.id}
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: "auto" }}
-                                            exit={{ opacity: 0, height: 0 }}
-                                            className="flex justify-between items-center bg-gray-50 p-3 rounded-xl group hover:bg-gray-100 transition-all"
-                                        >
-                                            <span className="text-gray-800">{vaccine.name}</span>
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-blue-600 font-medium">
-                                                    {formatCurrency(vaccine.discount ?
-                                                        vaccine.price * (1 - vaccine.discount / 100) :
-                                                        vaccine.price
-                                                    )} VND
-                                                </span>
-                                                <button
-                                                    onClick={() => dispatch(vaccineAction.deleteVaccine(vaccine.id))}
-                                                    className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-all"
-                                                >
-                                                    <BackspaceOutlinedIcon />
-                                                </button>
-                                            </div>
+
+                                {itemList.map((vaccine) => (
+                                    <div
+                                        key={vaccine.id}
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="flex justify-between items-center bg-gray-50 p-3 rounded-xl group hover:bg-gray-100 transition-all"
+                                    >
+                                        <span className="text-gray-800">{vaccine.name}</span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-blue-600 font-medium">
+                                                {formatCurrency(vaccine.discount ?
+                                                    vaccine.price * (1 - vaccine.discount / 100) :
+                                                    vaccine.price
+                                                )} VND
+                                            </span>
+                                            <button
+                                                onClick={() => dispatch(vaccineAction.deleteVaccine(vaccine.id))}
+                                                className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-all"
+                                            >
+                                                <BackspaceOutlinedIcon />
+                                            </button>
                                         </div>
-                                    ))}
+                                    </div>
+                                ))}
                             </div>
 
                             <div className="border-t border-gray-200 pt-6">

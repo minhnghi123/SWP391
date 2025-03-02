@@ -10,6 +10,7 @@ import { AuthContext } from '../Services/AuthLogin';
 import { useDispatch, useSelector } from "react-redux";
 import { accountAction } from "../redux/reducers/accountSlice";
 import { set } from "date-fns";
+import { addData } from '../../Api/axios'
 export default function Login({ setRegister }) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -69,7 +70,7 @@ export default function Login({ setRegister }) {
             }
 
             try {
-                const response = await axios.post('http://localhost:5272/api/User/login-by-account', input);
+                const response = await addData('User/login-by-account', input);
                 const token = response?.data?.loginResponse?.accessToken;
 
                 if (!token) {
@@ -87,7 +88,6 @@ export default function Login({ setRegister }) {
                 };
 
                 dispatch(accountAction.setUser(data));
-
                 toast.success(data.role === 'admin' ? "Welcome Admin Come Back" : "Login successfully");
                 setTimeout(() => {
                     navigate(data.role === 'admin' ? '/dashboardPage/dashboard' : '/');

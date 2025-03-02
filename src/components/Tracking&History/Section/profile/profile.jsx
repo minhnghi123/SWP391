@@ -7,6 +7,7 @@ import ProfileHeader from './HeaderProfile'
 import ProfileForm from './ProfileForm'
 import ProfileInfo from './ProfileInFor'
 import Notification from './Notification'
+import { fetchData, addData, deleteData, updateData } from '../../../../Api/axios'
 const Profile = ({ id }) => {
     const dispatch = useDispatch();
     const [profileData, setProfileData] = useState(null);
@@ -36,7 +37,7 @@ const Profile = ({ id }) => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const res = await axios.get(`http://localhost:5272/api/User/get-user-by-id/${id}`);
+                const res = await fetchData(`User/get-user-by-id/${id}`);
                 if (res?.status === 200 && res?.data) {
                     setProfileData(res.data.user);
                     setEditProfile(res.data.user);
@@ -82,7 +83,7 @@ const Profile = ({ id }) => {
                 imageUrl = uploadResponse.data.secure_url;
             }
             if (editProfile.gender === undefined || editProfile.gender === null || editProfile.gender === '') {
-             setNote('Plase choose your gender , You are gay???')
+                setNote('Plase choose your gender , You are gay???')
                 return;
             }
 
@@ -97,9 +98,9 @@ const Profile = ({ id }) => {
 
             };
 
-            console.log(updatedProfile)
+            // console.log(updatedProfile)
             // Gửi dữ liệu cập nhật lên server
-            const response = await axios.put(`http://localhost:5272/api/User/update-user/${id}`, updatedProfile);
+            const response = await updateData(`User/update-user`, id, updatedProfile);
             if (response?.status === 200) {
                 setNote("Profile updated successfully");
                 setEdit(false);

@@ -116,9 +116,7 @@ export default function Stage1Payment({ id }) {
     setData({ parentID: user.id, id: "", name: "", dateOfBirth: "", gender: "", status: true });
     setIsOpenFirst(false);
   };
-  console.log(user?.user)
-  console.log(child)
-  console.log(listChildren)
+
   return (
    
 

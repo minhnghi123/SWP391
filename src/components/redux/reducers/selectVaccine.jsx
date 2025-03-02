@@ -1,72 +1,107 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 // Load data from localStorage
-let storedItemList = [];
+let storedListVaccine = [];
+let storedListComboVaccine = [];
 let storedTotalPrice = 0;
 
 try {
-    storedItemList = JSON.parse(localStorage.getItem('ListVaccine')) || [];
+    storedListVaccine = JSON.parse(localStorage.getItem('ListVaccine')) || [];
+    storedListComboVaccine = JSON.parse(localStorage.getItem('ListComboVaccine')) || [];
     storedTotalPrice = JSON.parse(localStorage.getItem('TotalVaccine')) || 0;
 } catch (error) {
     console.error('Error loading data from localStorage:', error);
 }
 
-
 const selectVaccineSlice = createSlice({
     name: 'vaccine',
     initialState: {
-        itemList: storedItemList,  // Initialize with data from localStorage
-        isBooking: storedItemList.map((vaccine) => vaccine.id), // Populate based on itemList
+        listVaccine: storedListVaccine,
+        listComboVaccine: storedListComboVaccine,
+        isBooking: [
+            ...storedListVaccine.map((vaccine) => `vaccine-${vaccine.id}`),
+            ...storedListComboVaccine.map((combo) => `combo-${combo.id}`)
+        ],
         totalPrice: storedTotalPrice
     },
     reducers: {
         replaceData(state, action) {
-            state.itemList = action.payload.itemList;
+            state.listVaccine = action.payload.listVaccine;
+            state.listComboVaccine = action.payload.listComboVaccine;
             state.totalPrice = action.payload.totalPrice;
         },
         addVaccine(state, action) {
             const newVaccine = action.payload;
-            const check = state.itemList.find((vaccine) => vaccine.id === newVaccine.id);
+            const vaccineKey = `vaccine-${newVaccine.id}`;
+            const check = state.listVaccine.find((vaccine) => vaccine.id === newVaccine.id);
+
             if (check) {
-                state.itemList = state.itemList.filter((vaccine) => vaccine.id !== check.id);
+                state.listVaccine = state.listVaccine.filter((vaccine) => vaccine.id !== check.id);
                 state.totalPrice -= check.price || 0;
-                state.isBooking = state.isBooking.filter((id) => id !== newVaccine.id);
+                state.isBooking = state.isBooking.filter((id) => id !== vaccineKey);
             } else {
-                state.itemList.push(newVaccine);
-                state.isBooking.push(newVaccine.id);
+                state.listVaccine.push(newVaccine);
+                state.isBooking.push(vaccineKey);
                 state.totalPrice += newVaccine.price;
             }
-            state.itemList.length > 0
-                ? localStorage.setItem('ListVaccine', JSON.stringify(state.itemList))
-                : localStorage.removeItem('ListVaccine');
-            state.totalPrice > 0
-                ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice))
-                : localStorage.removeItem('TotalVaccine');
+
+            localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine));
+            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
+        },
+        addComboVaccine(state, action) {
+            const newCombo = action.payload;
+            const comboKey = `combo-${newCombo.id}`;
+            const check = state.listComboVaccine.find((combo) => combo.id === newCombo.id);
+
+            if (check) {
+                state.listComboVaccine = state.listComboVaccine.filter((combo) => combo.id !== check.id);
+                state.totalPrice -= check.price || 0;
+                state.isBooking = state.isBooking.filter((id) => id !== comboKey);
+            } else {
+                state.listComboVaccine.push(newCombo);
+                state.isBooking.push(comboKey);
+                state.totalPrice += newCombo.price;
+            }
+
+            localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine));
+            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
         },
         deleteVaccine(state, action) {
             const id = action.payload;
-            const check = state.itemList.find((vaccine) => vaccine.id === id);
+            const vaccineKey = `vaccine-${id}`;
+            const check = state.listVaccine.find((vaccine) => vaccine.id === id);
             if (!check) return;
-            state.itemList = state.itemList.filter((item) => item.id !== id);
-            state.isBooking = state.isBooking.filter((vaccineID) => vaccineID !== id);
+
+            state.listVaccine = state.listVaccine.filter((item) => item.id !== id);
+            state.isBooking = state.isBooking.filter((vaccineID) => vaccineID !== vaccineKey);
             state.totalPrice -= check.price || 0;
-            state.itemList.length > 0
-                ? localStorage.setItem('ListVaccine', JSON.stringify(state.itemList))
-                : localStorage.removeItem('ListVaccine');
-            state.totalPrice > 0
-                ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice))
-                : localStorage.removeItem('TotalVaccine');
+
+            localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine));
+            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
+        },
+        deleteComboVaccine(state, action) {
+            const id = action.payload;
+            const comboKey = `combo-${id}`;
+            const check = state.listComboVaccine.find((combo) => combo.id === id);
+            if (!check) return;
+
+            state.listComboVaccine = state.listComboVaccine.filter((item) => item.id !== id);
+            state.isBooking = state.isBooking.filter((comboID) => comboID !== comboKey);
+            state.totalPrice -= check.price || 0;
+
+            localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine));
+            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
         },
         completePayment(state) {
-            state.itemList = [];
+            state.listVaccine = [];
+            state.listComboVaccine = [];
             state.isBooking = [];
             state.totalPrice = 0;
 
-            // Clear localStorage
             localStorage.removeItem('ListVaccine');
+            localStorage.removeItem('ListComboVaccine');
             localStorage.removeItem('TotalVaccine');
         }
-
     }
 });
 

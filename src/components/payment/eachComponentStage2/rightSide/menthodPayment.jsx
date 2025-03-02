@@ -4,20 +4,21 @@ import { useDispatch } from "react-redux";
 import { methodPaymentAction } from "../../../redux/reducers/methodPaymentlice";
 import { useNavigate } from "react-router-dom";
 const MenthodPayment = ({ listChildren, handleSubmit, isLoading }) => {
+    const menthodPayment = ([
+
+        { id: 1, name: 'PayPal', icon: '💳', desc: 'All cards accepted' },
+        { id: 2, name: 'MoMo', icon: '📱', desc: 'Mobile payment' },
+        { id: 3, name: 'VnPay', icon: '🏦', desc: 'Online banking' },
+        { id: 4, name: 'Cash', icon: '💵', desc: 'Pay at location' }
+
+    ])
     const [paymentMethod, setPaymentMethod] = useState(1);
     const dispatch = useDispatch()
     const navigate = useNavigate()
     useEffect(() => {
         dispatch(methodPaymentAction.setMethodPayment(paymentMethod))
     }, [paymentMethod])
-    const menthodPayment = ([
 
-        { id: 1, name: 'Credit Card', icon: '💳', desc: 'All cards accepted' },
-        { id: 2, name: 'MoMo', icon: '📱', desc: 'Mobile payment' },
-        { id: 3, name: 'VnPay', icon: '🏦', desc: 'Online banking' },
-        { id: 4, name: 'Cash', icon: '💵', desc: 'Pay at location' }
-
-    ])
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
             <div className="flex items-center justify-between mb-8">
@@ -60,36 +61,7 @@ const MenthodPayment = ({ listChildren, handleSubmit, isLoading }) => {
                 ))}
             </div>
 
-            {paymentMethod === 1 && (
-                <div className="space-y-4 p-4 bg-gray-50 rounded-2xl mb-6">
-                    <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">Card Number</label>
-                        <input
-                            type="text"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="1234 5678 9012 3456"
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">Expiry Date</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="MM/YY"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">CVV</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="123"
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             <button onClick={handleSubmit}
                 className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-medium shadow-lg hover:from-blue-600

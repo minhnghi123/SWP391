@@ -7,7 +7,7 @@ import ChildCart from './ChildCart';
 import ModalCrudChild from './ModalCrudChild';
 import ModalDelete from './ModalDelete';
 import formatDate from '../../../../utils/Date';
-
+import { fetchData, addData, updateData, deleteData } from '../../../../Api/axios'
 export default function ListChildren({ id }) {
     const [listChildren, setListChildren] = useState([]);
     const [filteredChildren, setFilteredChildren] = useState([]);
@@ -24,7 +24,7 @@ export default function ListChildren({ id }) {
         if (!id) return;
         const fetchChildren = async () => {
             try {
-                const res = await axios.get(`http://localhost:5272/api/Child/get-child-by-parents-id/${id}`);
+                const res = await fetchData(`Child/get-child-by-parents-id/${id}`);
                 if (res.status === 200) setListChildren(res.data);
             } catch (error) {
                 setErr("Failed to fetch children data.");
@@ -37,20 +37,20 @@ export default function ListChildren({ id }) {
         setFilteredChildren(listChildren);
     }, [listChildren]);
 
-   
+
     const handleOpenAddChildModal = () => {
         setCurrentChild(defaultChild);
         setIsEditing(false);
         setIsModalOpen(true);
     };
 
-   
+
     const handleCreateChild = async (e) => {
         e.preventDefault();
         if (![0, 1].includes(Number(currentChild.gender))) return setErr("Please choose a valid gender.");
 
         try {
-            const res = await axios.post("http://localhost:5272/api/Child/create-child", currentChild);
+            const res = await addData("Child/create-child", currentChild);
             if (res.status === 200) {
                 setTrigger(prev => !prev);
                 setIsModalOpen(false);
@@ -68,13 +68,13 @@ export default function ListChildren({ id }) {
         setIsModalOpen(true);
     };
 
- 
+
     const handleUpdateChild = async (e) => {
         e.preventDefault();
         if (![0, 1].includes(Number(currentChild.gender))) return setErr("Please choose a valid gender.");
 
         try {
-            const res = await axios.put(`http://localhost:5272/api/Child/update-child/${currentChild.id}`, currentChild);
+            const res = await updateData(`Child/update-child`, currentChild.id, currentChild);
             if (res.status === 200) {
                 setTrigger(prev => !prev);
                 setIsModalOpen(false);
@@ -91,10 +91,10 @@ export default function ListChildren({ id }) {
         setShowModalDelete(true);
     };
 
-    
+
     const handleDeleteChild = async () => {
         try {
-            const res = await axios.delete(`http://localhost:5272/api/Child/delete-child/${deleteId}`);
+            const res = await deleteData(`Child/delete-child`,deleteId);
             if (res.status === 200) {
                 setTrigger(prev => !prev);
                 toast.success("Child deleted successfully!");
@@ -106,7 +106,7 @@ export default function ListChildren({ id }) {
         setDeleteId(null);
     };
 
-  
+
     const handleFilter = (status) => {
         setActiveFilter(status);
         if (status === 'all') {
@@ -119,22 +119,22 @@ export default function ListChildren({ id }) {
     return (
         <>
             <ToastContainer />
-            
-           
+
+
             <ModalDelete
                 isOpen={showModalDelete}
                 onClose={() => setShowModalDelete(false)}
                 onConfirm={handleDeleteChild}
             />
 
-       
+
             <HeaderChildren
                 activeFilter={activeFilter}
                 handleAddChild={handleOpenAddChildModal}
                 handleFilter={handleFilter}
             />
 
-    
+
             <ChildCart
                 handleAddChild={handleOpenAddChildModal}
                 handleEditChild={handleOpenEditChildModal}
@@ -142,7 +142,7 @@ export default function ListChildren({ id }) {
                 handleDeleteChild={handleOpenDeleteChildModal}
             />
 
-     
+
             {isModalOpen && (
                 <ModalCrudChild
                     setIsModalOpen={setIsModalOpen}

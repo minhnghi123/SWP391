@@ -4,4 +4,4 @@ export default function formatDate(dateString) {
         month: 'short',
         day: 'numeric'
     });
-};
+}; 

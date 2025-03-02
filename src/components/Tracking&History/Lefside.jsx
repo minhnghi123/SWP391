@@ -69,7 +69,7 @@ const LeftSide = ({ section, id }) => {
       </nav>
 
       {/* Logout Section */}
-      <div className="p-4 border-t">
+      <div onClick={handleLogout} className="p-4 border-t">
         <button className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-red-600 hover:bg-red-50 transition-all duration-200 hover:translate-x-1">
           <FiLogOut className="h-5 w-5 mr-3" />
           Logout

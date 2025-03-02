@@ -11,12 +11,10 @@ export default function PaymentStatus() {
     const { status } = useParams();
     const user = useSelector((state) => state.account.user);
     const dispatch = useDispatch();
-
     const [data, setData] = useState(null);
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const currentStep = useSelector((state)=>state.payment.currentStep)
 
 
     const fetchOrderDetail = async () => {
@@ -49,7 +47,8 @@ export default function PaymentStatus() {
         dispatch(currenStepAction.decreaseStep());
         navigate(`/paymentPage/${user?.id}`);
     };
-
+    //cash
+  
     return (
         <div className="max-h-screen bg-gray-50 flex items-center justify-center p-12">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
@@ -133,7 +132,7 @@ export default function PaymentStatus() {
                                 </button>
                             </div>
                         ) : (
-                            <p className="text-center text-gray-600">Invalid payment status.</p>
+                        status?.toLowerCase() === "pending"
                         )}
                     </>
                 )}

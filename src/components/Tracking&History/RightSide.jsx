@@ -4,7 +4,7 @@ import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNone
 import Profile from './Section/profile/profile'
 import History from './Section/hisotry'
 import Tracking from './Section/tracking'
-import ListChildren from './Section/listChidren';
+import ListChildren from '../Tracking&History/Section/children/listChidren';
 import AvatarHomePage from '../home/avatarHomePage'
 const RightSide = ({ section, id }) => {
 

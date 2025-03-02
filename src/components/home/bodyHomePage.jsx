@@ -40,7 +40,7 @@ export default function BodyHomePage() {
         }))
     }
     useEffect(() => {
-        fetchData('vaccines').
+        fetchData('Vaccine/getAllVacines').
             then((res) => {
                 if (res?.data) {
                     const sortedTop3 = [...res.data]

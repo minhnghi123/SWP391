@@ -45,7 +45,7 @@ export default function BodyVariantsHomePage() {
         };
         fetchDataAsync();
     }, []);
-
+ 
     const handleAddVaccine = (vaccine) => {
         dispatch(
             vaccineAction.addVaccine({

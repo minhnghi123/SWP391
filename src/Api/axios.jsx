@@ -3,7 +3,9 @@ import axios from 'axios';
 const baseURL = import.meta.env.VITE_BASE_URL_DB   
 
 const client = axios.create({
-    baseURL: `${baseURL}`, 
+
+    baseURL: baseURL,
+
     timeout: 10000, 
     headers: {
         'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
- import React from 'react';
+import React, { memo, useMemo } from 'react';
 import ProfileUser from './profileUser';
- const  HeaderLeftSide = ({user}) => {
+const HeaderLeftSide = ({ user }) => {
     return (
         <>
             {/* Welcome Section */}
@@ -23,7 +23,7 @@ import ProfileUser from './profileUser';
                 name={user?.name || ''}
                 email={user?.gmail || ''}
                 status={user?.status ? 'Active' : 'No Active'}
-                img={user?.avatar }
+                img={user?.avatar}
             />
         </>
 
@@ -31,4 +31,4 @@ import ProfileUser from './profileUser';
     )
 }
 
-export default HeaderLeftSide;
+export default memo(HeaderLeftSide)

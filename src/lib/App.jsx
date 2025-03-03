@@ -1,7 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
 import HomePage from '../pages/homePage';
 import LoginPage from '../pages/loginPage';
-import PaymentPage from '../pages/paymentPage';
+import Stage1Payment from '../pages/stage1PaymentPage';
+import Stage2Payment from '../pages/stage2PaymentPage';
+import Stage3Payment from '../pages/stage3PaymentPage';
 import Test from '../components/test';
 import VariantsPage from '../pages/variantsPage';
 import AboutPage from '../pages/aboutPage';
@@ -12,12 +14,12 @@ import Detail from '../components/variants/DetailInformationVaccine';
 import DoctorPage from '../pages/doctorPage';
 import StaffPage from '../pages/staffPage';
 import { FeedbackProvider } from '../components/Context/FeedbackContext';
-import PaymentStatusPage from '../pages/paymentStatusPage'
+
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={ <HomePage />} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/loginPage" element={<LoginPage />} />
       <Route path="/aboutPage" element={<AboutPage />} />
       <Route path="/test" element={<Test />} />
@@ -30,12 +32,18 @@ function App() {
       <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
       <Route path="/feedbackPage" element={<FeedbackProvider> <FeedbackPage /> </FeedbackProvider>} />
       {/* VaccineProvider applied only for specific pages */}
-      <Route path="/paymentPage/:id" element={<PaymentPage />} />
+
       {/* </Route> */}
       {/* Non-Protected Route */}
-      <Route path="/variantsPage" element={ <VariantsPage />} />
+      <Route path="/variantsPage" element={<VariantsPage />} />
       <Route path="/doctorPage" element={<DoctorPage />} />
-      <Route path="/payment/:status" element={<PaymentStatusPage />} />
+
+      {/* <Payment></Payment> */}
+      <Route path="/information/:id" element={<Stage1Payment />} />
+      <Route path="/payment/:id" element={<Stage2Payment />} />
+      <Route path="/confirm/:status" element={<Stage3Payment />} />
+
+
     </Routes>
   );
 }

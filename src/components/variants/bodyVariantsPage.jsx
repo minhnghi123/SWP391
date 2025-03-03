@@ -1,57 +1,36 @@
-import { useRef, useEffect, useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import BackspaceOutlinedIcon from "@mui/icons-material/BackspaceOutlined";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import formatCurrency from "../../utils/calculateMoney";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
+import { FaTimes } from "react-icons/fa";
+import { fetchData } from "../../Api/axios";
 import Variants from "../home/Variants";
-import ArrowBackIosNewOutlinedIcon from "@mui/icons-material/ArrowBackIosNewOutlined";
-import "../css/loading.css";
-import { useSelector, useDispatch } from "react-redux";
-import { vaccineAction } from "../redux/reducers/selectVaccine";
-import { motion } from "framer-motion";
 
-export default function BodyVariantsHomePage() {
+const VaccineList = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const ref = useRef(null);
+  
+  // State Management
   const [vaccines, setVaccines] = useState([]);
   const [combos, setCombos] = useState([]);
-  const [sortVaccines, setSortVaccines] = useState([]);
-  const [sortCombos, setSortCombos] = useState([]);
-  const [inputData, setInputData] = useState("");
-  const [sortType, setSortType] = useState("All");
-  const [isLoading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(false);
-  const ref = useRef(null);
-  const itemList = useSelector((state) => state.vaccine?.itemList || []);
-  const calculatedTotal = useSelector((state) => state.vaccine.totalPrice);
-  const isBooking = useSelector((state) => state.vaccine.isBooking);
-  const user = useSelector((state) => state.account.user);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("All");
+  const [inputData, setInputData] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
+  // Fetch Data từ API
   useEffect(() => {
     const fetchDataAsync = async () => {
       try {
-        const fetchData = async (url) => {
-          const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return await response.json();
-        };
+        const res1 = await fetchData("VaccineCombo/getVaccineCombo");
+        if (res1?.status === 200) setCombos(res1.data);
 
-        const [vaccineRes, comboRes] = await Promise.all([
-          fetchData("https://localhost:7280/api/Vaccine/getAllVacines"),
-          fetchData("https://localhost:7280/api/VaccineCombo/getVaccineCombo"),
-        ]);
-
-        console.log("Vaccines:", vaccineRes);
-        console.log("Combos:", comboRes);
-
-        setVaccines(vaccineRes.data || vaccineRes);
-        setCombos(comboRes.data || comboRes);
-        setSortVaccines(vaccineRes.data || vaccineRes); // Chỉ gán vaccines
-        setSortCombos(comboRes.data || comboRes); // Chỉ gán combos
+        const res2 = await fetchData("Vaccine/getAllVacines");
+        if (res2?.status === 200) setVaccines(res2.data);
       } catch (error) {
-        console.error("Error fetching data:", error);
         setErr(true);
       } finally {
         setLoading(false);
@@ -60,236 +39,172 @@ export default function BodyVariantsHomePage() {
     fetchDataAsync();
   }, []);
 
-  const handleAddVaccine = (vaccine) => {
-    dispatch(
-      vaccineAction.addVaccine({
-        id: vaccine.id,
-        name: vaccine.name,
-        price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
-        description: vaccine.description,
-        country: vaccine.origin,
-        image: vaccine.image,
-        vaccine: Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [],
-      })
-    );
-  };
+  // Lọc dữ liệu theo search
+  const filteredVaccines = useMemo(() => 
+    vaccines.filter((vaccine) => 
+      vaccine.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ), [vaccines, searchQuery]
+  );
 
+  const filteredCombos = useMemo(() => 
+    combos.filter((combo) => 
+      combo.comboName.toLowerCase().includes(searchQuery.toLowerCase())
+    ), [combos, searchQuery]
+  );
+
+  // Xử lý tìm kiếm
   const handleSearch = useCallback(() => {
-    const searchValue = inputData.trim().toLowerCase();
-    if (!searchValue) {
-      setSortVaccines(vaccines); // Reset về danh sách vaccines gốc
-      setSortCombos(combos); // Reset về danh sách combos gốc
-      return;
-    }
-
-    const filteredVaccines = vaccines.filter((v) => v.name.toLowerCase().includes(searchValue));
-    const filteredCombos = combos.filter((c) => c.name.toLowerCase().includes(searchValue));
-    setSortVaccines(filteredVaccines); // Chỉ lọc vaccines
-    setSortCombos(filteredCombos); // Chỉ lọc combos
-  }, [inputData, vaccines, combos]);
-
-  useEffect(() => {
-    const timer = setTimeout(handleSearch, 300);
-    return () => clearTimeout(timer);
-  }, [inputData, handleSearch]);
+    setSearchQuery(inputData.trim().toLowerCase());
+  }, [inputData]);
 
   const handleInput = (e) => setInputData(e.target.value);
 
-  const sortSelect = (type) => {
-    setSortType(type);
-    if (type === "All") {
-      setSortVaccines(vaccines);
-      setSortCombos(combos);
-    } else if (type === "Le") {
-      setSortVaccines(vaccines);
-      setSortCombos([]);
-    } else if (type === "Combo") {
-      setSortVaccines([]);
-      setSortCombos(combos);
-    }
-  };
+  if (loading) return <p className="text-center">Loading...</p>;
+  if (err) return <p className="text-center text-red-500">Error loading data.</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center text-gray-600 hover:text-blue-600 transition-all duration-300 ease-in-out"
-            >
-              <ArrowBackIosNewOutlinedIcon className="mr-2" />
-              <span className="font-medium">Back</span>
-            </button>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              List Vaccines
-            </h1>
-            <div className="w-32"></div>
-          </div>
+        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
+          <button onClick={() => navigate(-1)} className="flex items-center text-gray-600 hover:text-blue-600 transition-all">
+            <ArrowBackIosNewOutlinedIcon className="mr-2" />
+            <span className="font-medium">Back</span>
+          </button>
+          <h1 className="text-3xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text">
+            List Vaccines
+          </h1>
+          <div className="w-32"></div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12">
-        <div className="mb-10 space-y-4">
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <input
-                ref={ref}
-                value={inputData}
-                onChange={handleInput}
-                type="text"
-                placeholder="Search vaccines..."
-                className="w-full px-6 py-4 pl-14 rounded-2xl border-2 border-blue-100 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 ease-in-out shadow-sm hover:shadow-md"
-              />
-              <SearchOutlinedIcon className="absolute left-5 top-1/2 transform -translate-y-1/2 text-blue-400" />
-            </div>
-            <select
-              className="px-6 py-4 bg-blue-100 text-blue-600 rounded-2xl hover:bg-blue-200 transition-all cursor-pointer"
-              value={sortType}
-              onChange={(e) => sortSelect(e.target.value)}
-            >
-              <option value="All">All Vaccines</option>
-              <option value="Le">Single Vaccines</option>
-              <option value="Combo">Combo Packages</option>
-            </select>
+      {/* Search */}
+      <div className="mb-10 space-y-4">
+        <div className="flex gap-4">
+          <div className="relative flex-1">
+            <input
+              ref={ref}
+              value={inputData}
+              onChange={handleInput}
+              type="text"
+              placeholder="Search vaccines..."
+              className="w-full px-6 py-4 pl-14 rounded-2xl border-2 border-blue-100 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all shadow-sm hover:shadow-md"
+            />
+            <SearchOutlinedIcon className="absolute left-5 top-1/2 transform -translate-y-1/2 text-blue-400" />
           </div>
+          <select
+            className="px-6 py-4 bg-blue-100 text-blue-600 rounded-2xl hover:bg-blue-200 transition-all cursor-pointer"
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+          >
+            <option value="All">All Vaccines</option>
+            <option value="Single">Single Vaccines</option>
+            <option value="Combo">Combo Packages</option>
+          </select>
         </div>
+      </div>
 
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1 space-y-4">
-            {(sortType === "All" || sortType === "Le") && (
-              <div className="bg-white rounded-lg shadow-sm p-4">
-                <h2 className="text-lg font-medium text-gray-800 mb-3">Single Vaccines</h2>
-                {isLoading ? (
-                  <div className="flex justify-center items-center h-32">
-                    <div className="loader"></div>
-                  </div>
-                ) : err ? (
-                  <div className="flex justify-center items-center h-32">
-                    <p className="text-red-500 text-center">Failed to fetch data.</p>
-                  </div>
-                ) : sortVaccines.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {sortVaccines.map((item) => (
-                      <div
-                        key={item.id}
-                        className="bg-gray-50 rounded-md p-2 hover:bg-gray-100 transition-colors"
-                      >
-                        <Variants
-                          id={item.id}
-                          image={item.image || null}
-                          name={item?.name || item?.comboName || ""}
-                          description={item.description}
-                          type={item.discount ? "combos" : "vaccine"}
-                          priceGoc={item.discount ? item.totalPrice : ""}
-                          priceSale={item.discount ? item.finalPrice : item.price}
-                          isBooking={isBooking}
-                          country={item.fromCountry}
-                          onClick={() => handleAddVaccine(item)}
-                          compact={true}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-32 text-gray-500">
-                    <p>No results found</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {(sortType === "All" || sortType === "Combo") && (
-              <div className="bg-white rounded-lg shadow-sm p-4">
-                <h2 className="text-lg font-medium text-gray-800 mb-3">Combo Packages</h2>
-                {isLoading ? (
-                  <div className="flex justify-center items-center h-32">
-                    <div className="loader"></div>
-                  </div>
-                ) : err ? (
-                  <div className="flex justify-center items-center h-32">
-                    <p className="text-red-500 text-center">Failed to fetch data.</p>
-                  </div>
-                ) : sortCombos.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {sortCombos.map((item) => (
-                      <div
-                        key={item.id}
-                        className="bg-gray-50 rounded-md p-2 hover:bg-gray-100 transition-colors"
-                      >
-                        <Variants
-                          id={item.id}
-                          image={item.image || null}
-                          name={item?.name || item?.comboName || ""}
-                          description={item.description}
-                          type={item.discount ? "combos" : "vaccine"}
-                          priceGoc={item.discount ? item.totalPrice : ""}
-                          priceSale={item.discount ? item.finalPrice : item.price}
-                          isBooking={isBooking}
-                          country={item.fromCountry}
-                          onClick={() => handleAddVaccine(item)}
-                          compact={true}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-32 text-gray-500">
-                    <p>No results found</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="w-full lg:w-80">
-            <div className="bg-white rounded-lg shadow-sm p-4 sticky top-16">
-              <h2 className="text-lg font-medium text-gray-800 mb-3">
-                Payment Summary ({itemList.length} Items)
-              </h2>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {itemList.map((vaccine) => (
-                  <div
-                    key={vaccine.id}
-                    className="flex justify-between items-center text-xs bg-gray-50 p-1.5 rounded-md"
-                  >
-                    <span className="text-gray-700 truncate">{vaccine.name}</span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-blue-600">{formatCurrency(vaccine.price)} VND</span>
-                      <button
-                        onClick={() => dispatch(vaccineAction.deleteVaccine(vaccine.id))}
-                        className="text-gray-400 hover:text-red-500"
-                      >
-                        <BackspaceOutlinedIcon fontSize="small" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="border-t border-gray-200 mt-3 pt-3">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-medium text-gray-700">Total:</span>
-                  <span className="text-lg font-semibold text-blue-600">
-                    {formatCurrency(calculatedTotal)} VND
-                  </span>
+      {/* Nội dung Vaccine */}
+      <main className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
+      {(filterType === "All" || filterType === "Single") && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+              Single Vaccines
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredVaccines.map((vaccine) => (
+                <div
+                  key={vaccine.id}
+                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden"
+                >
+                  {vaccine.image && ( // Hiển thị ảnh nếu có
+                    <img
+                      src={vaccine.image}
+                      alt={vaccine.name}
+                      className="w-full h-48 object-cover"
+                      onError={(e) =>
+                        (e.target.src = "https://via.placeholder.com/150")
+                      } // Ảnh mặc định nếu lỗi
+                    />
+                  )}
+                  <Variants
+                    id={vaccine.id}
+                    image={vaccine.image || null}
+                    name={vaccine?.name || vaccine?.comboName || ""}
+                    description={vaccine.description}
+                    type={vaccine.discount ? "combos" : "vaccine"}
+                    priceGoc={vaccine.discount ? vaccine.totalPrice : ""}
+                    priceSale={
+                      vaccine.discount ? vaccine.finalPrice : vaccine.price
+                    }
+                    country={vaccine.fromCountry}
+                    onClick={() => handleAddVaccine(vaccine)}
+                    compact={true}
+                  />
                 </div>
-                <Link to={`/paymentPage/${user.id}`}>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full py-2 rounded-md text-white font-medium text-sm ${
-                      itemList.length > 0 ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"
-                    }`}
-                    disabled={itemList.length === 0}
-                  >
-                    Proceed to Payment
-                  </motion.button>
-                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+         {(filterType === "All" || filterType === "Combo") && (
+          <section>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+              Vaccine Combos
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCombos.map((combo) => (
+                <div
+                  key={combo.id}
+                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden"
+                >
+                  {combo.image && ( // Hiển thị ảnh nếu có
+                    <img
+                      src={combo.image}
+                      alt={combo.comboName}
+                      className="w-full h-48 object-cover"
+                      onError={(e) =>
+                        (e.target.src = "https://via.placeholder.com/150")
+                      } // Ảnh mặc định nếu lỗi
+                    />
+                  )}
+                  <Variants
+                    id={combo.id}
+                    image={combo.image || null}
+                    name={combo?.name || combo?.comboName || ""}
+                    description={combo.description}
+                    type={combo.discount ? "combos" : "vaccine"}
+                    priceGoc={combo.discount ? combo.totalPrice : ""}
+                    priceSale={
+                      combo.discount ? combo.finalPrice : combo.price
+                    }
+                    country={combo.fromCountry}
+                    onClick={() => handleAddVaccine(combo)}
+                    compact={true}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
+
+      {/* Modal Chi Tiết */}
+      {showModal && selectedItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start">
+                <h2 className="text-2xl font-bold text-gray-800">{selectedItem.comboName || selectedItem.name}</h2>
+                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                  <FaTimes size={20} />
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </main>
+      )}
     </div>
   );
-}
+};
+
+export default VaccineList;

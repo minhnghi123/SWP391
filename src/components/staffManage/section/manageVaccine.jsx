@@ -52,23 +52,40 @@ const ViewAllVaccines = () => {
   const [vaccines, setVaccines] = useState([]);
 
   useEffect(() => {
-      const fetchDataAsync = async () => {
-        try {
-          setLoading(true);
-          
-          const rs = await axios.get("https://localhost:7280/api/Vaccine/getAllVacines"); // Lấy dữ liệu từ API
-          setVaccines(rs.data);
-          setError(null);
-        } catch (error) {
-          console.error("Error fetching API:", error);
-          setError("Failed to fetch patients. Please try again later.");
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchDataAsync();
-    }, []);
+    const fetchDataAsync = async () => {
+      try {
+        setLoading(true);
+
+        const rs = await axios.get(
+          "https://localhost:7280/api/Vaccine/getAllVacines"
+        ); // Lấy dữ liệu từ API
+        setVaccines(rs.data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching API:", error);
+        setError("Failed to fetch vaccines. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    const adData = async () => {
+      try {
+        setLoading(true);
+        const rs = await axios.get(
+          "https://localhost:7280/api/Vaccine/getAllVacines"
+        ); // Lấy dữ liệu từ API
+        setVaccines(rs.data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching API:", error);
+        setError("Failed to fetch add. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDataAsync();
+  }, []);
 
   const DateInput = ({ label, value, onChange, icon, description }) => (
     <div className="relative">
@@ -104,9 +121,13 @@ const ViewAllVaccines = () => {
   const filteredVaccines = vaccines.filter((vaccine) => {
     const matchesSearch =
       (vaccine.name.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (vaccine.fromCountry.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (vaccine.description.toLowerCase() || "").includes(searchTerm.toLowerCase());
-  
+      (vaccine.fromCountry.toLowerCase() || "").includes(
+        searchTerm.toLowerCase()
+      ) ||
+      (vaccine.description.toLowerCase() || "").includes(
+        searchTerm.toLowerCase()
+      );
+
     return matchesSearch;
   });
 
@@ -124,7 +145,10 @@ const ViewAllVaccines = () => {
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentVaccines = sortedVaccines.slice(indexOfFirstItem, indexOfLastItem);
+  const currentVaccines = sortedVaccines.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const totalPages = Math.ceil(sortedVaccines.length / itemsPerPage);
 
   // Handle sort
@@ -188,7 +212,7 @@ const ViewAllVaccines = () => {
                 {!showFormCombo && (
                   <>
                     <div className="grid grid-cols-2 gap-4 mb-6">
-                      {[  
+                      {[
                         "Vaccine Name",
                         "Quantity",
                         "Description",
@@ -418,10 +442,18 @@ const ViewAllVaccines = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">{vaccines.description}</td>
-                  <td className="px-4 py-4 text-sm text-gray-600">{vaccines.price.toLocaleString()}</td>
-                  <td className="px-4 py-4 text-sm text-gray-600">{vaccines.fromCountry}</td>
-                  <td className="px-4 py-4 text-sm text-gray-600">{vaccines.timeExpired}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {vaccines.description}
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {vaccines.price.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {vaccines.fromCountry}
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {vaccines.timeExpired}
+                  </td>
                   <td className="px-4 py-4 text-sm font-medium text-teal-600">
                     {vaccines.quantity} doses
                   </td>
@@ -452,7 +484,10 @@ const ViewAllVaccines = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
+                <td
+                  colSpan={11}
+                  className="px-4 py-8 text-center text-gray-500"
+                >
                   No vaccines found matching your search criteria.
                 </td>
               </tr>
@@ -588,7 +623,8 @@ const ViewAllVaccines = () => {
                     <div>
                       <span className="text-sm text-gray-500">Age Range:</span>
                       <p className="font-medium text-gray-900">
-                        {selectedVaccine.suggestAgeMin} - {selectedVaccine.suggestAgeMax}
+                        {selectedVaccine.suggestAgeMin} -{" "}
+                        {selectedVaccine.suggestAgeMax}
                       </p>
                     </div>
                     <div>
@@ -600,12 +636,14 @@ const ViewAllVaccines = () => {
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-500">Interval Age:</span>
+                      <span className="text-sm text-gray-500">
+                        Interval Age:
+                      </span>
                       <p className="font-medium text-gray-900">
-                        {selectedVaccine.minimumIntervalDate} To {selectedVaccine.maximumIntervalDate}
+                        {selectedVaccine.minimumIntervalDate} To{" "}
+                        {selectedVaccine.maximumIntervalDate}
                       </p>
                     </div>
-                    
                   </div>
                 </div>
               </div>

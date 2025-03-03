@@ -10,7 +10,6 @@ import AvatarHomePage from '../home/avatarHomePage';
 import { useSelector } from 'react-redux';
 
 const ModernHeader = () => {
-  const [darkMode, setDarkMode] = useState(false);
   const user = useSelector((state) => state.account.user)
   return (
     <div className="w-full">
@@ -84,3 +83,39 @@ const ModernHeader = () => {
 };
 
 export default ModernHeader;
+
+
+useEffect(() => {
+    const fetchDataAsync = async () => {
+      try {
+        const fetchData = async (url) => {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return await response.json();
+        };
+
+        const [vaccineRes, comboRes] = await Promise.all([
+          fetchData("https://localhost:7280/api/Vaccine/getAllVacines"),
+          fetchData("https://localhost:7280/api/VaccineCombo/getVaccineCombo"),
+        ]);
+
+        console.log("Vaccines:", vaccineRes);
+        console.log("Combos:", comboRes);
+
+        setVaccines(vaccineRes.data || vaccineRes);
+        setCombos(comboRes.data || comboRes);
+        setSortVaccines([
+          ...(vaccineRes.data || vaccineRes),
+          ...(comboRes.data || comboRes),
+        ]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setErr(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDataAsync();
+  }, []);

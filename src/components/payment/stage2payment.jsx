@@ -21,11 +21,12 @@ export default function Stage2Payment() {
     const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
     const user = useSelector((state) => state.account.user);
     const paymentMenthod = useSelector((state) => state.methodPayment.methodPayment);
-    const itemList = useSelector((state) => state.vaccine.itemList);
+
     const listChildren = useSelector((state) => state.children.listChildren);
     const totalPrice = useSelector((state) => state.vaccine.totalPrice);
     const advitory_detail = useSelector((state) => state.children.advitory_detail);
-
+    const listVaccine = useSelector((state) => state.vaccine.listVaccine)
+    const listComboVaccine = useSelector((state) => state.vaccine.listComboVaccine)
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -41,14 +42,13 @@ export default function Stage2Payment() {
             const value = {
 
                 parentId: user.id,
-                advisoryDetail: "String",
-                totalPrice: CalculateTotal + (CalculateTotal*0.05),
-                paymentId: 3,
-                arrivedAt: '2025-03-03T01:20:12.317Z',
+                advisoryDetail: (advitory_detail ? advitory_detail : null),
+                totalPrice: CalculateTotal + (CalculateTotal * 0.05) + (advitory_detail ? listChildren.length * 50000 : 0),
+                paymentId: paymentMenthod,
+                arrivedAt: arriveDate,
                 childrenIds: listChildren.map((child) => child.id),
-                // listVaccine: itemList.map((vaccine) => vaccine.id),
-                vaccineIds: [1],
-                vaccineComboIds: [1]
+                vaccineIds: listVaccine.ma((vaccine) => vaccine.id),
+                vaccineComboIds: listComboVaccine.map((combo) => combo.id)
             };
             console.log(value)
             const res = await axios.post(`http://localhost:5272/api/Booking/add-booking`, value, { timeout: 900000 }); // 15 phút

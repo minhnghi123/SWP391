@@ -25,7 +25,9 @@ export default function BodyVariantsHomePage() {
     const itemList = useSelector((state) => state.vaccine?.itemList || []);
     const calculatedTotal = useSelector((state) => state.vaccine.totalPrice);
     const isBooking = useSelector((state) => state.vaccine.isBooking)
+
     const user=useSelector(state=>state.account.user)
+
 
 
     useEffect(() => {
@@ -47,18 +49,37 @@ export default function BodyVariantsHomePage() {
         fetchDataAsync();
     }, []);
 
+
     const handleAddVaccine = (vaccine) => {
-        dispatch(
-            vaccineAction.addVaccine({
-                id: vaccine.id,
-                name: vaccine.name,
-                price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
-                description: vaccine.description,
-                country: vaccine.origin,
-                image: vaccine.image,
-                vaccine: Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [],
-            })
-        );
+        const isCombo = Array.isArray(vaccine.vaccineIds) && vaccine.vaccineIds.length > 0;
+        console.log(isCombo)
+
+        if (isCombo) {
+            dispatch(
+                vaccineAction.addComboVaccine({
+                    id: vaccine.id,
+                    name: vaccine.comboName,
+                    price: vaccine.finalPrice,
+                    description: vaccine.description,
+                    vaccines: vaccine.vaccineIds,
+                })
+            );
+        } else {
+            dispatch(
+                vaccineAction.addVaccine({
+                    id: vaccine.id,
+                    name: vaccine.name,
+                    price: vaccine.price,
+                    description: vaccine.description,
+                    country: vaccine.fromCountry,
+
+                })
+            );
+        }
+
+
+  
+
     };
 
   // Hàm tìm kiếm cải tiến
@@ -247,17 +268,34 @@ export default function BodyVariantsHomePage() {
                                                 </button>
                                             </div>
                                         </div>
-                                    ))}
+                  </div>
+
+                                ))}
                             </div>
 
-              <div className="border-t border-gray-200 pt-6">
-                <div className="flex justify-between items-center mb-8">
-                  <span className="text-xl font-bold text-gray-700">
-                    Total:
-                  </span>
-                  <span className="text-3xl font-bold text-blue-600">
-                    {formatCurrency(calculatedTotal)} VND
-                  </span>
+                            <div className="border-t border-gray-200 pt-6">
+                                <div className="flex justify-between items-center mb-8">
+                                    <span className="text-xl font-bold text-gray-700">Total:</span>
+                                    <span className="text-3xl font-bold text-blue-600">
+                                        {formatCurrency(calculatedTotal)} VND
+                                    </span>
+                                </div>
+
+                                <Link to={`/information/${user.id}`}>
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg
+                                            bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl`}
+                                    // disabled={itemList.length === 0}
+                                    >
+                                        Proceed to Payment
+                                    </motion.button>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <Link to={`/paymentPage/${user.id}`}>

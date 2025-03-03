@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { arriveActions } from "../../../redux/reducers/arriveDate";
 import { format } from "date-fns";
+import formatDate from "../../../../utils/FormDate";
 
 const ChooseDateVaccination = ({ arriveDate }) => {
     const [showCalendar, setShowCalendar] = useState(false);
@@ -37,7 +38,7 @@ hover:from-blue-400 hover:to-blue-600"
                         <DatePicker
                             selected={arriveDate ? new Date(arriveDate) : null}
                             onChange={(date) => {
-                                dispatch(arriveActions.setArriveDate(format(date, "yyyy/MM/dd")));
+                                dispatch(arriveActions.setArriveDate(date.toISOString()));
                                 setShowCalendar(false);
                             }}
                             inline
@@ -62,7 +63,7 @@ hover:from-blue-400 hover:to-blue-600"
                                     clipRule="evenodd"
                                 />
                             </svg>
-                            Ngày đã chọn: {arriveDate}
+                            Ngày đã chọn: {formatDate(arriveDate)}
                         </p>
                         <button
                             aria-label="Xóa ngày đã chọn"

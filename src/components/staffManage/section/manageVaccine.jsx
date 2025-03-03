@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { fetchData } from "../../../Api/axios";
+
 import {
   Search,
   Filter,
@@ -24,200 +26,7 @@ import {
   CheckCircle,
   X,
 } from "lucide-react";
-
-// Extended vaccine data for the full view
-const allVaccines = [
-  {
-    id: 1,
-    name: "Pfizer COVID-19",
-    batchNumber: "PFZ-2023-001",
-    expiryDate: "2024-12-31",
-    temperature: "-70°C",
-    dosesLeft: 150,
-    status: "Available",
-    manufacturer: "Pfizer-BioNTech",
-    storageLocation: "Ultra-cold Freezer 1",
-    reorderPoint: 50,
-    lastChecked: "2 hours ago",
-    nextDelivery: "2024-03-20",
-    price: "$24.50",
-    ageRange: "12+ years",
-    doseSchedule: "2 doses, 21 days apart",
-    origin: "USA",
-    notes: "Handle with care. Requires special storage conditions.",
-  },
-  {
-    id: 2,
-    name: "Moderna COVID-19",
-    batchNumber: "MOD-2023-045",
-    expiryDate: "2024-11-30",
-    temperature: "-20°C",
-    dosesLeft: 85,
-    status: "Low Stock",
-    manufacturer: "Moderna",
-    storageLocation: "Medical Freezer 2",
-    reorderPoint: 100,
-    lastChecked: "1 hour ago",
-    nextDelivery: "2024-03-15",
-    price: "$25.75",
-    ageRange: "18+ years",
-    doseSchedule: "2 doses, 28 days apart",
-    origin: "USA",
-    notes: "Approaching reorder point. Place new order soon.",
-  },
-  {
-    id: 3,
-    name: "Influenza Vaccine",
-    batchNumber: "FLU-2023-089",
-    expiryDate: "2024-06-30",
-    temperature: "2-8°C",
-    dosesLeft: 200,
-    status: "Available",
-    manufacturer: "Sanofi Pasteur",
-    storageLocation: "Refrigerator 3",
-    reorderPoint: 75,
-    lastChecked: "30 mins ago",
-    nextDelivery: "2024-04-01",
-    price: "$18.25",
-    ageRange: "6+ months",
-    doseSchedule: "1 dose annually",
-    origin: "France",
-    notes: "Seasonal vaccine. High demand expected in fall.",
-  },
-  {
-    id: 4,
-    name: "Hepatitis B Vaccine",
-    batchNumber: "HEP-2023-112",
-    expiryDate: "2025-01-15",
-    temperature: "2-8°C",
-    dosesLeft: 175,
-    status: "Available",
-    manufacturer: "GlaxoSmithKline",
-    storageLocation: "Refrigerator 2",
-    reorderPoint: 50,
-    lastChecked: "1 hour ago",
-    nextDelivery: "2024-05-10",
-    price: "$22.00",
-    ageRange: "All ages",
-    doseSchedule: "3 doses over 6 months",
-    origin: "UK",
-    notes: "Standard storage conditions required.",
-  },
-  {
-    id: 5,
-    name: "Pneumococcal Vaccine",
-    batchNumber: "PNE-2023-067",
-    expiryDate: "2024-09-22",
-    temperature: "2-8°C",
-    dosesLeft: 45,
-    status: "Low Stock",
-    manufacturer: "Merck",
-    storageLocation: "Refrigerator 1",
-    reorderPoint: 50,
-    lastChecked: "3 hours ago",
-    nextDelivery: "2024-03-05",
-    price: "$29.75",
-    ageRange: "65+ years",
-    doseSchedule: "1 dose",
-    origin: "Germany",
-    notes: "Below reorder point. New shipment arriving soon.",
-  },
-  {
-    id: 6,
-    name: "MMR Vaccine",
-    batchNumber: "MMR-2023-034",
-    expiryDate: "2024-08-10",
-    temperature: "2-8°C",
-    dosesLeft: 120,
-    status: "Available",
-    manufacturer: "Merck",
-    storageLocation: "Refrigerator 4",
-    reorderPoint: 40,
-    lastChecked: "2 hours ago",
-    nextDelivery: "2024-04-15",
-    price: "$21.50",
-    ageRange: "12 months - 12 years",
-    doseSchedule: "2 doses",
-    origin: "USA",
-    notes: "Protect from light. Standard refrigeration required.",
-  },
-  {
-    id: 7,
-    name: "Tetanus Toxoid",
-    batchNumber: "TET-2023-091",
-    expiryDate: "2024-07-05",
-    temperature: "2-8°C",
-    dosesLeft: 15,
-    status: "Critical Stock",
-    manufacturer: "Sanofi Pasteur",
-    storageLocation: "Refrigerator 2",
-    reorderPoint: 30,
-    lastChecked: "1 hour ago",
-    nextDelivery: "2024-03-01",
-    price: "$15.25",
-    ageRange: "All ages",
-    doseSchedule: "Booster every 10 years",
-    origin: "France",
-    notes: "Critically low stock. Expedite next delivery.",
-  },
-  {
-    id: 8,
-    name: "HPV Vaccine",
-    batchNumber: "HPV-2023-056",
-    expiryDate: "2025-02-28",
-    temperature: "2-8°C",
-    dosesLeft: 90,
-    status: "Available",
-    manufacturer: "Merck",
-    storageLocation: "Refrigerator 3",
-    reorderPoint: 40,
-    lastChecked: "4 hours ago",
-    nextDelivery: "2024-06-10",
-    price: "$32.75",
-    ageRange: "9-26 years",
-    doseSchedule: "2-3 doses",
-    origin: "USA",
-    notes: "Store in original packaging to protect from light.",
-  },
-  {
-    id: 9,
-    name: "Rabies Vaccine",
-    batchNumber: "RAB-2023-023",
-    expiryDate: "2024-05-15",
-    temperature: "2-8°C",
-    dosesLeft: 25,
-    status: "Low Stock",
-    manufacturer: "Novartis",
-    storageLocation: "Refrigerator 1",
-    reorderPoint: 20,
-    lastChecked: "2 hours ago",
-    nextDelivery: "2024-03-10",
-    price: "$45.00",
-    ageRange: "All ages",
-    doseSchedule: "Post-exposure: 4-5 doses",
-    origin: "Switzerland",
-    notes: "Used primarily for post-exposure prophylaxis.",
-  },
-  {
-    id: 10,
-    name: "Yellow Fever Vaccine",
-    batchNumber: "YF-2023-078",
-    expiryDate: "2024-10-20",
-    temperature: "2-8°C",
-    dosesLeft: 60,
-    status: "Available",
-    manufacturer: "Sanofi Pasteur",
-    storageLocation: "Refrigerator 4",
-    reorderPoint: 30,
-    lastChecked: "5 hours ago",
-    nextDelivery: "2024-05-15",
-    price: "$38.50",
-    ageRange: "9 months+",
-    doseSchedule: "Single dose",
-    origin: "France",
-    notes: "Required for travel to certain countries.",
-  },
-];
+import axios from "axios";
 
 const ViewAllVaccines = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -231,12 +40,36 @@ const ViewAllVaccines = () => {
   const [showForm, setShowForm] = useState(false);
   const [showFormCombo, setShowFormCombo] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [loading, setLoading] = useState(false); // State cho trạng thái tải
+  const [error, setError] = useState(null);
   const [dateValues, setDateValues] = useState({
     dosesTime: "",
     expiredTime: "",
     minInterval: "",
     maxInterval: "",
   });
+
+  const [vaccines, setVaccines] = useState([]);
+
+  useEffect(() => {
+      const fetchDataAsync = async () => {
+        try {
+          setLoading(true);
+          
+          const rs = await axios.get("https://localhost:7280/api/Vaccine/getAllVacines"); // Lấy dữ liệu từ API
+          setVaccines(rs.data);
+          setError(null);
+        } catch (error) {
+          console.error("Error fetching API:", error);
+          setError("Failed to fetch patients. Please try again later.");
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchDataAsync();
+    }, []);
+
   const DateInput = ({ label, value, onChange, icon, description }) => (
     <div className="relative">
       <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -267,35 +100,31 @@ const ViewAllVaccines = () => {
     }));
   };
 
-  // Filter vaccines based on search term and status
-  const filteredVaccines = allVaccines.filter((vaccine) => {
+  // Filter vaccines based on search term
+  const filteredVaccines = vaccines.filter((vaccine) => {
     const matchesSearch =
-      vaccine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vaccine.batchNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vaccine.manufacturer.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "All" || vaccine.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
+      (vaccine.name.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (vaccine.fromCountry.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (vaccine.description.toLowerCase() || "").includes(searchTerm.toLowerCase());
+  
+    return matchesSearch;
   });
 
   // Sort vaccines
   const sortedVaccines = [...filteredVaccines].sort((a, b) => {
+    const valueA = a[sortBy] || "";
+    const valueB = b[sortBy] || "";
     if (sortOrder === "asc") {
-      return a[sortBy] > b[sortBy] ? 1 : -1;
+      return valueA > valueB ? 1 : -1;
     } else {
-      return a[sortBy] < b[sortBy] ? 1 : -1;
+      return valueA < valueB ? 1 : -1;
     }
   });
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentVaccines = sortedVaccines.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentVaccines = sortedVaccines.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(sortedVaccines.length / itemsPerPage);
 
   // Handle sort
@@ -309,8 +138,8 @@ const ViewAllVaccines = () => {
   };
 
   // View vaccine details
-  const handleViewVaccine = (vaccine) => {
-    setSelectedVaccine(vaccine);
+  const handleViewVaccine = (vaccines) => {
+    setSelectedVaccine(vaccines);
     setIsModalOpen(true);
   };
 
@@ -320,14 +149,6 @@ const ViewAllVaccines = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Vaccine Inventory</h1>
         <div className="flex flex-wrap items-center gap-3">
-          <button className="px-4 py-2 bg-teal-50 text-teal-600 rounded-lg flex items-center gap-2 hover:bg-teal-100 transition-colors">
-            <Download size={18} />
-            <span className="hidden sm:inline">Export</span>
-          </button>
-          <button className="px-4 py-2 bg-teal-50 text-teal-600 rounded-lg flex items-center gap-2 hover:bg-teal-100 transition-colors">
-            <Printer size={18} />
-            <span className="hidden sm:inline">Print</span>
-          </button>
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
@@ -367,7 +188,7 @@ const ViewAllVaccines = () => {
                 {!showFormCombo && (
                   <>
                     <div className="grid grid-cols-2 gap-4 mb-6">
-                      {[
+                      {[  
                         "Vaccine Name",
                         "Quantity",
                         "Description",
@@ -508,15 +329,11 @@ const ViewAllVaccines = () => {
               </div>
             </div>
           )}
-          <button className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-lg flex items-center gap-2 hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 shadow-sm">
-            <Eye size={18} />
-            <span>View Report</span>
-          </button>
         </div>
       </div>
 
       {/* Search and filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">
         <div className="relative">
           <Search
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -530,21 +347,6 @@ const ViewAllVaccines = () => {
             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
           />
         </div>
-
-        <div className="flex items-center gap-2">
-          <Filter size={18} className="text-gray-500" />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
-          >
-            <option value="All">All Status</option>
-            <option value="Available">Available</option>
-            <option value="Low Stock">Low Stock</option>
-            <option value="Critical Stock">Critical Stock</option>
-          </select>
-        </div>
-
         <div className="flex items-center gap-2">
           <ArrowUpDown size={18} className="text-gray-500" />
           <select
@@ -558,10 +360,10 @@ const ViewAllVaccines = () => {
           >
             <option value="name-asc">Name (A-Z)</option>
             <option value="name-desc">Name (Z-A)</option>
-            <option value="dosesLeft-asc">Stock (Low to High)</option>
-            <option value="dosesLeft-desc">Stock (High to Low)</option>
-            <option value="expiryDate-asc">Expiry (Soonest)</option>
-            <option value="expiryDate-desc">Expiry (Latest)</option>
+            <option value="quantity-asc">Stock (Low to High)</option>
+            <option value="quantity-desc">Stock (High to Low)</option>
+            <option value="expired_time-asc">Expiry (Soonest)</option>
+            <option value="expired_time-desc">Expiry (Latest)</option>
           </select>
         </div>
       </div>
@@ -575,10 +377,13 @@ const ViewAllVaccines = () => {
                 Vaccine
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                Batch
+                Description
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                Manufacturer
+                Price ($)
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                Country
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                 Expiry
@@ -587,18 +392,15 @@ const ViewAllVaccines = () => {
                 Stock
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                Status
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody>
             {currentVaccines.length > 0 ? (
-              currentVaccines.map((vaccine) => (
+              currentVaccines.map((vaccines) => (
                 <tr
-                  key={vaccine.id}
+                  key={vaccines.id}
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                 >
                   <td className="px-4 py-4">
@@ -608,43 +410,25 @@ const ViewAllVaccines = () => {
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {vaccine.name}
+                          {vaccines.name}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {vaccine.temperature}
+                          {vaccines.description}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
-                    {vaccine.batchNumber}
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
-                    {vaccine.manufacturer}
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
-                    {vaccine.expiryDate}
-                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-600">{vaccines.description}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">{vaccines.price.toLocaleString()}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">{vaccines.fromCountry}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">{vaccines.timeExpired}</td>
                   <td className="px-4 py-4 text-sm font-medium text-teal-600">
-                    {vaccine.dosesLeft} doses
-                  </td>
-                  <td className="px-4 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        vaccine.status === "Available"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : vaccine.status === "Low Stock"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-rose-100 text-rose-700"
-                      }`}
-                    >
-                      {vaccine.status}
-                    </span>
+                    {vaccines.quantity} doses
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleViewVaccine(vaccine)}
+                        onClick={() => handleViewVaccine(vaccines)}
                         className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
                         title="View details"
                       >
@@ -668,7 +452,7 @@ const ViewAllVaccines = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
                   No vaccines found matching your search criteria.
                 </td>
               </tr>
@@ -750,22 +534,6 @@ const ViewAllVaccines = () => {
                   <h3 className="text-2xl font-bold text-gray-900">
                     {selectedVaccine.name}
                   </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        selectedVaccine.status === "Available"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : selectedVaccine.status === "Low Stock"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-rose-100 text-rose-700"
-                      }`}
-                    >
-                      {selectedVaccine.status}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      Manufactured by {selectedVaccine.manufacturer}
-                    </span>
-                  </div>
                 </div>
               </div>
 
@@ -781,34 +549,7 @@ const ViewAllVaccines = () => {
                         <span>Doses Left</span>
                       </div>
                       <span className="font-medium text-teal-600">
-                        {selectedVaccine.dosesLeft}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <TrendingUp className="w-4 h-4" />
-                        <span>Reorder Point</span>
-                      </div>
-                      <span className="font-medium">
-                        {selectedVaccine.reorderPoint}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        <span>Next Delivery</span>
-                      </div>
-                      <span className="font-medium">
-                        {selectedVaccine.nextDelivery}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Refrigerator className="w-4 h-4" />
-                        <span>Storage Location</span>
-                      </div>
-                      <span className="font-medium">
-                        {selectedVaccine.storageLocation}
+                        {selectedVaccine.quantity}
                       </span>
                     </div>
                   </div>
@@ -825,34 +566,7 @@ const ViewAllVaccines = () => {
                         <span>Expiry Date</span>
                       </div>
                       <span className="font-medium">
-                        {selectedVaccine.expiryDate}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Thermometer className="w-4 h-4" />
-                        <span>Storage Temp</span>
-                      </div>
-                      <span className="font-medium">
-                        {selectedVaccine.temperature}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Clock className="w-4 h-4" />
-                        <span>Last Checked</span>
-                      </div>
-                      <span className="font-medium">
-                        {selectedVaccine.lastChecked}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <AlertCircle className="w-4 h-4" />
-                        <span>Batch Number</span>
-                      </div>
-                      <span className="font-medium">
-                        {selectedVaccine.batchNumber}
+                        {selectedVaccine.timeExpired}
                       </span>
                     </div>
                   </div>
@@ -868,21 +582,13 @@ const ViewAllVaccines = () => {
                     <div>
                       <span className="text-sm text-gray-500">Price:</span>
                       <p className="font-medium text-gray-900">
-                        {selectedVaccine.price} per dose
+                        ${selectedVaccine.price.toLocaleString()} per dose
                       </p>
                     </div>
                     <div>
                       <span className="text-sm text-gray-500">Age Range:</span>
                       <p className="font-medium text-gray-900">
-                        {selectedVaccine.ageRange}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-sm text-gray-500">
-                        Dose Schedule:
-                      </span>
-                      <p className="font-medium text-gray-900">
-                        {selectedVaccine.doseSchedule}
+                        {selectedVaccine.suggestAgeMin} - {selectedVaccine.suggestAgeMax}
                       </p>
                     </div>
                     <div>
@@ -890,19 +596,17 @@ const ViewAllVaccines = () => {
                         Country of Origin:
                       </span>
                       <p className="font-medium text-gray-900">
-                        {selectedVaccine.origin}
+                        {selectedVaccine.fromCountry}
                       </p>
                     </div>
+                    <div>
+                      <span className="text-sm text-gray-500">Interval Age:</span>
+                      <p className="font-medium text-gray-900">
+                        {selectedVaccine.minimumIntervalDate} To {selectedVaccine.maximumIntervalDate}
+                      </p>
+                    </div>
+                    
                   </div>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500 mb-3">
-                    Notes
-                  </h4>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 min-h-[100px]">
-                    {selectedVaccine.notes}
-                  </p>
                 </div>
               </div>
 

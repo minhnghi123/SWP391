@@ -1,15 +1,16 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import formatCurrency from '../../utils/calculateMoney';
-import Variants from '../home/Variants';
-import { fetchData } from '../../Api/axios';
-import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
-import '../css/loading.css';
+import { useRef, useEffect, useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios"; // Import axios để gọi API trực tiếp
+import BackspaceOutlinedIcon from "@mui/icons-material/BackspaceOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import formatCurrency from "../../utils/calculateMoney";
+import Variants from "../home/Variants";
+import ArrowBackIosNewOutlinedIcon from "@mui/icons-material/ArrowBackIosNewOutlined";
+import "../css/loading.css";
 import { useSelector, useDispatch } from "react-redux";
-import { vaccineAction } from '../redux/reducers/selectVaccine';
+import { vaccineAction } from "../redux/reducers/selectVaccine";
 import { motion, AnimatePresence } from "framer-motion";
+
 export default function BodyVariantsHomePage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -24,13 +25,15 @@ export default function BodyVariantsHomePage() {
     const itemList = useSelector((state) => state.vaccine?.itemList || []);
     const calculatedTotal = useSelector((state) => state.vaccine.totalPrice);
     const isBooking = useSelector((state) => state.vaccine.isBooking)
-    const user = useSelector(state => state.account.user)
+    const user=useSelector(state=>state.account.user)
+
+
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
                 const [vaccineRes, comboRes] = await Promise.all([
-                    fetchData('Vaccine/getAllVaccines'),
-                    fetchData('VaccineCombo/getVaccineCombo'),
+                    fetchData('vaccines'),
+                    fetchData('combos'),
                 ]);
                 setVaccines(vaccineRes.data);
                 setCombos(comboRes.data);
@@ -43,76 +46,60 @@ export default function BodyVariantsHomePage() {
         };
         fetchDataAsync();
     }, []);
-console.log(isBooking)
+
     const handleAddVaccine = (vaccine) => {
-        const isCombo = Array.isArray(vaccine.vaccines) && vaccine.vaccines.length > 0;
-
-        if (isCombo) {
-            dispatch(
-                vaccineAction.addComboVaccine({
-                    id: vaccine.id,
-                    name: vaccine.name,
-                    price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
-                    description: vaccine.description,
-                    country: vaccine.origin,
-                    image: vaccine.image,
-                    vaccines: vaccine.vaccines, 
-                })
-            );
-        } else {
-            dispatch(
-                vaccineAction.addVaccine({
-                    id: vaccine.id,
-                    name: vaccine.name,
-                    price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
-                    description: vaccine.description,
-                    country: vaccine.origin,
-                    image: vaccine.image,
-                })
-            );
-        }
+        dispatch(
+            vaccineAction.addVaccine({
+                id: vaccine.id,
+                name: vaccine.name,
+                price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+                description: vaccine.description,
+                country: vaccine.origin,
+                image: vaccine.image,
+                vaccine: Array.isArray(vaccine.vaccines) ? vaccine.vaccines : [],
+            })
+        );
     };
 
+  // Hàm tìm kiếm cải tiến
+  const handleSearch = useCallback(() => {
+    const searchValue = inputData.trim().toLowerCase();
+    if (!searchValue) {
+      setSortVaccines([...vaccines, ...combos]);
+      return;
+    }
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        setSortVaccines([...vaccines, ...combos]);
-    }, [vaccines, combos]);
+    const filteredVaccines = vaccines.filter((v) =>
+      v.name.toLowerCase().includes(searchValue)
+    );
+    const filteredCombos = combos.filter((c) =>
+      c.name.toLowerCase().includes(searchValue)
+    );
+    setSortVaccines([...filteredVaccines, ...filteredCombos]);
+  }, [inputData, vaccines, combos]);
 
-    // Improved search function
-    const handleSearch = useCallback(() => {
-        const searchValue = inputData.trim().toLowerCase();
-        if (!searchValue) {
-            setSortVaccines([...vaccines, ...combos]);
-            return;
-        }
+  // Debounce tìm kiếm
+  useEffect(() => {
+    const timer = setTimeout(handleSearch, 300);
+    return () => clearTimeout(timer);
+  }, [inputData, handleSearch]);
 
-        const filteredVaccines = vaccines.filter((v) => v.name.toLowerCase().includes(searchValue));
-        const filteredCombos = combos.filter((c) => c.name.toLowerCase().includes(searchValue));
-        setSortVaccines([...filteredVaccines, ...filteredCombos]);
+  // Xử lý input tìm kiếm
+  const handleInput = (e) => {
+    setInputData(e.target.value);
+  };
 
-    }, [inputData, vaccines, combos]);
-
-    useEffect(() => {
-        const timer = setTimeout(handleSearch, 300);
-        return () => clearTimeout(timer);
-    }, [inputData, handleSearch]);
-
-    const handleInput = (e) => {
-        setInputData(e.target.value);
-    };
-
-    const sortSelect = (type) => {
-        setSortType(type);
-        if (type === "All") {
-            setSortVaccines([...vaccines, ...combos]);
-        } else if (type === "Le") {
-            setSortVaccines([...vaccines]);
-        } else if (type === "Combo") {
-            setSortVaccines([...combos]);
-        }
-
-    };
+  // Sắp xếp danh sách theo loại
+  const sortSelect = (type) => {
+    setSortType(type);
+    if (type === "All") {
+      setSortVaccines([...vaccines, ...combos]);
+    } else if (type === "Le") {
+      setSortVaccines([...vaccines]);
+    } else if (type === "Combo") {
+      setSortVaccines([...combos]);
+    }
+  };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -121,7 +108,7 @@ console.log(isBooking)
                 <div className="container mx-auto px-4 py-6">
                     <div className="flex items-center justify-between">
                         <button
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate(-1)}
                             className="flex items-center text-gray-600 hover:text-blue-600 transition-all duration-300 ease-in-out"
                         >
                             <ArrowBackIosNewOutlinedIcon className="mr-2" />
@@ -135,32 +122,33 @@ console.log(isBooking)
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-12">
-                {/* Search và Filter Section được cải thiện */}
-                <div className="mb-10 space-y-4">
-                    <div className="flex gap-4">
-                        <div className="relative flex-1">
-                            <input
-                                ref={ref}
-                                value={inputData}
-                                onChange={handleInput}
-                                type="text"
-                                placeholder="Search vaccines..."
-                                className="w-full px-6 py-4 pl-14 rounded-2xl border-2 border-blue-100 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 ease-in-out shadow-sm hover:shadow-md"
-                            />
-                            <SearchOutlinedIcon className="absolute left-5 top-1/2 transform -translate-y-1/2 text-blue-400" />
-                        </div>
-                        <select
-                            className="px-6 py-4 bg-blue-100 text-blue-600 rounded-2xl hover:bg-blue-200 transition-all cursor-pointer"
-                            value={sortType}
-                            onChange={(e) => sortSelect(e.target.value)}
-                        >
-                            <option value="All">All Vaccines</option>
-                            <option value="Le">Single Vaccines</option>
-                            <option value="Combo">Combo Packages</option>
-                        </select>
-                    </div>
-                </div>
+      {/* Main content */}
+      <main className="container mx-auto px-4 py-12">
+        {/* Search và Filter */}
+        <div className="mb-10 space-y-4">
+          <div className="flex gap-4">
+            <div className="relative flex-1">
+              <input
+                ref={ref}
+                value={inputData}
+                onChange={handleInput}
+                type="text"
+                placeholder="Search vaccines..."
+                className="w-full px-6 py-4 pl-14 rounded-2xl border-2 border-blue-100 focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 ease-in-out shadow-sm hover:shadow-md"
+              />
+              <SearchOutlinedIcon className="absolute left-5 top-1/2 transform -translate-y-1/2 text-blue-400" />
+            </div>
+            <select
+              className="px-6 py-4 bg-blue-100 text-blue-600 rounded-2xl hover:bg-blue-200 transition-all cursor-pointer"
+              value={sortType}
+              onChange={(e) => sortSelect(e.target.value)}
+            >
+              <option value="All">All Vaccines</option>
+              <option value="Le">Single Vaccines</option>
+              <option value="Combo">Combo Packages</option>
+            </select>
+          </div>
+        </div>
 
                 <div className="flex flex-col lg:flex-row gap-8 ">
                     {/* Main Content */}
@@ -197,17 +185,17 @@ console.log(isBooking)
                                         <Variants
                                             id={vaccine.id}
                                             image={vaccine.image || null}
-                                            name={vaccine?.name || vaccine?.comboName || ''}
+                                            name={vaccine.name}
                                             description={vaccine.description}
                                             type={vaccine.discount ? 'combos' : 'vaccine'}
-                                            priceGoc={vaccine.discount ? vaccine.totalPrice : ''}
+                                            priceGoc={vaccine.discount ? vaccine.price : null}
                                             priceSale={
                                                 vaccine.discount
-                                                    ? vaccine.finalPrice
+                                                    ? vaccine.price * (1 - vaccine.discount / 100)
                                                     : vaccine.price
                                             }
                                             isBooking={isBooking}
-                                            country={vaccine.fromCountry}
+                                            country={vaccine.origin}
                                             onClick={() => handleAddVaccine(vaccine)}
                                         />
                                     </motion.div>
@@ -221,73 +209,76 @@ console.log(isBooking)
                         )}
                     </div>
 
-
-
-
-                    {/* Cart Sidebar được cải thiện */}
-                    <div className="max-lg:w-[420px]">
-                        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 sticky top-28">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-gray-800 p-2">Payment Summary</h2>
-                                <span className="text-lg text-gray-600">{itemList.length} Items</span>
-                            </div>
+          {/* Giỏ hàng */}
+          <div className="max-lg:w-[420px]">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 sticky top-28">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 p-2">
+                  Payment Summary
+                </h2>
+                <span className="text-lg text-gray-600">
+                  {itemList.length} Items
+                </span>
+              </div>
 
                             <div className="space-y-4 mb-8">
-
-                                {itemList.map((vaccine) => (
-                                    <div
-                                        key={vaccine.id}
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: "auto" }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        className="flex justify-between items-center bg-gray-50 p-3 rounded-xl group hover:bg-gray-100 transition-all"
-                                    >
-                                        <span className="text-gray-800">{vaccine.name}</span>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-blue-600 font-medium">
-                                                {formatCurrency(vaccine.discount ?
-                                                    vaccine.price * (1 - vaccine.discount / 100) :
-                                                    vaccine.price
-                                                )} VND
-                                            </span>
-                                            <button
-                                                onClick={() => dispatch(vaccineAction.deleteVaccine(vaccine.id))}
-                                                className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-all"
-                                            >
-                                                <BackspaceOutlinedIcon />
-                                            </button>
+                                
+                                    {itemList.map((vaccine) => (
+                                        <div
+                                            key={vaccine.id}
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: "auto" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="flex justify-between items-center bg-gray-50 p-3 rounded-xl group hover:bg-gray-100 transition-all"
+                                        >
+                                            <span className="text-gray-800">{vaccine.name}</span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-blue-600 font-medium">
+                                                    {formatCurrency(vaccine.discount ?
+                                                        vaccine.price * (1 - vaccine.discount / 100) :
+                                                        vaccine.price
+                                                    )} VND
+                                                </span>
+                                                <button
+                                                    onClick={() => dispatch(vaccineAction.deleteVaccine(vaccine.id))}
+                                                    className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-all"
+                                                >
+                                                    <BackspaceOutlinedIcon />
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
 
-                            <div className="border-t border-gray-200 pt-6">
-                                <div className="flex justify-between items-center mb-8">
-                                    <span className="text-xl font-bold text-gray-700">Total:</span>
-                                    <span className="text-3xl font-bold text-blue-600">
-                                        {formatCurrency(calculatedTotal)} VND
-                                    </span>
-                                </div>
-
-                                <Link to={`/paymentPage/${user.id}`}>
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg
-                                        ${itemList.length > 0
-                                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl"
-                                                : "bg-gray-400 cursor-not-allowed "
-                                            }`}
-                                        disabled={itemList.length === 0}
-                                    >
-                                        Proceed to Payment
-                                    </motion.button>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
+              <div className="border-t border-gray-200 pt-6">
+                <div className="flex justify-between items-center mb-8">
+                  <span className="text-xl font-bold text-gray-700">
+                    Total:
+                  </span>
+                  <span className="text-3xl font-bold text-blue-600">
+                    {formatCurrency(calculatedTotal)} VND
+                  </span>
                 </div>
-            </main>
+
+                <Link to={`/paymentPage/${user.id}`}>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg ${
+                      itemList.length > 0
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl"
+                        : "bg-gray-400 cursor-not-allowed"
+                    }`}
+                    disabled={itemList.length === 0}
+                  >
+                    Proceed to Payment
+                  </motion.button>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
-    );
+      </main>
+    </div>
+  );
 }

@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { childAction } from "../redux/reducers/selectChildren";
-import { arriveActions } from "../redux/reducers/arriveDate";
-import { fetchData } from "../../Api/axios";
-
 import HeaderLeftSide from "./eachComponentStage1/leftSide/HeaderLeftSide";
 import ChildrenList from "./eachComponentStage1/leftSide/ChildrenList";
 import FormAddChildren from "./eachComponentStage1/leftSide/formAddChildren";
@@ -12,15 +9,20 @@ import ChooseDateVaccination from "./eachComponentStage1/rightSide/ChooseDateVac
 import FormAdvitory_detail from "./eachComponentStage1/rightSide/FormAdvitory_detail";
 import NoSelectChildren from "./eachComponentStage1/rightSide/NoSelectChildren";
 import axios from "axios";
-import { currenStepAction } from "../redux/reducers/currentStepSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-export default function Stage1Payment({ id }) {
+
+
+export default function Stage1Payment({id}) {
+
+  const navigate = useNavigate()
+
+
 
   const [err, setErr] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
-  const currestep = useSelector((state) => state.payment.currestep)
+
+
   const dispatch = useDispatch();
   const listChildren = useSelector((state) => state.children.listChildren);
   const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
@@ -29,11 +31,10 @@ export default function Stage1Payment({ id }) {
   const [child, setChild] = useState(null);
   const [isOpenFirst, setIsOpenFirst] = useState(false);
   const [inputAdvisory, setInputAdvisory] = useState("");
-  const [selectedDate, setSelectedDate] = useState(null);
+
   const [checkSent, setSent] = useState(false);
   const [inputDat, setData] = useState({
-
-    parentID: user?.id || "",
+    parentID: id || "",
     id: "",
     name: "",
     dateOfBirth: "",
@@ -42,7 +43,7 @@ export default function Stage1Payment({ id }) {
     createDate: "",
   });
 
-
+console.log(arriveDate)
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -161,7 +162,7 @@ export default function Stage1Payment({ id }) {
                     resetForm={resetForm}
                   />
                   <button
-                    onClick={arriveDate !== null ? () => dispatch(currenStepAction.increaseStep()) : undefined}
+                    onClick={arriveDate !== null ? ()=>navigate(`/payment/${id}`) : undefined}
                     className={`w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-lg transition-all duration-300 ${arriveDate !== null ? "hover:from-teal-600 hover:to-teal-700" : "pointer-events-none opacity-50"
                       }`}
                   >

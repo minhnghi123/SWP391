@@ -25,6 +25,7 @@ export default function BodyVariantsHomePage() {
     const calculatedTotal = useSelector((state) => state.vaccine.totalPrice);
     const isBooking = useSelector((state) => state.vaccine.isBooking)
     const user = useSelector(state => state.account.user)
+    console.log(isBooking)
     useEffect(() => {
         const fetchDataAsync = async () => {
             try {
@@ -43,20 +44,19 @@ export default function BodyVariantsHomePage() {
         };
         fetchDataAsync();
     }, []);
-console.log(isBooking)
+
     const handleAddVaccine = (vaccine) => {
-        const isCombo = Array.isArray(vaccine.vaccines) && vaccine.vaccines.length > 0;
+        const isCombo = Array.isArray(vaccine.vaccineIds) && vaccine.vaccineIds.length > 0;
+        console.log(isCombo)
 
         if (isCombo) {
             dispatch(
                 vaccineAction.addComboVaccine({
                     id: vaccine.id,
-                    name: vaccine.name,
-                    price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+                    name: vaccine.comboName,
+                    price: vaccine.finalPrice,
                     description: vaccine.description,
-                    country: vaccine.origin,
-                    image: vaccine.image,
-                    vaccines: vaccine.vaccines, 
+                    vaccines: vaccine.vaccineIds,
                 })
             );
         } else {
@@ -64,10 +64,10 @@ console.log(isBooking)
                 vaccineAction.addVaccine({
                     id: vaccine.id,
                     name: vaccine.name,
-                    price: vaccine.discount ? vaccine.price * (1 - vaccine.discount / 100) : vaccine.price,
+                    price: vaccine.price,
                     description: vaccine.description,
-                    country: vaccine.origin,
-                    image: vaccine.image,
+                    country: vaccine.fromCountry,
+
                 })
             );
         }
@@ -258,6 +258,7 @@ console.log(isBooking)
                                             </button>
                                         </div>
                                     </div>
+
                                 ))}
                             </div>
 
@@ -269,16 +270,13 @@ console.log(isBooking)
                                     </span>
                                 </div>
 
-                                <Link to={`/paymentPage/${user.id}`}>
+                                <Link to={`/information/${user.id}`}>
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                         className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg
-                                        ${itemList.length > 0
-                                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl"
-                                                : "bg-gray-400 cursor-not-allowed "
-                                            }`}
-                                        disabled={itemList.length === 0}
+                                            bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl`}
+                                    // disabled={itemList.length === 0}
                                     >
                                         Proceed to Payment
                                     </motion.button>

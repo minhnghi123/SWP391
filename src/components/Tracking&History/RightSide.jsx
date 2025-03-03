@@ -1,17 +1,10 @@
 import { useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import Avatar from '../../assets/p15.jpg'
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import Profile from './Section/profile'
+import Profile from './Section/profile/profile'
 import History from './Section/hisotry'
 import Tracking from './Section/tracking'
-import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import SettingsIcon from '@mui/icons-material/Settings';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import LogoutIcon from '@mui/icons-material/Logout';
-import ListChildren from './Section/listChidren';
+import ListChildren from '../Tracking&History/Section/children/listChidren';
 import AvatarHomePage from '../home/avatarHomePage'
 const RightSide = ({ section, id }) => {
 

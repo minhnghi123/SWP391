@@ -20,7 +20,8 @@ const store = configureStore({
         children: childrenSelectSlice.reducer,
         methodPayment: menthodPaymentSlice.reducer,
         arriveDate: arrvieDateSlice.reducer,
-        payment: paymentSlice.reducer
+        payment: paymentSlice.reducer,
+        profilechildren:childrenSelectSlice.reducer
 
 
 

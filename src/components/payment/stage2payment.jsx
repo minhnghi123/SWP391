@@ -24,7 +24,7 @@ export default function Stage2Payment({ id }) {
     const listChildren = useSelector((state) => state.children.listChildren);
     const totalPrice = useSelector((state) => state.vaccine.totalPrice);
     const advitory_detail = useSelector((state) => state.children.advitory_detail);
-
+    
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -47,35 +47,31 @@ export default function Stage2Payment({ id }) {
                 listChildren: listChildren.map((child) => child.id),
                 listVaccine: itemList.map((vaccine) => vaccine.id),
             };
+            const res = await axios.post(`http://localhost:5272/api/Booking/add-booking `, value, { timeout: 900000 }); // 15 phút
 
-            const res = await axios.post(`/${paymentMenthod}`, value, { timeout: 900000 }); // 15 phút
-
-            if (res?.status === 200 && res.data.status === "success") {
-                // ✅ Thanh toán thành công
+            if (res?.status === 200) {
+                window.location.href = res.data.redirectUrl;
                 dispatch(vaccineAction.completePayment());
                 dispatch(childAction.completePayment());
                 dispatch(arriveActions.resetArriveDate());
                 dispatch(childAction.resetForm());
-                dispatch(currenStepAction.increaseStep());
 
                 setTimeout(() => {
-                    dispatch(currenStepAction.increaseStep());
                     setLoading(false);
                     navigate(`/payment/success`);
-                }, 1500); // Giữ setTimeout để tạo hiệu ứng
+
+                }, 1500);
             } else {
-                // ❌ Thanh toán thất bại
                 setTimeout(() => {
-                    dispatch(currenStepAction.increaseStep());
+
                     setLoading(false);
                     navigate(`/payment/failed`);
                 }, 1500);
             }
         } catch (err) {
-            // ❌ Xử lý lỗi API
             console.error("Payment error:", err);
             setTimeout(() => {
-                dispatch(currenStepAction.increaseStep());
+
                 setLoading(false);
                 navigate(`/payment/failed`);
             }, 1500);

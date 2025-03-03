@@ -1,35 +1,36 @@
-import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
-import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined';
-import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
+
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
-import { AuthContext } from '../Services/AuthLogin';
-import EscalatorWarningOutlinedIcon from '@mui/icons-material/EscalatorWarningOutlined';
-const LeftSide = ({section,id}) => {
+import { FiUser, FiCalendar, FiClock, FiLogOut } from "react-icons/fi";
+import { Baby } from 'lucide-react';
+import { useState } from "react";
+
+const LeftSide = ({ section, id }) => {
   const navigate = useNavigate();
-    // const {logout}= useContext(AuthContext)
-    const handleLogout=()=>{
-      // logout()
-      localStorage.removeItem('Account')
-      navigate('/loginPage')
-    }
-  const EachMenu = ({ label, icon, onClick }) => {
-    return (
-      <div
-        className="flex items-center px-4 py-3 rounded-lg cursor-pointer hover:bg-blue-50 transition-all duration-200 group"
-        onClick={onClick} 
-      >
-        {icon}
-        <p className="text-gray-700 group-hover:text-blue-600 font-medium">{label}</p>
-      </div>
-    );
+  // const {logout}= useContext(AuthContext)
+  const handleLogout = () => {
+    // logout()
+    localStorage.removeItem('Account')
+    navigate('/loginPage')
+  }
+
+  const [activeItem, setActiveItem] = useState(section|| '"profile"');
+  const menuItems = [
+    { id: "profile", icon: FiUser, label: "Your Profile" },
+    { id: "children", icon: Baby, label: "Your Children" },
+    { id: "tracking", icon: FiCalendar, label: "Tracking Schedule" },
+    { id: "history", icon: FiClock, label: "History" }
+  ];
+
+  const handleMenuClick = (itemId) => {
+    setActiveItem(itemId);
+    navigate(`/pageProfile/${itemId}/${id}`);
+
   };
-  
- 
+
+
   return (
-    <div className="fixed w-64 h-screen bg-white border-r border-gray-200 shadow-sm">
-      {/* Logo Section */}
+    <div className="fixed left-0 h-screen bg-white shadow-lg flex flex-col transition-all duration-200 ease-in-out">
+      {/* Brand Logo Section */}
       <div onClick={() => navigate('/')} className="px-6 py-8 cursor-pointer">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center shadow-md">
@@ -42,25 +43,40 @@ const LeftSide = ({section,id}) => {
       </div>
 
       {/* Navigation Menu */}
-      <div className="px-4">
-        <h1 className="text-lg font-semibold text-gray-800 mb-4 px-2">Choose your Service</h1>
+      <nav className="flex-1 px-4 py-6">
+        <div className="space-y-6">
+          <div>
+            <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Main Menu</h3>
+            <div className="mt-4 space-y-1">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuClick(item.id)}
+                    className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${activeItem === item.id
+                      ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
+                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-50 hover:translate-x-1"}`}
+                  >
+                    <Icon className="h-5 w-5 mr-3" />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </nav>
 
-        <nav className="space-y-1">
-
-          <EachMenu onClick={() => navigate(`/pageProfile/profile/${id}`)}   label="Your Profile" icon={<Person2OutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate(`/pageProfile/children/${id}`)}   label="Your Children" icon={<EscalatorWarningOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate(`/pageProfile/tracking/${id}`)} label="Tracking Schedule" icon={<CalendarMonthOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate(`/pageProfile/history/${id}`)} label="History" icon={<RestoreOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={handleLogout} label="Logout" icon={<LoginOutlinedIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-
-        </nav>
+      {/* Logout Section */}
+      <div onClick={handleLogout} className="p-4 border-t">
+        <button className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-red-600 hover:bg-red-50 transition-all duration-200 hover:translate-x-1">
+          <FiLogOut className="h-5 w-5 mr-3" />
+          Logout
+        </button>
       </div>
     </div>
-  )
-
-
-
-
+  );
 };
 
 export default LeftSide;

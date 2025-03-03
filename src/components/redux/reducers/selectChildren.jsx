@@ -37,7 +37,7 @@ const childrenSelectSlice = createSlice({
                     dateOfBirth: newChild.dateOfBirth,
                     gender: newChild.gender,
                     status: newChild.status,
-                    createDate:newChild.createDate
+                    createdAt:newChild.createdAt
                 });
             }
 

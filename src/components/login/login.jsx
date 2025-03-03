@@ -1,5 +1,4 @@
 
-
 import { jwtDecode } from "jwt-decode";
 import { useState, useContext } from "react";
 import { ToastContainer, toast } from "react-toastify";
@@ -11,6 +10,7 @@ import { AuthContext } from '../Services/AuthLogin';
 import { useDispatch, useSelector } from "react-redux";
 import { accountAction } from "../redux/reducers/accountSlice";
 import { set } from "date-fns";
+import { addData } from '../../Api/axios'
 export default function Login({ setRegister }) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -55,49 +55,50 @@ export default function Login({ setRegister }) {
         e.preventDefault();
         if (isOpen) {
             console.log("OTP")
-            
+
 
         }
         // phone 
 
         // check input
         else {
-
-            setLoading(true)
+            setLoading(true);
             if (!input || !input.username || !input.password) {
                 toast.error("You need to provide a username or password");
+                setLoading(false);
                 return;
             }
+
             try {
-                const response = await axios.post('https://fakestoreapi.com/auth/login', input);
-                const token = response?.data?.token;
+                const response = await addData('User/login-by-account', input);
+                const token = response?.data?.loginResponse?.accessToken;
+
                 if (!token) {
                     toast.error("Login Failed: No token received");
+                    setLoading(false);
                     return;
                 }
+
                 const decoded = jwtDecode(token);
                 const data = {
-                    id: decoded.sub,
-                    name: decoded.user,
-                    role: decoded.role  || 'user' ,
-                    // picture:decoded.picture
-                }
+                    id: decoded.Id,
+                    name: decoded.Username,
+                    role: decoded.Role,
+                    avatar: decoded.Avatar
+                };
 
                 dispatch(accountAction.setUser(data));
-                if (data?.role) {
-                    toast.success(data.role === 'admin' ? "Welcome Admin Come Back" : "Login successfully");
-
-                    setTimeout(() => {
-                        navigate(data.role === 'admin' ? '/dashboardPage/dashboard' : '/');
-                        setLoading(false)
-                    }, 1000);
-                } else {
-                    toast.error("Invalid role or login details");
-                }
-
+                toast.success(data.role === 'admin' ? "Welcome Admin Come Back" : "Login successfully");
+                setTimeout(() => {
+                    navigate(data.role === 'admin' ? '/dashboardPage/dashboard' : '/');
+                    setLoading(false);
+                }, 1000);
 
             } catch (err) {
-                toast.error("Login Failed");
+                const errorMessage = err.response?.data?.error || "An error occurred";
+                toast.error(errorMessage);
+            } finally {
+                setLoading(false);
             }
 
 

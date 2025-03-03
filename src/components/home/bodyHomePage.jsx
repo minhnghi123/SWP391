@@ -40,7 +40,7 @@ export default function BodyHomePage() {
         }))
     }
     useEffect(() => {
-        fetchData('vaccines').
+        fetchData('Vaccine/getAllVaccines').
             then((res) => {
                 if (res?.data) {
                     const sortedTop3 = [...res.data]
@@ -223,12 +223,13 @@ export default function BodyHomePage() {
                                     key={eachvaccine.id}
                                     id={eachvaccine.id}
                                     image={eachvaccine.image || null}
-                                    title={eachvaccine.name}
+                                    name={eachvaccine.name}
                                     description={eachvaccine.description}
                                     type={eachvaccine.discount ? 'combos' : 'vaccine'}
                                     priceGoc={eachvaccine.discount ? eachvaccine.price : null}
                                     priceSale={priceSale}
                                     isBooking={isBooking}
+                                    country={eachvaccine.fromCountry}
                                     onClick={() => handleAddVaccine(eachvaccine)}
                                 />
                             );

@@ -9,7 +9,6 @@ export default function Header() {
     const navigate = useNavigate();
     const itemList = useSelector((state) => state.vaccine.itemList);
     const user = useSelector((state) => state.account.user);
-   
     const navItems = [
         { label: "Home", id: "home" },
         { label: "About", id: "about" },
@@ -69,11 +68,11 @@ export default function Header() {
                     <div className="flex items-center justify-center w-8 h-8 rounded-full">
                         <ShoppingCartOutlinedIcon className="text-gray-600" />
                     </div>
-                    {itemList.length > 0 && (
+                    {/* {itemList.length > 0 && (
                         <p className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                             {itemList.length}
                         </p>
-                    )}
+                    )} */}
                 </div>
 
                 {user?.id ? (

@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import Avatar from '../../../avatar.json'
 const InputRegister = ({ type, placeholder, onChange, name, value }) => {
     return (
         <div className="mb-4">
@@ -18,12 +19,12 @@ const InputRegister = ({ type, placeholder, onChange, name, value }) => {
                 required
             />
         </div>
-    )
-}
+    );
+};
 
 export default function Register({ setRegister }) {
-    const navigate = useNavigate()
-    const [err, setErr] = useState()
+    const avatar = Avatar
+    const [err, setErr] = useState("");
     const [input, setInput] = useState({
         firstName: "",
         lastName: "",
@@ -34,16 +35,15 @@ export default function Register({ setRegister }) {
         phone: "",
         gender: "",
         email: "",
-        picture: "",
+    });
 
-    })
     const handleSignIn = () => {
         setRegister(0);
     };
-    const handleChangeAccount = (e) => {
-        setInput({ ...input, [e.target.name]: e.target.value })
 
-    }
+    const handleChangeAccount = (e) => {
+        setInput({ ...input, [e.target.name]: e.target.value });
+    };
 
     const isFormValid = () => {
         return (
@@ -59,37 +59,73 @@ export default function Register({ setRegister }) {
 
         );
     };
-
+    const handleRandomAvatar = () => {
+        const randomIndex = Math.floor(Math.random() * avatar.length);
+        return avatar[randomIndex]["avatar"];
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const value = {
-            fullname: `${input.firstName} ${input.lastName}`,
-            dateofBirth: input.birthDay,
-            userName: input.userName,
-            password: input.password,
-            phone: input.phone,
-            email: input.email
-        };
-        if (!value.fullname || !value.userName || !value.password || !value.email) {
-            toast.error('Please fill out all required fields');
+
+        // Kiểm tra form trước khi gửi
+        if (!isFormValid()) {
+            setErr("Please fill in all fields correctly.");
             return;
         }
 
+        // Kiểm tra mật khẩu có khớp không
+        if (input.password !== input.confirmPassword) {
+            setErr("Passwords do not match");
+            return;
+        }
+
+        // Lấy avatar ngẫu nhiên
+        const avatarUrl = handleRandomAvatar();
+
+        // Tạo object gửi API
+        const value = {
+            name: `${input.firstName} ${input.lastName}`,
+            dateofBirth: input.birthDay,
+            username: input.userName,
+            password: input.password,
+            phoneNumber: input.phone,
+            gmail: input.email,
+            gender: input.gender?.toLowerCase() === "male" ? 0 : 1,
+            avatar: avatarUrl,
+        };
+
+        console.log(value)
+
         try {
-            const res = await axios.post(``, value);
+            const res = await axios.post("http://localhost:5272/api/User/register", value);
+
             if (res?.status === 200) {
-                toast.success('Registered successfully');
+                toast.success("Registered successfully");
+
+                // Reset form
+                setInput({
+                    firstName: "",
+                    lastName: "",
+                    birthDay: "",
+                    userName: "",
+                    password: "",
+                    confirmPassword: "",
+                    phone: "",
+                    gender: "",
+                    email: "",
+                });
+
                 setTimeout(() => {
-                    navigate('/loginPage');
+                    setRegister(0);
                 }, 1500);
+            } else {
+                toast.error(res?.data?.msg || "Registration failed");
             }
         } catch (error) {
-            const errorMsg = err?.msg || 'Failed to register';
+            const errorMsg = error.response?.data?.message || "Failed to register";
             toast.error(errorMsg);
         }
     };
-
 
 
     return (
@@ -103,7 +139,10 @@ export default function Register({ setRegister }) {
                     <div className="text-gray-600">
                         <p className="text-lg">
                             Join us to start your journey with
-                            <span className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"> Tuga's App</span>
+                            <span className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                                {" "}
+                                Tuga's App
+                            </span>
                         </p>
                     </div>
                 </div>
@@ -158,6 +197,7 @@ export default function Register({ setRegister }) {
                             name="confirmPassword"
                             value={input.confirmPassword}
                         />
+                        {err && <p className="text-red-500 text-sm">{err}</p>}
 
                         <InputRegister
                             type="tel"
@@ -188,7 +228,6 @@ export default function Register({ setRegister }) {
                                 <option value="">Choose your Gender</option>
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
-                                {/* <option value="other">Other</option> */}
                             </select>
                         </div>
 
@@ -196,8 +235,9 @@ export default function Register({ setRegister }) {
                             type="submit"
                             className={`w-full p-4 mt-6 rounded-xl text-base font-semibold 
                             ${isFormValid()
-                                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white cursor-pointer hover:from-blue-700 hover:to-blue-800'
-                                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'}
+                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white cursor-pointer hover:from-blue-700 hover:to-blue-800"
+                                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                }
                             transform hover:scale-[1.01] transition-all duration-300 
                             shadow-md hover:shadow-lg active:scale-[0.99]`}
                             disabled={!isFormValid()}
@@ -208,7 +248,7 @@ export default function Register({ setRegister }) {
 
                     <div className="mt-6 text-center">
                         <p className="text-gray-600">
-                            Already have an account?{' '}
+                            Already have an account?{" "}
                             <span
                                 className="text-blue-600 cursor-pointer hover:text-blue-800 
                                 transition-all duration-300 font-semibold hover:underline"
@@ -221,6 +261,5 @@ export default function Register({ setRegister }) {
                 </div>
             </div>
         </>
-
-    )
+    );
 }

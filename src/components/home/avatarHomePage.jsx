@@ -37,7 +37,7 @@ export default function AvatarHomePage() {
     };
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative z-[1000]" ref={dropdownRef} >
             {/* Avatar Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -50,7 +50,7 @@ export default function AvatarHomePage() {
                 <div className="w-full h-full rounded-full overflow-hidden">
                     <img
                         className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
-                        src={user.picture || imgAvatar}
+                        src={user.avatar}
                         alt="User avatar"
                     />
                 </div>
@@ -65,7 +65,7 @@ export default function AvatarHomePage() {
                             <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-blue-500">
                                 <img
                                     className="w-full h-full object-cover"
-                                    src={user.picture || imgAvatar}
+                                    src={user.avatar}
                                     alt="User profile"
                                 />
                             </div>

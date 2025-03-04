@@ -82,7 +82,7 @@ const ChildrenList = ({ child, handleRemmoveChildren, listVaccine, advitory_deta
                                     </p>
 
                                     {/* Vaccine Details */}
-                                    {item?.vaccine?.length > 0 && (
+                                    {item?.type === 'combo' && (
                                         <div className="mt-2">
                                             <button
                                                 onClick={() => toggleDetail(idx)}
@@ -97,7 +97,7 @@ const ChildrenList = ({ child, handleRemmoveChildren, listVaccine, advitory_deta
 
                                             {expandedIndex === idx && (
                                                 <div className="mt-2 pl-4 border-l-2 border-blue-100">
-                                                    {item.vaccine.map((subVaccine, subIdx) => (
+                                                    {item.vaccines.map((subVaccine, subIdx) => (
                                                         <div
                                                             key={subIdx}
                                                             className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:shadow-sm transition-all duration-300"

@@ -19,11 +19,22 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        slideDown: {
+          '0%': { 
+            transform: 'translateY(-100%)',
+            opacity: '0'
+          },
+          '100%': { 
+            transform: 'translateY(0)',
+            opacity: '1'
+          },
+        },
       },
       animation: {
         slideLeftIn: 'slideLeftIn 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
         slideRightIn: 'slideRightIn 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
         fadeIn: 'fadeIn 0.5s ease-in-out',
+        slideDown: 'slideDown 0.8s ease-out forwards',
       },
       colors: {
         primary: {
@@ -39,6 +50,13 @@ export default {
           900: '#0c4a6e',
         },
       },
+      fadeIn: {
+        "0%": { opacity: "0" },
+        "100%": { opacity: "1" },
+      },
+    },
+    animation: {
+      fadeInDelay: "fadeIn 0.5s ease-in-out 1s forwards", // 1s delay
     },
   },
   plugins: [require("tailwind-scrollbar-hide")],

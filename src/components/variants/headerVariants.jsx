@@ -61,8 +61,8 @@ const ModernHeader = () => {
               {/* Profile */}
               <div className="hidden lg:flex items-center space-x-4 cursor-pointer group">
                 <div className="text-right">
-                  <p className="text-base font-medium text-gray-900">{user.name}</p>
-                  <p className="text-sm text-[#2F3A8F]">{user.role}</p>
+                  <p className="text-base font-medium text-gray-900">{user?.name}</p>
+                  <p className="text-sm text-[#2F3A8F]">{user?.role}</p>
                 </div>
                 <div className=" w-12 h-12 rounded-full  overflow-hidden border-2 border-gray-300">
                   <img

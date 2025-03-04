@@ -5,11 +5,11 @@ import { methodPaymentAction } from "../../../redux/reducers/methodPaymentlice";
 import { useNavigate } from "react-router-dom";
 const MenthodPayment = ({ listChildren, handleSubmit, isLoading }) => {
     const menthodPayment = ([
+
         { id: 1, name: 'Cash', icon: '💵', desc: 'Pay at location' },
         { id: 2, name: 'MoMo', icon: '📱', desc: 'Mobile payment' },
         { id: 3, name: 'VnPay', icon: '🏦', desc: 'Online banking' },
         { id: 4, name: 'PayPal', icon: '💳', desc: 'All cards accepted' },
-     
 
     ])
     const [paymentMethod, setPaymentMethod] = useState(1);

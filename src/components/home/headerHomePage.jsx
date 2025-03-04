@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 export default function Header() {
     const dispatch = useDispatch()
     const navigate = useNavigate();
-    const itemList = useSelector((state) => state.vaccine.itemList);
+    const cart = useSelector(state => [...state.vaccine.listVaccine, ...state.vaccine.listComboVaccine]);
     const user = useSelector((state) => state.account.user);
     const navItems = [
         { label: "Home", id: "home" },
@@ -20,17 +20,18 @@ export default function Header() {
     const handleScroll = (id) => {
         document.getElementById(id)?.scrollIntoView({
             behavior: "smooth", // Cuộn mượt
-            block: "start",     // Cuộn đến phần trên của phần tử
+            block: "start",    
         });
     };
 
- 
 
 
- 
+
+
     return (
         <div className="flex flex-row justify-between items-center px-8 py-6 mx-auto max-w-[1400px]
-          border border-gray-200 rounded-3xl sticky top-0 left-0 right-0  bg-white z-50 shadow-lg mt-4">
+          border border-gray-200 rounded-3xl sticky top-0 left-0 right-0  bg-white z-50 shadow-lg mt-4
+          animate-slideDown opacity-0 animation-delay-200 animate-fill-forwards">
             <Link to="/">
                 <div className="cursor-pointer flex flex-row gap-2 items-center text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                     <div className="flex items-center space-x-2">
@@ -68,15 +69,15 @@ export default function Header() {
                     <div className="flex items-center justify-center w-8 h-8 rounded-full">
                         <ShoppingCartOutlinedIcon className="text-gray-600" />
                     </div>
-                    {/* {itemList.length > 0 && (
+                    {cart && cart.length > 0 && (
                         <p className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
-                            {itemList.length}
+                            {cart.length}
                         </p>
-                    )} */}
+                    )}
                 </div>
 
                 {user?.id ? (
-                    <AvatarHomePage/>
+                    <AvatarHomePage />
                 ) : (
                     <button onClick={() => navigate('/loginPage')}>Login</button>
                 )}

@@ -1,17 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Load data from localStorage
-let storedListVaccine = [];
-let storedListComboVaccine = [];
-let storedTotalPrice = 0;
+// Load data from localStorage safely
+const loadFromLocalStorage = (key, defaultValue) => {
+    try {
+        const data = JSON.parse(localStorage.getItem(key));
+        if (Array.isArray(defaultValue) && !Array.isArray(data)) return defaultValue;
+        if (typeof defaultValue === 'number' && typeof data !== 'number') return defaultValue;
+        return data ?? defaultValue;
+    } catch (error) {
+        console.error(`Error loading ${key} from localStorage:`, error);
+        return defaultValue;
+    }
+};
 
-try {
-    storedListVaccine = JSON.parse(localStorage.getItem('ListVaccine')) || [];
-    storedListComboVaccine = JSON.parse(localStorage.getItem('ListComboVaccine')) || [];
-    storedTotalPrice = JSON.parse(localStorage.getItem('TotalVaccine')) || 0;
-} catch (error) {
-    console.error('Error loading data from localStorage:', error);
-}
+let storedListVaccine = loadFromLocalStorage('ListVaccine', []);
+let storedListComboVaccine = loadFromLocalStorage('ListComboVaccine', []);
+let storedTotalPrice = loadFromLocalStorage('TotalVaccine', 0);
 
 const selectVaccineSlice = createSlice({
     name: 'vaccine',
@@ -29,66 +33,79 @@ const selectVaccineSlice = createSlice({
             state.listVaccine = action.payload.listVaccine;
             state.listComboVaccine = action.payload.listComboVaccine;
             state.totalPrice = action.payload.totalPrice;
+
+            // Ensure data is saved to localStorage
+            localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine));
+            localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine));
+            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
         },
         addVaccine(state, action) {
             const newVaccine = action.payload;
             const vaccineKey = `vaccine-${newVaccine.id}`;
-            const check = state.listVaccine.find((vaccine) => vaccine.id === newVaccine.id);
+            const existingVaccine = state.listVaccine.find((vaccine) => vaccine.id === newVaccine.id);
 
-            if (check) {
-                state.listVaccine = state.listVaccine.filter((vaccine) => vaccine.id !== check.id);
-                state.totalPrice -= check.price || 0;
+            if (existingVaccine) {
+                state.listVaccine = state.listVaccine.filter((vaccine) => vaccine.id !== existingVaccine.id);
                 state.isBooking = state.isBooking.filter((id) => id !== vaccineKey);
             } else {
                 state.listVaccine.push(newVaccine);
                 state.isBooking.push(vaccineKey);
-                state.totalPrice += newVaccine.price;
             }
 
+            // Recalculate total price
+            state.totalPrice = state.listVaccine.reduce((total, v) => total + (v.price || 0), 0)
+                + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
+
+            // Save changes to localStorage
             localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine));
             localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
         },
         addComboVaccine(state, action) {
             const newCombo = action.payload;
             const comboKey = `combo-${newCombo.id}`;
-            const check = state.listComboVaccine.find((combo) => combo.id === newCombo.id);
+            const existingCombo = state.listComboVaccine.find((combo) => combo.id === newCombo.id);
 
-            if (check) {
-                state.listComboVaccine = state.listComboVaccine.filter((combo) => combo.id !== check.id);
-                state.totalPrice -= check.price || 0;
+            if (existingCombo) {
+                state.listComboVaccine = state.listComboVaccine.filter((combo) => combo.id !== existingCombo.id);
                 state.isBooking = state.isBooking.filter((id) => id !== comboKey);
             } else {
                 state.listComboVaccine.push(newCombo);
                 state.isBooking.push(comboKey);
-                state.totalPrice += newCombo.price;
             }
 
+            // Recalculate total price
+            state.totalPrice = state.listVaccine.reduce((total, v) => total + (v.price || 0), 0)
+                + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
+
+            // Save changes to localStorage
             localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine));
             localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
         },
         deleteVaccine(state, action) {
             const id = action.payload;
             const vaccineKey = `vaccine-${id}`;
-            const check = state.listVaccine.find((vaccine) => vaccine.id === id);
-            if (!check) return;
-
             state.listVaccine = state.listVaccine.filter((item) => item.id !== id);
             state.isBooking = state.isBooking.filter((vaccineID) => vaccineID !== vaccineKey);
-            state.totalPrice -= check.price || 0;
 
+            // Recalculate total price
+            state.totalPrice = state.listVaccine.reduce((total, v) => total + (v.price || 0), 0)
+                + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
+
+            // Save to localStorage
             localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine));
             localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
         },
         deleteComboVaccine(state, action) {
             const id = action.payload;
             const comboKey = `combo-${id}`;
-            const check = state.listComboVaccine.find((combo) => combo.id === id);
-            if (!check) return;
-
             state.listComboVaccine = state.listComboVaccine.filter((item) => item.id !== id);
             state.isBooking = state.isBooking.filter((comboID) => comboID !== comboKey);
-            state.totalPrice -= check.price || 0;
 
+            // Recalculate total price
+            state.totalPrice = state.listVaccine.reduce((total, v) => total + (v.price || 0), 0)
+                + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
+
+            // Save to localStorage
             localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine));
             localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
         },
@@ -98,6 +115,7 @@ const selectVaccineSlice = createSlice({
             state.isBooking = [];
             state.totalPrice = 0;
 
+            // Clear localStorage
             localStorage.removeItem('ListVaccine');
             localStorage.removeItem('ListComboVaccine');
             localStorage.removeItem('TotalVaccine');
@@ -105,5 +123,6 @@ const selectVaccineSlice = createSlice({
     }
 });
 
+// Export action creators & reducer
 export const vaccineAction = selectVaccineSlice.actions;
 export default selectVaccineSlice;

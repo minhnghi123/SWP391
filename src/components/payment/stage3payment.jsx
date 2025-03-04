@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { currenStepAction } from "../redux/reducers/currentStepSlice";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaCheckCircle, FaTimesCircle, FaArrowLeft, FaEnvelope } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaArrowLeft, FaEnvelope, FaClock } from "react-icons/fa";
 
 import formatDecimal from "../../utils/calculateMoney";
 
@@ -45,8 +45,8 @@ export default function Stage3Payment() {
     };
 
     const handleTryAgain = () => {
-        dispatch(currenStepAction.decreaseStep());
-        navigate(`/paymentPage/${user?.id}`);
+        
+        navigate(`/payment/${user?.id}`);
     };
     //cash
   
@@ -131,6 +131,74 @@ export default function Stage3Payment() {
                                 >
                                     Try Again
                                 </button>
+                            </div>
+                        ) : status?.toLowerCase() === "pending" ? (
+                            <div className="text-center">
+                                <div className="animate-pulse inline-block mb-6">
+                                    <FaClock className="text-yellow-500 text-6xl" />
+                                </div>
+                                <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                                    Payment Pending
+                                </h1>
+                                <div className="bg-yellow-50 rounded-lg p-4 mb-6">
+                                    <div className="text-yellow-800 font-medium mb-2">
+                                        ⚠️ Important Notice
+                                    </div>
+                                    <p className="text-yellow-700 text-sm mb-4">
+                                        Please complete your cash payment within 48 hours. Your booking will be automatically cancelled if payment is not received.
+                                    </p>
+                                </div>
+                                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-gray-600">Booking ID:</span>
+                                        <span className="text-gray-800 font-medium">{data?.bookingId || "N/A"}</span>
+                                    </div>
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-gray-600">Payment Method:</span>
+                                        <span className="text-gray-800 font-medium">Cash</span>
+                                    </div>
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-gray-600">Amount Due:</span>
+                                        <span className="text-gray-800 font-medium">
+                                            {formatDecimal(data?.amount || 0)} VND
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-gray-600">Due Date:</span>
+                                        <span className="text-gray-800 font-medium">
+                                            {new Date(Date.now() + 48 * 60 * 60 * 1000).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-gray-600">Status:</span>
+                                        <span className="text-yellow-600 font-medium">
+                                            Pending Payment
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                                    <h3 className="text-blue-800 font-medium mb-2">Payment Instructions:</h3>
+                                    <ol className="text-left text-blue-700 text-sm space-y-2">
+                                        <li>1. Visit our clinic during business hours</li>
+                                        <li>2. Present your Booking ID to our staff</li>
+                                        <li>3. Complete your payment in cash</li>
+                                        <li>4. Receive your payment confirmation</li>
+                                    </ol>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => navigate('/track-booking')}
+                                        className="flex-1 bg-yellow-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-yellow-600 transition-colors"
+                                    >
+                                        Track Booking
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/contact')}
+                                        className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                                    >
+                                        Contact Us
+                                    </button>
+                                </div>
                             </div>
                         ) : (
                         status?.toLowerCase() === "pending"

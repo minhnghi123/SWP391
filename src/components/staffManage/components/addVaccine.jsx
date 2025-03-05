@@ -66,7 +66,7 @@ const AddVaccineComponent = () => {
         "https://localhost:7280/api/Vaccine/createVaccine",
         vaccineData
       );
-
+  
       if (response.status === 201 || response.status === 200) {
         alert("Vaccine added successfully!");
         setShowForm(false);

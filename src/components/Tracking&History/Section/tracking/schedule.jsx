@@ -6,29 +6,33 @@ import {
     createViewWeek,
 } from '@schedule-x/calendar'
 import { createEventsServicePlugin } from '@schedule-x/events-service'
+import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
+import { createEventModalPlugin } from '@schedule-x/event-modal'
 import { useMemo } from 'react'
 import '@schedule-x/theme-default/dist/index.css'
-import formatDate from '../../../../utils/FormDate'
-
+import formatDateTime from '../../../../utils/date_time'
+import '../../../css/schedule.css'
 // Hàm xác định màu của sự kiện (đưa lên trên để tránh lỗi)
 const getEventColor = (vaccine) => {
     if (vaccine.status === 'completed') return '#22c55e'
     if (vaccine.status === 'scheduled') return '#3b82f6'
     return '#6b7280'
 }
-
 function CalendarApp({ setIsOpen, sortedVaccines }) {
     // Xử lý danh sách sự kiện từ vaccine
     const eventsSorted = useMemo(() => {
         return sortedVaccines.map(vaccine => ({
             id: vaccine.id.toString(),
             title: vaccine.name,
-            start: formatDate(vaccine.minimumIntervalDate),
-            end: formatDate(vaccine.dueDate),
-            allDay: true,
-            color: getEventColor(vaccine)
-        }))
-    }, [sortedVaccines])
+            start: formatDateTime(vaccine.minimumIntervalDate),
+            end: formatDateTime(vaccine.minimumIntervalDate, 2), // +2 giờ
+            allDay: false,
+            color: getEventColor(vaccine),
+        }));
+    }, [sortedVaccines]);
+    
+
+
 
     // Tạo eventsService chỉ một lần
     const eventsService = useMemo(() => createEventsServicePlugin({ initialEvents: eventsSorted }), [eventsSorted])
@@ -37,17 +41,17 @@ function CalendarApp({ setIsOpen, sortedVaccines }) {
         defaultView: 'month-grid',
         views: [
             createViewMonthGrid(),
-            createViewWeek(),
-            createViewDay(),
+            // createViewWeek(),
+            // createViewDay(),
             createViewMonthAgenda()
         ],
         events: eventsSorted,
-        plugins: [eventsService],
+        plugins: [eventsService,createDragAndDropPlugin(), createEventModalPlugin()],
         translations: {
             navigation: {
                 month: 'Month',
-                week: 'Week',
-                day: 'Day',
+                // week: 'Week',
+                // day: 'Day',
                 today: 'Today'
             }
         },

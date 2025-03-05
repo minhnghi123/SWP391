@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { fetchData } from "../../../Api/axios";
 import AddVaccine from "../components/addVaccine";
 import DeleteVaccine from "../components/deleteVaccine";
 import VaccineDetails from "../components/detailVaccine"; // Đảm bảo tên file khớp
@@ -32,23 +33,7 @@ const ViewAllVaccines = () => {
         const response = await axios.get(
           "https://localhost:7280/api/Vaccine/getAllVaccines"
         );
-        // Transform API response to match expected camelCase field names (if needed)
-        const transformedVaccines = response.data.map((vaccine) => ({
-          id: vaccine.id,
-          name: vaccine.name || "",
-          quantity: vaccine.quantity || 0,
-          description: vaccine.description || "",
-          price: vaccine.price || 0,
-          doesTimes: vaccine.does_times || vaccine.doesTimes || 0,
-          fromCountry: vaccine.from_country || vaccine.fromCountry || "",
-          suggestAgeMin: vaccine.suggest_age_min || vaccine.suggestAgeMin || 0,
-          suggestAgeMax: vaccine.suggest_age_max || vaccine.suggestAgeMax || 0,
-          entryDate: vaccine.entry_date || vaccine.entryDate || "",
-          timeExpired: vaccine.time_expired || vaccine.timeExpired || "",
-          status: vaccine.status || "",
-          addressId: vaccine.address_ID || vaccine.addressId || 0,
-        }));
-        setVaccines(transformedVaccines);
+        setVaccines(response.data);
         setError(null);
       } catch (error) {
         console.error("Error fetching vaccines:", error);

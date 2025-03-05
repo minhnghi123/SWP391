@@ -111,22 +111,6 @@
   ],
   "vaccines": [
     {
-      "id": "1",
-      "name": "Vaccine A",
-      "price": 2000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "USA"
-    },
-    {
-      "id": "2",
-      "name": "Vaccine B",
-      "price": 1000000,
-      "image": "https://th.bing.com/th/id/OIP.PFOeYdlCaZQ8ZprlVUKEVAHaEK?rs=1&pid=ImgDetMain",
-      "description": "High-quality vaccine with proven effectiveness and long-lasting immunity",
-      "origin": "France"
-    },
-    {
       "id": "3",
       "name": "Vaccine C",
       "price": 1200000,
@@ -453,20 +437,19 @@
       "email": "e@example.com",
       "notes": "Pending"
     }
-  ]
-  ,"paymentMenthod":[
+  ],
+  "paymentMenthod": [
     {
       "id": "1",
-      "payUrl":"https://www.paypal.com"
-     
+      "payUrl": "https://www.paypal.com"
     },
     {
       "id": "2",
-      "payUrl":"https://www.momo.vn"
+      "payUrl": "https://www.momo.vn"
     },
     {
       "id": "3",
-      "payUrl":"https://www.paypal.com"
+      "payUrl": "https://www.paypal.com"
     }
   ]
 }

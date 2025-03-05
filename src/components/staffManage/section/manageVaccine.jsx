@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { fetchData } from "../../../Api/axios";
 import AddVaccine from "../components/addVaccine";
 import DeleteVaccine from "../components/deleteVaccine";
 import VaccineDetails from "../components/detailVaccine"; // Đảm bảo tên file khớp
@@ -29,9 +30,7 @@ const ViewAllVaccines = () => {
     const fetchVaccines = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "https://localhost:7280/api/Vaccine/getAllVaccines"
-        );
+        const response = await fetchData('Vaccine/getAllVaccines')
         setVaccines(response.data);
         setError(null);
       } catch (error) {

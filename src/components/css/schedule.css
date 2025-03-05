@@ -1,0 +1,137 @@
+/* Calendar Container */
+.sx__calendar-container {
+  width: 100% !important;
+  height: 100% !important;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Header Styling */
+.sx__calendar-header {
+  padding: 1rem !important;
+  background: white !important;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Navigation Buttons */
+.sx__calendar-navigation button {
+  background: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 1rem !important;
+  color: #4b5563 !important;
+  transition: all 0.2s !important;
+}
+
+.sx__calendar-navigation button:hover {
+  background: #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+/* View Selection Buttons */
+.sx__calendar-views button {
+  padding: 0.5rem 1rem !important;
+  border-radius: 6px !important;
+  color: #4b5563 !important;
+  transition: all 0.2s !important;
+}
+
+.sx__calendar-views button.sx__button--selected {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+/* Grid Styling */
+.sx__month-grid {
+  border: none !important;
+}
+
+.sx__month-grid-cell {
+  border: 1px solid #f3f4f6 !important;
+  min-height: 120px !important;
+}
+
+.sx__month-grid-cell:hover {
+  background: #f8fafc !important;
+}
+
+/* Today Cell Highlight */
+.sx__month-grid-cell--today {
+  background: #eff6ff !important;
+}
+
+/* Event Styling */
+.sx__event {
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  margin: 2px 4px !important;
+  font-size: 0.875rem !important;
+}
+
+/* Event Modal */
+.sx__event-modal {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+}
+
+.sx__event-modal-header {
+  padding: 1rem !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* Week View */
+.sx__week-grid {
+  border: 1px solid #e5e7eb !important;
+}
+
+.sx__week-grid-cell {
+  border-right: 1px solid #f3f4f6 !important;
+}
+
+/* Time Grid */
+.sx__time-grid {
+  border-top: 1px solid #e5e7eb !important;
+}
+
+.sx__time-grid-cell {
+  height: 48px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sx__calendar-header {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .sx__calendar-views {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .sx__month-grid-cell {
+    min-height: 80px !important;
+  }
+}
+
+/* Custom Calendar Container */
+#calendar {
+  width: 100%;
+  height: 800px;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  background: white;
+}
+
+/* Drag and Drop Styling */
+.sx__event--dragging {
+  opacity: 0.7 !important;
+  cursor: move !important;
+}
+
+.sx__month-grid-cell--drag-over {
+  background: #e0f2fe !important;
+}

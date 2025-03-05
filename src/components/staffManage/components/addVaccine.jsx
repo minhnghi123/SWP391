@@ -85,10 +85,8 @@ const AddVaccineComponent = () => {
     };
   
     try {
-      const response = await axios.post(
-        "https://localhost:7280/api/Vaccine/createVaccine",
-        vaccineData
-      );
+      const response = await addData('Vaccine/createVaccine', vaccineData)
+      
   
       if (response.status === 201 || response.status === 200) {
         alert("Vaccine added successfully!");

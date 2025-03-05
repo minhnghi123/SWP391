@@ -21,14 +21,14 @@ export default function ChildSelection({children, selectedChild, setSelectedChil
               </div>
               <div className="ml-4 text-left">
                 <p className={`font-semibold ${selectedChild === child.id ? "text-indigo-800" : "text-gray-800"}`}>
-                  {child.name}
+                  {child?.name}
                 </p>
                 <div className="flex items-center mt-1">
                   <span className={`text-sm ${child.gender === "Male" ? "text-blue-600" : "text-pink-600"}`}>
-                    {toUpperCaseWords(child.gender)}
+                    {toUpperCaseWords(child?.gender || 'male')}
                   </span>
                   <span className="mx-2 text-gray-400">•</span>
-                  <span className="text-sm text-gray-600">{child.age}</span>
+                  <span className="text-sm text-gray-600">{child?.age || '9'}</span>
                 </div>
               </div>
             </div>

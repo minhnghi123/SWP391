@@ -37,16 +37,17 @@ const TrackingChildbyUser = ({ id }) => {
   const [triger, setTriger] = useState(false)
   const [notification, setNotification] = useState('null')
   const [openFeedback, setOpenFeedback] = useState({});
-  const [feedbacks, setFeedbacks] = useState({});
+
   const [vaccine, setVaccines] = useState([])
   const [selectedChild, setSelectedChild] = useState(null);
 
-
+  const [feedbacks, setFeedbacks] = useState({});
   useEffect(() => {
     const hadnleFetchChildrenTracking = async () => {
       try {
         const res = await fetchData(`VaccinesTracking/get-by-parent-id/${id}`)
         if (res.status === 200) {
+     
           const uniqueChildren = Array.from(new Set(res.data.map(item => item.childName)))
             .map((childName, index) => ({
               id: index + 1,
@@ -61,9 +62,9 @@ const TrackingChildbyUser = ({ id }) => {
             reaction: item.reaction || '',
             minimumIntervalDate: item.minimumIntervalDate,
             vaccinationDate: item.vaccinationDate,
-            administeredByDoctorName: id
+            administeredByDoctorName: item.administeredByDoctorName
           }));
-
+      
           setChildren(uniqueChildren);
           setVaccines(vaccineData);
         }
@@ -73,14 +74,21 @@ const TrackingChildbyUser = ({ id }) => {
     }
     hadnleFetchChildrenTracking()
   }, [triger, id]);
+
+  
+  
+  // Lấy danh sách vaccine của đứa trẻ hiện tại
+
+
+
+  
+
+  
   useEffect(() => {
     if (children.length > 0) {
       setSelectedChild(children[0].id);
     }
   }, [children]);
-
-
-
   const handleOnChange = (e, vaccineId) => {
     setFeedbacks(prev => ({
       ...prev,
@@ -94,10 +102,10 @@ const TrackingChildbyUser = ({ id }) => {
       [vaccineId]: !prev[vaccineId]
     }));
   };
-
+ 
   const handleSubmit = async (vaccineId, reaction) => {
     try {
-      const response = await addData(`/feedback`, { vaccineId, reaction });
+      const response = await addData(`/feedback`, { vaccineId, reaction, });
 
       if (response.status === 200) {
         setNotification('Thank you for your feedback!');
@@ -121,7 +129,7 @@ const TrackingChildbyUser = ({ id }) => {
   const scheduledVaccines = sortedVaccines.filter(vaccine => vaccine.status.toLowerCase() === 'scheduled');
   const completedVaccines = sortedVaccines.filter(vaccine => vaccine.status.toLowerCase() === 'completed');
 
-  console.log(sortedVaccines)
+
 
   if (!children || children.length === 0) {
     return (
@@ -169,6 +177,7 @@ const TrackingChildbyUser = ({ id }) => {
         handleSubmit={handleSubmit}
         feedbacks={feedbacks}
         input={input}
+        selectedChild={selectedChild}
       />
     </div>
   );

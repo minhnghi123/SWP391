@@ -1,75 +1,72 @@
-import React, { useContext } from 'react';
-// import { GoogleLogin } from '@react-oauth/google';
-// import { jwtDecode } from "jwt-decode";
-import { useGoogleLogin } from '@react-oauth/google';
-import { faGooglePlusG } from '@fortawesome/free-brands-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { AuthContext } from '../Services/AuthLogin';
-import { ToastContainer, toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { accountAction } from '../redux/reducers/accountSlice';
-import axios from 'axios';
-import { addData } from '../../Api/axios';
+import React, { useEffect } from "react";
+import {jwtDecode} from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { accountAction } from "../redux/reducers/accountSlice";
+import { useNavigate } from "react-router-dom";
+import { addData } from "../../Api/axios";
+import { toast } from "react-toastify";
 
 function LoginPage() {
-    // const { login } = useContext(AuthContext)
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const loginGoogle = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            try {
-                // Lấy thông tin user từ Google
-                const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                    headers: {
-                        'Authorization': `Bearer ${tokenResponse.access_token}`
-                    },
-                }).then(res => res.json());
-    
-                const data = {
-                    token: tokenResponse.access_token,
-                    id: userInfo.sub,
-                    name: userInfo.name,
-                    email: userInfo.email,
-                    picture: userInfo.picture,
-                    role: 'user'
-                };
-    
-                // Lưu vào localStorage hoặc Redux
-                dispatch(accountAction.setUser(data));
-                try {
-                   const res = addData('User/login-by-google', {googleToken: tokenResponse.access_token})
-                    if (res?.status === 200) {
-                        console.log('Success', res.data);
-                    }
-                } catch (error) {
-                    console.error("Error sending token to backend:", error);
-                }
-    
-                toast.success("Login successfully by Google");
-                // Chuyển hướng người dùng sau khi login
-                setTimeout(() => {
-                    navigate('/');
-                }, 1000);
-            } catch (error) {
-                console.error("Error fetching user info:", error);
-                toast.error("Error fetching user info");
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Kiểm tra xem Google API đã sẵn sàng chưa
+        const checkGoogle = setInterval(() => {
+            if (window.google) {
+                clearInterval(checkGoogle);
+                google.accounts.id.initialize({
+                    client_id: "428240789533-0ph77i9n53v8cqc7b8m55h7rq3hh7efn.apps.googleusercontent.com",
+                    callback: handleCallbackResponse,
+                });
+
+                google.accounts.id.renderButton(
+                    document.getElementById("googleSignIn"),
+                    { theme: "outline", size: "large" }
+                );
             }
-        },
-        onError: () => {
-            toast.error("Login Failed");
-        },
-    });
-    return (
-        <div
-            onClick={() => loginGoogle()}
-            className="w-12 h-12 bg-white rounded-full flex justify-center items-center 
-            cursor-pointer hover:bg-red-50 hover:text-red-500 transition-all duration-300 shadow-md 
-            hover:shadow-lg transform border-2 border-gray-100 hover:border-blue-500"
-        >
-            <FontAwesomeIcon icon={faGooglePlusG} className="text-xl text-gray-700" />
-        </div>
-    );
+        }, 100); // Kiểm tra mỗi 100ms
+
+        return () => clearInterval(checkGoogle);
+    }, []);
+
+    async function handleCallbackResponse(response) {
+        try {
+            console.log("Google Response:", response);
+            if (!response.credential) {
+                throw new Error("No ID Token received!");
+            }
+
+            const idToken = response.credential;
+            // const decoded = jwtDecode(idToken);
+            const value ={
+                googleToken: idToken,
+                clientID: "428240789533-0ph77i9n53v8cqc7b8m55h7rq3hh7efn.apps.googleusercontent.com" 
+            }
+            console.log(value)
+            const res = await addData("User/login-by-google", value);
+
+            if (res?.status === 200) {
+                const decode = jwtDecode(res.data.res.accessToken);
+                dispatch(accountAction.setUser({
+                    id: decode.Id,
+                    username: decode.Username,
+                    role: decode.Role,
+                    avatar: decode.Avatar,
+                }));
+                toast.success("Login successfully by Google");
+
+                setTimeout(() => navigate("/"), 1000);
+            } else {
+                throw new Error("Invalid response from backend.");
+            }
+        } catch (error) {
+            console.error("Error in Google login:", error);
+            toast.error("Login failed. Please try again.");
+        }
+    }
+
+    return <div id="googleSignIn"></div>;
 }
 
 export default LoginPage;

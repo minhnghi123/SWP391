@@ -29,7 +29,10 @@ function boydVaritants() {
   const [loading, setLoading] = useState(false)
   const isBooking = useSelector(state => state.vaccine.isBooking)
 
-
+  useEffect(() => {
+    window.scrollTo(0, 0);
+ }, []);
+ 
   useEffect(() => {
     const fetchDataVariants = async () => {
       try {

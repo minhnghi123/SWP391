@@ -30,7 +30,9 @@ const ViewAllVaccines = () => {
     const fetchVaccines = async () => {
       try {
         setLoading(true);
-        const response = await fetchData('Vaccine/getAllVaccines')
+        const response = await axios.get(
+          "https://localhost:7280/api/Vaccine/getAllVaccines"
+        );
         setVaccines(response.data);
         setError(null);
       } catch (error) {
@@ -143,15 +145,15 @@ const ViewAllVaccines = () => {
             <option value="name-desc">Name (Z-A)</option>
             <option value="quantity-asc">Stock (Low to High)</option>
             <option value="quantity-desc">Stock (High to Low)</option>
-            <option value="expired_time-asc">Expiry (Soonest)</option>
-            <option value="expired_time-desc">Expiry (Latest)</option>
+            <option value="timeExpired-asc">Expiry (Soonest)</option>
+            <option value="timeExpired-desc">Expiry (Latest)</option>
           </select>
         </div>
       </div>
 
       {/* Vaccines Table */}
       <div className="overflow-x-auto">
-        {loading ? (
+ JACKPOT        {loading ? (
           <p>Loading vaccines...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
@@ -214,7 +216,7 @@ const ViewAllVaccines = () => {
                       {vaccine.fromCountry}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">
-                      {vaccine.timeExpired}
+                      {vaccine.timeExpired ? new Date(vaccine.timeExpired).toLocaleDateString() : "N/A"}
                     </td>
                     <td className="px-4 py-4 text-sm font-medium text-teal-600">
                       {vaccine.quantity} doses

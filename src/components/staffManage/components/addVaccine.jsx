@@ -20,6 +20,9 @@ const AddVaccineComponent = () => {
     timeExpired: "",
     status: "",
     addressId: 1,
+    // Remove these fields from the state since they're not in the JSON
+    // minimumIntervalDate: "",
+    // maximumIntervalDate: "",
   });
 
   const handleInputChange = (e) => {
@@ -37,61 +40,37 @@ const AddVaccineComponent = () => {
     }));
   };
 
-  const validateForm = () => {
-    const requiredFields = [
-      "name",
-      "quantity",
-      "description",
-      "price",
-      "doesTimes",
-      "fromCountry",
-      "suggestAgeMin",
-      "suggestAgeMax",
-      "entryDate",
-      "timeExpired",
-      "status",
-    ];
-
-    for (const field of requiredFields) {
-      if (!newVaccine[field] || newVaccine[field].toString().trim() === "") {
-        setError(
-          `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } is required and cannot be empty.`
-        );
-        return false;
-      }
-    }
-  };
-
   const handleAddVaccine = async () => {
     setLoading(true);
     setError(null);
-  
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
-  
+
+    // Transform data to match the provided JSON field names and types
     const vaccineData = {
-      ...newVaccine,
-      quantity: parseInt(newVaccine.quantity),
-      price: parseFloat(newVaccine.price),
-      doesTimes: parseInt(newVaccine.doesTimes),
-      suggestAgeMin: parseInt(newVaccine.suggestAgeMin),
-      suggestAgeMax: parseInt(newVaccine.suggestAgeMax),
-      entryDate: new Date(newVaccine.entryDate).toISOString(),
-      timeExpired: new Date(newVaccine.timeExpired).toISOString(),
-    };
-  
+      name: newVaccine.name || "", // Ensure string, even if empty
+      quantity: parseInt(newVaccine.quantity) || 0, // Default to 0 if empty or invalid
+      description: newVaccine.description || "", // Ensure string, even if empty
+      price: parseFloat(newVaccine.price) || 0.0, // Default to 0.0 if empty or invalid
+      doesTimes: parseInt(newVaccine.doesTimes) || 0, // Default to 0 if empty or invalid
+      fromCountry: newVaccine.fromCountry || "", // Ensure string, even if empty
+      suggestAgeMin: parseInt(newVaccine.suggestAgeMin) || 0, // Default to 0 if empty or invalid
+      suggestAgeMax: parseInt(newVaccine.suggestAgeMax) || 0, // Default to 0 if empty or invalid
+      entryDate: newVaccine.entryDate ? new Date(newVaccine.entryDate).toISOString() : new Date().toISOString(), // Default to current date if empty
+      timeExpired: newVaccine.timeExpired ? new Date(newVaccine.timeExpired).toISOString() : new Date().toISOString(), // Default to current date if empty
+      status: newVaccine.status || "", // Ensure string, even if empty
+      addressId: parseInt(newVaccine.addressId) || 1, // Default to 1 if empty or invalid
+    };    
+    console.log("Sending vaccine data:", vaccineData);
+
     try {
-      const response = await addData('Vaccine/createVaccine', vaccineData)
-      
+      const response = await axios.post(
+        "https://localhost:7280/api/Vaccine/createVaccine",
+        vaccineData
+      );
   
       if (response.status === 201 || response.status === 200) {
         alert("Vaccine added successfully!");
         setShowForm(false);
-        window.location.reload(); // Reload trang sau khi thêm thành công
+        window.location.reload(); // Reload page after successful addition
       } else {
         alert("Failed to add vaccine.");
       }
@@ -119,7 +98,6 @@ const AddVaccineComponent = () => {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 shadow-sm group-hover:shadow-md"
-          required
         />
       </div>
       {description && (
@@ -158,6 +136,10 @@ const AddVaccineComponent = () => {
                 { name: "suggestAgeMin", placeholder: "Min Age", type: "number" },
                 { name: "suggestAgeMax", placeholder: "Max Age", type: "number" },
                 { name: "status", placeholder: "Status", type: "text" },
+                { name: "addressId", placeholder: "Address ID", type: "number" },
+                // Remove these fields from the form since they're not in the JSON
+                // { name: "minimumIntervalDate", placeholder: "Min Interval Date (Optional)", type: "number" },
+                // { name: "maximumIntervalDate", placeholder: "Max Interval Date (Optional)", type: "number" },
               ].map((field, index) => (
                 <input
                   key={index}
@@ -167,7 +149,6 @@ const AddVaccineComponent = () => {
                   value={newVaccine[field.name]}
                   onChange={handleInputChange}
                   className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
-                  required
                   min={field.type === "number" ? "0" : undefined}
                 />
               ))}

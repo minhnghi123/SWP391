@@ -31,27 +31,33 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
       setError("Please fill in all required fields.");
       return;
     }
-  
+
     try {
-      const updateData = {
+      // Loại bỏ id trước khi gửi API
+      const { id, ...updateData } = {
         ...formData,
-      quantity: parseInt(formData.quantity),
-      price: parseFloat(formData.price),
-      doesTimes: parseInt(formData.doesTimes),
-      suggestAgeMin: parseInt(formData.suggestAgeMin),
-      suggestAgeMax: parseInt(formData.suggestAgeMax),
-      entryDate: new Date(formData.entryDate).toISOString(),
-      timeExpired: new Date(formData.timeExpired).toISOString(),
+        quantity: parseInt(formData.quantity),
+        price: parseFloat(formData.price),
+        does_times: parseInt(formData.doesTimes),
+        suggest_age_min: parseInt(formData.suggestAgeMin),
+        suggest_age_max: parseInt(formData.suggestAgeMax),
+        entry_date: new Date(formData.entryDate).toISOString(),
+        time_expired: new Date(formData.timeExpired).toISOString(),
+        from_country: formData.fromCountry,
+        address_id: parseInt(formData.addressId),
+        status: formData.status,
       };
-  
+
+      console.log(updateData);
+
       const response = await axios.put(
-        `https://localhost:7280/api/Vaccine/updateVaccineById/${formData.id}`,
+        `https://localhost:7280/api/Vaccine/updateVaccineById/${id}`, // ID chỉ dùng trong URL
         updateData
       );
-  
+
       if (response.status === 200) {
         setIsEditing(false);
-        onUpdate(updateData);
+        onUpdate({ id, ...updateData }); // Đảm bảo ID vẫn được giữ trên UI
         setError(null);
       }
     } catch (err) {
@@ -59,8 +65,6 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
       setError("Failed to update vaccine. Please try again.");
     }
   };
-  
-  
 
   // Hủy chỉnh sửa
   const handleCancelEdit = () => {
@@ -177,12 +181,13 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
                           {vaccine.fromCountry}
                         </p>
                       </div>
-                      <div>
+                      {/* Comment out since not in JSON */}
+                      {/* <div>
                         <span className="text-sm text-gray-500">Interval Age:</span>
                         <p className="font-medium text-gray-900">
                           {vaccine.minimumIntervalDate} To {vaccine.maximumIntervalDate}
                         </p>
-                      </div>
+                      </div> */}
                       <div>
                         <span className="text-sm text-gray-500">Address ID:</span>
                         <p className="font-medium text-gray-900">{vaccine.addressId}</p>
@@ -309,7 +314,8 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
                         className="w-full p-2 border border-gray-300 rounded-lg"
                       />
                     </div>
-                    <div>
+                    {/* Comment out since not in JSON */}
+                    {/* <div>
                       <label className="block text-sm text-gray-500">Interval Age (Min):</label>
                       <input
                         type="number"
@@ -328,7 +334,7 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
                         onChange={handleInputChange}
                         className="w-full p-2 border border-gray-300 rounded-lg"
                       />
-                    </div>
+                    </div> */}
                     <div>
                       <label className="block text-sm text-gray-500">Address ID:</label>
                       <input

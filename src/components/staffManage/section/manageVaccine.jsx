@@ -32,7 +32,23 @@ const ViewAllVaccines = () => {
         const response = await axios.get(
           "https://localhost:7280/api/Vaccine/getAllVaccines"
         );
-        setVaccines(response.data);
+        // Transform API response to match expected camelCase field names (if needed)
+        const transformedVaccines = response.data.map((vaccine) => ({
+          id: vaccine.id,
+          name: vaccine.name || "",
+          quantity: vaccine.quantity || 0,
+          description: vaccine.description || "",
+          price: vaccine.price || 0,
+          doesTimes: vaccine.does_times || vaccine.doesTimes || 0,
+          fromCountry: vaccine.from_country || vaccine.fromCountry || "",
+          suggestAgeMin: vaccine.suggest_age_min || vaccine.suggestAgeMin || 0,
+          suggestAgeMax: vaccine.suggest_age_max || vaccine.suggestAgeMax || 0,
+          entryDate: vaccine.entry_date || vaccine.entryDate || "",
+          timeExpired: vaccine.time_expired || vaccine.timeExpired || "",
+          status: vaccine.status || "",
+          addressId: vaccine.address_ID || vaccine.addressId || 0,
+        }));
+        setVaccines(transformedVaccines);
         setError(null);
       } catch (error) {
         console.error("Error fetching vaccines:", error);
@@ -144,15 +160,15 @@ const ViewAllVaccines = () => {
             <option value="name-desc">Name (Z-A)</option>
             <option value="quantity-asc">Stock (Low to High)</option>
             <option value="quantity-desc">Stock (High to Low)</option>
-            <option value="expired_time-asc">Expiry (Soonest)</option>
-            <option value="expired_time-desc">Expiry (Latest)</option>
+            <option value="timeExpired-asc">Expiry (Soonest)</option>
+            <option value="timeExpired-desc">Expiry (Latest)</option>
           </select>
         </div>
       </div>
 
       {/* Vaccines Table */}
       <div className="overflow-x-auto">
-        {loading ? (
+ JACKPOT        {loading ? (
           <p>Loading vaccines...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
@@ -215,7 +231,7 @@ const ViewAllVaccines = () => {
                       {vaccine.fromCountry}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">
-                      {vaccine.timeExpired}
+                      {vaccine.timeExpired ? new Date(vaccine.timeExpired).toLocaleDateString() : "N/A"}
                     </td>
                     <td className="px-4 py-4 text-sm font-medium text-teal-600">
                       {vaccine.quantity} doses

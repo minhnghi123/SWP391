@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { Calendar, Clock, AlertCircle, CheckCircle, Plus, User, Shield, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import ChildSelection from './ChildSelection';
 import SummaryCards from './SummaryCards';
 import VaccineSchedule from './VaccineSchedule';
 import { addData, fetchData } from '../../../../Api/axios';
+import { Calendar } from 'lucide-react';
 const vaccines = [
   { id: 1, name: 'DTaP (Diphtheria, Tetanus, Pertussis)', dueDate: '2023-06-15', status: 'completed', childId: 1, feedback: '' },
   { id: 2, name: 'MMR (Measles, Mumps, Rubella)', dueDate: '2023-07-20', status: 'upcoming', childId: 1 },
@@ -27,7 +27,7 @@ const ListChildren = [
 ];
 // Helper function to capitalize first letter of each word
 const TrackingChildbyUser = ({ id }) => {
-  const [selectedChild, setSelectedChild] = useState(1);
+
   const [children, setChildren] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -38,21 +38,48 @@ const TrackingChildbyUser = ({ id }) => {
   const [notification, setNotification] = useState('null')
   const [openFeedback, setOpenFeedback] = useState({});
   const [feedbacks, setFeedbacks] = useState({});
+  const [vaccine, setVaccines] = useState([])
+  const [selectedChild, setSelectedChild] = useState(null);
 
 
-  // useEffect(() => {
-  //   const hadnleFetchChildrenTracking = async () => {
-  //     try {
-  //       const res = await fetchData(`/${id}`)
-  //       if (res.status === 200) {
-  //         setChildren(res.data)
-  //       }
-  //     } catch (error) {
-  //       setError(error)
-  //     }
-  //   }
-  //   hadnleFetchChildrenTracking()
-  // }, [triger,id]);
+  useEffect(() => {
+    const hadnleFetchChildrenTracking = async () => {
+      try {
+        const res = await fetchData(`VaccinesTracking/get-by-parent-id/${id}`)
+        if (res.status === 200) {
+          const uniqueChildren = Array.from(new Set(res.data.map(item => item.childName)))
+            .map((childName, index) => ({
+              id: index + 1,
+              name: childName
+            }));
+          const vaccineData = res.data.map((item, index) => ({
+            id: index + 1,
+            name: item.vaccineName,
+            dueDate: item.maximumIntervalDate,
+            status: item.status.toLowerCase(),
+            childId: uniqueChildren.find(child => child.name === item.childName)?.id,
+            reaction: item.reaction || '',
+            minimumIntervalDate: item.minimumIntervalDate,
+            vaccinationDate: item.vaccinationDate,
+            administeredByDoctorName: id
+          }));
+
+          setChildren(uniqueChildren);
+          setVaccines(vaccineData);
+        }
+      } catch (error) {
+        setError('No data tracking')
+      }
+    }
+    hadnleFetchChildrenTracking()
+  }, [triger, id]);
+  useEffect(() => {
+    if (children.length > 0) {
+      setSelectedChild(children[0].id);
+    }
+  }, [children]);
+
+
 
   const handleOnChange = (e, vaccineId) => {
     setFeedbacks(prev => ({
@@ -60,55 +87,71 @@ const TrackingChildbyUser = ({ id }) => {
       [vaccineId]: e.target.value
     }));
   };
-  
+
   const toggleFeedback = (vaccineId) => {
     setOpenFeedback(prev => ({
       ...prev,
-      [vaccineId]: !prev[vaccineId] 
+      [vaccineId]: !prev[vaccineId]
     }));
   };
 
-  const handleSubmit = async (vaccineId, feedback) => {
+  const handleSubmit = async (vaccineId, reaction) => {
     try {
-      const response = await addData(`/feedback`, { vaccineId, feedback });
+      const response = await addData(`/feedback`, { vaccineId, reaction });
 
       if (response.status === 200) {
         setNotification('Thank you for your feedback!');
         setFeedbacks(prev => ({
           ...prev,
-          [vaccineId]: feedback
+          [vaccineId]: reaction
         }));
         setTriger(!triger);
-        console.log(feedbacks)
       }
     } catch (error) {
       setNotification('Something went wrong!');
     }
   };
 
-
-  const filteredVaccines = vaccines.filter(vaccine => vaccine.childId === selectedChild);
+  const filteredVaccines = vaccine.filter(vaccine => vaccine.childId === selectedChild);
   const sortedVaccines = filteredVaccines.filter(vaccine =>
     sortStatus === 'all' || vaccine.status === sortStatus
   );
 
-  const upcomingVaccines = sortedVaccines.filter(vaccine => vaccine.status === 'upcoming');
-  const overdueVaccines = sortedVaccines.filter(vaccine => vaccine.status === 'overdue');
-  const completedVaccines = sortedVaccines.filter(vaccine => vaccine.status === 'completed');
+  const waitingVaccines = sortedVaccines.filter(vaccine => vaccine.status.toLowerCase() === 'waiting');
+  const scheduledVaccines = sortedVaccines.filter(vaccine => vaccine.status.toLowerCase() === 'scheduled');
+  const completedVaccines = sortedVaccines.filter(vaccine => vaccine.status.toLowerCase() === 'completed');
+
+  console.log(sortedVaccines)
+
+  if (!children || children.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <div className="text-center">
+          <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <Calendar size={32} className="text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-800 mb-2">No Vaccination Records</h3>
+          <p className="text-gray-500">
+            There are no vaccination records available for tracking.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-7xl mx-auto h-auto">
+    <div className="max-w-7xl mx-auto h-auto space-y-6">
       {/* Child Selection */}
       <ChildSelection
-        children={ListChildren}
+        children={children}
         selectedChild={selectedChild}
         setSelectedChild={setSelectedChild}
       />
 
-
       {/* Summary Cards */}
       <SummaryCards
-        upcomingVaccines={upcomingVaccines}
-        overdueVaccines={overdueVaccines}
+        waitingVaccines={waitingVaccines}
+        scheduledVaccines={scheduledVaccines}
         completedVaccines={completedVaccines}
       />
 
@@ -116,8 +159,8 @@ const TrackingChildbyUser = ({ id }) => {
       <VaccineSchedule
         sortStatus={sortStatus}
         setSortStatus={setSortStatus}
-        overdueVaccines={overdueVaccines}
-        upcomingVaccines={upcomingVaccines}
+        waitingVaccines={waitingVaccines}
+        scheduledVaccines={scheduledVaccines}
         completedVaccines={completedVaccines}
         sortedVaccines={sortedVaccines}
         openFeedback={openFeedback}
@@ -127,11 +170,7 @@ const TrackingChildbyUser = ({ id }) => {
         feedbacks={feedbacks}
         input={input}
       />
-
-
-
     </div>
-
   );
 };
 

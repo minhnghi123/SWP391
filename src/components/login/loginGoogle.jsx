@@ -9,6 +9,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { accountAction } from '../redux/reducers/accountSlice';
+import axios from 'axios';
+import { addData } from '../../Api/axios';
+
 function LoginPage() {
     // const { login } = useContext(AuthContext)
     const dispatch = useDispatch()
@@ -16,12 +19,13 @@ function LoginPage() {
     const loginGoogle = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
+                // Lấy thông tin user từ Google
                 const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                     headers: {
-                        Authorization: `Bearer ${tokenResponse.access_token}`,
+                        'Authorization': `Bearer ${tokenResponse.access_token}`
                     },
                 }).then(res => res.json());
-              
+    
                 const data = {
                     token: tokenResponse.access_token,
                     id: userInfo.sub,
@@ -30,10 +34,20 @@ function LoginPage() {
                     picture: userInfo.picture,
                     role: 'user'
                 };
-                // Lưu vào localStorage
-                dispatch(accountAction.setUser(data))
+    
+                // Lưu vào localStorage hoặc Redux
+                dispatch(accountAction.setUser(data));
+                try {
+                   const res = addData('User/login-by-google', {googleToken: tokenResponse.access_token})
+                    if (res?.status === 200) {
+                        console.log('Success', res.data);
+                    }
+                } catch (error) {
+                    console.error("Error sending token to backend:", error);
+                }
+    
                 toast.success("Login successfully by Google");
-                // login()
+                // Chuyển hướng người dùng sau khi login
                 setTimeout(() => {
                     navigate('/');
                 }, 1000);
@@ -46,8 +60,6 @@ function LoginPage() {
             toast.error("Login Failed");
         },
     });
-
-
     return (
         <div
             onClick={() => loginGoogle()}

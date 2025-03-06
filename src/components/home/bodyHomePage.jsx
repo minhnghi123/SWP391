@@ -258,20 +258,10 @@ export default function BodyHomePage() {
 
 
     const isBooking = useSelector((state) => state.vaccine.isBooking)
-    const handleAddVaccine = (vaccine, type) => {
-        const id = `vaccine-${vaccine.id}`
-        dispatch(vaccineAction.addVaccine({
-            id: id,
-            name: vaccine.name,
-            price: vaccine.price,
-            description: vaccine.description,
-            country: vaccine.country,
-            vaccines: vaccine.vaccines,
-            type: type,
-        }));
-    }
+
+
     useEffect(() => {
-        fetchData('Vaccine/getAllVaccines').
+        fetchData('Vaccine/get-all-vaccines').
             then((res) => {
                 if (res?.data) {
                     const sortedTop3 = [...res.data]
@@ -293,7 +283,19 @@ export default function BodyHomePage() {
 
         return () => clearInterval(interval);
     }, [pictures.length]);
-
+    const handleAddToCart = (vaccine, type) => {
+       
+        dispatch(vaccineAction.addVaccine({
+            id: vaccine.id,
+            name: vaccine.name,
+            price: vaccine.price,
+            description: vaccine.description,
+            country: vaccine.fromCountry,
+            vaccines: vaccine.vaccines,
+            type: type,
+        }))
+    };
+  
 
     return (
         <div className="max-w-7xl w-full mx-auto mt-4 px-4 py-2 z-0" id='home'>
@@ -499,6 +501,7 @@ export default function BodyHomePage() {
                                     variants={cardVariants}
                                     whileHover="hover">
                                     <Variants
+                                        key={`vaccine-${vaccine.id}`}
                                         id={vaccine.id}
                                         image={vaccine.image}
                                         name={vaccine.name}
@@ -507,7 +510,7 @@ export default function BodyHomePage() {
                                         priceGoc={null}
                                         priceSale={vaccine.price}
                                         country={vaccine.fromCountry}
-                                        onClick={() => handleAddVaccine(vaccine, 'vaccine')}
+                                        onClick={() => handleAddToCart(vaccine, 'vaccine')}
                                         isBooking={isBooking}
                                     />
                                 </motion.div>

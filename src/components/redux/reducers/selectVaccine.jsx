@@ -12,7 +12,6 @@ const loadFromLocalStorage = (key, defaultValue) => {
         return defaultValue;
     }
 };
-
 let storedListVaccine = loadFromLocalStorage('ListVaccine', []);
 let storedListComboVaccine = loadFromLocalStorage('ListComboVaccine', []);
 let storedTotalPrice = loadFromLocalStorage('TotalVaccine', 0);
@@ -35,9 +34,9 @@ const selectVaccineSlice = createSlice({
             state.totalPrice = action.payload.totalPrice;
 
             // Ensure data is saved to localStorage
-            localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine));
-            localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine));
-            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
+            state.listVaccine.length > 0 ? localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine)) : localStorage.removeItem('ListVaccine');
+            state.listComboVaccine.length > 0 ? localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine)) : localStorage.removeItem('ListComboVaccine');
+            state.totalPrice > 0 ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice)) : localStorage.removeItem('TotalVaccine');
         },
         addVaccine(state, action) {
             const newVaccine = action.payload;
@@ -57,8 +56,8 @@ const selectVaccineSlice = createSlice({
                 + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
 
             // Save changes to localStorage
-            localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine));
-            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
+            state.listVaccine.length > 0 ? localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine)) : localStorage.removeItem('ListVaccine');
+            state.totalPrice > 0 ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice)) : localStorage.removeItem('TotalVaccine');
         },
         addComboVaccine(state, action) {
             const newCombo = action.payload;
@@ -78,8 +77,8 @@ const selectVaccineSlice = createSlice({
                 + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
 
             // Save changes to localStorage
-            localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine));
-            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
+            state.listComboVaccine.length > 0 ? localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine)) : localStorage.removeItem('ListComboVaccine');
+            state.totalPrice > 0 ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice)) : localStorage.removeItem('TotalVaccine');
         },
         deleteVaccine(state, action) {
             const id = action.payload;
@@ -92,8 +91,8 @@ const selectVaccineSlice = createSlice({
                 + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
 
             // Save to localStorage
-            localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine));
-            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
+            state.listVaccine.length > 0 ? localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine)) : localStorage.removeItem('ListVaccine');
+            state.totalPrice > 0 ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice)) : localStorage.removeItem('TotalVaccine');
         },
         deleteComboVaccine(state, action) {
             const id = action.payload;
@@ -106,8 +105,9 @@ const selectVaccineSlice = createSlice({
                 + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
 
             // Save to localStorage
-            localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine));
-            localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice));
+            state.listVaccine.length > 0 ? localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine)) : localStorage.removeItem('ListVaccine');
+            state.listComboVaccine.length > 0 ? localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine)) : localStorage.removeItem('ListComboVaccine');
+            state.totalPrice > 0 ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice)) : localStorage.removeItem('TotalVaccine');
         },
         completePayment(state) {
             state.listVaccine = [];

@@ -4,7 +4,7 @@ import axios from "axios";
 const DeleteVaccineButton = ({ vaccineId, onDeleteSuccess }) => {
   const handleDeleteVaccine = async () => {
     try {
-      const response = await axios.delete(`https://localhost:7280/api/Vaccine/deleteVaccineById/${encodeURIComponent(vaccineId)}`);
+      const response = await axios.delete(`https://localhost:7280/api/Vaccine/delete-vaccine-by-id/${encodeURIComponent(vaccineId)}`);
 
       if (response.status === 200 || response.status === 204) {
         alert("✅ Vaccine deleted successfully!");

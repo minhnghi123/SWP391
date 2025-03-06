@@ -31,40 +31,44 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
       setError("Please fill in all required fields.");
       return;
     }
-
+  
     try {
-      // Loại bỏ id trước khi gửi API
-      const { id, ...updateData } = {
-        ...formData,
-        quantity: parseInt(formData.quantity),
-        price: parseFloat(formData.price),
-        does_times: parseInt(formData.doesTimes),
-        suggest_age_min: parseInt(formData.suggestAgeMin),
-        suggest_age_max: parseInt(formData.suggestAgeMax),
-        entry_date: new Date(formData.entryDate).toISOString(),
-        time_expired: new Date(formData.timeExpired).toISOString(),
-        from_country: formData.fromCountry,
-        address_id: parseInt(formData.addressId),
-        status: formData.status,
+      // Kiểm tra & gán giá trị hợp lệ
+      const updateData = {
+        name: formData.name,
+        quantity: Number(formData.quantity) || 0,
+        description: formData.description || "",
+        price: Number(formData.price) || 0,
+        doesTimes: Number(formData.doesTimes) || 0,
+        suggestAgeMin: Number(formData.suggestAgeMin) || 0,
+        suggestAgeMax: Number(formData.suggestAgeMax) || 0,
+        timeExpired: formData.timeExpired ? new Date(formData.timeExpired).toISOString() : null,
+        addressId: Number(formData.addressId) || 0,
+        status: formData.status ?? 1, // Nếu `status` null -> mặc định 1
+        minimumIntervalDate: Number(formData.minimumIntervalDate) || 0, // FIX lỗi null
+        maximumIntervalDate: Number(formData.maximumIntervalDate) || 0,
+        fromCountry: formData.fromCountry || "Unknown",
       };
-
-      console.log(updateData);
-
+  
+      console.log("Sending data:", updateData);
+  
       const response = await axios.put(
-        `https://localhost:7280/api/Vaccine/updateVaccineById/${id}`, // ID chỉ dùng trong URL
+        `https://localhost:7280/api/Vaccine/update-vaccine/${formData.id}`,
         updateData
       );
-
+  
       if (response.status === 200) {
         setIsEditing(false);
-        onUpdate({ id, ...updateData }); // Đảm bảo ID vẫn được giữ trên UI
+        onUpdate({ id: formData.id, ...updateData });
         setError(null);
+        window.location.reload(); // Reload trang sau khi thêm thành công
       }
     } catch (err) {
-      console.error("Error updating vaccine:", err);
-      setError("Failed to update vaccine. Please try again.");
+      console.error("Error updating vaccine:", err?.response?.data || err);
+      setError("Failed to update vaccine. Please check your data and try again.");
     }
   };
+  
 
   // Hủy chỉnh sửa
   const handleCancelEdit = () => {
@@ -182,12 +186,12 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
                         </p>
                       </div>
                       {/* Comment out since not in JSON */}
-                      {/* <div>
+                      <div>
                         <span className="text-sm text-gray-500">Interval Age:</span>
                         <p className="font-medium text-gray-900">
                           {vaccine.minimumIntervalDate} To {vaccine.maximumIntervalDate}
                         </p>
-                      </div> */}
+                      </div>
                       <div>
                         <span className="text-sm text-gray-500">Address ID:</span>
                         <p className="font-medium text-gray-900">{vaccine.addressId}</p>
@@ -315,7 +319,7 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
                       />
                     </div>
                     {/* Comment out since not in JSON */}
-                    {/* <div>
+                    <div>
                       <label className="block text-sm text-gray-500">Interval Age (Min):</label>
                       <input
                         type="number"
@@ -334,7 +338,7 @@ const DetailVaccine = ({ vaccine, isOpen, onClose, onUpdate }) => {
                         onChange={handleInputChange}
                         className="w-full p-2 border border-gray-300 rounded-lg"
                       />
-                    </div> */}
+                    </div>
                     <div>
                       <label className="block text-sm text-gray-500">Address ID:</label>
                       <input

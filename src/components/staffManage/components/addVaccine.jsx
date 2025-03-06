@@ -21,8 +21,8 @@ const AddVaccineComponent = () => {
     status: "",
     addressId: 1,
     // Remove these fields from the state since they're not in the JSON
-    // minimumIntervalDate: "",
-    // maximumIntervalDate: "",
+    minimumIntervalDate: "",
+    maximumIntervalDate: "",
   });
 
   const handleInputChange = (e) => {
@@ -58,12 +58,14 @@ const AddVaccineComponent = () => {
       timeExpired: newVaccine.timeExpired ? new Date(newVaccine.timeExpired).toISOString() : new Date().toISOString(), // Default to current date if empty
       status: newVaccine.status || "", // Ensure string, even if empty
       addressId: parseInt(newVaccine.addressId) || 1, // Default to 1 if empty or invalid
+      minimumIntervalDate: parseInt(newVaccine.minimumIntervalDate) || 0, // Default to 0 if empty or invalid
+      maximumIntervalDate: parseInt(newVaccine.maximumIntervalDate) || 0
     };    
     console.log("Sending vaccine data:", vaccineData);
 
     try {
       const response = await axios.post(
-        "https://localhost:7280/api/Vaccine/createVaccine",
+        "https://localhost:7280/api/Vaccine/create-vaccine",
         vaccineData
       );
   
@@ -138,8 +140,8 @@ const AddVaccineComponent = () => {
                 { name: "status", placeholder: "Status", type: "text" },
                 { name: "addressId", placeholder: "Address ID", type: "number" },
                 // Remove these fields from the form since they're not in the JSON
-                // { name: "minimumIntervalDate", placeholder: "Min Interval Date (Optional)", type: "number" },
-                // { name: "maximumIntervalDate", placeholder: "Max Interval Date (Optional)", type: "number" },
+                { name: "minimumIntervalDate", placeholder: "Min Interval Date (Optional)", type: "number" },
+                { name: "maximumIntervalDate", placeholder: "Max Interval Date (Optional)", type: "number" },
               ].map((field, index) => (
                 <input
                   key={index}

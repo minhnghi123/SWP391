@@ -31,13 +31,13 @@ function boydVaritants() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
- }, []);
- 
+  }, []);
+
   useEffect(() => {
     const fetchDataVariants = async () => {
       try {
         const [vaccines, comboVaccine] = await Promise.all([
-          fetchData('Vaccine/getAllVaccines'),
+          fetchData('Vaccine/get-all-vaccines'),
           fetchData('VaccineCombo/getVaccineCombo')
         ])
         if (vaccines.status === 200) setVaccines(vaccines.data)
@@ -103,9 +103,8 @@ function boydVaritants() {
     }
   };
 
-  console.log(cart)
-  console.log(isBooking)
-  
+
+
 
 
 
@@ -114,13 +113,16 @@ function boydVaritants() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <button className="flex items-center text-gray-600 hover:text-blue-600 transition-all">
+          <button onClick={() => navigate('/')} className="flex items-center text-gray-600 hover:text-blue-600 transition-all">
             <ArrowLeft className="mr-2" size={18} />
             <span className="font-medium">Back</span>
           </button>
           <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text">
             Vaccine Booking
           </h1>
+          <div>
+            
+          </div>
 
         </div>
       </header>

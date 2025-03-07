@@ -1,27 +1,45 @@
 import { Trash2 } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const DeleteVaccineButton = ({ vaccineId, onDeleteSuccess }) => {
-  const handleDeleteVaccine = async () => {
+const DeleteVaccineButton = ({ vaccineId, isCombo = false }) => {
+  const handleDelete = async () => {
     try {
-      const response = await axios.delete(`https://localhost:7280/api/Vaccine/delete-vaccine-by-id/${encodeURIComponent(vaccineId)}`);
+      const url = isCombo
+        ? `https://localhost:7280/api/VaccineCombo/deleteVaccineCombo/${encodeURIComponent(vaccineId)}`
+        : `https://localhost:7280/api/Vaccine/soft-delete-vaccine/${encodeURIComponent(vaccineId)}`;
+
+      const response = isCombo
+        ? await axios.delete(url)
+        : await axios.patch(url);
 
       if (response.status === 200 || response.status === 204) {
-        alert("✅ Vaccine deleted successfully!");
-        window.location.reload(); // Reload trang sau khi thêm thành công
-        if (onDeleteSuccess) onDeleteSuccess(vaccineId);
+        toast.success(
+          `${isCombo ? "Combo Vaccine" : "Vaccine"} deleted successfully!`,
+          { autoClose: 3000 }
+        );
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
       } else {
-        alert("❌ Failed to delete vaccine.");
+        toast.error(
+          `Failed to delete ${isCombo ? "combo vaccine" : "vaccine"}.`,
+          { autoClose: 3000 }
+        );
       }
     } catch (error) {
-      console.error("❌ Error deleting vaccine:", error);
-      alert("❌ Error deleting vaccine.");
+      console.error(
+        `Error deleting ${isCombo ? "combo vaccine" : "vaccine"}:`,
+        error
+      );
+      toast.error(`Error deleting ${isCombo ? "combo vaccine" : "vaccine"}.`);
     }
   };
 
   return (
     <button
-      onClick={() => handleDeleteVaccine()} // ✅ Truyền đúng vaccineId
+      onClick={handleDelete}
       className="p-1.5 bg-rose-50 text-rose-600 rounded-md hover:bg-rose-100 transition-colors"
       title="Delete"
     >

@@ -1,11 +1,11 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { fetchData } from '../../Api/axios';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import { CalendarIcon, ClockIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import  formatDate  from '../../utils/FormDate';
 import FormmatDeicimal from '../../utils/calculateMoney';
+import axios from 'axios';
 
 const Detail = () => {
     const { idVaccine, type } = useParams();
@@ -20,11 +20,11 @@ const Detail = () => {
             setLoading(true)
             try {
                 if (type === 'vaccine') {
-                    const res = await fetchData(`Vaccine/getVaccineById/${idVaccine}`)
+                    const res = await axios.get(`Vaccine/get-vaccine-by-id/${idVaccine}`)
                     if (res.status === 200) setVaccine(res.data)
                 }
                 else {
-                    const res = await fetchData(`VaccineCombo/get-vaccine-combo-detail/${idVaccine}`)
+                    const res = await axios.get(`VaccineCombo/get-vaccine-combo-detail/${idVaccine}`)
                     if (res.status === 200) setCombo(res.data)
                 }
             } catch (error) {

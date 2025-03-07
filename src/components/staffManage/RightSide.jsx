@@ -7,6 +7,7 @@ import { AuthContext } from "../Services/AuthLogin";
 
 import Dashboard from "../staffManage/section/dashboardStaff";
 import ManageVaccine from "../staffManage/section/manageVaccine";
+import Appointments from "../staffManage/section/apointments";
 import LoginPage from "../../pages/loginPage";
 import AvatarHomePage from "../home/avatarHomePage";
 const RightSide = () => {
@@ -60,6 +61,8 @@ const RightSide = () => {
         return <Dashboard />;
       case "manageVaccine":
         return <ManageVaccine />;
+      case "appointments":
+        return <Appointments />;
       default:
         return <Dashboard />;
     }
@@ -75,6 +78,7 @@ const RightSide = () => {
               <h1 className="text-2xl font-bold text-gray-800 capitalize">
                 {section === "dashboard" && "Dashboard"}
                 {section === "manageVaccine" && "Manage Vaccine"}
+                {section === "appointments" && "Appointments"}
               </h1>
             </div>
               <div className="flex items-center space-x-6">

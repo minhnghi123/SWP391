@@ -1,5 +1,6 @@
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import VaccinesIcon from '@mui/icons-material/Vaccines';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useNavigate } from 'react-router-dom';
 const LeftSide = () => {
   const EachMenu = ({ label, icon, onClick }) => {
@@ -35,8 +36,8 @@ const LeftSide = () => {
 
           <EachMenu onClick={() => navigate('/staffPage/dashboardStaff')}   label="Dashboard" icon={<SpaceDashboardIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
           <EachMenu onClick={() => navigate('/staffPage/manageVaccine')} label="Manage Vaccines" icon={<VaccinesIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          {/* <EachMenu onClick={() => navigate('/dashboardPage/patients')} label="Patients" icon={<AssignmentIndIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/dashboardPage/doctorSchedule')} label="Doctors' Schedule" icon={<EditCalendarIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
+          <EachMenu onClick={() => navigate('/staffPage/appointments')} label="Appointments" icon={<CalendarMonthIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
+          {/* <EachMenu onClick={() => navigate('/dashboardPage/doctorSchedule')} label="Doctors' Schedule" icon={<EditCalendarIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
           <EachMenu onClick={() => navigate('/dashboardPage/payments')} label="Payments" icon={<AccountBalanceWalletIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
           <EachMenu onClick={() => navigate('/dashboardPage/inventory')} label="Inventory" icon={<InventoryIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} /> */}
         </nav>

@@ -18,7 +18,7 @@ const AddVaccineComponent = () => {
     suggestAgeMax: "",
     entryDate: "",
     timeExpired: "",
-    status: "",
+    status: "ACTIVE",
     addressId: 1,
     // Remove these fields from the state since they're not in the JSON
     minimumIntervalDate: "",

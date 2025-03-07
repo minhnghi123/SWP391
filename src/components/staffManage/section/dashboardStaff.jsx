@@ -1,79 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import FormDate from "../../../utils/FormDate";
+import axios from "axios"
 import {
-  UserRound,
   Calendar,
   Syringe,
-  TrendingUp,
   FlaskRound as Flask,
-  PenSquare,
   Clock,
   CheckCircle2,
-  AlertCircle,
-  Plus,
-  Search,
   MoreVertical,
   X,
   Bell,
   Settings,
-  User,
-  ShieldCheck,
-  Thermometer,
   HeartPulse,
-  Beaker,
-  CalendarClock,
-  ClipboardCheck,
   Refrigerator,
   Pill,
   ShieldAlert,
   BadgeCheck,
-  UserCheck,
-  CalendarDays,
 } from "lucide-react";
-
-const vaccineInventory = [
-  {
-    id: 1,
-    name: "Pfizer COVID-19",
-    batchNumber: "PFZ-2023-001",
-    expiryDate: "2024-12-31",
-    temperature: "-70°C",
-    dosesLeft: 150,
-    status: "Available",
-    manufacturer: "Pfizer-BioNTech",
-    storageLocation: "Ultra-cold Freezer 1",
-    reorderPoint: 50,
-    lastChecked: "2 hours ago",
-    nextDelivery: "2024-03-20",
-  },
-  {
-    id: 2,
-    name: "Moderna COVID-19",
-    batchNumber: "MOD-2023-045",
-    expiryDate: "2024-11-30",
-    temperature: "-20°C",
-    dosesLeft: 85,
-    status: "Low Stock",
-    manufacturer: "Moderna",
-    storageLocation: "Medical Freezer 2",
-    reorderPoint: 100,
-    lastChecked: "1 hour ago",
-    nextDelivery: "2024-03-15",
-  },
-  {
-    id: 3,
-    name: "Influenza Vaccine",
-    batchNumber: "FLU-2023-089",
-    expiryDate: "2024-06-30",
-    temperature: "2-8°C",
-    dosesLeft: 200,
-    status: "Available",
-    manufacturer: "Sanofi Pasteur",
-    storageLocation: "Refrigerator 3",
-    reorderPoint: 75,
-    lastChecked: "30 mins ago",
-    nextDelivery: "2024-04-01",
-  },
-];
 
 const stats = {
   vaccinesAdministered: 145,
@@ -137,11 +80,34 @@ const recentActivities = [
   },
 ];
 
-const BodyDoctorManage = () => {  
+const BodyDoctorManage = () => {
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [vaccines, setVaccines] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
-  
+  const [loading, setLoading] = useState(false); // Added loading state
+  const [error, setError] = useState(null); // Added error state
+
+  useEffect(() => {
+    const fetchVaccines = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          "https://localhost:7280/api/Vaccine/get-all-vaccines"
+        );
+        setVaccines(response.data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching vaccines:", error);
+        setError("Failed to fetch vaccines. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVaccines(); // Call the function immediately
+  }, []); // Empty dependency array means it runs once on mount
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50">
       {/* Header */}
@@ -156,7 +122,7 @@ const BodyDoctorManage = () => {
             </h1>
           </div>
 
-          <div className=" flex items-center gap-6">
+          <div className="flex items-center gap-6">
             <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
               <Settings className="w-5 h-5" />
             </button>
@@ -169,7 +135,8 @@ const BodyDoctorManage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <VaccinationStatsCard />
-            <VaccineInventoryManager />
+            <VaccineInventoryManager vaccines={vaccines} />{" "}
+            {/* Pass vaccines as prop */}
             <RecentActivities />
           </div>
           <div className="space-y-8">
@@ -182,29 +149,9 @@ const BodyDoctorManage = () => {
   );
 };
 
-// Enhanced Date Input Component
-const DateInput = ({ label, value, onChange, icon, description }) => (
-  <div className="relative">
-    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-      {label}
-    </label>
-    <div className="relative group">
-      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-        {icon}
-      </div>
-      <input
-        type="date"
-        value={value}
-        onChange={onChange}
-        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 shadow-sm group-hover:shadow-md"
-      />
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-teal-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-    </div>
-    {description && <p className="mt-1 text-xs text-gray-500">{description}</p>}
-  </div>
-);
-
-const VaccineInventoryManager = () => (
+const VaccineInventoryManager = (
+  { vaccines } // Accept vaccines prop
+) => (
   <Card>
     <div className="flex items-center justify-between mb-6">
       <h2 className="text-xl font-bold text-gray-900">Vaccine Inventory</h2>
@@ -219,7 +166,7 @@ const VaccineInventoryManager = () => (
       </div>
     </div>
     <div className="space-y-4">
-      {vaccineInventory.map((vaccine) => (
+      {vaccines.map((vaccine) => (
         <div
           key={vaccine.id}
           className="group relative overflow-hidden flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-100 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300"
@@ -233,42 +180,31 @@ const VaccineInventoryManager = () => (
               <h3 className="font-bold text-gray-900">{vaccine.name}</h3>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  vaccine.status === "Available"
+                  vaccine.quantity > 50 // Added dynamic status based on quantity
                     ? "bg-emerald-100 text-emerald-700"
-                    : vaccine.status === "Low Stock"
+                    : vaccine.quantity > 0
                     ? "bg-amber-100 text-amber-700"
                     : "bg-rose-100 text-rose-700"
                 }`}
               >
-                {vaccine.status}
+                {vaccine.quantity > 50
+                  ? "Available"
+                  : vaccine.quantity > 0
+                  ? "Low Stock"
+                  : "Out of Stock"}
               </span>
             </div>
             <div className="grid grid-cols-3 gap-4 mt-2">
-              <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                <Beaker className="w-4 h-4" />
-                Batch: {vaccine.batchNumber}
-              </div>
-              <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                <Thermometer className="w-4 h-4" />
-                {vaccine.temperature}
-              </div>
               <div className="text-sm font-medium text-teal-600 flex items-center gap-1.5">
                 <Pill className="w-4 h-4" />
-                {vaccine.dosesLeft} doses left
+                {vaccine.quantity} doses left{" "}
+                {/* Fixed typo from quatity to quantity */}
               </div>
             </div>
             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                Expires: {vaccine.expiryDate}
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                Last checked: {vaccine.lastChecked}
-              </span>
-              <span className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
-                Reorder point: {vaccine.reorderPoint}
+                Expires: {FormDate(vaccine.timeExpired || "N/A")} {/* Added fallback */}
               </span>
             </div>
           </div>
@@ -280,6 +216,8 @@ const VaccineInventoryManager = () => (
     </div>
   </Card>
 );
+
+console.log(VaccineInventoryManager)
 
 const RecentActivities = () => (
   <Card>

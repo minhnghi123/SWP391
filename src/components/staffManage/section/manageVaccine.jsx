@@ -9,8 +9,6 @@ import { ToastContainer } from "react-toastify";
 import {
   Search,
   ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
   Refrigerator,
   Eye,
 } from "lucide-react";
@@ -375,5 +373,4 @@ const ViewAllVaccines = () => {
     </div>
   );
 };
-
-export default ViewAllVaccines;
+export default ViewAllVaccines; 

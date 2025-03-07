@@ -7,11 +7,12 @@ const AddVaccineComboComponent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Thiết lập giá trị mặc định cho status là "ACTIVE"
   const [newVaccineCombo, setNewVaccineCombo] = useState({
-   comboName:"",
-   discount:"",
-   totalPrice:"",
-   status:"",
+    comboName: "",
+    discount: "",
+    totalPrice: "",
+    status: "ACTIVE", // Giá trị mặc định
   });
 
   const handleInputChange = (e) => {
@@ -22,26 +23,25 @@ const AddVaccineComboComponent = () => {
     }));
   };
 
-
   const handleAddVaccine = async () => {
     setLoading(true);
     setError(null);
 
     // Transform data to match the provided JSON field names and types
-    const vaccineComnboData = {
-        comboName: newVaccineCombo.comboName,
-        discount: parseInt(newVaccineCombo.discount),
-        totalPrice: parseFloat(newVaccineCombo.totalPrice),
-        status: newVaccineCombo.status,
+    const vaccineComboData = {
+      comboName: newVaccineCombo.comboName,
+      discount: parseInt(newVaccineCombo.discount),
+      totalPrice: parseFloat(newVaccineCombo.totalPrice),
+      status: newVaccineCombo.status,
     };
-    console.log("Sending vaccine data:", vaccineComnboData);
+    console.log("Sending vaccine data:", vaccineComboData);
 
     try {
       const response = await axios.post(
         "https://localhost:7280/api/VaccineCombo/createVaccineCombo",
-        vaccineComnboData
+        vaccineComboData
       );
-  
+
       if (response.status === 201 || response.status === 200) {
         alert("Vaccine added successfully!");
         setShowForm(false);
@@ -57,8 +57,7 @@ const AddVaccineComboComponent = () => {
     } finally {
       setLoading(false);
     }
-  } 
-
+  };
 
   return (
     <>
@@ -84,15 +83,19 @@ const AddVaccineComboComponent = () => {
                 { name: "comboName", placeholder: "Combo Vaccine Name", type: "text" },
                 { name: "discount", placeholder: "Discount", type: "number" },
                 { name: "totalPrice", placeholder: "Total Price", type: "number" },
-                { name: "status", placeholder: "Status", type: "text" },
-            
+                {
+                  name: "status",
+                  placeholder: "Status",
+                  type: "text",
+                  defaultValue: "ACTIVE", // Giá trị mặc định
+                },
               ].map((field, index) => (
                 <input
                   key={index}
                   type={field.type}
                   name={field.name}
                   placeholder={field.placeholder}
-                  value={setNewVaccineCombo[field.name]}
+                  value={newVaccineCombo[field.name]} // Sử dụng giá trị từ state
                   onChange={handleInputChange}
                   className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                   min={field.type === "number" ? "0" : undefined}

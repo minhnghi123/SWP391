@@ -33,7 +33,7 @@ const ViewAllVaccines = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "https://localhost:7280/api/Vaccine/get-all-vaccines"
+          "https://localhost:5272/api/Vaccine/get-all-vaccines"
         );
         setVaccines(response.data);
         setError(null);

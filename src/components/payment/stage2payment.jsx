@@ -32,11 +32,11 @@ export default function Stage2Payment() {
     }, [listChildren, listVaccine, listComboVaccine]);
 
     const handleSubmit = async () => {
-        if (paymentMenthod === 2) {
-            toast.error('Sever is not available')
-            return
-        }
-        else if (paymentMenthod === 1) {
+        // if (paymentMenthod === 2) {
+        //     toast.error('Sever is not available')
+        //     return
+        // }
+         if (paymentMenthod === 1) {
             setTimeout(() => {
                 navigate('/confirm/pending')
             }, 3000)
@@ -55,6 +55,7 @@ export default function Stage2Payment() {
                 vaccineIds: (listVaccine || []).map(vaccine => vaccine.id),
                 vaccineComboIds: (listComboVaccine || []).map(combo => combo.id)
             };
+            console.log(value)
             const res = await addData('Booking/add-booking', value);
            
             if (res && res.status === 200 && res.data) {

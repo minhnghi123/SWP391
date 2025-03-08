@@ -18,7 +18,7 @@ const getEventColor = (vaccine) => {
     if (vaccine.status === 'scheduled') return '#3b82f6'
     return '#6b7280'
 }
-function CalendarApp({ setIsOpen, sortedVaccines }) {
+function CalendarApp({ setIsOpen, sortedVaccines,sortStatus,setSortStatus}) {
     // Xử lý danh sách sự kiện từ vaccine
     const eventsSorted = useMemo(() => {
         return sortedVaccines.map(vaccine => ({

@@ -1,352 +1,181 @@
-import { Calendar, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle, Shield } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle, Shield, User } from 'lucide-react';
 import formatDate from '../../../../utils/Date';
 import { useState } from 'react';
 import CalendarApp from './schedule';
 
-export default function VaccineSchedule({
-  input, feedbacks,
-  handleOnChange, handleSubmit,
-  openFeedback, toggleFeedback,
-  sortedVaccines, sortStatus, setSortStatus,
-  waitingVaccines, scheduledVaccines, completedVaccines,
-  selectedChild
-}) {
-  const [expandedSections, setExpandedSections] = useState({
-    waiting: true,
-    scheduled: true,
-    completed: true
-  });
-  const [isOpen, setIsOpen] = useState(false);
+export default function VaccineSchedules({ sortLinkList, ProgressBar }) {
+  const [expandedVaccines, setExpandedVaccines] = useState({});
+  const [hoveredCard, setHoveredCard] = useState(null);
 
-  const getVaccinesWithReaction = (childId) => {
-    if(sortedVaccines){
-      return sortedVaccines.filter(vaccine => vaccine.childId === childId && vaccine.reaction === 'Nothing' && vaccine.status === 'completed')
-    }
-    else {
-      return completedVaccines.filter(vaccine => vaccine.childId === childId && vaccine.reaction === 'Nothing')
-    }
-  };
-
-  const selectedChildVaccinesWithReaction = getVaccinesWithReaction(selectedChild);
-
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({
+  const toggleVaccine = (index) => {
+    setExpandedVaccines(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [index]: !prev[index]
     }));
   };
 
-  if (isOpen) {
-    return (
-      <CalendarApp setIsOpen={setIsOpen} sortedVaccines={sortedVaccines} sortStatus={sortStatus} setSortStatus={setSortStatus} />
-    )
-  }
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case 'completed': return 'text-emerald-500 bg-emerald-50 ring-1 ring-emerald-100';
+      case 'schedule': return 'text-violet-500 bg-violet-50 ring-1 ring-violet-100';
+      case 'waiting': return 'text-amber-500 bg-amber-50 ring-1 ring-amber-100';
+      default: return 'text-slate-500 bg-slate-50 ring-1 ring-slate-100';
+    }
+  };
 
-  const StatusButton = ({ status, count, isActive, onClick }) => {
-    const styles = {
-      waiting: {
-        active: 'bg-blue-600 text-white',
-        inactive: 'bg-white text-blue-600 hover:bg-blue-50 border border-blue-200'
-      },
-      scheduled: {
-        active: 'bg-blue-600 text-white',
-        inactive: 'bg-white text-blue-600 hover:bg-blue-50 border border-blue-200'
-      },
-      completed: {
-        active: 'bg-blue-600 text-white',
-        inactive: 'bg-white text-blue-600 hover:bg-blue-50 border border-blue-200'
-      },
-      all: {
-        active: 'bg-blue-700 text-white',
-        inactive: 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-      }
-    };
-
-    return (
-      <button
-        onClick={onClick}
-        className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 font-medium ${
-          isActive ? styles[status].active : styles[status].inactive
-        }`}
-      >
-        <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
-        {count !== undefined && (
-          <span className={`text-xs px-2 py-0.5 rounded-full ${
-            isActive ? 'bg-white/20' : 'bg-blue-100'
-          }`}>
-            {count}
-          </span>
-        )}
-      </button>
-    );
+  const getStatusIcon = (status) => {
+    switch (status.toLowerCase()) {
+      case 'completed': return <CheckCircle className="w-5 h-5" />;
+      case 'schedule': return <Calendar className="w-5 h-5" />;
+      case 'waiting': return <Clock className="w-5 h-5" />;
+      default: return <AlertCircle className="w-5 h-5" />;
+    }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-blue-100">
-      <div className="px-6 py-6 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-white">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-3">
-            <Shield size={28} className="text-blue-600" />
-            <h2 className="text-2xl font-bold text-blue-900">Vaccination Schedule</h2>
-          </div>
+    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="p-3 bg-indigo-50 rounded-xl">
+          <Shield className="w-6 h-6 text-indigo-500" />
         </div>
-        <div className="flex flex-wrap gap-2">
-          <StatusButton 
-            status="all"
-            isActive={sortStatus === 'all'}
-            onClick={() => setSortStatus('all')}
-            count={sortedVaccines.length}
-          />
-          <StatusButton 
-            status="waiting"
-            isActive={sortStatus === 'waiting'}
-            onClick={() => setSortStatus('waiting')}
-            count={waitingVaccines.length}
-          />
-          <StatusButton 
-            status="scheduled"
-            isActive={sortStatus === 'scheduled'}
-            onClick={() => setSortStatus('scheduled')}
-            count={scheduledVaccines.length}
-          />
-          <StatusButton 
-            status="completed"
-            isActive={sortStatus === 'completed'}
-            onClick={() => setSortStatus('completed')}
-            count={completedVaccines.length}
-          />
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Vaccination Schedule</h2>
+          <p className="text-gray-500 text-sm mt-1">Track and manage your vaccination progress</p>
         </div>
       </div>
 
-      {/* Waiting Section */}
-      {waitingVaccines.length > 0 && (
-        <div className="border-b border-blue-100">
-          <div
-            className="px-6 py-4 bg-white flex justify-between items-center cursor-pointer hover:bg-blue-50/50 transition-all duration-200"
-            onClick={() => toggleSection('waiting')}
-          >
-            <div className="flex items-center">
-              <Clock size={18} className="text-blue-600 mr-2" />
-              <h3 className="text-sm font-semibold text-blue-900">Waiting for Vaccination</h3>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="text-xs font-semibold text-blue-600 bg-blue-100/70 px-2.5 py-1 rounded-full">
-                {waitingVaccines.length}
-              </span>
-              {expandedSections.waiting ? (
-                <ChevronUp size={20} className="text-blue-400" />
-              ) : (
-                <ChevronDown size={20} className="text-blue-400" />
-              )}
-            </div>
-          </div>
-          {expandedSections.waiting && (
-            <div className="divide-y divide-blue-100">
-              {waitingVaccines.map(vaccine => (
-                <div key={vaccine.id} className="px-6 py-5 flex items-center justify-between hover:bg-blue-50/30 transition-all duration-200">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-blue-900 mb-2">{vaccine.name}</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-blue-600">
-                        <Calendar size={16} className="mr-2 text-blue-400" />
-                        <span className="font-medium">Window:</span>
-                        <span className="ml-2">{formatDate(vaccine.minimumIntervalDate)} - {formatDate(vaccine.dueDate)}</span>
-                      </div>
-                      {vaccine.vaccinationDate && (
-                        <div className="flex items-center text-sm text-blue-600">
-                          <Clock size={16} className="mr-2 text-blue-400" />
-                          <span className="font-medium">Scheduled:</span>
-                          <span className="ml-2">{formatDate(vaccine.vaccinationDate)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setIsOpen(true)}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg 
-                    hover:bg-blue-700 transition-all duration-200 shadow-sm"
-                  >
-                    Schedule
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      <div className="space-y-6">
+        {sortLinkList.map((chain, index) => {
+          const vaccineName = chain[0]?.vaccineName || 'Unknown Vaccine';
+          const completed = chain.filter(item =>
+            item.status.toLowerCase() === 'completed' ||
+            (item.vaccinationDate && new Date(item.vaccinationDate) < new Date())
+          ).length;
+          const total = chain.length;
+          const percentage = Math.round((completed / total) * 100) || 0;
 
-      {/* Scheduled Section */}
-      {scheduledVaccines.length > 0 && (
-        <div className="border-b border-blue-100">
-          <div
-            className="px-6 py-4 bg-blue-50/50 flex justify-between items-center cursor-pointer hover:bg-blue-100/50 transition-all duration-200"
-            onClick={() => toggleSection('scheduled')}
-          >
-            <div className="flex items-center">
-              <Calendar size={18} className="text-blue-600 mr-2" />
-              <h3 className="text-sm font-semibold text-blue-900">Scheduled Vaccines</h3>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="text-xs font-semibold text-blue-600 bg-blue-100 px-2.5 py-1 rounded-full">
-                {scheduledVaccines.length}
-              </span>
-              {expandedSections.scheduled ? (
-                <ChevronUp size={20} className="text-blue-400" />
-              ) : (
-                <ChevronDown size={20} className="text-blue-400" />
-              )}
-            </div>
-          </div>
-          {expandedSections.scheduled && (
-            <div className="divide-y divide-blue-100">
-              {scheduledVaccines.map(vaccine => (
-                <div key={vaccine.id} className="px-6 py-5 flex items-center justify-between hover:bg-blue-50/30 transition-all duration-200">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-blue-900 mb-2">{vaccine.name}</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-blue-600">
-                        <Calendar size={16} className="mr-2 text-blue-400" />
-                        <span className="font-medium">Window:</span>
-                        <span className="ml-2">{formatDate(vaccine.minimumIntervalDate)} - {formatDate(vaccine.dueDate)}</span>
-                      </div>
-                      {vaccine.vaccinationDate && (
-                        <div className="flex items-center text-sm text-blue-600">
-                          <Clock size={16} className="mr-2" />
-                          <span className="font-medium">Scheduled for:</span>
-                          <span className="ml-2">{formatDate(vaccine.vaccinationDate)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <button 
-                      className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-200 
-                      rounded-lg hover:bg-blue-50 transition-all duration-200"
-                      onClick={() => setIsOpen(true)}
-                    >
-                      Reschedule
-                    </button>
-                    <button 
-                      onClick={() => setIsOpen(true)}
-                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg 
-                      hover:bg-blue-700 transition-all duration-200 shadow-sm"
-                    >
-                      Complete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Completed Section */}
-      {completedVaccines.length > 0 && (
-        <div>
-          <div
-            className="px-6 py-4 bg-blue-50/30 flex justify-between items-center cursor-pointer hover:bg-blue-100/30 transition-all duration-200"
-            onClick={() => toggleSection('completed')}
-          >
-            <div className="flex items-center">
-              <CheckCircle size={18} className="text-blue-600 mr-2" />
-              <h3 className="text-sm font-semibold text-blue-900">Completed Vaccines</h3>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="text-xs font-semibold text-blue-600 bg-blue-100 px-2.5 py-1 rounded-full">
-                {completedVaccines.length}
-              </span>
-              {expandedSections.completed ? (
-                <ChevronUp size={20} className="text-blue-400" />
-              ) : (
-                <ChevronDown size={20} className="text-blue-400" />
-              )}
-            </div>
-          </div>
-          {expandedSections.completed && (
-            <div className="divide-y divide-blue-100">
-              {completedVaccines.map(vaccine => (
-                <div key={vaccine.id} className={`px-6 py-5 ${openFeedback[vaccine.id] ? 'bg-blue-50/30' : ''} 
-                  hover:bg-blue-50/20 transition-all duration-200`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-blue-900 mb-2">{vaccine.name}</h4>
-                      <div className="space-y-2">
-                        <div className="flex items-center text-sm text-blue-600">
-                          <CheckCircle size={16} className="mr-2" />
-                          <span>Completed on {formatDate(vaccine.vaccinationDate)}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-blue-600/80">
-                          <span className="font-medium">Administered by:</span>
-                          <span className="ml-2">{vaccine.administeredByDoctorName}</span>
-                        </div>
-                        {vaccine.reaction && vaccine.reaction !== 'Nothing' && (
-                          <div className="flex items-center text-sm text-blue-600">
-                            <AlertCircle size={16} className="mr-2" />
-                            <span className="font-medium">Reaction:</span>
-                            <span className="ml-2">{vaccine.reaction}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    {selectedChildVaccinesWithReaction.some(v => v.id === vaccine.id) && (
-                      <button
-                        onClick={() => toggleFeedback(vaccine.id)}
-                        className="text-blue-600 hover:text-blue-700 flex items-center font-medium transition-colors duration-200"
-                      >
-                        Add Reaction
-                        {openFeedback[vaccine.id] ? (
-                          <ChevronUp size={18} className="ml-1" />
-                        ) : (
-                          <ChevronDown size={18} className="ml-1" />
-                        )}
-                      </button>
-                    )}
-                  </div>
-
-                  {openFeedback[vaccine.id] && selectedChildVaccinesWithReaction.some(v => v.id === vaccine.id) && (
-                    <div className="mt-4 space-y-3">
-                      <textarea
-                        value={feedbacks[vaccine.id] || ''}
-                        onChange={(e) => handleOnChange(e, vaccine.id)}
-                        className="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 
-                        focus:border-blue-500 transition-all duration-200"
-                        placeholder="Describe any reactions or side effects..."
-                        rows="3"
-                      />
-                      <div className="flex justify-end">
-                        <button
-                          onClick={() => handleSubmit(vaccine.id, feedbacks[vaccine.id])}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-                          transition-all duration-200 font-medium shadow-sm"
-                        >
-                          Submit Reaction
-                        </button>
-                      </div>
-                    </div>
+          return (
+            <div 
+              key={index} 
+              className="transform transition-all duration-300 ease-in-out"
+              onMouseEnter={() => setHoveredCard(index)}
+              onMouseLeave={() => setHoveredCard(null)}
+            >
+              <div className="flex flex-row-reverse items-center gap-4 mb-2">
+                <button
+                  onClick={() => toggleVaccine(index)}
+                  className={`p-3 rounded-xl transition-all duration-300 ${
+                    hoveredCard === index ? 'bg-indigo-100 text-indigo-600' : 'hover:bg-indigo-50 text-gray-400'
+                  }`}
+                >
+                  {expandedVaccines[index] ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5" />
                   )}
+                </button>
+                <div className="flex-1 bg-white p-5 rounded-xl border border-gray-100 hover:border-indigo-200 transition-all duration-300 hover:shadow-md">
+                  <ProgressBar
+                    vaccineName={vaccineName}
+                    percentage={percentage}
+                    current={completed}
+                    total={total}
+                  />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+              </div>
 
-      {sortedVaccines.length === 0 && (
-        <div className="px-6 py-16 text-center">
-          <div className="mx-auto w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-            <Calendar size={40} className="text-blue-400" />
-          </div>
-          <h3 className="text-xl font-semibold text-blue-900 mb-3">No Vaccines Found</h3>
-          <p className="text-blue-600/80 max-w-md mx-auto mb-8">
-            There are no vaccines in this category. Select a different filter or add new vaccines to start tracking.
-          </p>
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-            transition-all duration-200 inline-flex items-center font-medium shadow-sm">
-            Add Vaccine
-          </button>
-        </div>
-      )}
+              {expandedVaccines[index] && (
+                <div className="ml-12 mt-6 space-y-6 border-l-2 border-indigo-100 pl-8 relative animate-fadeIn">
+                  {chain.map((dose, doseIndex) => (
+                    <div
+                      key={doseIndex}
+                      className="relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                    >
+                      <div className="absolute w-4 h-4 bg-indigo-500 rounded-full -left-[35px] top-8 ring-4 ring-white">
+                        <div className="absolute w-4 h-4 bg-indigo-500 rounded-full animate-ping opacity-20"></div>
+                      </div>
+
+                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-indigo-200 transition-all duration-300">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <span className={`${getStatusColor(dose.status)} p-3 rounded-xl transition-colors duration-300`}>
+                              {getStatusIcon(dose.status)}
+                            </span>
+                            <div>
+                              <h4 className="font-semibold text-gray-800 text-lg">
+                                Dose {doseIndex + 1}
+                              </h4>
+                              <span className="text-sm text-gray-500">
+                                {dose.vaccineName}
+                              </span>
+                            </div>
+                          </div>
+                          <span className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                            dose.status.toLowerCase() === 'completed' ? 'bg-emerald-100 text-emerald-800' :
+                            dose.status.toLowerCase() === 'schedule' ? 'bg-violet-100 text-violet-800' :
+                            'bg-amber-100 text-amber-800'
+                          }`}>
+                            {dose.status}
+                          </span>
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            {dose.vaccinationDate && (
+                              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300">
+                                <Calendar className="w-5 h-5 text-indigo-500" />
+                                <div>
+                                  <span className="font-medium block text-gray-700">Vaccination Date</span>
+                                  <span className="text-gray-600 text-sm">{formatDate(dose.vaccinationDate)}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300">
+                              <User className="w-5 h-5 text-indigo-500" />
+                              <div>
+                                <span className="font-medium block text-gray-700">Parent</span>
+                                <span className="text-gray-600 text-sm">{dose.administeredByDoctorName}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            {dose.minimumIntervalDate && dose.maximumIntervalDate && (
+                              <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300">
+                                <Clock className="w-5 h-5 text-indigo-500 mt-1" />
+                                <div>
+                                  <span className="font-medium block text-gray-700">Vaccination Window</span>
+                                  <span className="text-gray-600 text-sm block">{formatDate(dose.minimumIntervalDate)}</span>
+                                  <span className="text-gray-600 text-sm block">{formatDate(dose.maximumIntervalDate)}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {dose.reaction && (
+                              <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-xl transition-all duration-300">
+                                <AlertCircle className="w-5 h-5 text-amber-500" />
+                                <div>
+                                  <span className="font-medium block text-amber-700">Reaction</span>
+                                  <span className="text-amber-600 text-sm">{dose.reaction}</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
+
+
+

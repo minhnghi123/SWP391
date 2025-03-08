@@ -70,8 +70,8 @@ export default function AvatarHomePage() {
                                 />
                             </div>
                             <div>
-                                <h4 className="text-sm font-semibold text-gray-800">{user.name || user.user}</h4>
-                                <p className="text-xs text-gray-500">{user.email || ''}</p>
+                                <h4 className="text-sm font-semibold text-gray-800">{user?.username }</h4>
+                                {/* <p className="text-xs text-gray-500">{user.email || ''}</p> */}
                             </div>
                         </div>
                     </div>

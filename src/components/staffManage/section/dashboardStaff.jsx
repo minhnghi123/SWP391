@@ -217,7 +217,7 @@ const VaccineInventoryManager = (
   </Card>
 );
 
-console.log(VaccineInventoryManager)
+
 
 const RecentActivities = () => (
   <Card>

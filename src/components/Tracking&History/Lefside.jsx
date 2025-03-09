@@ -54,7 +54,7 @@ const LeftSide = ({ section, id }) => {
                   <button
                     key={item.id}
                     onClick={() => handleMenuClick(item.id)}
-                    className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${activeItem === item.id
+                    className={`flex items-center w-full px-4 py-4 text-sm font-medium rounded-lg transition-all duration-200 ${activeItem === item.id
                       ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
                       : "text-gray-600 hover:text-blue-600 hover:bg-gray-50 hover:translate-x-1"}`}
                   >

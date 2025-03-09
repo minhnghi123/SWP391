@@ -1,19 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ChildSelection from './ChildSelection';
-import SummaryCards from './SummaryCards'; // Unused import - consider removing if not needed
-import VaccineSchedules from './VaccineSchedule'; // Unused import - consider removing if not needed
+import SummaryCards from './SummaryCards';
+import VaccineSchedules from './VaccineSchedule';
 import { addData, fetchData } from '../../../../Api/axios';
 import { Calendar } from 'lucide-react';
-
+import ModalFeedback from '../../../feedback/formFeedback'
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { FeedbackContext } from '../../../Context/FeedbackContext';
 const TrackingChildbyUser = ({ id }) => {
 
-
+  // const { inputData,
+  //   handleSubmit,
+  //   handleOnChange,
+  //   handleClick,
+  //   handleMouseLeave,
+  //   handleMouseOver,
+  //   currentValue,
+  //   hoverValue } = useContext(FeedbackContext)
   const [trackingData, setTrackingData] = useState([]);
   const [selectedChild, setSelectedChild] = useState(null);
   const [children, setChildren] = useState([]);
   const [sortLinkList, setSortLinkList] = useState([]);
   const [err, setErr] = useState(null);
-
+  const [trigger, setTrigger] = useState(false);
+  // const [showModal, setShowModal] = useState(false);
   const createVaccineChains = (data) => {
     if (!data || data.length === 0) return [];
     // filter vaccine has previousVaccination is 0
@@ -32,6 +43,7 @@ const TrackingChildbyUser = ({ id }) => {
     });
     return vaccineChains;
   };
+
 
   // Fetch initial data
   useEffect(() => {
@@ -68,7 +80,7 @@ const TrackingChildbyUser = ({ id }) => {
     };
 
     fetchTrackingData();
-  }, []);
+  }, [id,trigger]);
 
   // Set initial selected child
   useEffect(() => {
@@ -89,6 +101,15 @@ const TrackingChildbyUser = ({ id }) => {
     }
   }, [selectedChild, trackingData]);
 
+  // useEffect(() => {
+  //   if (!selectedChild || sortLinkList.length === 0) return; // Kiểm tra dữ liệu trước khi xử lý
+  //   const findChild = sortLinkList.flat().filter(dose => dose.childId === selectedChild);
+  //   const checkAllCompleted = findChild.filter(dose => dose.status.toLowerCase() === "completed");
+  //   if (findChild.length > 0 && findChild.length === checkAllCompleted.length) {
+  //     setShowModal(true);
+  //   }
+  // }, [sortLinkList, selectedChild]); 
+
   const calculateProgress = () => {
     if (!selectedChild || sortLinkList.length === 0) {
       return { total: 0, completed: 0, percentage: 0 };
@@ -106,6 +127,8 @@ const TrackingChildbyUser = ({ id }) => {
     };
   };
   const progressData = calculateProgress();
+
+
 
   if (trackingData.length === 0) {
     return (
@@ -125,13 +148,18 @@ const TrackingChildbyUser = ({ id }) => {
 
   return (
     <div className="max-w-7xl mx-auto h-auto space-y-6 p-6">
+      {/* {
+        showModal && (
+          <ModalFeedback inputData={inputData} handleSubmit={handleSubmit} handleOnChange={handleOnChange} handleClick={handleClick} handleMouseLeave={handleMouseLeave} handleMouseOver={handleMouseOver} currentValue={currentValue} hoverValue={hoverValue} />
+        )
+      } */}
       {/* Total Progress Card */}
       <ChildSelection children={children} setSelectedChild={setSelectedChild} selectedChild={selectedChild} />
       {/* summary */}
       <SummaryCards progressData={progressData} ProgressBar={ProgressBar} />
 
       {/* Individual Vaccine Progress */}
-      <VaccineSchedules sortLinkList={sortLinkList} ProgressBar={ProgressBar} />
+      <VaccineSchedules sortLinkList={sortLinkList} ProgressBar={ProgressBar} setTrigger={setTrigger} />
 
     </div>
   );
@@ -144,6 +172,7 @@ export default TrackingChildbyUser;
 
 const ProgressBar = ({ percentage, vaccineName, current, total }) => (
   <div className="mb-6">
+
     <div className="flex justify-between mb-2">
       <span className="text-sm font-medium text-gray-700">
         {vaccineName} ({current}/{total})

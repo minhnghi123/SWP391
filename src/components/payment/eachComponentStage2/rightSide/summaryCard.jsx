@@ -1,18 +1,9 @@
-import { useSelector } from 'react-redux';
-import formatDecimal from '../../../../utils/calculateMoney';
-import { useMemo } from 'react';
 
+import formatDecimal from '../../../../utils/calculateMoney';
 const SummaryCard = ({ CalculateTotal }) => {
-    const advitory_detail = useSelector((state) => state.children?.advitory_detail || {});
-    const listChildren = useSelector((state) => state.children?.listChildren || []);
+
     
     // Calculate the total advisory fee
-    const totalPriceAdvitory = useMemo(() => {
-        if (Object.keys(advitory_detail).length > 0) {
-            return listChildren.length * 50000;
-        }
-        return 0;
-    }, [listChildren, advitory_detail]);
 
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
@@ -38,7 +29,7 @@ const SummaryCard = ({ CalculateTotal }) => {
                         </div>
                     </div>
                     <span className="text-lg font-semibold text-gray-900">
-                        {formatDecimal(totalPriceAdvitory)} VNĐ
+                        {/* {formatDecimal(totalPriceAdvitory)} VNĐ */}
                     </span>
                 </div>
 
@@ -56,7 +47,7 @@ const SummaryCard = ({ CalculateTotal }) => {
                         </div>
                     </div>
                     <span className="text-lg font-semibold text-gray-900">
-                        {formatDecimal(CalculateTotal * 0.05)} VNĐ
+                        {/* {formatDecimal(CalculateTotal * 0.05)} VNĐ */}
                     </span>
                 </div>
 
@@ -74,7 +65,7 @@ const SummaryCard = ({ CalculateTotal }) => {
                         </div>
                     </div>
                     <span className="text-2xl font-bold text-blue-600">
-                        {formatDecimal(CalculateTotal + (CalculateTotal * 0.05) + totalPriceAdvitory)} VNĐ
+                        {formatDecimal(CalculateTotal)} VNĐ
                     </span>
                 </div>
             </div>

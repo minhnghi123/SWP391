@@ -4,7 +4,7 @@ import {
 } from '@mui/icons-material';
 import formatCurrency from '../../../utils/calculateMoney';
 import { fetchData } from '../../../Api/axios';
-import AppointmentCard from '../history/AppointmentCard';
+import AppointmentCard from '../Section/history/AppointmentCard';
 
 
 const History = ({ id }) => {
@@ -14,7 +14,7 @@ const History = ({ id }) => {
     const [activeFilter, setActiveFilter] = useState('All');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-   
+
     //fetch data history
     useEffect(() => {
         const fetchDataHistory = async () => {
@@ -33,6 +33,9 @@ const History = ({ id }) => {
         };
         fetchDataHistory();
     }, [id]);
+    console.log(data)
+    console.log(filteredData)
+
     //sort data
     const handleFilter = (status) => {
         setActiveFilter(status);
@@ -42,6 +45,37 @@ const History = ({ id }) => {
             setFilteredData(data.filter(item => item.status === status));
         }
     };
+    if (data.length === 0) {
+        return (
+            <div
+                className="flex flex-col items-center justify-center p-16 space-y-4  rounded-xl h-[60vh]"
+                role="status"
+            >
+                <div className="p-4 bg-gray-100 rounded-full">
+                    <svg
+                        className="w-12 h-12 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="1.5"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                        />
+                    </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                    No bookings found
+                </h3>
+                <p className="max-w-md text-center text-gray-500">
+                    You don't have any upcoming or past bookings. Start planning your next adventure!
+                </p>
+            </div>
+        );
+    }
     return (
         <div className="space-y-6">
             <div className="bg-gray-50 p-3 rounded-lg flex flex-wrap gap-3">
@@ -77,10 +111,10 @@ const History = ({ id }) => {
                         </div>
                     ))}
                 </div>
-            ) : filteredData.length > 0 ? (
+            ) : filteredData && filteredData.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredData.map((bill) => (
-                        <AppointmentCard key={bill.id} bill={bill} VaccineItem={VaccineItem} STATUS_CONFIG={STATUS_CONFIG} />
+                        <AppointmentCard key={bill.id} bill={bill} VaccineItem={VaccineItem} STATUS_CONFIG={STATUS_CONFIG} id={id} />
                     ))}
                 </div>
             ) : (
@@ -109,14 +143,27 @@ const STATUS_CONFIG = {
         text: 'Pending'
     }
 };
-const VaccineItem = ({ vaccine }) => (
-    <div className="flex justify-between text-sm py-1">
-        <span className="flex items-center gap-2">
+const VaccineItem = ({ vaccine, totalChild }) => {
+    const checkCombo = vaccine.vaccineResponeBooking?.length > 0;
+    const finalPrice = checkCombo ? vaccine.finalPrice : vaccine.price;
+    const totalChildren = Array.isArray(totalChild) ? totalChild.length : 0;
+    const totalPrice = totalChildren > 1 ? totalChildren * finalPrice : finalPrice;
 
-            <VaccinesOutlined className="w-4 h-4 text-blue-500" />
-            {vaccine.name} 
-        </span>
-        <span>{formatCurrency(vaccine.price)} {` `} VND</span>
-    </div>
-);
+    return (
+        <div className="flex justify-between text-sm py-1">
+            <span className="flex items-center gap-2">
+                <VaccinesOutlined className="w-4 h-4 text-blue-500" />
+                {vaccine.name} {totalChildren > 1 && `x${totalChildren}`}
+            </span>
+            <span>
+                {formatCurrency(finalPrice)} VND
+                {totalChildren > 1 && (
+                    <span className="text-gray-500 text-xs"> ( {formatCurrency(totalPrice)} VND)</span>
+                )}
+            </span>
+        </div>
+    );
+};
+
+
 export default History;

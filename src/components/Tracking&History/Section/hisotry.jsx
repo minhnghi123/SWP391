@@ -33,8 +33,7 @@ const History = ({ id }) => {
         };
         fetchDataHistory();
     }, [id]);
-    console.log(data)
-    console.log(filteredData)
+
 
     //sort data
     const handleFilter = (status) => {

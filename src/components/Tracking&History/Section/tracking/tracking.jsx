@@ -8,6 +8,7 @@ import ModalFeedback from '../../../feedback/formFeedback'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { FeedbackContext } from '../../../Context/FeedbackContext';
+
 const TrackingChildbyUser = ({ id }) => {
 
   // const { inputData,
@@ -153,6 +154,7 @@ const TrackingChildbyUser = ({ id }) => {
           <ModalFeedback inputData={inputData} handleSubmit={handleSubmit} handleOnChange={handleOnChange} handleClick={handleClick} handleMouseLeave={handleMouseLeave} handleMouseOver={handleMouseOver} currentValue={currentValue} hoverValue={hoverValue} />
         )
       } */}
+
       {/* Total Progress Card */}
       <ChildSelection children={children} setSelectedChild={setSelectedChild} selectedChild={selectedChild} />
       {/* summary */}

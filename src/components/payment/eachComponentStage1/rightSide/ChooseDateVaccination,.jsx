@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { arriveActions } from "../../../redux/reducers/arriveDate";
 import { format } from "date-fns";
-import formatDate from "../../../../utils/FormDate";
+import formatDate from "../../../../utils/Date";
 
 const ChooseDateVaccination = ({ arriveDate }) => {
     const [showCalendar, setShowCalendar] = useState(false);

@@ -1,10 +1,11 @@
 import { AccessTimeOutlined, ChildCareOutlined, KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
-import formatDateTime from '../../../utils/Date';
+import formatDateTime from '../../../../utils/Date';
 import { useState } from 'react';
-import formatCurrency from '../../../utils/calculateMoney';
+import formatCurrency from '../../../../utils/calculateMoney';
 import PaymentModal from './PaymentModal';
-const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG }) => {
-    const childName = bill.childrenIds.map(child => child.name).join(', ');
+const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG,id }) => {
+    const totalChild = bill.childrenList.map(child => child.id)
+    const totalPrice = totalChild.length * bill.amount;
     const appointmentDate = formatDateTime(bill.arrivedAt)
     const [isExpanded, setIsExpanded] = useState(false);
     const totalVaccines = bill.vaccineList.length + bill.comboList.length;
@@ -15,7 +16,7 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG }) => {
             {/* Header Section */}
             <div className="flex justify-between items-start mb-5">
                 <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">{childName}</h3>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">{bill.childrenList.map(child => child.name).join(', ')}</h3>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <ChildCareOutlined className="w-4 h-4 text-blue-500" />
                         <span>Vaccination Schedule</span>
@@ -67,10 +68,10 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG }) => {
                     >
                         <div className="p-4 pt-0 space-y-2">
                             {bill.vaccineList.map((vaccine, index) => (
-                                <VaccineItem key={`vaccine-${index}`} vaccine={vaccine} />
+                                <VaccineItem key={`vaccine-${index}`} vaccine={vaccine} totalChild={totalChild} />
                             ))}
                             {bill.comboList.map((combo, index) => (
-                                <VaccineItem key={`combo-${index}`} vaccine={combo} />
+                                <VaccineItem key={`combo-${index}`} vaccine={combo} totalChild={totalChild} />
                             ))}
                         </div>
                     </div>
@@ -85,11 +86,11 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG }) => {
                         {bill.paymentName === 'Does not purchase yet' ? 'Not yet' : bill.paymentName}
                     </div>
                     <div className="text-lg font-bold text-blue-600">
-                        {formatCurrency(bill.amount)} VND
+                        {formatCurrency(totalPrice)}{` `} VND
                     </div>
                 </div>
 
-                {bill.paymentName === 'Does not purchase yet' && (
+                {bill.status.toLowerCase() === 'pending' && (
                     <button onClick={() => setIsOpenModal(true)}
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
                         aria-label="Proceed to payment"
@@ -99,7 +100,7 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG }) => {
                 )}
             </div>
             {isOpenModal && (
-                <PaymentModal onClose={() => setIsOpenModal(false)} bill={bill} />
+                <PaymentModal onClose={() => setIsOpenModal(false)} bill={bill} id={id} />
             )}
         </div>
     );

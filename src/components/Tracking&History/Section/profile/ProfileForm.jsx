@@ -2,6 +2,7 @@ import React from 'react';
 import { Save, X } from 'lucide-react';
 import ToUpperCase from '../../../../utils/upperCaseFirstLetter'
 import FormDate from '../../../../utils/FormDate'
+import formatDate from '../../../../utils/Date';
 const ProfileForm = ({ editProfile, profileData, handleEdit, handleSave, setEdit }) => {
     return (
         <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -72,7 +73,7 @@ const ProfileForm = ({ editProfile, profileData, handleEdit, handleSave, setEdit
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Account Created</label>
                     <div className="px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600">
-                        {FormDate(profileData.createdAt) || 'Not specified'}
+                        {formatDate(profileData.createdAt) || 'Not specified'}
                     </div>
                 </div>
             </div>

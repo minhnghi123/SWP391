@@ -18,27 +18,6 @@ export default function Stage3Payment() {
 
 
 
-    const fetchOrderDetail = async () => {
-        if (!user?.id) return;
-        setLoading(true);
-        try {
-            const res = await axios.get(`/OrderDetail/${user.id}`);
-            if (res.status === 200 && res.data) {
-                setData(res.data);
-            } else {
-                setData(null);
-                setErr("No Data");
-            }
-        } catch (error) {
-            setErr("Failed to fetch data");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchOrderDetail();
-    }, [user?.id]);
 
     const handleTrackVaccine = () => {
         navigate(`/pageProfile/tracking/${user?.id}`);

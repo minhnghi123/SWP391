@@ -1,7 +1,7 @@
 import React from 'react';
 import { User, Mail, Cake, Phone, UserCircle2, Calendar } from 'lucide-react';
 import ToUpperCase from '../../../../utils/upperCaseFirstLetter'
-import FormDate from '../../../../utils/FormDate'
+import FormDate from '../../../../utils/Date'
 
 const ProfileInfo = ({ profileData}) => {
   const profileItems = [

@@ -23,7 +23,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                     ) : (
                                         <FaVenus className="text-pink-500 text-2xl" />
                                     )}
-                                    <span>{CalculateAge(child.dateOfBirth)} years old</span>
+                                    <span>{CalculateAge(child.dateOfBirth)} </span>
                                 </div>
 
                                 {/* Status and Creation Date */}

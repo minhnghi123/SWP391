@@ -3,9 +3,9 @@ import formatDateTime from '../../../../utils/Date';
 import { useState } from 'react';
 import formatCurrency from '../../../../utils/calculateMoney';
 import PaymentModal from './PaymentModal';
+
 const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG,id }) => {
     const totalChild = bill.childrenList.map(child => child.id)
-    const totalPrice = totalChild.length * bill.amount;
     const appointmentDate = formatDateTime(bill.arrivedAt)
     const [isExpanded, setIsExpanded] = useState(false);
     const totalVaccines = bill.vaccineList.length + bill.comboList.length;
@@ -86,7 +86,7 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG,id }) => {
                         {bill.paymentName === 'Does not purchase yet' ? 'Not yet' : bill.paymentName}
                     </div>
                     <div className="text-lg font-bold text-blue-600">
-                        {formatCurrency(totalPrice)}{` `} VND
+                        {formatCurrency(bill.amount)}{` `} VND
                     </div>
                 </div>
 

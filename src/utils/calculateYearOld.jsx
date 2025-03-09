@@ -1,17 +1,30 @@
- export default function CalculateAge  (dateOfBirth)  {
-    const birthDate = new Date(dateOfBirth); // Chuyển đổi chuỗi ngày sinh thành đối tượng Date
-    const today = new Date(); // Lấy ngày hiện tại
+export default function CalculateAge(dateOfBirth) {
+    const birthDate = new Date(dateOfBirth);
+    const today = new Date();
 
-    // Tính chênh lệch năm
+    // Tính tuổi theo năm
     let age = today.getFullYear() - birthDate.getFullYear();
 
-    // Điều chỉnh nếu sinh nhật trong năm nay chưa xảy ra
+    // Kiểm tra xem sinh nhật đã qua chưa
     const monthDifference = today.getMonth() - birthDate.getMonth();
     const dayDifference = today.getDate() - birthDate.getDate();
-    
+
     if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-        age = 0
+        age--;
     }
 
-    return age;
-};
+    // Nếu tuổi = 0, tính số tháng
+    if (age === 0) {
+        let months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
+
+        // Nếu chưa đủ ngày trong tháng này, trừ đi 1 tháng
+        if (today.getDate() < birthDate.getDate()) {
+            months--;
+        }
+
+        return `${months} month${months > 1 ? "s" : ""}`;
+
+    }
+
+    return `${age} years old`;
+}

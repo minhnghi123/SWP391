@@ -1,19 +1,34 @@
 import { Calendar, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle, Shield, User, PlusCircle } from 'lucide-react';
 import formatDate from '../../../../utils/Date';
 import { useState } from 'react';
-import CalendarApp from './schedule';
 import ToUpperCase from '../../../../utils/upperCaseFirstLetter';
-import { addData } from '../../../../Api/axios';
+import { updateData } from '../../../../Api/axios';
 import { toast, ToastContainer } from 'react-toastify';
-import axios from 'axios';
+import VaccineRescheduleModal from './VaccineRescheduleModal';
+
 export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger }) {
   const [isInput, setIsInput] = useState({})
   const [reaction, setReaction] = useState({})
   const [expandedVaccines, setExpandedVaccines] = useState({});
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [showModalReSchedule, setShowModalReSchedule] = useState(false);
+  const [vaccinationDate, setVaccinationDate] = useState({
+    trackingID: '',
+    vaccineName: '',
+    vaccinationDate: ''
+  });
   const findSchedule = sortLinkList.flat().filter(dose => dose.status.toLowerCase() === "schedule")
   const findCompleted = sortLinkList.flat().filter(dose => dose.status.toLowerCase() === "completed")
   const checkReaction = findCompleted.filter(item => item.reaction === 'Nothing')
+
+  const handleOpenModalReSchedule = (trackingID, vaccinationDate, vaccineName) => {
+    setShowModalReSchedule(true);
+    setVaccinationDate({
+      trackingID: trackingID,
+      vaccineName: vaccineName,
+      vaccinationDate: vaccinationDate
+    });
+  };
 
 
 
@@ -28,12 +43,10 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
 
   const handleSubmit = async (trackingID) => {
     const data = {
-      trackingID: trackingID,
-      reaction: reaction[trackingID] || "",
+      reaction: reaction[trackingID]
     };
-
     try {
-      const res = await addData(`VaccinesTracking/update-vaccine-user/${trackingID}`, data)
+      const res = await updateData('VaccinesTracking/update-vaccine-user', trackingID, data)
       if (res.status === 200) {
         toast.success("Update Reaction Success");
         setTrigger(prev => !prev);
@@ -149,7 +162,11 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                             <div className='flex items-center gap-2'>
                               {
                                 findSchedule.some(item => item.trackingID === dose.trackingID) && (
-                                  <button className='bg-indigo-500 text-white px-4 py-2 rounded-xl'>ReSchedule</button>
+                                  <button onClick={() => handleOpenModalReSchedule(dose.trackingID, dose.vaccinationDate, dose.vaccineName)}
+                                    className='bg-indigo-500 text-white px-4 py-2 rounded-xl'>
+                                    ReSchedule
+                                  </button>
+
                                 )
                               }<span className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${dose.status.toLowerCase() === 'completed' ? 'bg-emerald-100 text-emerald-800' :
                                 dose.status.toLowerCase() === 'schedule' ? 'bg-violet-100 text-violet-800' :
@@ -158,9 +175,6 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                 {dose.status}
                               </span>
                             </div>
-
-
-
                           </div>
 
                           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,60 +203,81 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                 <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300">
                                   <Clock className="w-5 h-5 text-indigo-500 mt-1" />
                                   <div>
-                                    <span className=" flex flex-col gap-2 font-medium  text-gray-700">Vaccination Window</span>
-                                    {/* <span className="text-gray-600 text-sm block">{formatDate(dose.minimumIntervalDate)}</span> */}
+                                    <span className=" flex flex-col gap-2 font-medium  text-gray-700">Maximum Vaccination Date</span>
                                     <span className="text-gray-600 text-sm block">{formatDate(dose.maximumIntervalDate)}</span>
                                   </div>
                                 </div>
                               )}
                               {dose.reaction && (
-                                <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-xl transition-all duration-300">
-                                  <AlertCircle className="w-5 h-5 text-amber-500" />
+                                <div className={`flex items-center gap-3 p-4 ${dose.reaction === 'Nothing' ? 'bg-amber-50' : 'bg-green-50'
+                                  } rounded-xl transition-all duration-300`}>
+
+                                  {dose.reaction === 'Nothing' ? (
+                                    <AlertCircle className="w-5 h-5 text-amber-500" />
+                                  ) : (
+                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                  )}
+
                                   <div className="flex-1">
-                                    <span className="font-medium block text-amber-700">Reaction</span>
-                                    {
-                                      checkReaction.some(item => item.trackingID === dose.trackingID) ? (
-                                        <button
-                                          onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: true }))}
-                                          className="mt-2 flex items-center gap-2 text-amber-600 hover:text-amber-700 transition-colors text-sm"
-                                        >
-                                          <PlusCircle className="w-4 h-4" />
-                                          Add Reaction
-                                        </button>
-                                      ) : (
-                                        <span className="text-amber-600 text-sm">{dose.reaction}</span>
-                                      )
-                                    }
-                                    {
-                                      isInput[dose.trackingID] && (
-                                        <div className="mt-2 space-y-2">
-                                          <textarea
-                                            type="text"
-                                            placeholder="Describe any reactions..."
-                                            value={reaction[dose.trackingID] || ""}
-                                            onChange={(e) =>
-                                              setReaction(prev => ({ ...prev, [dose.trackingID]: e.target.value }))
-                                            }
-                                            className="w-full p-2 text-sm border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-300 focus:border-amber-300 outline-none resize-none"
-                                            rows="2"
-                                          />
-                                          <div className="flex justify-end gap-2">
-                                            <button 
-                                              onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: false }))}
-                                              className="px-3 py-1 text-sm text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors"
-                                            >
-                                              Cancel
-                                            </button>
-                                            <button 
-                                              onClick={() => handleSubmit(dose.trackingID)}
-                                              className="px-3 py-1 text-sm text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors"
-                                            >
-                                              Save
-                                            </button>
-                                          </div>
+                                    <span className={`font-medium block ${dose.reaction === 'Nothing' ? 'text-amber-700' : 'text-green-700'
+                                      }`}>
+                                      Reaction
+                                    </span>
+
+                                    {checkReaction.some(item => item.trackingID === dose.trackingID) ? (
+                                      <button
+                                        onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: true }))}
+                                        className={`mt-2 flex items-center gap-2 ${dose.reaction === 'Nothing'
+                                            ? 'text-amber-600 hover:text-amber-700'
+                                            : 'text-green-600 hover:text-green-700'
+                                          } transition-colors text-sm`}
+                                      >
+                                        <PlusCircle className="w-4 h-4" />
+                                        Add Reaction
+                                      </button>
+                                    ) : (
+                                      <span className={dose.reaction === 'Nothing' ? 'text-amber-600' : 'text-green-600'}>
+                                        {ToUpperCase(dose.status) !== 'Completed'
+                                          ? 'After completed vaccination, you can add your reaction'
+                                          : dose.reaction}
+                                      </span>
+                                    )}
+
+                                    {isInput[dose.trackingID] && (
+                                      <div className="mt-2 space-y-2">
+                                        <textarea
+                                          type="text"
+                                          placeholder="Describe any reactions..."
+                                          value={reaction[dose.trackingID] || ""}
+                                          onChange={(e) => setReaction(prev => ({ ...prev, [dose.trackingID]: e.target.value }))}
+                                          className={`w-full p-2 text-sm border ${dose.reaction === 'Nothing'
+                                              ? 'border-amber-200 focus:ring-amber-300 focus:border-amber-300'
+                                              : 'border-green-200 focus:ring-green-300 focus:border-green-300'
+                                            } rounded-lg focus:ring-2 outline-none resize-none`}
+                                          rows="2"
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                          <button
+                                            onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: false }))}
+                                            className={`px-3 py-1 text-sm ${dose.reaction === 'Nothing'
+                                                ? 'text-amber-700 bg-amber-50 hover:bg-amber-100'
+                                                : 'text-green-700 bg-green-50 hover:bg-green-100'
+                                              } rounded-lg transition-colors`}
+                                          >
+                                            Cancel
+                                          </button>
+                                          <button
+                                            onClick={() => handleSubmit(dose.trackingID)}
+                                            className={`px-3 py-1 text-sm text-white ${dose.reaction === 'Nothing'
+                                                ? 'bg-amber-500 hover:bg-amber-600'
+                                                : 'bg-green-500 hover:bg-green-600'
+                                              } rounded-lg transition-colors`}
+                                          >
+                                            Save
+                                          </button>
                                         </div>
-                                      )
-                                    }
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               )}
@@ -260,7 +295,18 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
           );
         })}
       </div>
+      {
+        showModalReSchedule && (
+          <VaccineRescheduleModal
+            currentAppointment={vaccinationDate}
+            onClose={() => setShowModalReSchedule(false)}
+            isOpen={showModalReSchedule}
+            setTrigger={setTrigger}
+          />
+        )
+      }
     </div>
+
   );
 }
 

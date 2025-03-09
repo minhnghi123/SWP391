@@ -63,7 +63,7 @@ const ChildCart = ({ handleAddChild, sortchildren, handleEditChild, searchTerm, 
                                                     {child.status}
                                                 </span>
                                                 <span className="ml-2 text-sm text-blue-600 font-medium">
-                                                    {CalculateAge(child.dateOfBirth)} years old
+                                                    {CalculateAge(child.dateOfBirth)}
                                                 </span>
                                             </div>
                                         </div>

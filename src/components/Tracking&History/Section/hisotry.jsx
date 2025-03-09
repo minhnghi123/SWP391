@@ -14,6 +14,7 @@ const History = ({ id }) => {
     const [activeFilter, setActiveFilter] = useState('All');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isTrigger, setIsTrigger] = useState(false);
 
     //fetch data history
     useEffect(() => {

@@ -140,7 +140,6 @@ const BodyDoctorManage = () => {
             <RecentActivities />
           </div>
           <div className="space-y-8">
-            <VaccinationNotesCard notes={notes} setNotes={setNotes} />
             <TaskList />
           </div>
         </div>

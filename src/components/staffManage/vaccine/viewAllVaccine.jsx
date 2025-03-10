@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AddVaccine from "./addVaccine"; // Thay bằng AddVaccineCombo nếu có
-import DeleteVaccine from "../components/deleteVaccine"; // Thay bằng DeleteVaccineCombo nếu có
+import AddVaccine from "./addVaccine";
+import DeleteVaccine from "../components/deleteVaccine";
 import Pagination from "../../../utils/pagination";
-import VaccineDetails from "./detailVaccine"; // Thay bằng ComboDetails nếu có
+import VaccineDetails from "./detailVaccine";
 import { ToastContainer } from "react-toastify";
 import {
   Search,
@@ -16,47 +16,45 @@ import UpdateVaccine from "./updateVaccine";
 
 const VaccineList = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("comboName");
+  const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [selectedCombo, setSelectedCombo] = useState(null);
+  const [selectedVaccineId, setSelectedVaccineId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedComboForUpdate, setSelectedComboForUpdate] = useState(null);
+  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [combos, setCombos] = useState([]);
+  const [vaccines, setVaccines] = useState([]);
 
-  const fetchCombos = async () => {
+  const fetchVaccines = async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://localhost:7280/api/VaccineCombo/get-all-vaccine-combo" // Thay API phù hợp
+        "https://localhost:7280/api/Vaccine/get-all-vaccines"
       );
-      setCombos(response.data);
+      setVaccines(response.data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching combos:", error);
-      setError("Failed to fetch combos. Please try again later.");
+      console.error("Error fetching vaccines:", error);
+      setError("Failed to fetch vaccines. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCombos();
+    fetchVaccines();
   }, []);
 
   const handleDeleteSuccess = () => {
-    fetchCombos();
+    fetchVaccines();
   };
 
-  const filteredItems = combos.filter((item) => {
-    return (
-      (item.comboName?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-    );
-  });
+  const filteredItems = vaccines.filter((item) =>
+    (item.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  );
 
   const sortedItems = [...filteredItems].sort((a, b) => {
     const valueA = a[sortBy] || "";
@@ -80,34 +78,35 @@ const VaccineList = () => {
   };
 
   const handleViewItem = (item) => {
-    setSelectedCombo(item);
+    console.log("Viewing vaccine with ID:", item.id); // Debug log
+    setSelectedVaccineId(item.id);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedCombo(null);
+    setSelectedVaccineId(null);
   };
 
   const handleOpenUpdateModal = (item) => {
-    setSelectedComboForUpdate(item);
+    setSelectedVaccineForUpdate(item);
     setIsUpdateModalOpen(true);
   };
 
   const handleCloseUpdateModal = () => {
     setIsUpdateModalOpen(false);
-    setSelectedComboForUpdate(null);
+    setSelectedVaccineForUpdate(null);
   };
 
-  const handleUpdateSuccess = (updatedCombo) => {
-    setCombos((prev) =>
-      prev.map((item) => (item.id === updatedCombo.id ? updatedCombo : item))
+  const handleUpdateSuccess = (updatedVaccine) => {
+    setVaccines((prev) =>
+      prev.map((item) => (item.id === updatedVaccine.id ? updatedVaccine : item))
     );
     handleCloseUpdateModal();
   };
 
   const handleAddSuccess = () => {
-    fetchCombos();
+    fetchVaccines();
   };
 
   return (
@@ -115,8 +114,8 @@ const VaccineList = () => {
       <ToastContainer />
       <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">Vaccine Combos</h1>
-          <AddVaccine onAddSuccess={handleAddSuccess} /> {/* Thay bằng AddVaccineCombo nếu có */}
+          <h1 className="text-2xl font-bold text-gray-900">Vaccine List</h1>
+          <AddVaccine onAddSuccess={handleAddSuccess} />
         </div>
 
         <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">
@@ -127,7 +126,7 @@ const VaccineList = () => {
             />
             <input
               type="text"
-              placeholder="Search combos..."
+              placeholder="Search vaccines..."
               value={searchTerm}
               onChange={handleSearch}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
@@ -144,17 +143,19 @@ const VaccineList = () => {
               }}
               className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
             >
-              <option value="comboName-asc">Name (A-Z)</option>
-              <option value="comboName-desc">Name (Z-A)</option>
-              <option value="discount-asc">Discount (Low to High)</option>
-              <option value="discount-desc">Discount (High to Low)</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="price-asc">Price (Low to High)</option>
+              <option value="price-desc">Price (High to Low)</option>
+              <option value="quantity-asc">Quantity (Low to High)</option>
+              <option value="quantity-desc">Quantity (High to Low)</option>
             </select>
           </div>
         </div>
 
         <div className="overflow-x-auto">
           {loading ? (
-            <p>Loading combos...</p>
+            <p>Loading vaccines...</p>
           ) : error ? (
             <p className="text-red-500">{error}</p>
           ) : (
@@ -165,10 +166,19 @@ const VaccineList = () => {
                     Id
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Combo Name
+                    Name
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Discount (%)
+                    Description
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Quantity
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Price
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    From Country
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                     Status
@@ -195,13 +205,22 @@ const VaccineList = () => {
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">
-                              {item.comboName}
+                              {item.name}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.discount}%
+                        {item.description}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {item.quantity}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        ${item.price}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {item.fromCountry}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
                         {item.status}
@@ -218,7 +237,7 @@ const VaccineList = () => {
                           <button
                             onClick={() => handleOpenUpdateModal(item)}
                             className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                            title="Edit combo"
+                            title="Edit vaccine"
                           >
                             <SquarePen size={16} />
                           </button>
@@ -233,10 +252,10 @@ const VaccineList = () => {
                 ) : (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={8}
                       className="px-4 py-8 text-center text-gray-500"
                     >
-                      No combos found matching your search criteria.
+                      No vaccines found matching your search criteria.
                     </td>
                   </tr>
                 )}
@@ -254,18 +273,17 @@ const VaccineList = () => {
           totalItems={sortedItems.length}
         />
 
-        {isModalOpen && selectedCombo && (
+        {isModalOpen && selectedVaccineId && (
           <VaccineDetails
-            vaccine={selectedCombo}
+            id={selectedVaccineId}
             isOpen={isModalOpen}
             onClose={handleCloseModal}
           />
         )}
 
-        {isUpdateModalOpen && selectedComboForUpdate && (
+        {isUpdateModalOpen && selectedVaccineForUpdate && (
           <UpdateVaccine
-            combo={selectedComboForUpdate} // Truyền combo thay vì vaccine
-            isOpen={isUpdateModalOpen}
+            vaccine={selectedVaccineForUpdate}
             onSave={handleUpdateSuccess}
             onCancel={handleCloseUpdateModal}
           />

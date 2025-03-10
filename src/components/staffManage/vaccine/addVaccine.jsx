@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Plus, Clock } from "lucide-react";
+import { toast } from "react-toastify";
 
-const AddVaccineComponent = () => {
+const AddVaccineComponent = ({ onAddSuccess }) => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [newVaccine, setNewVaccine] = useState({
+  const initialVaccineState = {
     name: "",
     quantity: "",
     description: "",
@@ -20,10 +21,11 @@ const AddVaccineComponent = () => {
     timeExpired: "",
     status: "ACTIVE",
     addressId: 1,
-    // Remove these fields from the state since they're not in the JSON
     minimumIntervalDate: "",
     maximumIntervalDate: "",
-  });
+  };
+
+  const [newVaccine, setNewVaccine] = useState(initialVaccineState);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,27 +42,30 @@ const AddVaccineComponent = () => {
     }));
   };
 
+  const resetForm = () => {
+    setNewVaccine(initialVaccineState);
+    setError(null);
+  };
+
   const handleAddVaccine = async () => {
     setLoading(true);
     setError(null);
 
-    // Transform data to match the provided JSON field names and types
     const vaccineData = {
-      name: newVaccine.name || "", // Ensure string, even if empty
-      quantity: parseInt(newVaccine.quantity) || 0, // Default to 0 if empty or invalid
-      description: newVaccine.description || "", // Ensure string, even if empty
-      price: parseFloat(newVaccine.price) || 0.0, // Default to 0.0 if empty or invalid
-      doesTimes: parseInt(newVaccine.doesTimes) || 0, // Default to 0 if empty or invalid
-      fromCountry: newVaccine.fromCountry || "", // Ensure string, even if empty
-      suggestAgeMin: parseInt(newVaccine.suggestAgeMin) || 0, // Default to 0 if empty or invalid
-      suggestAgeMax: parseInt(newVaccine.suggestAgeMax) || 0, // Default to 0 if empty or invalid
-      entryDate: newVaccine.entryDate ? new Date(newVaccine.entryDate).toISOString() : new Date().toISOString(), // Default to current date if empty
-      timeExpired: newVaccine.timeExpired ? new Date(newVaccine.timeExpired).toISOString() : new Date().toISOString(), // Default to current date if empty
-      status: newVaccine.status || "", // Ensure string, even if empty
-      addressId: parseInt(newVaccine.addressId) || 1, // Default to 1 if empty or invalid
-      minimumIntervalDate: parseInt(newVaccine.minimumIntervalDate) || 0, // Default to 0 if empty or invalid
-      maximumIntervalDate: parseInt(newVaccine.maximumIntervalDate) || 0
-    };    
+      ...newVaccine,
+      quantity: parseInt(newVaccine.quantity) || 0,
+      price: parseFloat(newVaccine.price) || 0.0,
+      doesTimes: parseInt(newVaccine.doesTimes) || 0,
+      suggestAgeMin: parseInt(newVaccine.suggestAgeMin) || 0,
+      suggestAgeMax: parseInt(newVaccine.suggestAgeMax) || 0,
+      entryDate: newVaccine.entryDate ? new Date(newVaccine.entryDate).toISOString() : new Date().toISOString(),
+      timeExpired: newVaccine.timeExpired ? new Date(newVaccine.timeExpired).toISOString() : new Date().toISOString(),
+      status: newVaccine.status === "ACTIVE" ? "ACTIVE" : "INACTIVE",
+      addressId: parseInt(newVaccine.addressId) || 1,
+      minimumIntervalDate: parseInt(newVaccine.minimumIntervalDate) || 0,
+      maximumIntervalDate: parseInt(newVaccine.maximumIntervalDate) || 0,
+    };
+
     console.log("Sending vaccine data:", vaccineData);
 
     try {
@@ -70,17 +75,17 @@ const AddVaccineComponent = () => {
       );
   
       if (response.status === 201 || response.status === 200) {
-        alert("Vaccine added successfully!");
+        toast.success("Vaccine added successfully!", { autoClose: 3000 });
         setShowForm(false);
-        window.location.reload(); // Reload page after successful addition
+        resetForm();
+        onAddSuccess();
       } else {
-        alert("Failed to add vaccine.");
+        toast.error("Failed to add vaccine.", { autoClose: 3000 });
       }
     } catch (error) {
       console.error("Error adding vaccine:", error.response?.data || error);
-      setError(
-        error.response?.data?.message || "Unknown error occurred while adding vaccine."
-      );
+      setError(error.response?.data?.message || "Unknown error occurred while adding vaccine.");
+      toast.error(error.response?.data?.message || "Unknown error occurred while adding vaccine.", { autoClose: 3000 });
     } finally {
       setLoading(false);
     }
@@ -102,16 +107,17 @@ const AddVaccineComponent = () => {
           className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 shadow-sm group-hover:shadow-md"
         />
       </div>
-      {description && (
-        <p className="mt-1 text-xs text-gray-500">{description}</p>
-      )}
+      {description && <p className="mt-1 text-xs text-gray-500">{description}</p>}
     </div>
   );
 
   return (
     <>
       <button
-        onClick={() => setShowForm(!showForm)}
+        onClick={() => {
+          setShowForm(!showForm);
+          if (showForm) resetForm();
+        }}
         className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
       >
         <Plus className="w-5 h-5" />
@@ -137,9 +143,7 @@ const AddVaccineComponent = () => {
                 { name: "fromCountry", placeholder: "Country", type: "text" },
                 { name: "suggestAgeMin", placeholder: "Min Age", type: "number" },
                 { name: "suggestAgeMax", placeholder: "Max Age", type: "number" },
-                { name: "status", placeholder: "Status", type: "text" },
                 { name: "addressId", placeholder: "Address ID", type: "number" },
-                // Remove these fields from the form since they're not in the JSON
                 { name: "minimumIntervalDate", placeholder: "Min Interval Date (Optional)", type: "number" },
                 { name: "maximumIntervalDate", placeholder: "Max Interval Date (Optional)", type: "number" },
               ].map((field, index) => (
@@ -156,35 +160,27 @@ const AddVaccineComponent = () => {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-6">
-              <DateInput
-                label="Entry Date"
-                value={newVaccine.entryDate}
-                onChange={(value) => handleDateChange("entryDate", value)}
-                icon={<Clock className="w-5 h-5 text-rose-500" />}
-                description="When vaccine was entered"
+            <div className="flex items-center space-x-2 mb-6">
+              <input
+                type="checkbox"
+                name="status"
+                checked={newVaccine.status === "ACTIVE"}
+                onChange={(e) =>
+                  setNewVaccine((prev) => ({
+                    ...prev,
+                    status: e.target.checked ? "ACTIVE" : "INACTIVE",
+                  }))
+                }
+                className="w-5 h-5 accent-teal-500"
               />
-              <DateInput
-                label="Expired Time"
-                value={newVaccine.timeExpired}
-                onChange={(value) => handleDateChange("timeExpired", value)}
-                icon={<Clock className="w-5 h-5 text-rose-500" />}
-                description="When vaccine expires"
-              />
+              <label className="text-gray-700">Active</label>
             </div>
 
             <div className="mt-6 flex justify-end space-x-4">
-              <button
-                onClick={() => setShowForm(false)}
-                className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              >
+              <button onClick={() => setShowForm(false)} className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
                 Cancel
               </button>
-              <button
-                onClick={handleAddVaccine}
-                disabled={loading}
-                className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-lg hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 shadow-lg shadow-teal-500/20"
-              >
+              <button onClick={handleAddVaccine} disabled={loading} className="px-6 py-2.5 bg-teal-500 text-white rounded-lg">
                 {loading ? "Adding..." : "Add Vaccine"}
               </button>
             </div>

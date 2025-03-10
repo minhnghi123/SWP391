@@ -2,15 +2,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect, useContext } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import imgAvatar from '../../assets/p15.jpg'
+import imgAvatar from "../../assets/p15.jpg";
 import { AuthContext } from "../Services/AuthLogin";
 
 import Dashboard from "../dashboard/Section/dashboard";
-import Appointments from "../dashboard/Section/appointments";
-import DoctorSchedule from "../dashboard/Section/doctorSchedule";
-import Patients from "../dashboard/Section/patients";
+import User from "../dashboard/Section/manageUser";
+import Child from "../dashboard/Section/manageChild";
+import FeedBack from "../dashboard/Section/manageFeedback";
+import Vaccine from "../dashboard/Section/manageVaccine";
+import Tracking from "../dashboard/Section/manageTracking";
+import Booking from "../dashboard/Section/manageBooking";
 import Payments from "../dashboard/Section/payments";
-import Inventory from "../dashboard/Section/inventory";
+import Combo from "../dashboard/Section/manageCombo"
 import LoginPage from "../../pages/loginPage";
 import AvatarHomePage from "../home/avatarHomePage";
 const RightSide = () => {
@@ -18,7 +21,7 @@ const RightSide = () => {
   // const handleLogout = () => {
   //   logout();
   //   localStorage.removeItem('Account');
-    
+
   //   navigate('../loginPage');
   // }
   const navigate = useNavigate();
@@ -26,9 +29,8 @@ const RightSide = () => {
   const searchRef = useRef(null);
   const [search, setSearch] = useState("");
   // const [isOpen, setIsOpen] = useState(false);
-      // const dropdownRef = useRef(null);
-  
-  
+  // const dropdownRef = useRef(null);
+
   //     // Click outside handler
   //     useEffect(() => {
   //         const handleClickOutside = (event) => {
@@ -37,7 +39,7 @@ const RightSide = () => {
   //                 setIsOpen(false);
   //             }
   //         };
-  
+
   //         document.addEventListener('mousedown', handleClickOutside);
   //         return () => document.removeEventListener('mousedown', handleClickOutside);
   //     }, []);
@@ -62,16 +64,22 @@ const RightSide = () => {
     switch (section) {
       case "dashboard":
         return <Dashboard />;
-      case "appointments":
-        return <Appointments />;
-      case "patients":
-        return <Patients />;
-      case "doctorSchedule":
-        return <DoctorSchedule />;
+      case "user":
+        return <User />;
+      case "child":
+        return <Child />;
+      case "vaccine":
+        return <Vaccine />;
+        case "combo":
+          return <Combo />;
+      case "booking":
+        return <Booking />;
       case "payments":
         return <Payments />;
-      case "inventory":
-        return <Inventory />;
+      case "tracking":
+        return <Tracking />;
+      case "feedback":
+        return <FeedBack />;
       default:
         return <Dashboard />;
     }
@@ -86,29 +94,20 @@ const RightSide = () => {
             <div className="space-y-2">
               <h1 className="text-2xl font-bold text-gray-800 capitalize">
                 {section === "dashboard" && "Dashboard"}
-                {section === "appointments" && "Appointments"}
-                {section === "patients" && "Patients"}
-                {section === "doctorSchedule" && "Doctors' Schedule"}
-                {section === "payments" && "Payments"}
-                {section === "inventory" && "Inventory"}
+                {section === "user" && "Manage User"}
+                {section === "child" && "Manage Child"}
+                {section === "vaccine" && "Manage Vaccine"}
+                {section === "combo" && "Manage Vaccine Combo"}
+                {section === "booking" && "Manage Booking"}
+                {section === "payments" && "Manage Payments"}
+                {section === "tracking" && "Manage Tracking"}
+                {section === "feedback" && "Manage Feedback"}
+
               </h1>
             </div>
-              <div className="flex items-center space-x-6">
-    {/* Search Bar */}
-              <div className="relative group">
-                <input
-                  ref={searchRef}
-                  value={search}
-                  onChange={handleSearch}
-                  type="text"
-                  placeholder="Search..."
-                  className="w-64 pl-11 pr-4 py-2.5 rounded-lg border border-gray-200 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-500 transition-all duration-200"
-                />
-                <button onClick={handleSubmit}>
-                  <SearchOutlinedIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                </button>
-              </div>
-
+            <div className="flex items-center space-x-6">
+              {/* Search Bar */}
+          
               {/* Avatar và Notification cùng hàng */}
               <div className="flex items-center space-x-4">
                 {/* Notification */}
@@ -118,13 +117,13 @@ const RightSide = () => {
                 </button>
 
                 {/* Avatar */}
-              <AvatarHomePage/>
+                {/* <AvatarHomePage/> */}
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Section rendering */}
       <div>{renderSection()}</div>
     </div>

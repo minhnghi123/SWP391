@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { fetchData } from "../../../Api/axios";
-
-const Patients = () => {
-  const [patients, setPatients] = useState([]);
+import Date from "../../../utils/FormDate"
+import axios from "axios";
+const Child = () => {
+  const [payments, setPayments] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,12 +11,12 @@ const Patients = () => {
     const fetchDataAsync = async () => {
       try {
         setLoading(true);
-        const patientsRes = await fetchData("feedback"); // Lấy dữ liệu từ API
-        setPatients(patientsRes.data); // Gán dữ liệu từ API vào state
+        const paymentsRes = await axios.get("https://localhost:7280/api/Child/get-all-child-admin"); // Lấy dữ liệu từ API
+        setPayments(paymentsRes.data); // Gán dữ liệu từ API vào state
         setError(null);
       } catch (error) {
         console.error("Error fetching API:", error);
-        setError("Failed to fetch patients. Please try again later.");
+        setError("Failed to fetch payments. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -29,15 +29,15 @@ const Patients = () => {
     setSearch(e.target.value);
   };
 
-  const filteredPatients = patients.filter((patient) =>
-    patient.name.toLowerCase().includes(search.toLowerCase()) // Tìm kiếm theo name thay vì username
+  const filteredPayments = payments.filter((payment) =>
+    payment.name.toLowerCase().includes(search.toLowerCase()) // Tìm kiếm theo name thay vì username
   );
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Patient Management</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Child Management</h1>
         <button className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-200">
           + Add Patient
         </button>
@@ -65,20 +65,31 @@ const Patients = () => {
             <thead className="bg-gray-100 border-b">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Date of birth</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Phone</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Vaccine type</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Date of Birth</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Gender</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Create At</th>
+
               </tr>
             </thead>
             <tbody>
-              {filteredPatients.map((patient) => (
-                <tr key={patient.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-800">{patient.name}</td> {/* Đổi từ username thành name */}
-                  <td className="px-6 py-4 text-sm text-gray-600">{patient.dateOfBirth}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{patient.phone}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{patient.vaccineType}</td>
+              {filteredPayments.length > 0 ? (
+                filteredPayments.map((payment) => (
+                  <tr key={payment.id} className="border-b hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm text-gray-800">{payment.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{Date(payment.dateOfBirth)}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{payment.gender}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{payment.status}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800">{Date(payment.createdAt)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                    No payments found.
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -87,4 +98,4 @@ const Patients = () => {
   );
 };
 
-export default Patients;
+export default Child;

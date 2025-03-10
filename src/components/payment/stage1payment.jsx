@@ -43,7 +43,7 @@ export default function Stage1Payment({id}) {
     createDate: "",
   });
 
-console.log(arriveDate)
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

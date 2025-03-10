@@ -8,7 +8,7 @@ import accountSlice from "./reducers/accountSlice";
 import menthodPaymentSlice from "./reducers/methodPaymentlice";
 import arrvieDateSlice from "./reducers/arriveDate";
 import paymentSlice from "./reducers/currentStepSlice";
-
+import orderSlice from "./reducers/orderSlice";
 
 // import feedbackSlice from "./reducers/feebackSlice";
 
@@ -21,7 +21,8 @@ const store = configureStore({
         methodPayment: menthodPaymentSlice.reducer,
         arriveDate: arrvieDateSlice.reducer,
         payment: paymentSlice.reducer,
-        profilechildren:childrenSelectSlice.reducer
+        profilechildren:childrenSelectSlice.reducer,
+        order:orderSlice.reducer
 
 
 

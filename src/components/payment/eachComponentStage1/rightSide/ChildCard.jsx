@@ -3,7 +3,7 @@ import { FaChild, FaMars, FaVenus, FaCalendarAlt, FaChevronDown, FaChevronUp, Fa
 import { MdFamilyRestroom } from "react-icons/md";
 import CalculateAge from '../../../../utils/calculateYearOld'
 import ToUperCaseFirstLetter from '../../../../utils/upperCaseFirstLetter'
-import FormDate from '../../../../utils/FormDate'
+import FormDate from '../../../../utils/Date'
 const ChildInfoCard = ({ child, handleRemove, parentName }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     return (
@@ -23,7 +23,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                     ) : (
                                         <FaVenus className="text-pink-500 text-2xl" />
                                     )}
-                                    <span>{CalculateAge(child.dateOfBirth)} years old</span>
+                                    <span>{CalculateAge(child.dateOfBirth)} </span>
                                 </div>
 
                                 {/* Status and Creation Date */}
@@ -31,7 +31,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                     <span className={`px-2 py-1 rounded-full ${child.status === "Good" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
                                         {child.status}
                                     </span>
-                                    <span className="ml-2 text-gray-600">Created: {new Date(child.dateOfBirth).toLocaleDateString('vi-VN')}</span>
+                                    <span className="ml-2 text-gray-600">Created: {FormDate(child.createdAt)}</span>
                                 </div>
                             </div>
                         </div>
@@ -71,7 +71,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         <FaCalendarAlt className="text-blue-400" />
                                         <span className="font-medium">Birth Date:</span>
-                                        <span>{new Date(child.dateOfBirth).toLocaleDateString('vi-VN')}</span>
+                                        <span>{FormDate(child.dateOfBirth)}</span>
                                     </div>
                                     <div className="flex items-center space-x-2 text-gray-700">
                                         {child.gender === 0 ? (

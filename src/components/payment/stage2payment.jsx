@@ -9,8 +9,14 @@ import { ToastContainer, toast } from "react-toastify";
 import { addData } from "../../Api/axios";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import { childAction } from "../redux/reducers/selectChildren";
+import { arriveActions } from "../redux/reducers/arriveDate";
+import { vaccineAction } from "../redux/reducers/selectVaccine";
+import { methodPaymentAction } from "../redux/reducers/methodPaymentlice";
+import { useNavigate } from "react-router-dom";
+import { orderAction } from "../redux/reducers/orderSlice";
 export default function Stage2Payment() {
+    const navigate = useNavigate()
     const { id } = useParams()
     const [isLoading, setLoading] = useState(false);
     const dispatch = useDispatch()
@@ -32,33 +38,34 @@ export default function Stage2Payment() {
     }, [listChildren, listVaccine, listComboVaccine]);
 
     const handleSubmit = async () => {
-        if (paymentMenthod === 2) {
-            toast.error('Sever is not available')
-            return
-        }
-        else if (paymentMenthod === 1) {
-            setTimeout(() => {
-                navigate('/confirm/pending')
-            }, 3000)
-        }
         try {
             setLoading(true)
             const totalPrice = (CalculateTotal || 0) + ((CalculateTotal || 0) * 0.05) + (Object.keys(advitory_detail || {}).length ? listChildren.length * 50000 : 0);
-
             const value = {
                 parentId: id || "N/A",
                 advisoryDetail: Object.keys(advitory_detail || {}).length ? advitory_detail : 'no',
                 totalPrice: totalPrice,
-                paymentId: paymentMenthod || "N/A",
+                paymentId: paymentMenthod,
                 arrivedAt: arriveDate || "N/A",
                 childrenIds: (listChildren || []).map(child => child.id),
                 vaccineIds: (listVaccine || []).map(vaccine => vaccine.id),
                 vaccineComboIds: (listComboVaccine || []).map(combo => combo.id)
             };
             const res = await addData('Booking/add-booking', value);
-           
-            if (res && res.status === 200 && res.data) {
-                window.location.href = res.data;
+            if (res.status === 200 && res.data) {
+                if (res.data === 'Payment By Cash success') {
+                    dispatch(childAction.completePayment())
+                    dispatch(vaccineAction.completePayment())
+                    dispatch(arriveActions.resetArriveDate())
+                    dispatch(methodPaymentAction.resetMethodPayment())
+                    dispatch(childAction.resetForm())
+                    dispatch(orderAction.savePaymentData(value))
+                    navigate(`/confirm/pending`)
+                }
+                else {
+                    window.location.href = res.data;
+                }
+
             } else {
                 console.log('Err fetch API', res);
                 toast.error('API error: ' + (res?.message || 'Unknown error'));

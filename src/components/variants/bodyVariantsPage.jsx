@@ -38,7 +38,7 @@ function boydVaritants() {
       try {
         const [vaccines, comboVaccine] = await Promise.all([
           fetchData('Vaccine/get-all-vaccines'),
-          fetchData('VaccineCombo/getVaccineCombo')
+          fetchData('VaccineCombo/get-all-vaccine-combo')
         ])
         if (vaccines.status === 200) setVaccines(vaccines.data)
         if (comboVaccine.status === 200) setComboVaccines(comboVaccine.data)

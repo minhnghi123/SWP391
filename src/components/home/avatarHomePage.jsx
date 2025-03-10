@@ -32,7 +32,7 @@ export default function AvatarHomePage() {
         dispatch(accountAction.clearUser())
         dispatch(vaccineAction.completePayment())
         dispatch(childAction.completePayment())
-         dispatch(arriveActions.resetArriveDate());
+        dispatch(arriveActions.resetArriveDate());
         navigate('/loginPage');
     };
 
@@ -70,8 +70,8 @@ export default function AvatarHomePage() {
                                 />
                             </div>
                             <div>
-                                <h4 className="text-sm font-semibold text-gray-800">{user.name || user.user}</h4>
-                                <p className="text-xs text-gray-500">{user.email || ''}</p>
+                                <h4 className="text-sm font-semibold text-gray-800">{user?.name }</h4>
+                                {/* <p className="text-xs text-gray-500">{user.email || ''}</p> */}
                             </div>
                         </div>
                     </div>

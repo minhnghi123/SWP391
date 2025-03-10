@@ -1,112 +1,56 @@
-import { Calendar, Clock, CheckCircle, Shield } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, Shield, ChartBar } from 'lucide-react';
 import formatDate from '../../../../utils/Date';
 
-export default function SummaryCards({waitingVaccines, scheduledVaccines, completedVaccines}) {
-  const getNextVaccination = () => {
-    const allUpcoming = [...waitingVaccines, ...scheduledVaccines]
-      .sort((a, b) => new Date(a.vaccinationDate) - new Date(b.vaccinationDate));
-    return allUpcoming[0];
-  };
-
-  const nextVaccine = getNextVaccination();
-  const totalVaccines = waitingVaccines.length + scheduledVaccines.length + completedVaccines.length;
+export default function SummaryCards({progressData,ProgressBar}) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {/* Next Vaccination Card */}
-      <div className="relative bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white shadow-lg overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 bg-blue-500/30 rounded-full blur-2xl transform transition-transform duration-500 group-hover:scale-110" />
-        <div className="relative">
-          <div className="flex items-start justify-between mb-4">
-            <h3 className="text-sm font-medium text-blue-100">Next Vaccination</h3>
-            <Calendar size={20} className="text-blue-200" />
-          </div>
-          {nextVaccine ? (
-            <>
-              <p className="text-xl font-bold mb-3 line-clamp-1">{nextVaccine.name}</p>
-              <div className="flex items-center text-sm text-blue-100 bg-blue-500/20 px-3 py-2 rounded-lg">
-                <Clock size={16} className="mr-2" />
-                <span>{formatDate(nextVaccine.vaccinationDate)}</span>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-start space-y-3">
-              <p className="text-sm text-blue-100">No upcoming vaccinations</p>
-              <button className="text-xs font-medium px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors duration-200">
-                Schedule Now
-              </button>
-            </div>
-          )}
-        </div>
+    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-center gap-3 mb-8">
+        <Shield className="w-6 h-6 text-indigo-500" />
+        <h2 className="text-2xl font-semibold text-gray-800">Vaccination Overview</h2>
       </div>
 
-      {/* Waiting Card */}
-      <div className="bg-white rounded-xl p-6 border border-blue-100 shadow-sm hover:shadow-md transition-shadow duration-200">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <Clock size={20} className="text-blue-600" />
-            </div>
-            <h3 className="text-sm font-medium text-blue-900">Waiting</h3>
-          </div>
-          <span className="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700">
-            {Math.round((waitingVaccines.length / totalVaccines) * 100 || 0)}%
-          </span>
+      <div className="relative mb-12">
+        <div className="absolute -top-2 right-0 bg-indigo-50 text-indigo-700 px-4 py-1 rounded-full text-sm font-medium">
+          {progressData.percentage}% Complete
         </div>
-        <p className="text-3xl font-bold text-blue-900 mb-3">{waitingVaccines.length}</p>
-        <div className="w-full bg-blue-50 rounded-full h-2">
-          <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-500 relative"
-            style={{ width: `${(waitingVaccines.length / totalVaccines) * 100 || 0}%` }}
-          >
-            <div className="absolute -right-1 -top-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white" />
-          </div>
-        </div>
+        <ProgressBar
+          percentage={progressData.percentage}
+          vaccineName="All Vaccines"
+          current={progressData.completed}
+          total={progressData.total}
+        />
       </div>
 
-      {/* Scheduled Card */}
-      <div className="bg-white rounded-xl p-6 border border-blue-100 shadow-sm hover:shadow-md transition-shadow duration-200">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <Calendar size={20} className="text-blue-600" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl border border-indigo-100 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-indigo-500" />
             </div>
-            <h3 className="text-sm font-medium text-blue-900">Scheduled</h3>
+            <h3 className="text-indigo-900 font-medium text-lg">Completed Vaccines</h3>
           </div>
-          <span className="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700">
-            {Math.round((scheduledVaccines.length / totalVaccines) * 100 || 0)}%
-          </span>
-        </div>
-        <p className="text-3xl font-bold text-blue-900 mb-3">{scheduledVaccines.length}</p>
-        <div className="w-full bg-blue-50 rounded-full h-2">
-          <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-500 relative"
-            style={{ width: `${(scheduledVaccines.length / totalVaccines) * 100 || 0}%` }}
-          >
-            <div className="absolute -right-1 -top-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white" />
+          <div className="ml-8">
+            <div className="flex items-baseline gap-2">
+              <p className="text-4xl font-bold text-indigo-600">{progressData.completed}</p>
+              <p className="text-indigo-600 opacity-75 font-medium">/ {progressData.total}</p>
+            </div>
+            <p className="text-sm text-indigo-600 opacity-75 mt-1">vaccines completed</p>
           </div>
         </div>
-      </div>
 
-      {/* Completed Card */}
-      <div className="bg-white rounded-xl p-6 border border-blue-100 shadow-sm hover:shadow-md transition-shadow duration-200">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <CheckCircle size={20} className="text-blue-600" />
+        <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl border border-gray-100 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <ChartBar className="w-5 h-5 text-gray-500" />
             </div>
-            <h3 className="text-sm font-medium text-blue-900">Completed</h3>
+            <h3 className="text-gray-900 font-medium text-lg">Remaining Vaccines</h3>
           </div>
-          <span className="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700">
-            {Math.round((completedVaccines.length / totalVaccines) * 100 || 0)}%
-          </span>
-        </div>
-        <p className="text-3xl font-bold text-blue-900 mb-3">{completedVaccines.length}</p>
-        <div className="w-full bg-blue-50 rounded-full h-2">
-          <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-500 relative"
-            style={{ width: `${(completedVaccines.length / totalVaccines) * 100 || 0}%` }}
-          >
-            <div className="absolute -right-1 -top-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white" />
+          <div className="ml-8">
+            <div className="flex items-baseline gap-2">
+              <p className="text-4xl font-bold text-gray-700">{progressData.total - progressData.completed}</p>
+              <p className="text-gray-600 opacity-75 font-medium">remaining</p>
+            </div>
+            <p className="text-sm text-gray-500 mt-1">vaccines to complete</p>
           </div>
         </div>
       </div>

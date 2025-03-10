@@ -1,39 +1,53 @@
-import { User } from 'lucide-react';
+import { User, Baby, Calendar } from 'lucide-react';
 import toUpperCaseWords from '../../../../utils/upperCaseFirstLetter';
-export default function ChildSelection({children, selectedChild, setSelectedChild}) {
-    return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4 overflow-x-auto scrollbar-hide">
-        {children.map((child) => (
-          <button
-            key={child.id}
-            onClick={() => setSelectedChild(child.id)}
-            className={`p-4 rounded-lg transition-transform transform hover:scale-105 duration-200 ${selectedChild === child.id
-                ? "bg-indigo-50 shadow-lg border-l-4 border-indigo-600"
-                : "bg-white shadow-sm hover:shadow-md border-l-4 border-transparent"
-              }`}
-          >
-            <div className="flex items-center">
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${child.gender === "Male" ? "bg-blue-200 text-blue-700" : "bg-pink-200 text-pink-700"
-                  }`}
-              >
-                <User size={24} />
-              </div>
-              <div className="ml-4 text-left">
-                <p className={`font-semibold ${selectedChild === child.id ? "text-indigo-800" : "text-gray-800"}`}>
-                  {child?.name}
-                </p>
-                <div className="flex items-center mt-1">
-                  <span className={`text-sm ${child.gender === "Male" ? "text-blue-600" : "text-pink-600"}`}>
-                    {toUpperCaseWords(child?.gender || 'male')}
-                  </span>
-                  <span className="mx-2 text-gray-400">•</span>
-                  <span className="text-sm text-gray-600">{child?.age || '9'}</span>
-                </div>
-              </div>
+import calculateAge from '../../../../utils/calculateYearOld';
+
+export default function ChildSelection({ children, selectedChild, setSelectedChild }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {children.map((child) => (
+        <button
+          key={child.id}
+          onClick={() => setSelectedChild(child.id)}
+          className={`
+            flex items-center gap-3 p-4 rounded-xl border
+            bg-white hover:bg-gray-50 transition-colors duration-150
+            ${selectedChild === child.id 
+              ? 'border-blue-500 shadow-md shadow-blue-100' 
+              : 'border-gray-200'}
+          `}
+        >
+          {/* Avatar */}
+          <div className={`
+            p-2 rounded-full
+            ${selectedChild === child.id 
+              ? 'bg-blue-500 text-white' 
+              : 'bg-gray-100 text-gray-600'}
+          `}>
+            <User className="w-5 h-5" />
+          </div>
+
+          {/* Info */}
+          <div className="text-left">
+            <h3 className="text-sm font-semibold text-gray-900">
+              {toUpperCaseWords(child.name)}
+            </h3>
+            <div className="flex items-center gap-2 text-xs mt-1.5">
+              <span className="flex items-center gap-1 text-gray-600">
+                <Calendar className="w-3 h-3" />
+                {calculateAge(child.dateOfBirth)}
+              </span>
+              <span className={`
+                flex items-center gap-1 font-medium
+                ${child.gender === 0 ? 'text-blue-600' : 'text-pink-600'}
+              `}>
+                <Baby className="w-3 h-3" />
+                {child.gender === 0 ? 'Boy' : 'Girl'}
+              </span>
             </div>
-          </button>
-        ))}
-      </div>
-    )
+          </div>
+        </button>
+      ))}
+    </div>
+  );
 }

@@ -1,17 +1,18 @@
 
 import { useParams } from 'react-router-dom';
 import Stage1Payment from '../components/payment/stage1payment';
+import FooterHomePage from '../components/home/footerHomPage'
 export default function stage1Payment() {
- const {id}= useParams()
+  const { id } = useParams()
 
   return (
     <>
 
       {/* <HeaderPayment /> */}
 
-     <Stage1Payment id={id}/>
-{/* 
-      <FooterHomePage /> */}
+        <Stage1Payment id={id} />
+        <FooterHomePage />
+   
 
       )
 

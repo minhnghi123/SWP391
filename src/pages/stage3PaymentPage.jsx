@@ -6,8 +6,10 @@ export default function stage3payment() {
     return (
         <>
             {/* <HeaderPayment /> */}
-            <Stage3Payment />
-            {/* <FooterHomePage/> */}
+           
+                <Stage3Payment />
+               
+            
         </>
     )
 }

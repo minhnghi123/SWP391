@@ -1,226 +1,169 @@
-import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-import PriceChangeOutlinedIcon from '@mui/icons-material/PriceChangeOutlined';
-import formatCurrency from '../../../utils/calculateMoney';
-import PlayCircleFilledWhiteOutlinedIcon from '@mui/icons-material/PlayCircleFilledWhiteOutlined';
-import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import { useEffect, useState } from 'react';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import AppsOutlinedIcon from '@mui/icons-material/AppsOutlined';
-import axios from 'axios';
+import {
+    MonetizationOnOutlined, CheckCircleOutline, AppsOutlined, CancelOutlined, PendingOutlined, VaccinesOutlined
+} from '@mui/icons-material';
+import formatCurrency from '../../../utils/calculateMoney';
+import { fetchData } from '../../../Api/axios';
+import AppointmentCard from '../Section/history/AppointmentCard';
+
 
 const History = ({ id }) => {
+
     const [data, setData] = useState([]);
-    const [sorted, setSorted] = useState([]);
-    const [err, setErr] = useState('');
+    const [filteredData, setFilteredData] = useState([]);
+    const [activeFilter, setActiveFilter] = useState('All');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [isTrigger, setIsTrigger] = useState(false);
 
-    const STATUS_COLORS = {
-        'Completed': 'bg-green-500',
-        'Pending': 'bg-yellow-500',
-        'In Progress': 'bg-blue-500'
-    };
-    const mockData = [
-        {
-            id: 1,
-            name: "Nguyễn Văn A",
-            time: "08:30",
-            price: 1500000,
-            date: "2025-03-01",
-            status: "Completed",
-            doctorImage: "https://randomuser.me/api/portraits/men/1.jpg"
-        },
-        {
-            id: 2,
-            name: "Trần Thị B",
-            time: "10:00",
-            price: 1200000,
-            date: "2025-03-02",
-            status: "Pending",
-            doctorImage: "https://randomuser.me/api/portraits/women/2.jpg"
-        },
-        {
-            id: 3,
-            name: "Lê Văn C",
-            time: "14:45",
-            price: 2000000,
-            date: "2025-03-03",
-            status: "In Progress",
-            doctorImage: "https://randomuser.me/api/portraits/men/3.jpg"
-        },
-        {
-            id: 4,
-            name: "Nguyễn Văn A",
-            time: "08:30",
-            price: 1500000,
-            date: "2025-03-01",
-            status: "Completed",
-            doctorImage: "https://randomuser.me/api/portraits/men/1.jpg"
-        },
-        {
-            id: 5,
-            name: "Trần Thị B",
-            time: "10:00",
-            price: 1200000,
-            date: "2025-03-02",
-            status: "Pending",
-            doctorImage: "https://randomuser.me/api/portraits/women/2.jpg"
-        },
-        {
-            id: 6,
-            name: "Lê Văn C",
-            time: "14:45",
-            price: 2000000,
-            date: "2025-03-03",
-            status: "In Progress",
-            doctorImage: "https://randomuser.me/api/portraits/men/3.jpg"
+    //fetch data history
+    useEffect(() => {
+        const fetchDataHistory = async () => {
+            setLoading(true);
+            try {
+                const res = await fetchData(`Booking/booking-history/${id}`);
+                if (res.status === 200) {
+                    setData(res.data);
+                    setFilteredData(res.data);
+                }
+            } catch (error) {
+                setError('Fetch data failed');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDataHistory();
+    }, [id]);
+
+
+    //sort data
+    const handleFilter = (status) => {
+        setActiveFilter(status);
+        if (status === 'All') {
+            setFilteredData(data);
+        } else {
+            setFilteredData(data.filter(item => item.status === status));
         }
-    ];
-    
-
-    const AppointmentCard = ({ name, time, price, date, status, doctorImage }) => (
-        <div className='bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200'>
-            <div className='flex justify-between items-start mb-4'>
-                <h2 className='text-lg font-semibold text-gray-800'>{name}</h2>
-                <span className={`${STATUS_COLORS[status] || 'bg-gray-500'} px-3 py-1 rounded-full text-xs font-medium text-white`}>
-                    {status}
-                </span>
+    };
+    if (data.length === 0) {
+        return (
+            <div
+                className="flex flex-col items-center justify-center p-16 space-y-4  rounded-xl h-[60vh]"
+                role="status"
+            >
+                <div className="p-4 bg-gray-100 rounded-full">
+                    <svg
+                        className="w-12 h-12 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="1.5"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                        />
+                    </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                    No bookings found
+                </h3>
+                <p className="max-w-md text-center text-gray-500">
+                    You don't have any upcoming or past bookings. Start planning your next adventure!
+                </p>
+            </div>
+        );
+    }
+    return (
+        <div className="space-y-6">
+            <div className="bg-gray-50 p-3 rounded-lg flex flex-wrap gap-3">
+                {['All', 'Success', 'Refund', 'Pending'].map((status) => (
+                    <button
+                        key={status}
+                        onClick={() => handleFilter(status)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2
+              ${activeFilter === status
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}
+            `}
+                    >
+                        {status === 'All' && <AppsOutlined className="w-4 h-4" />}
+                        {status !== 'All' && STATUS_CONFIG[status].icon}
+                        {status === 'All' ? 'All' : STATUS_CONFIG[status].text}
+                    </button>
+                ))}
             </div>
 
-            <div className='space-y-3 mb-4'>
-                <div className='flex items-center text-gray-600'>
-                    <AccessTimeOutlinedIcon className='w-5 h-5 mr-2 text-blue-500' />
-                    <span className='text-sm'>{time}</span>
-                    <span className='ml-auto font-medium text-blue-600'>{formatCurrency(price)} VND</span>
+            {error ? (
+                <div className="p-6 bg-red-50 text-red-700 rounded-lg">{error}</div>
+            ) : loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {[...Array(3)].map((_, idx) => (
+                        <div key={idx} className="bg-white rounded-xl p-5 animate-pulse">
+                            <div className="h-6 bg-gray-200 rounded w-3/4 mb-4" />
+                            <div className="h-4 bg-gray-200 rounded w-1/2 mb-6" />
+                            <div className="space-y-3">
+                                <div className="h-4 bg-gray-200 rounded w-full" />
+                                <div className="h-4 bg-gray-200 rounded w-2/3" />
+                            </div>
+                        </div>
+                    ))}
                 </div>
-
-                <div className='flex items-center text-gray-600'>
-                    <CalendarTodayOutlinedIcon className='w-5 h-5 mr-2 text-blue-500' />
-                    <span className='text-sm'>{date}</span>
+            ) : filteredData && filteredData.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {filteredData.map((bill) => (
+                        <AppointmentCard key={bill.id} bill={bill} VaccineItem={VaccineItem} STATUS_CONFIG={STATUS_CONFIG} id={id} />
+                    ))}
                 </div>
-            </div>
-
-            <div className='flex items-center justify-between pt-4 border-t border-gray-100'>
-                <div className='flex items-center gap-2'>
-                    <img
-                        src={doctorImage}
-                        alt='Doctor'
-                        className='w-8 h-8 rounded-full object-cover'
-                    />
-                    <div>
-                        <p className='text-xs text-gray-500'>Doctor</p>
-                        <p className='text-sm font-medium text-gray-700'>Dr. {name}</p>
-                    </div>
+            ) : (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <MonetizationOnOutlined className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-500">No booking history</p>
                 </div>
-                <button className='p-2 rounded-full hover:bg-blue-50 transition-colors duration-200'>
-                    <PlayCircleFilledWhiteOutlinedIcon className='w-6 h-6 text-blue-500' />
-                </button>
-            </div>
+            )}
         </div>
     );
-
-    const sortByProcess = (status) => {
-        if (!data) return;
-
-        let sortedData = [];
-
-        if (status === 'All') {
-            sortedData = data; 
-        } else {
-            sortedData = data.filter((bill) => bill.status === status);
-        }
-
-        setSorted(sortedData);
-    };
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            // try {
-            //     const res = await axios.get('API_URL_HERE'); // Thay API_URL_HERE bằng API thực tế
-            //     if (res.status === 200 && res.data) {
-            //         setData(res.data);
-            //         setSorted(res.data); // Gán dữ liệu ban đầu vào sorted
-            //     } else {
-            //         setErr('Fetch API Failed');
-            //     }
-            // } catch (error) {
-            //     setErr('Failed to fetch data');
-            // }
-            setData(mockData);
-            setSorted(mockData);
-        };
-
-        fetchData();
-    }, []);
+};
+const STATUS_CONFIG = {
+    Success: {
+        color: 'bg-green-100 text-green-800',
+        icon: <CheckCircleOutline className="w-4 h-4" />,
+        text: 'Completed'
+    },
+    Refund: {
+        color: 'bg-red-100 text-red-800',
+        icon: <CancelOutlined className="w-4 h-4" />,
+        text: 'Refund'
+    },
+    Pending: {
+        color: 'bg-amber-100 text-amber-800',
+        icon: <PendingOutlined className="w-4 h-4" />,
+        text: 'Pending'
+    }
+};
+const VaccineItem = ({ vaccine, totalChild }) => {
+    const checkCombo = vaccine.vaccineResponeBooking?.length > 0;
+    const finalPrice = checkCombo ? vaccine.finalPrice : vaccine.price;
+    const totalChildren = Array.isArray(totalChild) ? totalChild.length : 0;
+    const totalPrice = totalChildren > 1 ? totalChildren * finalPrice : finalPrice;
 
     return (
-
-        <>
-            <div className='w-full shadow-sm bg-blue-50 rounded-lg flex flex-row items-center justify-end p-2 gap-2'>
-                {/* <input
-                    type='text'
-                    placeholder='Search appointments...'
-                    className='px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                /> */}
-                <div className='flex gap-2'>
-                    <button
-                        onClick={() => sortByProcess('All')}
-                        className='px-4 py-2 rounded-lg bg-gray-50  hover:bg-gray-400 hover:text-white transition-colors duration-200 font-medium text-sm uppercase tracking-wide shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2  focus:ring-black focus:ring-offset-2 flex items-center gap-2'
-                    >
-                        <AppsOutlinedIcon className='w-5 h-5' />
-                        All
-                    </button>
-                    <button
-                        onClick={() => sortByProcess('Completed')}
-                        className='px-4 py-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-500 hover:text-white transition-colors duration-200 font-medium text-sm uppercase tracking-wide shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center gap-2'
-                    >
-                        <CheckCircleOutlinedIcon className='w-5 h-5' />
-                        Complete
-                    </button>
-                    <button
-                        onClick={() => sortByProcess('Pending')}
-                        className='px-4 py-2 rounded-lg bg-amber-100 text-amber-800 hover:bg-amber-500 hover:text-white transition-colors duration-200 font-medium text-sm uppercase tracking-wide shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 flex items-center gap-2'
-                    >
-                        <AccessTimeOutlinedIcon className='w-5 h-5' />
-                        Pending
-                    </button>
-                    <button
-                        onClick={() => sortByProcess('In Progress')}
-                        className='px-4 py-2 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-500 hover:text-white transition-colors duration-200 font-medium text-sm uppercase tracking-wide shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2'
-                    >
-                        <PlayCircleFilledWhiteOutlinedIcon className='w-5 h-5' />
-                        Process
-                    </button>
-                </div>
-            </div>
-
-            <div className='p-4 grid grid-cols-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-                {sorted.length > 0 ? (
-                    sorted.map((appointment, index) => (
-                        <AppointmentCard
-                            key={index}
-                            name={appointment.name}
-                            time={appointment.time}
-                            price={appointment.price}
-                            date={appointment.date}
-                            status={appointment.status}
-                            doctorImage={appointment.doctorImage}
-                        />
-                    ))
-                ) : (
-                    <p className="text-gray-500 text-center col-span-full">No appointments found.</p>
+        <div className="flex justify-between text-sm py-1">
+            <span className="flex items-center gap-2">
+                <VaccinesOutlined className="w-4 h-4 text-blue-500" />
+                {vaccine.name} {totalChildren > 1 && `x${totalChildren}`}
+            </span>
+            <span>
+                {formatCurrency(finalPrice)} VND
+                {totalChildren > 1 && (
+                    <span className="text-gray-500 text-xs"> ( {formatCurrency(totalPrice)} VND)</span>
                 )}
+            </span>
+        </div>
+    );
+};
 
 
-                {/* Tương tự cho các thẻ khác */}
-            </div>
-        </>
-
-
-
-
-
-
-    )
-}
-
-export default History
+export default History;

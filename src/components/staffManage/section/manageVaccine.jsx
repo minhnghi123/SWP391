@@ -1,9 +1,131 @@
-import React, { useState } from "react";
-import ViewAllCombo from "../combo/viewAllCombo"; // Assuming this is VaccineCombo
-import ViewAllVaccine from "../vaccine/viewAllVaccine"; // Assuming this is VaccineList
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import AddVaccine from "../components/addVaccine";
+import DeleteVaccine from "../components/deleteVaccine";
+import Pagination from "../../../utils/pagination";
+import VaccineDetails from "../components/detailVaccine";
+import AddVaccineComboComponent from "../components/addComboVaccine";
+import { ToastContainer } from "react-toastify";
+import {
+  Search,
+  ArrowUpDown,
+  Refrigerator,
+  Eye,
+} from "lucide-react";
 
-const ManageVaccine = () => {
-  const [view, setView] = useState(null);
+const ViewAllVaccines = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [selectedVaccine, setSelectedVaccine] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [vaccines, setVaccines] = useState([]);
+  const [vaccineCombos, setVaccineCombos] = useState([]);
+  const [viewMode, setViewMode] = useState("vaccines"); // "vaccines" or "combos"
+
+  // Fetch vaccines and vaccine combos from APIs
+  useEffect(() => {
+    const fetchVaccines = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          "https://localhost:7280/api/Vaccine/get-all-vaccines"
+        );
+        setVaccines(response.data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching vaccines:", error);
+        setError("Failed to fetch vaccines. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchVaccineCombos = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          "https://localhost:7280/api/VaccineCombo/getVaccineCombo"
+        );
+        setVaccineCombos(response.data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching vaccine combos:", error);
+        setError("Failed to fetch vaccine combos. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVaccines();
+    fetchVaccineCombos();
+  }, []);
+
+  // Filter, Sort, Pagination logic
+  const filteredItems = (
+    viewMode === "vaccines" ? vaccines : vaccineCombos
+  ).filter((item) => {
+    const matchesSearch =
+      (
+        item.comboName?.toLowerCase() ||
+        item.name?.toLowerCase() ||
+        ""
+      ).includes(searchTerm.toLowerCase()) ||
+      (item.description?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase()
+      ) ||
+      (item.fromCountry?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase()
+      );
+    return matchesSearch;
+  });
+
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    const valueA = a[sortBy] || "";
+    const valueB = b[sortBy] || "";
+    return sortOrder === "asc"
+      ? valueA > valueB
+        ? 1
+        : -1
+      : valueA < valueB
+      ? 1
+      : -1;
+  });
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Handle view vaccine/combo details
+  const handleViewItem = (item) => {
+    setSelectedVaccine(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedVaccine(null);
+  };
+
+  const handleUpdateVaccine = (updatedVaccine) => {
+    if (viewMode === "vaccines") {
+      setVaccines((prevVaccines) =>
+        prevVaccines.map((vaccine) =>
+          vaccine.id === updatedVaccine.id ? updatedVaccine : vaccine
+        )
+      );
+    } else {
+      setVaccineCombos((prevCombos) =>
+        prevCombos.map((combo) =>
+          combo.id === updatedVaccine.id ? updatedVaccine : combo
+        )
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

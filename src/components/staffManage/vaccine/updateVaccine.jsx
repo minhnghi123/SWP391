@@ -1,33 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Added useEffect
 import axios from "axios";
 import { Save, X } from "lucide-react";
-import { toast } from "react-toastify"; // Import ToastContainer và toast
-import "react-toastify/dist/ReactToastify.css"; // Import CSS của react-toastify
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
-  const [formData, setFormData] = useState({
-    ...vaccine,
-    status: "ACTIVE", // Chuyển đổi giá trị status thành boolean
-  });
+  // Initialize formData with vaccine data when component mounts
+  const [formData, setFormData] = useState(null); // Changed to null initially
   const [error, setError] = useState(null);
+
+  // Set initial form data when vaccine prop changes
+  useEffect(() => {
+    if (vaccine) {
+      setFormData({
+        ...vaccine,
+        // Ensure date fields are in correct format for input[type="date"]
+        entryDate: vaccine.entryDate ? new Date(vaccine.entryDate).toISOString().split('T')[0] : '',
+        timeExpired: vaccine.timeExpired ? new Date(vaccine.timeExpired).toISOString().split('T')[0] : '',
+        status: vaccine.status === "ACTIVE" // Convert to boolean for checkbox
+      });
+    }
+  }, [vaccine]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? (checked ? "ACTIVE" : "INACTIVE") : value,
     }));
   };
 
   const handleSubmit = async () => {
-    if (!formData.name) {
+    if (!formData?.name) {
       setError("Please fill in the name field.");
       toast.error("Please fill in the name field.");
       return;
     }
-  
+
     try {
       const updateData = {
+        id: formData.id, // Ensure ID is included
         name: formData.name,
         quantity: Number(formData.quantity) || 0,
         description: formData.description || "",
@@ -35,24 +47,24 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
         doesTimes: Number(formData.doesTimes) || 0,
         suggestAgeMin: Number(formData.suggestAgeMin) || 0,
         suggestAgeMax: Number(formData.suggestAgeMax) || 0,
-        entryDate: formData.entryDate ? new Date(formData.entryDate).toISOString() : null, // Thêm entryDate
+        entryDate: formData.entryDate ? new Date(formData.entryDate).toISOString() : null,
         timeExpired: formData.timeExpired ? new Date(formData.timeExpired).toISOString() : null,
         addressId: Number(formData.addressId) || 0,
-        status: formData.status ? "ACTIVE" : "INACTIVE",
+        status: formData.status,
         minimumIntervalDate: Number(formData.minimumIntervalDate) || 0,
         maximumIntervalDate: Number(formData.maximumIntervalDate) || 0,
         fromCountry: formData.fromCountry || "Unknown",
       };
-  
+
       console.log("Sending data:", updateData);
-  
+
       const response = await axios.put(
         `https://localhost:7280/api/Vaccine/update-vaccine/${formData.id}`,
         updateData
       );
-  
+
       if (response.status === 200) {
-        onSave({ id: formData.id, ...updateData });
+        onSave(updateData); // Pass the full updated object
         toast.success("Vaccine updated successfully!");
       }
     } catch (err) {
@@ -62,13 +74,13 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
     }
   };
 
-  // Danh sách các trường input
   const fields = [
     { label: "Name", name: "name", type: "text" },
     { label: "Description", name: "description", type: "textarea" },
     { label: "Doses Left", name: "quantity", type: "number" },
     { label: "Does Times", name: "doesTimes", type: "number" },
     { label: "Price (VND)", name: "price", type: "number" },
+    { label: "Entry Date", name: "entryDate", type: "date" }, // Added entryDate field
     { label: "Expiry Date", name: "timeExpired", type: "date" },
     { label: "Age Range (Min)", name: "suggestAgeMin", type: "number" },
     { label: "Age Range (Max)", name: "suggestAgeMax", type: "number" },
@@ -76,8 +88,13 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
     { label: "Interval Age (Min)", name: "minimumIntervalDate", type: "number" },
     { label: "Interval Age (Max)", name: "maximumIntervalDate", type: "number" },
     { label: "Address ID", name: "addressId", type: "number" },
-    { label: "Status", name: "status", type: "checkbox" }, // Thay đổi type thành checkbox
+    { label: "Status", name: "status", type: "checkbox" },
   ];
+
+  // Show loading state while formData is being initialized
+  if (!formData) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -111,23 +128,19 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
                     <input
                       type="checkbox"
                       name={field.name}
-                      checked={formData[field.name] || false}
+                      checked={formData[field.name] === "ACTIVE"}
                       onChange={handleInputChange}
                       className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
                     <span className="ml-2 text-sm text-gray-600">
-                      {formData[field.name] ? "Active" : "Inactive"}
+                      {formData[field.name] === "ACTIVE" ? "Active" : "Inactive"}
                     </span>
                   </div>
                 ) : (
                   <input
                     type={field.type}
                     name={field.name}
-                    value={
-                      field.type === "date" && formData[field.name]
-                        ? formData[field.name].split("T")[0]
-                        : formData[field.name] || ""
-                    }
+                    value={formData[field.name] || ""}
                     onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />

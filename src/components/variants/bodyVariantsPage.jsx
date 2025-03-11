@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { vaccineAction } from '../redux/reducers/selectVaccine'
 import { fetchData } from '../../Api/axios'
-
+import useAxios from '../../utils/useAxios'
+const url = import.meta.env.VITE_BASE_URL_DB
 // Mock data for vaccines
 
 
@@ -14,6 +15,7 @@ import { fetchData } from '../../Api/axios'
 
 
 function boydVaritants() {
+  const api = useAxios()
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
@@ -34,11 +36,13 @@ function boydVaritants() {
   }, []);
 
   useEffect(() => {
+   
     const fetchDataVariants = async () => {
       try {
         const [vaccines, comboVaccine] = await Promise.all([
-          fetchData('Vaccine/get-all-vaccines'),
-          fetchData('VaccineCombo/get-all-vaccine-combo')
+          
+          api.get(`${url}/Vaccine/get-all-vaccines`),
+          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`)
         ])
         if (vaccines.status === 200) setVaccines(vaccines.data)
         if (comboVaccine.status === 200) setComboVaccines(comboVaccine.data)

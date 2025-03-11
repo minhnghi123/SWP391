@@ -3,6 +3,9 @@ import { useRef, useState, useEffect, useContext } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 
+import imgAvatar from '../../assets/p15.jpg'
+
+
 import Dashboard from "../staffManage/section/dashboardStaff";
 import ManageVaccine from "../staffManage/section/manageVaccine";
 import Appointments from "../staffManage/section/apointments";

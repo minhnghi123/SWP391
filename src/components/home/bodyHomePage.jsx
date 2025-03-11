@@ -18,8 +18,9 @@ import { fetchData } from '../../Api/axios'
 import { useSelector, useDispatch } from "react-redux";
 import '../css/loading.css'
 import { vaccineAction } from '../redux/reducers/selectVaccine'
-
+import  useAxios  from '../../utils/useAxios'
 // Animation variants
+
 const fadeInUp = {
     initial: {
         y: 100,
@@ -248,8 +249,9 @@ const slideFromRight = {
         }
     }
 };
-
+const url = import.meta.env.VITE_BASE_URL_DB;
 export default function BodyHomePage() {
+    const api = useAxios()
     const navigate = useNavigate();
     const dispatch = useDispatch()
     const pictures = pictureBody;
@@ -259,20 +261,24 @@ export default function BodyHomePage() {
 
     const isBooking = useSelector((state) => state.vaccine.isBooking)
 
-
+   
     useEffect(() => {
-        fetchData('Vaccine/get-all-vaccines').
-            then((res) => {
-                if (res?.data) {
-                    const sortedTop3 = [...res.data]
-                        .sort((a, b) => b.price - a.price)
-                        .slice(0, 3);
-                    setBestVaccine(sortedTop3);
-                }
-            })
-            .catch((err) => console.log("Error"))
-    }, [])
-
+       
+        const fetchData = async () => {
+       try {
+        const res = await api.get(`${url}/Vaccine/get-all-vaccines`)
+        if(res.status === 200){
+            const sortedTop3 = [...res.data]
+            .sort((a, b) => b.price - a.price)
+            .slice(0, 3);
+            setBestVaccine(sortedTop3);
+        }
+       } catch (error) {
+        
+       }
+    }
+    fetchData()
+    }, []); 
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -284,7 +290,7 @@ export default function BodyHomePage() {
         return () => clearInterval(interval);
     }, [pictures.length]);
     const handleAddToCart = (vaccine, type) => {
-       
+
         dispatch(vaccineAction.addVaccine({
             id: vaccine.id,
             name: vaccine.name,
@@ -295,7 +301,7 @@ export default function BodyHomePage() {
             type: type,
         }))
     };
-  
+
 
     return (
         <div className="max-w-7xl w-full mx-auto mt-4 px-4 py-2 z-0" id='home'>

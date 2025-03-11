@@ -33,6 +33,7 @@ export default function AvatarHomePage() {
         dispatch(vaccineAction.completePayment())
         dispatch(childAction.completePayment())
         dispatch(arriveActions.resetArriveDate());
+        localStorage.removeItem('authTokens');
         navigate('/loginPage');
     };
 

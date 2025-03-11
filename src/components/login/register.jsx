@@ -3,6 +3,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import Avatar from '../../../avatar.json'
+import useAxios from "../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB
+
 const InputRegister = ({ type, placeholder, onChange, name, value }) => {
     return (
         <div className="mb-4">
@@ -23,6 +26,7 @@ const InputRegister = ({ type, placeholder, onChange, name, value }) => {
 };
 
 export default function Register({ setRegister }) {
+    const api = useAxios()
     const avatar = Avatar
     const [err, setErr] = useState("");
     const [input, setInput] = useState({
@@ -97,11 +101,10 @@ export default function Register({ setRegister }) {
         console.log(value)
 
         try {
-            const res = await axios.post("http://localhost:5272/api/User/register", value);
+            const res = await api.post(`${url}/User/register`, value)
 
             if (res?.status === 200) {
                 toast.success("Registered successfully");
-
                 // Reset form
                 setInput({
                     firstName: "",
@@ -130,7 +133,7 @@ export default function Register({ setRegister }) {
 
     return (
         <>
-            <ToastContainer />
+
             <div className="flex-[0.5] flex flex-col justify-center items-center p-8 mt-8">
                 <div className="flex flex-col text-center mb-12">
                     <div className="font-bold text-5xl mb-4 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">

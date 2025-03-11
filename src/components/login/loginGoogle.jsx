@@ -32,7 +32,7 @@ function LoginPage() {
 
     async function handleCallbackResponse(response) {
         try {
-            console.log("Google Response:", response);
+          
             if (!response.credential) {
                 throw new Error("No ID Token received!");
             }
@@ -43,14 +43,14 @@ function LoginPage() {
                 googleToken: idToken,
                 clientID: "428240789533-0ph77i9n53v8cqc7b8m55h7rq3hh7efn.apps.googleusercontent.com" 
             }
-            console.log(value)
+            
             const res = await addData("User/login-by-google", value);
 
             if (res?.status === 200) {
                 const decode = jwtDecode(res.data.res.accessToken);
                 dispatch(accountAction.setUser({
                     id: decode.Id,
-                    username: decode.Username,
+                    name: decode.Username,
                     role: decode.Role,
                     avatar: decode.Avatar,
                 }));

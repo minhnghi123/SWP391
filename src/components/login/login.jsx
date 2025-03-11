@@ -6,16 +6,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import FormLogin from './formLogin';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../Services/AuthLogin';
 import { useDispatch, useSelector } from "react-redux";
 import { accountAction } from "../redux/reducers/accountSlice";
 import { set } from "date-fns";
 import { addData } from '../../Api/axios'
+import { AuthContext } from "../Context/AuthContext";
 export default function Login({ setRegister }) {
+    const { loginUser,loading} = useContext(AuthContext)
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(false)
-
+    // const [loading, setLoading] = useState(false)
+   
     const [openOTP, setOTP] = useState(false);
     const [sent, setSent] = useState(false);
     const [isOpen, setOpen] = useState(true)
@@ -50,8 +51,8 @@ export default function Login({ setRegister }) {
     const handleClickOTP = () => {
         setOTP(true)
     }
-    // const { login } = useContext(AuthContext)
-    const handleSubmit = async (e) => {
+
+    const handleSubmit =  (e) => {
         e.preventDefault();
         if (isOpen) {
             console.log("OTP")
@@ -62,50 +63,11 @@ export default function Login({ setRegister }) {
 
         // check input
         else {
-            setLoading(true);
-            if (!input || !input.username || !input.password) {
-                toast.error("You need to provide a username or password");
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const response = await addData('User/login-by-account', input);
-                const token = response?.data?.loginResponse?.accessToken;
-
-                if (!token) {
-                    toast.error("Login Failed: No token received");
-                    setLoading(false);
-                    return;
-                }
-
-                const decoded = jwtDecode(token);
-                const data = {
-                    id: decoded.Id,
-                    name: decoded.Username,
-                    role: decoded.Role,
-                    avatar: decoded.Avatar
-                };
-
-                dispatch(accountAction.setUser(data));
-                toast.success(data.role === 'admin' ? "Welcome Admin Come Back" : "Login successfully");
-                setTimeout(() => {
-                    navigate(data.role === 'admin' ? '/dashboardPage/dashboard' : '/');
-                    setLoading(false);
-                }, 1000);
-
-            } catch (err) {
-                const errorMessage = err.response?.data?.error || "An error occurred";
-                toast.error(errorMessage);
-            } finally {
-                setLoading(false);
-            }
-
-
+            loginUser(input)
         }
 
     };
-
+ 
     const isFormValid = () => {
         return (
             input.username &&
@@ -114,7 +76,7 @@ export default function Login({ setRegister }) {
     }
     return (
         <>
-            <ToastContainer />
+            {/* <ToastContainer /> */}
             <div className="flex-[0.5] flex flex-col justify-center items-center p-8 mt-8">
                 <div>
                     <button onClick={() => navigate('/')}>Home</button>

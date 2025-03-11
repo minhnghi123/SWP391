@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
+import useAxios from "../../utils/useAxios";
 const InputForgotPassword = ({ type, placeholder, onChange, name, value, label }) => {
   return (
     <div className="space-y-2 w-full">
@@ -31,6 +32,8 @@ export default function ForgotPassword({ setRegister }) {
     password: "",
     confirmPassword: "",
   });
+  const api = useAxios();
+  const url = import.meta.env.VITE_BASE_URL_DB;
   const [email, setEmail] = useState("");
   const inputRefs = useRef([]);
   const [canResend, setCanResend] = useState(true);
@@ -62,17 +65,18 @@ export default function ForgotPassword({ setRegister }) {
         gmail: email,
       };
 
-      const res = await axios.post("https://localhost:7280/api/User/forgot-password", value);
+      const res = await api.post(`${url}/User/forgot-password`, value);
       if (res.status === 200) {
         setEmailSent(true);
         setTimeout(() => inputRefs.current[0]?.focus(), 100);
+        
       } else {
         console.log(error.message);
         setError("Failed to send code. Please try again.");
         setCanResend(true);
       }
     } catch (error) {
-      console(error);
+     
       setError("Failed to send code. Try again.");
       setCanResend(true);
     }
@@ -112,7 +116,7 @@ export default function ForgotPassword({ setRegister }) {
           verifyCode: codeString,
         };
         console.log(value);
-        const res = await axios.post("https://localhost:7280/api/User/verify-forgot-password", value);
+        const res = await api.post(`${url}/User/verify-forgot-password`, value);
         if (res?.status === 200) {
           setStep(2);
         } else {
@@ -131,7 +135,7 @@ export default function ForgotPassword({ setRegister }) {
         const value = {
           newPassword: input.password,
         };
-        const res = await axios.post("https://localhost:7280/api/User/change-password", value);
+        const res = await api.post(`${url}/User/change-password`, value);
         if (res?.status === 200) {
           setNotification("Password changed successfully");
           setTimeout(() => setRegister(0), 1000);

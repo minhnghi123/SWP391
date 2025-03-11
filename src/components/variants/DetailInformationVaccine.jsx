@@ -5,8 +5,8 @@ import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutl
 import { CalendarIcon, ClockIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import  formatDate  from '../../utils/FormDate';
 import FormmatDeicimal from '../../utils/calculateMoney';
-import axios from 'axios';
-
+import  useAxios  from '../../utils/useAxios';
+const url = import.meta.env.VITE_BASE_URL_DB
 const Detail = () => {
     const { idVaccine, type } = useParams();
     const navigate = useNavigate();
@@ -14,17 +14,18 @@ const Detail = () => {
     const [vaccine, setVaccine] = useState(null);
     const [combo, setCombo] = useState(null);
     const [loading, setLoading] = useState(false);
+    const api = useAxios()
 
     useEffect(() => {
         const fetchDataVariants = async () => {
             setLoading(true)
             try {
                 if (type === 'vaccine') {
-                    const res = await axios.get(`Vaccine/get-vaccine-by-id/${idVaccine}`)
+                    const res = await api.get(`${url}/Vaccine/get-vaccine-by-id/${idVaccine}`)
                     if (res.status === 200) setVaccine(res.data)
                 }
                 else {
-                    const res = await axios.get(`VaccineCombo/get-vaccine-combo-detail/${idVaccine}`)
+                    const res = await api.get(`${url}/VaccineCombo/get-vaccine-combo-detail/${idVaccine}`)
                     if (res.status === 200) setCombo(res.data)
                 }
             } catch (error) {

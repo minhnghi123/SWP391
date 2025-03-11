@@ -1,65 +1,60 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AddVaccine from "../../staffManage/components/addVaccine";
-import DeleteVaccine from "../components/vaccineDeleteAdmin";
+import AddVaccineComboComponent from "./addComboVaccine";
+import DeleteVaccine from "../components/deleteVaccine";
 import Pagination from "../../../utils/pagination";
-import VaccineDetails from "../../staffManage/components/detailVaccine"; // Đảm bảo tên file khớp
+import DetailCombo from "../combo/detailsCombo";
 import { ToastContainer } from "react-toastify";
 import {
   Search,
   ArrowUpDown,
-
   Refrigerator,
   Eye,
+  SquarePen,
 } from "lucide-react";
+import UpdateVaccineCombo from "./updateCombo";
 
-const ViewAllVaccines = () => {
+const VaccineCombo = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState("comboName");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selectedVaccine, setSelectedVaccine] = useState(null);
+  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] =
+    useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [vaccines, setVaccines] = useState([]);
+  const [vaccineCombos, setVaccineCombos] = useState([]);
 
-  // Fetch dữ liệu vaccines từ API
+  const fetchVaccineCombos = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        "https://localhost:7280/api/VaccineCombo/get-all-vaccine-combo"
+      );
+      setVaccineCombos(response.data);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching vaccine combos:", error);
+      setError("Failed to fetch vaccine combos. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchVaccines = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          "https://localhost:7280/api/Vaccine/get-all-vaccines-admin"
-        );
-        setVaccines(response.data);
-        setError(null);
-      } catch (error) {
-        console.error("Error fetching vaccines:", error);
-        setError("Failed to fetch vaccines. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVaccines();
+    fetchVaccineCombos();
   }, []);
 
   // Filter, Sort, Pagination logic
-  const filteredVaccines = vaccines.filter((vaccine) => {
-    const matchesSearch =
-      (vaccine.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (vaccine.fromCountry?.toLowerCase() || "").includes(
-        searchTerm.toLowerCase()
-      ) ||
-      (vaccine.description?.toLowerCase() || "").includes(
-        searchTerm.toLowerCase()
-      );
-    return matchesSearch;
-  });
+  const filteredItems = vaccineCombos.filter((item) =>
+    (item.comboName?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  );
 
-  const sortedVaccines = [...filteredVaccines].sort((a, b) => {
+  const sortedItems = [...filteredItems].sort((a, b) => {
     const valueA = a[sortBy] || "";
     const valueB = b[sortBy] || "";
     return sortOrder === "asc"
@@ -73,37 +68,53 @@ const ViewAllVaccines = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentVaccines = sortedVaccines.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  
-  // Xem chi tiết vaccine và mở modal
-  const handleViewVaccine = (vaccine) => {
-    setSelectedVaccine(vaccine);
-    setIsModalOpen(true); // Mở modal
+  const currentItems = sortedItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
-  // Đóng modal
+  const handleSuccess = () => {
+    fetchVaccineCombos();
+  };
+
+  const handleViewItem = (item) => {
+    console.log("Selected vaccine:", item); // Debug log to check data
+    setSelectedVaccine(item);
+    setIsModalOpen(true);
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedVaccine(null); // Xóa vaccine đã chọn khi đóng
+    setSelectedVaccine(null);
   };
 
-  const handleUpdateVaccine = (updatedVaccine) => {
-    setVaccines((prevVaccines) =>
-      prevVaccines.map((vaccine) =>
-        vaccine.id === updatedVaccine.id ? updatedVaccine : vaccine
-      )
+  const handleOpenUpdateModal = (item) => {
+    setSelectedVaccineForUpdate(item);
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleCloseUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setSelectedVaccineForUpdate(null);
+  };
+
+  const handleUpdateSuccess = (updatedCombo) => {
+    setVaccineCombos((prev) =>
+      prev.map((item) => (item.id === updatedCombo.id ? updatedCombo : item))
     );
+    handleCloseUpdateModal();
   };
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
-            <ToastContainer />
+      <ToastContainer />
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Vaccine Inventory</h1>
-        <AddVaccine />
+        <h1 className="text-2xl font-bold text-gray-900">
+          Vaccine Combo Inventory
+        </h1>
+        <AddVaccineComboComponent onAddSuccess={handleSuccess} />
       </div>
 
       {/* Search and Filters */}
@@ -117,7 +128,7 @@ const ViewAllVaccines = () => {
             type="text"
             placeholder="Search vaccines..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearch}
             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
           />
         </div>
@@ -132,20 +143,20 @@ const ViewAllVaccines = () => {
             }}
             className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
           >
-            <option value="name-asc">Name (A-Z)</option>
-            <option value="name-desc">Name (Z-A)</option>
-            <option value="quantity-asc">Stock (Low to High)</option>
-            <option value="quantity-desc">Stock (High to Low)</option>
-            <option value="timeExpired-asc">Expiry (Soonest)</option>
-            <option value="timeExpired-desc">Expiry (Latest)</option>
+            <option value="comboName-asc">Name (A-Z)</option>
+            <option value="comboName-desc">Name (Z-A)</option>
+            <option value="totalPrice-asc">Price (Low to High)</option>
+            <option value="totalPrice-desc">Price (High to Low)</option>
+            <option value="discount-asc">Discount (Low to High)</option>
+            <option value="discount-desc">Discount (High to Low)</option>
           </select>
         </div>
       </div>
 
-      {/* Vaccines Table */}
+      {/* Table */}
       <div className="overflow-x-auto">
         {loading ? (
-          <p>Loading vaccines...</p>
+          <p>Loading combos...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : (
@@ -153,22 +164,22 @@ const ViewAllVaccines = () => {
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Vaccine
+                  Id
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Description
+                  Combo Name
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Price (VND)
+                  Discount
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Country
+                  Total Price (VND)
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Expiry
+                  Final Price (VND)
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Stock
+                  Status
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                   Actions
@@ -176,12 +187,15 @@ const ViewAllVaccines = () => {
               </tr>
             </thead>
             <tbody>
-              {currentVaccines.length > 0 ? (
-                currentVaccines.map((vaccine) => (
+              {currentItems.length > 0 ? (
+                currentItems.map((item) => (
                   <tr
-                    key={vaccine.id}
+                    key={item.id}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {item.id}
+                    </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
@@ -189,39 +203,50 @@ const ViewAllVaccines = () => {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {vaccine.name}
+                            {item.comboName}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {vaccine.description}
+                            {item.description}
                           </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">
-                      {vaccine.description}
+                      {item.discount}%
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">
-                      {vaccine.price?.toLocaleString()}
+                      {item.totalPrice?.toLocaleString()}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">
-                      {vaccine.fromCountry}
+                      {(
+                        item.totalPrice *
+                        (1 - item.discount / 100)
+                      )?.toLocaleString()}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">
-                      {vaccine.timeExpired ? new Date(vaccine.timeExpired).toLocaleDateString() : "N/A"}
-                    </td>
-                    <td className="px-4 py-4 text-sm font-medium text-teal-600">
-                      {vaccine.quantity} doses
+                      {item.status}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleViewVaccine(vaccine)}
+                          onClick={() => handleViewItem(item)}
                           className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
                           title="View details"
                         >
                           <Eye size={16} />
                         </button>
-                        <DeleteVaccine vaccineId={vaccine.id} />
+                        <button
+                          onClick={() => handleOpenUpdateModal(item)}
+                          className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
+                          title="Edit combo"
+                        >
+                          <SquarePen size={16} />
+                        </button>
+                        <DeleteVaccine
+                          vaccineId={item.id}
+                          isCombo={true}
+                          onDeleteSuccess={handleSuccess}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -230,9 +255,9 @@ const ViewAllVaccines = () => {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-4 py-8 text-center text-gray-500"
+                    className="px-а4 py-8 text-center text-gray-500"
                   >
-                    No vaccines found matching your search criteria.
+                    No combos found matching your search criteria.
                   </td>
                 </tr>
               )}
@@ -244,21 +269,32 @@ const ViewAllVaccines = () => {
       {/* Pagination */}
       <Pagination
         currentPage={currentPage}
-        totalPages={Math.ceil(sortedVaccines.length / itemsPerPage)}
+        totalPages={Math.ceil(sortedItems.length / itemsPerPage)}
         itemsPerPage={itemsPerPage}
         setCurrentPage={setCurrentPage}
         setItemsPerPage={setItemsPerPage}
-        totalItems={sortedVaccines.length}
+        totalItems={sortedItems.length}
       />
-      {/* Hiển thị modal chi tiết vaccine */}
-      <VaccineDetails
-        vaccine={selectedVaccine}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onUpdate={handleUpdateVaccine}
-      />
+
+      {/* Vaccine Combo Details Modal */}
+      {isModalOpen && selectedVaccine && (
+        <DetailCombo
+          vaccineId={selectedVaccine.id} // Pass the ID instead of the full object
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
+
+      {/* Update Vaccine Combo Modal */}
+      {isUpdateModalOpen && selectedVaccineForUpdate && (
+        <UpdateVaccineCombo
+          combo={selectedVaccineForUpdate}
+          onSave={handleUpdateSuccess}
+          onCancel={handleCloseUpdateModal}
+        />
+      )}
     </div>
   );
 };
 
-export default ViewAllVaccines;
+export default VaccineCombo;

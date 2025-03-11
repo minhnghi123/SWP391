@@ -1,23 +1,17 @@
-import LeftSide from '../components/staffManage/LeftSide' 
-import RightSide from '../components/staffManage/RightSide'
+import LeftSide from "../components/staffManage/LeftSide";
+import RightSide from "../components/staffManage/RightSide";
 
 const staffPage = () => {
   return (
     // <AuthProvider>
-=======
-const staffPage = () => {
-  return (
-
-    <div className="flex min-h-screen bg-white">
-      <div className="w-64">
-        <LeftSide />
+      <div className="flex min-h-screen bg-white">
+        <div className="w-64">
+          <LeftSide />
+        </div>
+        <div className="flex-1">
+          <RightSide />
+        </div>
       </div>
-      <div className="flex-1">
-        <RightSide />
-      </div>
-    </div>
-
   );
 };
 export default staffPage;
-

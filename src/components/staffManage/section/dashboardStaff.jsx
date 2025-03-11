@@ -1,20 +1,14 @@
 import { useState, useEffect } from "react";
 import FormDate from "../../../utils/FormDate";
-import axios from "axios"
+import axios from "axios";
 import {
   Calendar,
   Syringe,
   FlaskRound as Flask,
-  Clock,
-  CheckCircle2,
   MoreVertical,
-  X,
-  Bell,
   HeartPulse,
   Refrigerator,
   Pill,
-  ShieldAlert,
-  BadgeCheck,
 } from "lucide-react";
 
 const stats = {
@@ -23,38 +17,6 @@ const stats = {
   vaccineStock: 450,
   adverseReactions: 0,
 };
-
-const tasks = [
-  {
-    id: 1,
-    title: "Check vaccine storage temperature",
-    priority: "High",
-    time: "11:00 AM",
-    progress: 75,
-  },
-  {
-    id: 2,
-    title: "Restock vaccination supplies",
-    priority: "Medium",
-    time: "1:30 PM",
-    progress: 30,
-  },
-  {
-    id: 3,
-    title: "Update immunization records",
-    priority: "High",
-    time: "3:00 PM",
-    progress: 50,
-  },
-  {
-    id: 4,
-    title: "Vaccine inventory count",
-    priority: "Low",
-    time: "5:00 PM",
-    progress: 0,
-  },
-];
-
 
 
 const BodyDoctorManage = () => {
@@ -69,7 +31,9 @@ const BodyDoctorManage = () => {
         const response = await axios.get(
           "https://localhost:7280/api/Vaccine/get-all-vaccines"
         );
-        setVaccines(response.data);
+
+        let vaccinesData = response.data.sort(() => Math.random() - 0.5); // Xáo trộn danh sách
+        setVaccines(vaccinesData);
         setError(null);
       } catch (error) {
         console.error("Error fetching vaccines:", error);
@@ -79,8 +43,22 @@ const BodyDoctorManage = () => {
       }
     };
 
-    fetchVaccines(); // Call the function immediately
-  }, []); // Empty dependency array means it runs once on mount
+    fetchVaccines();
+  }, []);
+
+  const [displayedVaccines, setDisplayedVaccines] = useState([]);
+
+  useEffect(() => {
+    if (vaccines.length > 0) {
+      let index = 0;
+      const interval = setInterval(() => {
+        setDisplayedVaccines(vaccines.slice(index, index + 3));
+        index = (index + 3) % vaccines.length;
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [vaccines]);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50">
@@ -103,11 +81,10 @@ const BodyDoctorManage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <VaccinationStatsCard />
-            <VaccineInventoryManager vaccines={vaccines} />{" "}
+              <VaccineInventoryManager vaccines={displayedVaccines} />{" "}
             {/* Pass vaccines as prop */}
           </div>
-          <div className="space-y-8">
-          </div>
+          <div className="space-y-8"></div>
         </div>
       </main>
     </div>
@@ -169,7 +146,8 @@ const VaccineInventoryManager = (
             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                Expires: {FormDate(vaccine.timeExpired || "N/A")} {/* Added fallback */}
+                Expires: {FormDate(vaccine.timeExpired || "N/A")}{" "}
+                {/* Added fallback */}
               </span>
             </div>
           </div>
@@ -181,9 +159,6 @@ const VaccineInventoryManager = (
     </div>
   </Card>
 );
-
-
-
 
 const VaccinationStatsCard = () => (
   <Card>
@@ -217,7 +192,6 @@ const VaccinationStatsCard = () => (
   </Card>
 );
 
-
 const Card = ({ children }) => (
   <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
     {children}
@@ -239,5 +213,4 @@ const StatBox = ({ icon, value, label, trend }) => (
     </div>
   </div>
 );
-
-export default BodyDoctorManage;
+export default BodyDoctorManage

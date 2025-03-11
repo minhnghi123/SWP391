@@ -3,7 +3,7 @@ import { useRef, useState, useEffect, useContext } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import imgAvatar from '../../assets/p15.jpg'
-import { AuthContext } from "../Services/AuthLogin";
+// import { AuthContext } from "../Services/AuthLogin";
 
 import Dashboard from "../dashboard/Section/dashboard";
 import Appointments from "../dashboard/Section/appointments";

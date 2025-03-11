@@ -9,12 +9,12 @@ import ChooseDateVaccination from "./eachComponentStage1/rightSide/ChooseDateVac
 import FormAdvitory_detail from "./eachComponentStage1/rightSide/FormAdvitory_detail";
 import NoSelectChildren from "./eachComponentStage1/rightSide/NoSelectChildren";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import useAxios from "../../utils/useAxios";
 
-
-
+const url = import.meta.env.VITE_BASE_URL_DB
 export default function Stage1Payment({id}) {
-
+  const api = useAxios()
   const navigate = useNavigate()
 
 
@@ -56,13 +56,13 @@ export default function Stage1Payment({id}) {
 
       try {
         // Fetch user data
-        const response = await axios.get(`http://localhost:5272/api/User/get-user-by-id/${id}`);
+        const response = await api.get(`${url}/User/get-user-by-id/${id}`)
         if (response.status === 200) {
           setUser(response.data);
         }
 
         // Fetch child data
-        const res = await axios.get(`http://localhost:5272/api/Child/get-child-by-parents-id/${id}`);
+      const res = await api.get(`${url}/Child/get-child-by-parents-id/${id}`)
         if (res.status === 200) {
           setChild(res.data);
         }

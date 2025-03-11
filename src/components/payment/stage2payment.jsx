@@ -6,8 +6,7 @@ import SummaryHeaderCard from "./eachComponentStage2/rightSide/headerSummary";
 import PaymentSummaryCard from "./eachComponentStage2/rightSide/paymentSummaryCard";
 import PaymentMethodCard from "./eachComponentStage2/rightSide/PaymentMethodCard";
 import { ToastContainer, toast } from "react-toastify";
-import { addData } from "../../Api/axios";
-import axios from "axios";
+
 import { useParams } from "react-router-dom";
 import { childAction } from "../redux/reducers/selectChildren";
 import { arriveActions } from "../redux/reducers/arriveDate";
@@ -15,7 +14,10 @@ import { vaccineAction } from "../redux/reducers/selectVaccine";
 import { methodPaymentAction } from "../redux/reducers/methodPaymentlice";
 import { useNavigate } from "react-router-dom";
 import { orderAction } from "../redux/reducers/orderSlice";
+import useAxios from "../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB
 export default function Stage2Payment() {
+    const api = useAxios()
     const navigate = useNavigate()
     const { id } = useParams()
     const [isLoading, setLoading] = useState(false);
@@ -51,15 +53,15 @@ export default function Stage2Payment() {
                 vaccineIds: (listVaccine || []).map(vaccine => vaccine.id),
                 vaccineComboIds: (listComboVaccine || []).map(combo => combo.id)
             };
-            const res = await addData('Booking/add-booking', value);
+            const res = await api.post(`${url}/Booking/add-booking`, value);
             if (res.status === 200 && res.data) {
-                if (res.data === 'Payment By Cash success') {
+                if (paymentMenthod === 1) {
                     dispatch(childAction.completePayment())
                     dispatch(vaccineAction.completePayment())
                     dispatch(arriveActions.resetArriveDate())
                     dispatch(methodPaymentAction.resetMethodPayment())
                     dispatch(childAction.resetForm())
-                    dispatch(orderAction.savePaymentData(value))
+                    dispatch(orderAction.savePaymentData(res.data))
                     navigate(`/confirm/pending`)
                 }
                 else {

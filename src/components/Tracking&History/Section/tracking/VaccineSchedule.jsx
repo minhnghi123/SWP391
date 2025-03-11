@@ -95,12 +95,15 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
         {sortLinkList.map((chain, index) => {
           const vaccineName = chain[0]?.vaccineName || 'Unknown Vaccine';
           const completed = chain.filter(item =>
-            item.status.toLowerCase() === 'completed' ||
-            (item.vaccinationDate && new Date(item.vaccinationDate) < new Date())
+            item.status.toLowerCase() === 'completed'
+          ).length;
+          const findOverdue = chain.filter(item =>
+            item.vaccinationDate && new Date(item.vaccinationDate) < new Date()
           ).length;
           const total = chain.length;
           const percentage = Math.round((completed / total) * 100) || 0;
-
+          const percentageOverdue = Math.round((findOverdue / total) * 100) || 0;
+ 
           return (
             <div
               key={index}
@@ -126,6 +129,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                     percentage={percentage}
                     current={completed}
                     total={total}
+                    percentageOverdue={percentageOverdue}
                   />
                 </div>
               </div>

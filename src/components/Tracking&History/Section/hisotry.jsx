@@ -5,8 +5,8 @@ import {
 import formatCurrency from '../../../utils/calculateMoney';
 import { fetchData } from '../../../Api/axios';
 import AppointmentCard from '../Section/history/AppointmentCard';
-
-
+import useAxios from '../../../utils/useAxios';
+const url = import.meta.env.VITE_BASE_URL_DB
 const History = ({ id }) => {
 
     const [data, setData] = useState([]);
@@ -15,13 +15,13 @@ const History = ({ id }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isTrigger, setIsTrigger] = useState(false);
-
+    const api = useAxios()
     //fetch data history
     useEffect(() => {
         const fetchDataHistory = async () => {
             setLoading(true);
             try {
-                const res = await fetchData(`Booking/booking-history/${id}`);
+                const res = await api.get(`${url}/Booking/booking-history/${id}`);
                 if (res.status === 200) {
                     setData(res.data);
                     setFilteredData(res.data);

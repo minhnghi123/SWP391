@@ -98,7 +98,7 @@ export default function Register({ setRegister }) {
             avatar: avatarUrl,
         };
 
-        console.log(value)
+       
 
         try {
             const res = await api.post(`${url}/User/register`, value)

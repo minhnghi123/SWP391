@@ -1,29 +1,38 @@
-import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
-import EventIcon from '@mui/icons-material/Event';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import EditCalendarIcon from '@mui/icons-material/EditCalendar';
-import MessageIcon from '@mui/icons-material/Message';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from "react-router-dom";
+import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import PersonIcon from '@mui/icons-material/Person';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
+import VaccinesIcon from '@mui/icons-material/Vaccines';
+import BookOnlineIcon from '@mui/icons-material/BookOnline';
+import PaymentIcon from '@mui/icons-material/Payment';
+import FollowTheSignsIcon from '@mui/icons-material/FollowTheSigns';
+
 const LeftSide = () => {
-  const EachMenu = ({ label, icon, onClick }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const EachMenu = ({ label, icon, path }) => {
+    const isActive = location.pathname === path;
+
     return (
       <div
-        className="flex items-center px-4 py-3 rounded-lg cursor-pointer hover:bg-blue-50 transition-all duration-200 group"
-        onClick={onClick} 
+        className={`flex items-center px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 group
+          ${isActive ? "bg-blue-500 text-white" : "hover:bg-blue-50 text-gray-700"}`}
+        onClick={() => navigate(path)}
       >
-        {icon}
-        <p className="text-gray-700 group-hover:text-blue-600 font-medium">{label}</p>
+        <div className={`mr-3 transition-transform ${isActive ? "scale-110 text-white" : "text-blue-500 group-hover:scale-110"}`}>
+          {icon}
+        </div>
+        <p className={`font-medium ${isActive ? "text-white" : "group-hover:text-blue-600"}`}>{label}</p>
       </div>
     );
   };
-  
-  const navigate = useNavigate();
+
   return (
     <div className="fixed w-64 h-screen bg-white border-r border-gray-200 shadow-sm">
       {/* Logo Section */}
-      <div onClick={() => navigate('/')} className="px-6 py-8 cursor-pointer">
+      <div onClick={() => navigate("/")} className="px-6 py-8 cursor-pointer">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center shadow-md">
             <span className="text-2xl font-bold text-white">H</span>
@@ -37,20 +46,19 @@ const LeftSide = () => {
       {/* Navigation Menu */}
       <div className="px-4">
         <nav className="space-y-1">
-
-          <EachMenu onClick={() => navigate('/dashboardPage/dashboard')}   label="Dashboard" icon={<SpaceDashboardIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/dashboardPage/appointments')} label="Appointments" icon={<EventIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/dashboardPage/patients')} label="Patients" icon={<AssignmentIndIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/dashboardPage/doctorSchedule')} label="Doctors' Schedule" icon={<EditCalendarIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/dashboardPage/payments')} label="Payments" icon={<AccountBalanceWalletIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
-          <EachMenu onClick={() => navigate('/dashboardPage/inventory')} label="Inventory" icon={<InventoryIcon className="text-blue-500 mr-3 group-hover:scale-110 transition-transform" />} />
+          <EachMenu path="/dashboardPage/dashboard" label="Dashboard" icon={<SpaceDashboardIcon />} />
+          <EachMenu path="/dashboardPage/user" label="User" icon={<PersonIcon />} />
+          <EachMenu path="/dashboardPage/child" label="Child" icon={<ChildCareIcon />} />
+          <EachMenu path="/dashboardPage/vaccine" label="Vaccine" icon={<VaccinesIcon />} />
+          <EachMenu path="/dashboardPage/combo" label="Combo" icon={<VaccinesIcon />} />
+          <EachMenu path="/dashboardPage/booking" label="Booking" icon={<BookOnlineIcon />} />
+          <EachMenu path="/dashboardPage/payments" label="Payments" icon={<PaymentIcon />} />
+          <EachMenu path="/dashboardPage/tracking" label="Tracking" icon={<FollowTheSignsIcon />} />
+          <EachMenu path="/dashboardPage/feedback" label="Feedback" icon={<FeedbackIcon />} />
         </nav>
       </div>
     </div>
-  )
+  );
 };
 
-
 export default LeftSide;
-
-

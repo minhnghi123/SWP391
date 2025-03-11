@@ -49,19 +49,56 @@ export const AuthProvider = ({ children }) => {
                     role: decoded.Role,
                     avatar: decoded.Avatar,
                 }));
-                toast.success("Login successfully")
-               setTimeout(() => {
-                navigate(decoded.Role === 'admin' ? '/dashboardPage/dashboard' : '/');
-               }, 1000)
+
+                setTimeout(() => {
+                    if (decoded.Role.toLowerCase() === 'admin') {
+                        toast.success("Welcome back Admin")
+                        navigate('/dashboardPage/dashboard')
+                    } else if (decoded.Role.toLowerCase() === 'user') {
+                        toast.success("Login successfully")
+                        navigate('/')
+                    }
+                    else {
+                        toast.success("Welcome comeback Staff")
+                        navigate('/staffPage/dashboardStaff')
+                    }
+                }, 1000)
             }
         } catch (error) {
             const errorMessage = error.response?.data?.error || "An error occurred";
-            toast.error(errorMessage);
+            toast.error(errorMessage)
         }
         finally {
             setLoading(false)
         }
     };
+    const loginByGoogle = async (data) => {
+        const value = { googleToken: data.googleToken, clientID: data.clientID };
+        console.log(value)
+        try {
+            const res = await addData('User/login-by-google', value);
+            if (res.status === 200 && res.data?.res) {
+                const newTokens = res.data.res;
+                setAuthTokens(newTokens);
+                localStorage.setItem('authTokens', JSON.stringify(newTokens));
+                const decoded = jwtDecode(newTokens.accessToken);
+                dispatch(accountAction.setUser({
+                    id: decoded.Id,
+                    name: decoded.Username,
+                    role: decoded.Role,
+                    avatar: decoded.Avatar,
+                }));
+                
+                setTimeout(() => {
+                    toast.success("Login successfully")
+                    navigate('/')
+                }, 1000)
+            }
+        } catch (error) {
+            const errorMessage = error.response?.data?.error || "An error occurred";
+            toast.error(errorMessage)
+        }
+    }
 
     const logoutUser = () => {
         setAuthTokens(null);
@@ -71,11 +108,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const value = {
-        authTokens, setAuthTokens, loginUser, logoutUser, error, setError, loading
+        authTokens, setAuthTokens, loginUser, logoutUser, error, setError, loading, loginByGoogle
     }
     return (
         <AuthContext.Provider value={value}>
-          {children}
+            {children}
         </AuthContext.Provider>
     );
 };

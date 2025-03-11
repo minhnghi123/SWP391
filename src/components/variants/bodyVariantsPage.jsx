@@ -292,7 +292,7 @@ function boydVaritants() {
               )}
 
               {/* Checkout Button */}
-              <button onClick={() => navigate(`/information/${user.id}`)}
+              <button onClick={() => navigate(`/information/${user?.id}`)}
                 className={`w-full py-3 rounded-lg mt-6 transition-colors flex items-center justify-center ${cart.length === 0
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 text-white hover:bg-blue-700'

@@ -17,14 +17,17 @@ const useAxios = () => {
         headers: { Authorization: `Bearer ${authTokens?.accessToken}` }
     });
 
+    if(!authTokens){
+       return axiosInstance
 
+    }
     axiosInstance.interceptors.request.use(async req => {
 
         const user = jwtDecode(authTokens.accessToken)
-        const expTimeVN = user.exp;  // user.exp đã ở dạng Unix timestamp (giây)
-        const currentTimeVN = new Date().getTime() / 1000;
+        const expTimeVN = user.exp; 
+        const currentTimeVN = dayjs().unix() 
         const isExpired = expTimeVN < currentTimeVN;
- 
+       
 
         if (!isExpired) return req
 

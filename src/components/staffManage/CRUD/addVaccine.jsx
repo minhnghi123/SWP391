@@ -19,7 +19,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
     entryDate: "",
     timeExpired: "",
     addressId: "",
-    status: "ACTIVE",
+    status: "AVAILABLE",
     minimumIntervalDate: "",
     maximumIntervalDate: "",
     fromCountry: "",
@@ -59,7 +59,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
         ? new Date(newVaccine.timeExpired).toISOString() 
         : new Date().toISOString(),
       addressId: parseInt(newVaccine.addressId) || 0,
-      status: newVaccine.status || "ACTIVE",
+      status: newVaccine.status || "AVAILABLE",
       minimumIntervalDate: parseInt(newVaccine.minimumIntervalDate) || 0,
       maximumIntervalDate: parseInt(newVaccine.maximumIntervalDate) || 0,
       fromCountry: newVaccine.fromCountry || "",
@@ -249,16 +249,16 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
               <input
                 type="checkbox"
                 name="status"
-                checked={newVaccine.status === "ACTIVE"}
+                checked={newVaccine.status === "AVAILABLE"}
                 onChange={(e) =>
                   setNewVaccine((prev) => ({
                     ...prev,
-                    status: e.target.checked ? "ACTIVE" : "INACTIVE",
+                    status: e.target.checked ? "AVAILABLE" : "UNAVAILABLE",
                   }))
                 }
                 className="w-5 h-5 accent-teal-500"
               />
-              <label className="text-gray-700">Active</label>
+              <label className="text-gray-700">AVAILABLE</label>
             </div>
 
             <div className="mt-6 flex justify-end space-x-4">

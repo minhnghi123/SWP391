@@ -8,8 +8,8 @@ import imgAvatar from '../../assets/p15.jpg'
 
 import Dashboard from "../staffManage/section/dashboardStaff";
 import ManageVaccine from "../staffManage/section/manageVaccine";
-import Appointments from "../staffManage/section/apointments";
-import LoginPage from "../../pages/loginPage";
+import Appointments from "./section/apointments";
+// import LoginPage from "../../pages/loginPage";
 import AvatarHomePage from "../home/avatarHomePage";
 const RightSide = () => {
   // const {logout} = useContext(AuthContext);
@@ -44,16 +44,6 @@ const RightSide = () => {
   //   name:'Shu',
   //   email:'teei8191@gmail.com'
   // }
-
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    searchRef.current.focus();
-    setSearch("");
-  };
 
   // Hàm render section với ID user
   const renderSection = () => {

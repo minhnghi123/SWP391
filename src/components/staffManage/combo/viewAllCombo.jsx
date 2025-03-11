@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AddVaccineComboComponent from "./addComboVaccine";
-import DeleteVaccine from "../components/deleteVaccine";
+import AddVaccineComboComponent from "../CRUD/addComboVaccine";
+import DeleteVaccine from "../CRUD/deleteVaccine";
 import Pagination from "../../../utils/pagination";
 import DetailCombo from "../combo/detailsCombo";
 import { ToastContainer } from "react-toastify";
@@ -12,7 +12,7 @@ import {
   Eye,
   SquarePen,
 } from "lucide-react";
-import UpdateVaccineCombo from "./updateCombo";
+import UpdateVaccineCombo from "../CRUD/updateCombo";
 
 const VaccineCombo = () => {
   const [searchTerm, setSearchTerm] = useState("");

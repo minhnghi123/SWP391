@@ -4,14 +4,14 @@ import RightSide from "../components/staffManage/RightSide";
 const staffPage = () => {
   return (
     // <AuthProvider>
-      <div className="flex min-h-screen bg-white">
-        <div className="w-64">
-          <LeftSide />
-        </div>
-        <div className="flex-1">
-          <RightSide />
-        </div>
+    <div className="flex min-h-screen bg-white">
+      <div className="w-64">
+        <LeftSide />
       </div>
+      <div className="flex-1">
+        <RightSide />
+      </div>
+    </div>
   );
 };
 export default staffPage;

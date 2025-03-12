@@ -61,7 +61,7 @@ export default function Stage3Payment() {
             removeDataStage2()
         }
     }, [status])
-
+  console.log(data)
     const getStatusConfig = () => {
         const configs = {
             success: {
@@ -180,7 +180,7 @@ export default function Stage3Payment() {
                                             Amount
                                         </span>
                                         <span className="font-bold text-lg bg-blue-100 text-blue-700 py-1 px-3 rounded-lg">
-                                            {formatDecimal(data?.Amount || 0)} VND
+                                            {formatDecimal(data?.Amount) } {` ` } VND
                                         </span>
                                     </div>
                                     

@@ -8,7 +8,8 @@ import ModalFeedback from '../../../feedback/formFeedback'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { FeedbackContext } from '../../../Context/FeedbackContext';
-
+import useAxios from '../../../../utils/useAxios'
+const url = import.meta.env.VITE_BASE_URL_DB
 const TrackingChildbyUser = ({ id }) => {
 
   // const { inputData,
@@ -25,23 +26,35 @@ const TrackingChildbyUser = ({ id }) => {
   const [sortLinkList, setSortLinkList] = useState([]);
   const [err, setErr] = useState(null);
   const [trigger, setTrigger] = useState(false);
-  // const [showModal, setShowModal] = useState(false);
+  const api = useAxios()
+  const [showModal, setShowModal] = useState(false);
+
+
+
   const createVaccineChains = (data) => {
     if (!data || data.length === 0) return [];
-    // filter vaccine has previousVaccination is 0
+
+    //find vaccine has previousVaccination is 0
     const headers = data.filter(item => item.previousVaccination === 0);
+
+    // create subarray with each previousVaccination =0
     const vaccineChains = headers.map(header => {
       let chain = [header];
-      let nextId = header.trackingID; // id của vaccine tiếp theo
+      let currentId = header.trackingID;
 
-      while (nextId !== null) {
-        const next = data.find(item => item.previousVaccination === nextId);
+      // Find all vaccines that have this vaccine as their previous
+      while (currentId) {
+        // Find the next vaccine in the chain
+        const next = data.find(item => item.previousVaccination === currentId);
         if (!next) break;
+
         chain.push(next);
-        nextId = next.trackingID;
+        currentId = next.trackingID;
       }
+
       return chain;
     });
+
     return vaccineChains;
   };
 
@@ -50,7 +63,7 @@ const TrackingChildbyUser = ({ id }) => {
   useEffect(() => {
     const fetchTrackingData = async () => {
       try {
-        const res = await fetchData(`VaccinesTracking/get-by-parent-id/${id}`);
+        const res = await api.get(`${url}/VaccinesTracking/get-by-parent-id/${id}`);
         if (res.status === 200) {
           setTrackingData(res.data);
           const childrenIds = [...new Set(res.data.map(item => item.childId))];
@@ -58,39 +71,27 @@ const TrackingChildbyUser = ({ id }) => {
           const childrenData = await Promise.all(
             childrenIds.map(async (childId) => {
               if (!childId) return null;
-              const res = await fetchData(`Child/get-child-by-id/${childId}`);
+              const res = await api.get(`${url}/Child/get-child-by-id/${childId}`);
               return res.status === 200 ? res.data : null;
             })
           );
 
           setChildren(childrenData.filter(child => child !== null));
         }
-        // setTrackingData(vaccineSchedule);
-        // const childrenIds = [...new Set(vaccineSchedule.map(item => item.childId))];
-        // const childrenData = await Promise.all(
-        //   childrenIds.map(async (childId) => {
-        //     if (!childId) return null;
-        //     const res = await fetchData(`Child/get-child-by-id/${childId}`);
-        //     return res.status === 200 ? res.data : null;
-        //   })
-        // );
-        // setChildren(childrenData.filter(child => child !== null));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchTrackingData();
-  }, [id,trigger]);
-
+  }, [id, trigger]);
+  console.log(sortLinkList)
   // Set initial selected child
   useEffect(() => {
     if (children.length > 0 && !selectedChild) {
       setSelectedChild(children[0].id);
     }
   }, [children]);
-
-  // Update sortLinkList when selectedChild changes
   useEffect(() => {
     if (selectedChild) {
       const childVaccines = trackingData.filter(item => item.childId === selectedChild);
@@ -102,14 +103,6 @@ const TrackingChildbyUser = ({ id }) => {
     }
   }, [selectedChild, trackingData]);
 
-  // useEffect(() => {
-  //   if (!selectedChild || sortLinkList.length === 0) return; // Kiểm tra dữ liệu trước khi xử lý
-  //   const findChild = sortLinkList.flat().filter(dose => dose.childId === selectedChild);
-  //   const checkAllCompleted = findChild.filter(dose => dose.status.toLowerCase() === "completed");
-  //   if (findChild.length > 0 && findChild.length === checkAllCompleted.length) {
-  //     setShowModal(true);
-  //   }
-  // }, [sortLinkList, selectedChild]); 
 
   const calculateProgress = () => {
     if (!selectedChild || sortLinkList.length === 0) {
@@ -149,11 +142,7 @@ const TrackingChildbyUser = ({ id }) => {
 
   return (
     <div className="max-w-7xl mx-auto h-auto space-y-6 p-6">
-      {/* {
-        showModal && (
-          <ModalFeedback inputData={inputData} handleSubmit={handleSubmit} handleOnChange={handleOnChange} handleClick={handleClick} handleMouseLeave={handleMouseLeave} handleMouseOver={handleMouseOver} currentValue={currentValue} hoverValue={hoverValue} />
-        )
-      } */}
+
 
       {/* Total Progress Card */}
       <ChildSelection children={children} setSelectedChild={setSelectedChild} selectedChild={selectedChild} />
@@ -172,20 +161,32 @@ export default TrackingChildbyUser;
 
 
 
-const ProgressBar = ({ percentage, vaccineName, current, total }) => (
-  <div className="mb-6">
+const ProgressBar = ({ percentage, vaccineName, current, total, percentageOverdue }) => {
+  return (
+    <div className="mb-6">
+      <div className="flex justify-between mb-2">
+        <span className="text-sm font-medium text-gray-700">
+          {vaccineName} ({current}/{total})
+        </span>
+        <span className={`text-sm ${percentageOverdue > 0 ? "text-red-500" : "text-gray-500"}`}>
+          {percentage}%
+        </span>
+      </div>
+      <div className="h-4 bg-gray-200 rounded-full overflow-hidden flex">
+        {/* Phần hoàn thành (Xanh) */}
+        <div
+          className="h-full bg-blue-500 transition-all duration-300"
+          style={{ width: `${percentage}%` }}
+        />
+        {/* Phần quá hạn (Đỏ) */}
+        <div
+          className="h-full bg-red-500 transition-all duration-300"
+          style={{ width: `${percentageOverdue}%` }}
+        />
+      </div>
+    </div>
+  );
+};
 
-    <div className="flex justify-between mb-2">
-      <span className="text-sm font-medium text-gray-700">
-        {vaccineName} ({current}/{total})
-      </span>
-      <span className="text-sm text-gray-500">{percentage}%</span>
-    </div>
-    <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
-      <div
-        className="h-full bg-blue-500 rounded-full transition-all duration-300"
-        style={{ width: `${percentage}%` }}
-      />
-    </div>
-  </div>
-)
+
+

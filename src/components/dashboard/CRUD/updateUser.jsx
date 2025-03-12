@@ -3,9 +3,8 @@ import axios from "axios";
 
 const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
   const [formData, setFormData] = useState({
-    id: user.id || "",
-    name: user.name || "",
-    username: user.username || "",
+    id: user.id || "", // Add id from user prop
+    name: user.name || "", // Use "name" to match payload
     gmail: user.gmail || "",
     phoneNumber: user.phoneNumber || "",
     dateOfBirth: user.dateOfBirth
@@ -13,51 +12,60 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
       : "",
     gender: user.gender !== undefined ? user.gender : 0,
     role: user.role || "",
-    status: user.status || "Active",
+    isDelete: user.isDelete === true, // Simplify to boolean
     avatar: user.avatar || "",
   });
-  const [errorMessage, setErrorMessage] = useState(""); // Add state for error display
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "isDelete" ? value === "true" : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Basic validation
+    if (!formData.id) {
+      setErrorMessage("User ID is missing.");
+      return;
+    }
+    if (!formData.name || !formData.gmail) {
+      setErrorMessage("Name and email are required.");
+      return;
+    }
+
     try {
-      // Ensure gender is sent as an integer
       const payload = {
-        ...formData,
-        gender: parseInt(formData.gender, 10), // Convert gender to integer
+        name: formData.name,
+        dateOfBirth: formData.dateOfBirth
+          ? new Date(formData.dateOfBirth).toISOString()
+          : null, // Ensure ISO format for date
+        gender: parseInt(formData.gender, 10),
+        avatar: formData.avatar,
+        isDeleted: formData.isDelete, // Rename to match payload
+        gmail: formData.gmail,
+        phoneNumber: formData.phoneNumber,
       };
 
       const response = await axios.put(
         `https://localhost:7280/api/User/update-user/${formData.id}`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json", // Explicitly set content type
-          },
-        }
+        payload
       );
 
-      console.log("Update successful:", response.data); // Log success for debugging
+      console.log("Update successful:", response.data);
       onAddSuccess();
       setShowForm(false);
     } catch (error) {
-      // Enhanced error logging
       console.error("Error updating user:", {
         message: error.message,
-        response: error.response?.data, // Server response details
+        response: error.response?.data,
         status: error.response?.status,
       });
 
-      // Display user-friendly error message
       setErrorMessage(
         error.response?.data?.message ||
           "Failed to update user. Please check your input and try again."
@@ -69,28 +77,15 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg w-96">
         <h2 className="text-xl font-bold mb-4">Update User</h2>
-        {errorMessage && (
-          <p className="text-red-500 mb-4">{errorMessage}</p> // Display error to user
-        )}
+        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
               type="text"
-              name="name"
+              name="name" // Match payload field
               value={formData.name}
               onChange={handleChange}
               placeholder="Name"
-              className="w-full p-2 border rounded"
-              required // Add basic validation
-            />
-          </div>
-          <div className="mb-4">
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Username"
               className="w-full p-2 border rounded"
               required
             />
@@ -155,8 +150,19 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
               onChange={handleChange}
               placeholder="Role"
               readOnly
-              className="w-full p-2 border rounded bg-gray-100" // Visual cue for read-only
+              className="w-full p-2 border rounded bg-gray-100"
             />
+          </div>
+          <div className="mb-4">
+            <select
+              name="isDelete"
+              value={formData.isDelete.toString()}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            >
+              <option value="false">ACTIVE</option>
+              <option value="true">INACTIVE</option>
+            </select>
           </div>
           <div className="flex justify-end gap-2">
             <button

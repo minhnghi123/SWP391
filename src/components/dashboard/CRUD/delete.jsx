@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const DeleteComponent = ({ id, onDeleteSuccess }) => {
   const handleDelete = async () => {
-    if (!id) return toast.error("User ID is missing!");
+    if (!id || isNaN(id)) return toast.error("Invalid User ID!");
 
     try {
       const response = await axios.patch(
@@ -15,10 +15,16 @@ const DeleteComponent = ({ id, onDeleteSuccess }) => {
       if (response.status === 200 || response.status === 204) {
         toast.success("User deleted!");
         onDeleteSuccess(id);
+      } else {
+        throw new Error(`Unexpected response: ${response.status}`);
       }
     } catch (error) {
       toast.error("Error deleting user!");
-      console.error("Delete error:", status, error.message);
+      console.error("Delete error:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
     }
   };
 

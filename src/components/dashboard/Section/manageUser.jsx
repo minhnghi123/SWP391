@@ -21,7 +21,7 @@ const UserManagement = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "https://localhost:7280/api/User/get-all-user",
+          "https://localhost:7280/api/User/get-all-user-admin",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -58,7 +58,7 @@ const UserManagement = () => {
     const fetchDataAsync = async () => {
       try {
         const response = await axios.get(
-          "https://localhost:7280/api/User/get-all-user",
+          "https://localhost:7280/api/User/get-all-user-admin",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -82,9 +82,10 @@ const UserManagement = () => {
   const handleDeleteSuccess = (deletedId) => {
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
-        user.id === deletedId ? { ...user, status: "Inactive" } : user
+        user.id === deletedId ? { ...user, isDelete: true } : user
       )
-    );
+    ) ;
+    handleAddSuccess(); // Gọi trực tiếp sau khi cập nhật state
   };
 
   const handleUpdateClick = (user) => {

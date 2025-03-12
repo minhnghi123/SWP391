@@ -168,7 +168,7 @@ const ChildManagement = () => {
                         id={child.id}
                         endpoint="https://localhost:7280/api/Child/soft-delete-child/{id}"
                         entityName="Child"
-                        onDeleteSuccess={handleDeleteSuccess}
+                        onDeleteSuccess={handleDeleteSuccess}                 
                       />
                     </td>
                   </tr>

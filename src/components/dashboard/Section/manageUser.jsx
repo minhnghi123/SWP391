@@ -3,13 +3,18 @@ import AddUser from "../CRUD/addUser";
 import DeleteUser from "../CRUD/delete";
 import { Plus, Clock } from "lucide-react";
 import axios from "axios";
+import AddStaff from "../CRUD/addStaff";
+import UpdateUser from "../CRUD/updateUser";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddUserForm, setShowAddUserForm] = useState(false); // Separate state for Add User
+  const [showAddStaffForm, setShowAddStaffForm] = useState(false); // Separate state for Add Staff
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const fetchDataAsync = async () => {
@@ -23,7 +28,6 @@ const UserManagement = () => {
             },
           }
         );
-        // Assuming the API returns status as "Active" or "Inactive", if not, adjust accordingly
         setUsers(
           response.data.map((user) => ({
             ...user,
@@ -76,7 +80,6 @@ const UserManagement = () => {
   };
 
   const handleDeleteSuccess = (deletedId) => {
-    // Update the status locally without refetching the entire list
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
         user.id === deletedId ? { ...user, status: "Inactive" } : user
@@ -84,17 +87,31 @@ const UserManagement = () => {
     );
   };
 
+  const handleUpdateClick = (user) => {
+    setSelectedUser(user);
+    setShowUpdateForm(true);
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
-        >
-          <Plus className="w-5 h-5" />
-          Add User
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setShowAddUserForm(true)} // Trigger Add User form
+            className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
+          >
+            <Plus className="w-5 h-5" />
+            Add User
+          </button>
+          <button
+            onClick={() => setShowAddStaffForm(true)} // Trigger Add Staff form
+            className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
+          >
+            <Plus className="w-5 h-5" />
+            Add Staff
+          </button>
+        </div>
       </div>
 
       <div className="mb-6">
@@ -115,71 +132,40 @@ const UserManagement = () => {
           <table className="min-w-full table-auto">
             <thead className="bg-gray-100 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  Username
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  Phone
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  DOB
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  Gender
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Name</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Username</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Email</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Phone</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">DOB</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Gender</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Role</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.map((user) => (
                 <tr key={user.username} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {user.name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.username}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.gmail}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.phoneNumber}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-800">{user.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{user.username}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{user.gmail}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{user.phoneNumber}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {new Date(user.dateOfBirth).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.gender === 0
-                      ? "Male"
-                      : user.gender === 1
-                      ? "Female"
-                      : "Other"}
+                    {user.gender === 0 ? "Male" : user.gender === 1 ? "Female" : "Other"}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.role || "N/A"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.status}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    <DeleteUser
-                      id={user.id}
-                      onDeleteSuccess={handleDeleteSuccess}
-                    />
+                  <td className="px-6 py-4 text-sm text-gray-600">{user.role || "N/A"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{user.status}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600 flex gap-2">
+                    <DeleteUser id={user.id} onDeleteSuccess={handleDeleteSuccess} />
+                    <button
+                      onClick={() => handleUpdateClick(user)}
+                      className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
+                    >
+                      Update
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -188,8 +174,20 @@ const UserManagement = () => {
         </div>
       )}
 
-      {showAddForm && (
-        <AddUser onAddSuccess={handleAddSuccess} setShowForm={setShowAddForm} />
+      {showAddUserForm && (
+        <AddUser onAddSuccess={handleAddSuccess} setShowForm={setShowAddUserForm} />
+      )}
+
+      {showAddStaffForm && (
+        <AddStaff onAddSuccess={handleAddSuccess} setShowForm={setShowAddStaffForm} />
+      )}
+
+      {showUpdateForm && selectedUser && (
+        <UpdateUser
+          user={selectedUser}
+          onAddSuccess={handleAddSuccess}
+          setShowForm={setShowUpdateForm}
+        />
       )}
     </div>
   );

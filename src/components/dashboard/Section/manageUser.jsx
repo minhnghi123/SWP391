@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AddUser from "../CRUD/addUser";
-import DeleteUser from "../CRUD/delete";
+import DeleteComponent from "../CRUD/delete";
 import { Plus, Clock } from "lucide-react";
 import axios from "axios";
 import AddStaff from "../CRUD/addStaff";
@@ -160,7 +160,12 @@ const UserManagement = () => {
                   <td className="px-6 py-4 text-sm text-gray-600">{user.role || "N/A"}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{user.status}</td>
                   <td className="px-6 py-4 text-sm text-gray-600 flex gap-2">
-                    <DeleteUser id={user.id} onDeleteSuccess={handleDeleteSuccess} />
+                  <DeleteComponent
+                        id={user.id}
+                        endpoint="https://localhost:7280/api/User/soft-delete-user/{id}"
+                        entityName="User"
+                        onDeleteSuccess={handleDeleteSuccess}
+                      />
                     <button
                       onClick={() => handleUpdateClick(user)}
                       className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"

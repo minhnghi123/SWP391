@@ -3,24 +3,30 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const DeleteComponent = ({ id, onDeleteSuccess }) => {
+const DeleteComponent = ({
+  id,
+  endpoint,
+  entityName = "item", // Tên mặc định nếu không truyền
+  onDeleteSuccess,
+}) => {
   const handleDelete = async () => {
-    if (!id || isNaN(id)) return toast.error("Invalid User ID!");
+    if (!id || isNaN(id)) {
+      toast.error(`Invalid ${entityName} ID!`);
+      return;
+    }
 
     try {
-      const response = await axios.patch(
-        `https://localhost:7280/api/User/soft-delete-user/${id}`
-      );
+      const response = await axios.patch(endpoint.replace("{id}", id));
 
       if (response.status === 200 || response.status === 204) {
-        toast.success("User deleted!");
+        toast.success(`${entityName} deleted successfully!`);
         onDeleteSuccess(id);
       } else {
-        throw new Error(`Unexpected response: ${response.status}`);
+        throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
-      toast.error("Error deleting user!");
-      console.error("Delete error:", {
+      toast.error(`Failed to delete ${entityName}!`);
+      console.error(`Delete ${entityName} error:`, {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
@@ -32,7 +38,7 @@ const DeleteComponent = ({ id, onDeleteSuccess }) => {
     <button
       onClick={handleDelete}
       className="p-1.5 bg-rose-50 text-rose-600 rounded-md hover:bg-rose-100"
-      title="Delete"
+      title={`Delete ${entityName}`}
     >
       <Trash2 size={16} />
     </button>

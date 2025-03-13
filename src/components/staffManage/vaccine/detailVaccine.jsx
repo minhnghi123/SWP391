@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { X, Refrigerator, Pill, Calendar } from "lucide-react";
+import useAxios from "../../../utils/useAxios";
 
+
+const url = import.meta.env.VITE_BASE_URL_DB;
 const VaccineDetails = ({ id, isOpen, onClose }) => {
   const [vaccine, setVaccine] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const api = useAxios();
 
   useEffect(() => {
     if (!isOpen || !id) return;
@@ -12,21 +16,12 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
     const fetchVaccine = async () => {
       setLoading(true);
       setError(null);
-      
       try {
-        const response = await fetch(`https://localhost:7280/api/Vaccine/get-vaccine-by-id/${id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch vaccine data: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setVaccine(data);
+        const response = await api.get(`${url}/Vaccine/get-vaccine-by-id/${id}`);
+       if(response.status===200){
+        setVaccine(response.data);
+       }
+        
       } catch (err) {
         setError(err.message);
         console.error('Error fetching vaccine:', err);

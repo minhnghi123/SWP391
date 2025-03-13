@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const Feedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const api = useAxios();
 
   useEffect(() => {
     const fetchDataAsync = async () => {
       try {
         setLoading(true);
-        const feedbackRes = await axios.get("https://localhost:7280/api/Feedback/get-all-feedback-admin");
+        const feedbackRes = await api.get(`${url}/Feedback/get-all-feedback-admin`);
         setFeedbacks(feedbackRes.data);
         setError(null);
       } catch (error) {

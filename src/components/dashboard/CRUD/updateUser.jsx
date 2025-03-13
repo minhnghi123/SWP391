@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
+  const api = useAxios();
   const [formData, setFormData] = useState({
     id: user.id || "", // Add id from user prop
     name: user.name || "", // Use "name" to match payload
@@ -51,8 +54,8 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
         phoneNumber: formData.phoneNumber,
       };
 
-      const response = await axios.put(
-        `https://localhost:7280/api/User/update-user/${formData.id}`,
+      const response = await api.put(
+        `${url}/User/update-user/${formData.id}`,
         payload
       );
 

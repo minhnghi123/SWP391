@@ -5,6 +5,8 @@ import { Plus, Clock } from "lucide-react";
 import axios from "axios";
 import AddStaff from "../CRUD/addStaff";
 import UpdateUser from "../CRUD/updateUser";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -15,19 +17,14 @@ const UserManagement = () => {
   const [showAddStaffForm, setShowAddStaffForm] = useState(false); // Separate state for Add Staff
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const api = useAxios();
 
   useEffect(() => {
     const fetchDataAsync = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "https://localhost:7280/api/User/get-all-user-admin",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const response = await api.get(
+          `${url}/User/get-all-user-admin`);
         setUsers(
           response.data.map((user) => ({
             ...user,
@@ -57,14 +54,8 @@ const UserManagement = () => {
   const handleAddSuccess = () => {
     const fetchDataAsync = async () => {
       try {
-        const response = await axios.get(
-          "https://localhost:7280/api/User/get-all-user-admin",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const response = await api.get(
+          `${url}/User/get-all-user-admin`);
         setUsers(
           response.data.map((user) => ({
             ...user,

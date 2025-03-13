@@ -2,17 +2,21 @@ import { Trash2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAxios from "../../../utils/useAxios";
+import { urPK } from "@mui/x-date-pickers/locales";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const DeleteVaccineButton = ({ vaccineId, isCombo = false, onDeleteSuccess }) => {
+  const api = useAxios();
   const handleDelete = async () => {
     try {
       const url = isCombo
-        ? `https://localhost:7280/api/VaccineCombo/soft-delete-combo/${encodeURIComponent(vaccineId)}`
-        : `https://localhost:7280/api/Vaccine/soft-delete-vaccine/${encodeURIComponent(vaccineId)}`;
+        ? `${url}/VaccineCombo/soft-delete-combo/${encodeURIComponent(vaccineId)}`
+        : `${url}/Vaccine/soft-delete-vaccine/${encodeURIComponent(vaccineId)}`;
 
       const response = isCombo
-        ? await axios.patch(url)
-        : await axios.patch(url);
+        ? await api.patch(url)
+        : await api.patch(url);
 
       if (response.status === 200 || response.status === 204) {
         toast.success(

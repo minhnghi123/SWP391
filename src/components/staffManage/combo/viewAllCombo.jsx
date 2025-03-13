@@ -13,6 +13,8 @@ import {
   SquarePen,
 } from "lucide-react";
 import UpdateVaccineCombo from "../CRUD/updateCombo";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const VaccineCombo = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,12 +30,13 @@ const VaccineCombo = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [vaccineCombos, setVaccineCombos] = useState([]);
+  const api = useAxios();
 
   const fetchVaccineCombos = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "https://localhost:7280/api/VaccineCombo/get-all-vaccine-combo"
+      const response = await api.get(
+        `${url}/VaccineCombo/get-all-vaccine-combo`
       );
       setVaccineCombos(response.data);
       setError(null);

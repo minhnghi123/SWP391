@@ -15,7 +15,7 @@ import {
 import UpdateVaccine from "../CRUD/updateVaccine";
 
 import useAxios from "../../../utils/useAxios";
-const url = import.meta.env.VITE_BASE_URL_DB
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const VaccineList = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,7 +26,8 @@ const VaccineList = () => {
   const [selectedVaccineId, setSelectedVaccineId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] = useState(null);
+  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] =
+    useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [vaccines, setVaccines] = useState([]);
@@ -36,9 +37,7 @@ const VaccineList = () => {
   const fetchVaccines = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "https://localhost:7280/api/Vaccine/get-all-vaccines"
-      );
+      const response = await api.get(`${url}/Vaccine/get-all-vaccines`);
       setVaccines(response.data);
       setError(null);
     } catch (error) {
@@ -105,7 +104,9 @@ const VaccineList = () => {
 
   const handleUpdateSuccess = (updatedVaccine) => {
     setVaccines((prev) =>
-      prev.map((item) => (item.id === updatedVaccine.id ? updatedVaccine : item))
+      prev.map((item) =>
+        item.id === updatedVaccine.id ? updatedVaccine : item
+      )
     );
     handleCloseUpdateModal();
   };

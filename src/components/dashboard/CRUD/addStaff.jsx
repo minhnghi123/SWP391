@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Clock } from "lucide-react";
 import { toast } from "react-toastify";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddStaff = ({ onAddSuccess, setShowForm }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const api = useAxios();
 
   const initialUserState = {
     name: "",
@@ -52,7 +55,7 @@ const AddStaff = ({ onAddSuccess, setShowForm }) => {
 
     try {
       const response = await axios.post(
-        "https://localhost:7280/api/User/create-staff",
+        `${url}/User/create-staff`,
         userData,
       );
 

@@ -8,6 +8,7 @@ const AddChild = ({ onAddSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [parents, setParents] = useState([]); // State để lưu danh sách parent
+  
 
   const [newChild, setNewChild] = useState({
     parentID: "",

@@ -4,17 +4,20 @@ import { toast } from "react-toastify";
 import DateFormatter from "../../../utils/FormDate";
 import AddChild from "../CRUD/addChild";
 import DeleteComponent from "../CRUD/delete"; // Import component chung
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const ChildManagement = () => {
   const [children, setChildren] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const api = useAxios();
 
   const fetchChildren = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get("https://localhost:7280/api/Child/get-all-child-admin");
+      const response = await axios.get(`${url}/Child/get-all-child-admin`);
       setChildren(response.data);
       setErrorMessage(null);
     } catch (error) {
@@ -39,7 +42,7 @@ const ChildManagement = () => {
 
   const refreshChildrenList = async () => {
     try {
-      const response = await axios.get("https://localhost:7280/api/Child/get-all-child-admin", {
+      const response = await api.get(`${url}/Child/get-all-child-admin`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

@@ -1,29 +1,76 @@
-import { useState, useEffect } from "react"; // Added useEffect
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Save, X } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
-  // Initialize formData with vaccine data when component mounts
-  const [formData, setFormData] = useState(null); // Changed to null initially
+  const [formData, setFormData] = useState(null);
   const [error, setError] = useState(null);
+  const api = useAxios();
 
-  // Set initial form data when vaccine prop changes
   useEffect(() => {
     if (vaccine) {
       setFormData({
         ...vaccine,
-        // Ensure date fields are in correct format for input[type="date"]
         entryDate: vaccine.entryDate ? new Date(vaccine.entryDate).toISOString().split('T')[0] : '',
         timeExpired: vaccine.timeExpired ? new Date(vaccine.timeExpired).toISOString().split('T')[0] : '',
-        status: vaccine.status === "ACTIVE" // Convert to boolean for checkbox
+        status: vaccine.status === "ACTIVE",
       });
     }
   }, [vaccine]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    // Ngăn nhập dấu - và ký tự không phải số cho các trường number
+    if (
+      [
+        "quantity",
+        "price",
+        "doesTimes",
+        "suggestAgeMin",
+        "suggestAgeMax",
+        "addressId",
+        "minimumIntervalDate",
+        "maximumIntervalDate",
+      ].includes(name)
+    ) {
+      if (value && !/^[0-9]*\.?[0-9]*$/.test(value)) {
+        return;
+      }
+      if (value.startsWith("-")) {
+        return;
+      }
+    }
+
+    // Validation cho entryDate và timeExpired ngay khi thay đổi
+    if (name === "entryDate" && value) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const entryDate = new Date(value);
+      if (entryDate > today) {
+        setError("Ngày nhập kho phải là ngày trong quá khứ hoặc hôm nay.");
+        toast.error("Ngày nhập kho không hợp lệ!", { autoClose: 3000 });
+      } else {
+        setError(null); // Xóa lỗi nếu hợp lệ
+      }
+    }
+
+    if (name === "timeExpired" && value) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expiredDate = new Date(value);
+      if (expiredDate <= today) {
+        setError("Ngày hết hạn phải là ngày trong tương lai.");
+        toast.error("Ngày hết hạn không hợp lệ!", { autoClose: 3000 });
+      } else {
+        setError(null); // Xóa lỗi nếu hợp lệ
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? (checked ? "ACTIVE" : "INACTIVE") : value,
@@ -37,16 +84,48 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Validate suggestAgeMin < suggestAgeMax
+    const minAge = parseInt(formData.suggestAgeMin) || 0;
+    const maxAge = parseInt(formData.suggestAgeMax) || 0;
+    if (formData.suggestAgeMin && formData.suggestAgeMax && minAge >= maxAge) {
+      setError("Độ tuổi tối thiểu phải nhỏ hơn độ tuổi tối đa.");
+      toast.error("Độ tuổi tối thiểu phải nhỏ hơn độ tuổi tối đa!", { autoClose: 3000 });
+      return;
+    }
+
+    // Validate entryDate phải là quá khứ hoặc hôm nay
+    if (formData.entryDate) {
+      const entryDate = new Date(formData.entryDate);
+      if (entryDate > today) {
+        setError("Ngày nhập kho phải là ngày trong quá khứ hoặc hôm nay.");
+        toast.error("Ngày nhập kho không hợp lệ!", { autoClose: 3000 });
+        return;
+      }
+    }
+
+    // Validate timeExpired phải là tương lai
+    if (formData.timeExpired) {
+      const expiredDate = new Date(formData.timeExpired);
+      if (expiredDate <= today) {
+        setError("Ngày hết hạn phải là ngày trong tương lai.");
+        toast.error("Ngày hết hạn không hợp lệ!", { autoClose: 3000 });
+        return;
+      }
+    }
+
     try {
       const updateData = {
-        id: formData.id, // Ensure ID is included
+        id: formData.id,
         name: formData.name,
         quantity: Number(formData.quantity) || 0,
         description: formData.description || "",
         price: Number(formData.price) || 0,
         doesTimes: Number(formData.doesTimes) || 0,
-        suggestAgeMin: Number(formData.suggestAgeMin) || 0,
-        suggestAgeMax: Number(formData.suggestAgeMax) || 0,
+        suggestAgeMin: minAge,
+        suggestAgeMax: maxAge,
         entryDate: formData.entryDate ? new Date(formData.entryDate).toISOString() : null,
         timeExpired: formData.timeExpired ? new Date(formData.timeExpired).toISOString() : null,
         addressId: Number(formData.addressId) || 0,
@@ -58,13 +137,13 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
 
       console.log("Sending data:", updateData);
 
-      const response = await axios.put(
-        `https://localhost:7280/api/Vaccine/update-vaccine/${formData.id}`,
+      const response = await api.put(
+        `${url}/Vaccine/update-vaccine/${formData.id}`,
         updateData
       );
 
       if (response.status === 200) {
-        onSave(updateData); // Pass the full updated object
+        onSave(updateData);
         toast.success("Vaccine updated successfully!");
       }
     } catch (err) {
@@ -80,7 +159,7 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
     { label: "Doses Left", name: "quantity", type: "number" },
     { label: "Does Times", name: "doesTimes", type: "number" },
     { label: "Price (VND)", name: "price", type: "number" },
-    { label: "Entry Date", name: "entryDate", type: "date" }, // Added entryDate field
+    { label: "Entry Date", name: "entryDate", type: "date" },
     { label: "Expiry Date", name: "timeExpired", type: "date" },
     { label: "Age Range (Min)", name: "suggestAgeMin", type: "number" },
     { label: "Age Range (Max)", name: "suggestAgeMax", type: "number" },
@@ -91,10 +170,11 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
     { label: "Status", name: "status", type: "checkbox" },
   ];
 
-  // Show loading state while formData is being initialized
   if (!formData) {
-    return null; // Or a loading spinner
+    return null;
   }
+
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -142,7 +222,16 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
                     name={field.name}
                     value={formData[field.name] || ""}
                     onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className={`w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                      (field.name === "suggestAgeMin" && formData.suggestAgeMin && formData.suggestAgeMax && parseInt(formData.suggestAgeMin) >= parseInt(formData.suggestAgeMax)) ||
+                      (field.name === "suggestAgeMax" && formData.suggestAgeMin && formData.suggestAgeMax && parseInt(formData.suggestAgeMin) >= parseInt(formData.suggestAgeMax)) ||
+                      (field.name === "entryDate" && formData.entryDate && new Date(formData.entryDate) > new Date(today)) ||
+                      (field.name === "timeExpired" && formData.timeExpired && new Date(formData.timeExpired) <= new Date(today))
+                        ? "border-red-500"
+                        : ""
+                    }`}
+                    min={field.type === "number" ? "0" : field.name === "timeExpired" ? today : undefined}
+                    max={field.name === "entryDate" ? today : undefined}
                   />
                 )}
               </div>

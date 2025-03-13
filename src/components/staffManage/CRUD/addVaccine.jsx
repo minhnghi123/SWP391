@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Plus, Clock } from "lucide-react";
 import { toast } from "react-toastify";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddVaccineComponent = ({ onAddSuccess }) => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const api = useAxios();
 
   const initialVaccineState = {
     name: "",
@@ -29,6 +32,28 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Ngăn nhập dấu - và ký tự không phải số cho các trường number
+    if (
+      [
+        "quantity",
+        "price",
+        "doesTimes",
+        "suggestAgeMin",
+        "suggestAgeMax",
+        "addressId",
+        "minimumIntervalDate",
+        "maximumIntervalDate",
+      ].includes(name)
+    ) {
+      if (value && !/^[0-9]*\.?[0-9]*$/.test(value)) {
+        return; // Chỉ cho phép số và dấu chấm (cho price)
+      }
+      if (value.startsWith("-")) {
+        return; // Ngăn dấu -
+      }
+    }
+
     setNewVaccine((prev) => ({
       ...prev,
       [name]: value,
@@ -41,6 +66,38 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
   };
 
   const handleAddVaccine = async () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh chính xác ngày
+
+    // Validate suggestAgeMin < suggestAgeMax
+    const minAge = parseInt(newVaccine.suggestAgeMin) || 0;
+    const maxAge = parseInt(newVaccine.suggestAgeMax) || 0;
+    if (newVaccine.suggestAgeMin && newVaccine.suggestAgeMax && minAge >= maxAge) {
+      setError("Độ tuổi tối thiểu phải nhỏ hơn độ tuổi tối đa.");
+      toast.error("Độ tuổi tối thiểu phải nhỏ hơn độ tuổi tối đa!", { autoClose: 3000 });
+      return;
+    }
+
+    // Validate entryDate phải là quá khứ hoặc hôm nay
+    if (newVaccine.entryDate) {
+      const entryDate = new Date(newVaccine.entryDate);
+      if (entryDate > today) {
+        setError("Ngày nhập kho phải là ngày trong quá khứ hoặc hôm nay.");
+        toast.error("Ngày nhập kho không hợp lệ!", { autoClose: 3000 });
+        return;
+      }
+    }
+
+    // Validate timeExpired phải là tương lai
+    if (newVaccine.timeExpired) {
+      const expiredDate = new Date(newVaccine.timeExpired);
+      if (expiredDate <= today) {
+        setError("Ngày hết hạn phải là ngày trong tương lai.");
+        toast.error("Ngày hết hạn không hợp lệ!", { autoClose: 3000 });
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
 
@@ -50,8 +107,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
       description: newVaccine.description || "",
       price: parseFloat(newVaccine.price) || 0,
       doesTimes: parseInt(newVaccine.doesTimes) || 0,
-      suggestAgeMin: parseInt(newVaccine.suggestAgeMin) || 0,
-      suggestAgeMax: parseInt(newVaccine.suggestAgeMax) || 0,
+      suggestAgeMin: minAge,
+      suggestAgeMax: maxAge,
       entryDate: newVaccine.entryDate 
         ? new Date(newVaccine.entryDate).toISOString() 
         : new Date().toISOString(),
@@ -68,8 +125,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
     console.log("Sending vaccine data:", vaccineData);
 
     try {
-      const response = await axios.post(
-        "https://localhost:7280/api/Vaccine/create-vaccine",
+      const response = await api.post(
+        `${url}/Vaccine/create-vaccine`,
         vaccineData
       );
 
@@ -91,25 +148,36 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
     }
   };
 
-  const DateInput = ({ label, name, value, onChange }) => (
-    <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-        {label}
-      </label>
-      <div className="relative group">
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-          <Clock size={18} className="text-gray-400" />
+  const DateInput = ({ label, name, value, onChange }) => {
+    const today = new Date().toISOString().split("T")[0]; // Lấy ngày hiện tại định dạng YYYY-MM-DD
+
+    return (
+      <div className="relative">
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          {label}
+        </label>
+        <div className="relative group">
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+            <Clock size={18} className="text-gray-400" />
+          </div>
+          <input
+            type="date"
+            name={name}
+            value={value}
+            onChange={onChange}
+            className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 shadow-sm group-hover:shadow-md ${
+              (name === "entryDate" && value && new Date(value) > new Date(today)) ||
+              (name === "timeExpired" && value && new Date(value) <= new Date(today))
+                ? "border-red-500"
+                : ""
+            }`}
+            max={name === "entryDate" ? today : undefined} // Giới hạn entryDate không chọn ngày tương lai
+            min={name === "timeExpired" ? today : undefined} // Giới hạn timeExpired không chọn ngày quá khứ
+          />
         </div>
-        <input
-          type="date"
-          name={name}
-          value={value}
-          onChange={onChange}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 shadow-sm group-hover:shadow-md"
-        />
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
@@ -192,7 +260,12 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Min Age"
                 value={newVaccine.suggestAgeMin}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                className={`w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors ${
+                  newVaccine.suggestAgeMin && newVaccine.suggestAgeMax && 
+                  parseInt(newVaccine.suggestAgeMin) >= parseInt(newVaccine.suggestAgeMax)
+                    ? "border-red-500"
+                    : ""
+                }`}
                 min="0"
               />
               <input
@@ -201,7 +274,12 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Max Age"
                 value={newVaccine.suggestAgeMax}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                className={`w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors ${
+                  newVaccine.suggestAgeMin && newVaccine.suggestAgeMax && 
+                  parseInt(newVaccine.suggestAgeMin) >= parseInt(newVaccine.suggestAgeMax)
+                    ? "border-red-500"
+                    : ""
+                }`}
                 min="0"
               />
               <input

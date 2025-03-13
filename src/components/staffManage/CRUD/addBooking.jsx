@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { PlusCircle, X, Loader2 } from "lucide-react";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddBooking = ({ onBookingAdded, onClose }) => {
   const [newBooking, setNewBooking] = useState({
@@ -17,6 +19,8 @@ const AddBooking = ({ onBookingAdded, onClose }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const api = useAxios();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,8 +46,8 @@ const AddBooking = ({ onBookingAdded, onClose }) => {
 
     try {
       console.log("Payload being sent:", payload);
-      const response = await axios.post(
-        "https://localhost:7280/api/Booking/add-booking",
+      const response = await api.post(
+        `${id}/Booking/add-booking`,
         payload
       );
       onBookingAdded(response.data);

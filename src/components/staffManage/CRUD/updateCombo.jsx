@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Save, X } from "lucide-react";
 import { toast } from "react-toastify";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +18,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
   const [showVaccines, setShowVaccines] = useState(false);
   const [vaccines, setVaccines] = useState([]);
   const [loading, setLoading] = useState(false);
+  const api = useAxios();
 
   // Fetch combo details from server on mount
   useEffect(() => {
@@ -28,8 +31,8 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
 
       try {
         setLoading(true);
-        const response = await axios.get(
-          `https://localhost:7280/api/VaccineCombo/get-vaccine-combo-detail/${combo.id}`
+        const response = await api.get(
+          `${url}/VaccineCombo/get-vaccine-combo-detail/${combo.id}`
         );
         const comboData = response.data;
         console.log("Fetched combo data:", comboData); // Debug dữ liệu từ server
@@ -58,8 +61,8 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
     try {
       const total = await Promise.all(
         vaccineIds.map(async (id) => {
-          const response = await axios.get(
-            `https://localhost:7280/api/Vaccine/get-vaccine-by-id/${id}`
+          const response = await api.get(
+            `${url}/Vaccine/get-vaccine-by-id/${id}`
           );
           return response.data.price || 0;
         })
@@ -102,7 +105,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
   const fetchAllVaccines = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("https://localhost:7280/api/Vaccine/get-all-vaccines");
+      const response = await api.get(`${url}/Vaccine/get-all-vaccines`);
       setVaccines(response.data);
       setError(null);
     } catch (error) {
@@ -142,8 +145,8 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
       };
 
       console.log("Sending update data to server:", updateData); // Debug dữ liệu gửi lên
-      const response = await axios.put(
-        `https://localhost:7280/api/VaccineCombo/update-vaccine-combo-by-id/${combo.id}`,
+      const response = await api.put(
+        `${url}/VaccineCombo/update-vaccine-combo-by-id/${combo.id}`,
         updateData
       );
 
@@ -152,8 +155,8 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
         onSave({ id: combo.id, ...updateData });
         toast.success("Vaccine combo updated successfully!");
         // Fetch lại combo sau khi cập nhật để đảm bảo đồng bộ
-        const updatedCombo = await axios.get(
-          `https://localhost:7280/api/VaccineCombo/get-vaccine-combo-detail/${combo.id}`
+        const updatedCombo = await api.get(
+          `${url}/VaccineCombo/get-vaccine-combo-detail/${combo.id}`
         );
         setFormData({
           ...formData,

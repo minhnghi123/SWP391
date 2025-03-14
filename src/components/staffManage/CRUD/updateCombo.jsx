@@ -11,7 +11,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
     discount: combo.discount || 0,
     totalPrice: combo.totalPrice || 0,
     finalPrice: combo.finalPrice || 0,
-    status: combo.status === "ACTIVE",
+    status: combo.status === "AVAILABLE",
     vaccineIds: combo.vaccineIds || [],
   });
   const [error, setError] = useState(null);
@@ -41,7 +41,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
           discount: comboData.discount || 0,
           totalPrice: comboData.totalPrice || 0,
           finalPrice: comboData.finalPrice || 0,
-          status: comboData.status === "ACTIVE",
+          status: comboData.status === "AVAILABLE",
           vaccineIds: comboData.vaccineIds || comboData.vaccines?.map((v) => v.id) || [],
         });
       } catch (err) {
@@ -140,7 +140,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
         discount: Number(formData.discount) || 0,
         totalPrice: Number(formData.totalPrice),
         finalPrice: Number(formData.finalPrice),
-        status: formData.status ? "ACTIVE" : "INACTIVE",
+        status: formData.status ? "AVAILABLE" : "UNAVAILABLE",
         vaccineIds: formData.vaccineIds,
       };
 
@@ -153,7 +153,6 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
       console.log("Server response:", response.data); // Debug phản hồi từ server
       if (response.status === 200) {
         onSave({ id: combo.id, ...updateData });
-        toast.success("Vaccine combo updated successfully!");
         // Fetch lại combo sau khi cập nhật để đảm bảo đồng bộ
         const updatedCombo = await api.get(
           `${url}/VaccineCombo/get-vaccine-combo-detail/${combo.id}`
@@ -246,7 +245,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
                   className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 />
                 <span className="ml-2 text-sm text-gray-600">
-                  {formData.status ? "ACTIVE" : "INACTIVE"}
+                  {formData.status ? "AVAILABLE" : "UNAVAILABLE"}
                 </span>
               </div>
             </div>

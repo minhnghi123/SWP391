@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Plus, Clock } from "lucide-react";
 import { toast } from "react-toastify";
 import useAxios from "../../../utils/useAxios";
@@ -36,28 +35,47 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
     setError(null);
   };
 
+  // Hàm validate số điện thoại Việt Nam
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^(03|05|07|08|09)[0-9]{8}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleAddUser = async () => {
     setLoading(true);
     setError(null);
 
+    // Basic validation
+    if (!newUser.name || !newUser.username || !newUser.gmail || !newUser.password) {
+      setError("Name, username, email, and password are required.");
+      setLoading(false);
+      return;
+    }
+
+    // Validate phone number nếu có nhập
+    if (newUser.phoneNumber && !validatePhoneNumber(newUser.phoneNumber)) {
+      setError(
+        "Invalid phone number. It must be a 10-digit number starting with 03, 05, 07, 08, or 09."
+      );
+      setLoading(false);
+      return;
+    }
+
     const userData = {
-      name: newUser.name || "",
-      username: newUser.username || "",
-      gmail: newUser.gmail || "",
-      password: newUser.password || "",
-      phoneNumber: newUser.phoneNumber || "",
-      dateOfBirth: newUser.dateOfBirth 
-        ? new Date(newUser.dateOfBirth).toISOString() 
-        : new Date().toISOString(),
-      avatar: newUser.avatar || "",
-      gender: parseInt(newUser.gender) || 0,
+      name: newUser.name,
+      username: newUser.username,
+      gmail: newUser.gmail,
+      password: newUser.password,
+      phoneNumber: newUser.phoneNumber || null, // Gửi null nếu không có
+      dateOfBirth: newUser.dateOfBirth
+        ? new Date(newUser.dateOfBirth).toISOString()
+        : null, // Gửi null nếu không nhập
+      avatar: newUser.avatar || null,
+      gender: parseInt(newUser.gender, 10) || 0,
     };
 
     try {
-      const response = await axios.post(
-        `${url}/User/register`,
-        userData,
-      );
+      const response = await api.post(`${url}/User/register`, userData);
 
       if (response.status === 201 || response.status === 200) {
         toast.success("User added successfully!", { autoClose: 3000 });
@@ -66,10 +84,13 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
         onAddSuccess();
       } else {
         toast.error("Failed to add user.", { autoClose: 3000 });
+        setError("Unexpected response from server.");
       }
     } catch (error) {
       console.error("Error adding user:", error.response?.data || error);
-      const errorMessage = error.response?.data?.message || "Unknown error occurred while adding user.";
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to add user. Please check your input and try again.";
       setError(errorMessage);
       toast.error(errorMessage, { autoClose: 3000 });
     } finally {
@@ -112,6 +133,7 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
             value={newUser.name}
             onChange={handleInputChange}
             className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+            required
           />
           <input
             type="text"
@@ -120,6 +142,7 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
             value={newUser.username}
             onChange={handleInputChange}
             className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+            required
           />
           <input
             type="email"
@@ -128,6 +151,7 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
             value={newUser.gmail}
             onChange={handleInputChange}
             className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+            required
           />
           <input
             type="password"
@@ -136,11 +160,12 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
             value={newUser.password}
             onChange={handleInputChange}
             className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+            required
           />
           <input
             type="tel"
             name="phoneNumber"
-            placeholder="Phone Number"
+            placeholder="Phone Number (e.g., 0912345678)"
             value={newUser.phoneNumber}
             onChange={handleInputChange}
             className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
@@ -167,7 +192,11 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
             label="Date of Birth"
             name="dateOfBirth"
             value={newUser.dateOfBirth}
-            onChange={(e) => handleInputChange({ target: { name: "dateOfBirth", value: e.target.value } })}
+            onChange={(e) =>
+              handleInputChange({
+                target: { name: "dateOfBirth", value: e.target.value },
+              })
+            }
           />
         </div>
 

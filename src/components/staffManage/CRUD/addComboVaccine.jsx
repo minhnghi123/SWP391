@@ -212,10 +212,10 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
     <>
       <button
         onClick={() => setShowForm(!showForm)}
-        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
+        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-5 py-2.5 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
       >
         <Plus className="w-5 h-5" />
-        Add Combo Vaccine Stock
+        <span className="font-medium">Add Combo Vaccine Stock</span>
       </button>
 
       {showForm && (

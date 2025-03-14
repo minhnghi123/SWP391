@@ -12,7 +12,6 @@ import imgAvatar from '../../assets/p15.jpg'
 
 import Dashboard from "../dashboard/Section/dashboard";
 import User from "../dashboard/Section/manageUser";
-import Child from "../dashboard/Section/manageChild";
 import FeedBack from "../dashboard/Section/manageFeedback";
 import Vaccine from "../dashboard/Section/manageVaccine";
 import Tracking from "../dashboard/Section/manageTracking";
@@ -54,15 +53,6 @@ const RightSide = () => {
   //   email:'teei8191@gmail.com'
   // }
 
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    searchRef.current.focus();
-    setSearch("");
-  };
 
   // Hàm render section với ID user
   const renderSection = () => {
@@ -71,8 +61,6 @@ const RightSide = () => {
         return <Dashboard />;
       case "user":
         return <User />;
-      case "child":
-        return <Child />;
       case "vaccine":
         return <Vaccine />;
         case "combo":
@@ -100,7 +88,6 @@ const RightSide = () => {
               <h1 className="text-2xl font-bold text-gray-800 capitalize">
                 {section === "dashboard" && "Dashboard"}
                 {section === "user" && "Manage User"}
-                {section === "child" && "Manage Child"}
                 {section === "vaccine" && "Manage Vaccine"}
                 {section === "combo" && "Manage Vaccine Combo"}
                 {section === "booking" && "Manage Booking"}

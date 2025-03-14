@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { X, Refrigerator } from "lucide-react";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
+
 
 const DetailCombo = ({ vaccineId, isOpen, onClose }) => {
   const [comboDetails, setComboDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const api = useAxios();
 
   // Fetch combo details when modal opens
   useEffect(() => {
@@ -15,8 +19,8 @@ const DetailCombo = ({ vaccineId, isOpen, onClose }) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await axios.get(
-          `https://localhost:7280/api/VaccineCombo/get-vaccine-combo-detail/${vaccineId}`
+        const response = await api.get(
+          `${url}/VaccineCombo/get-vaccine-combo-detail/${vaccineId}`
         );
         setComboDetails(response.data);
       } catch (err) {

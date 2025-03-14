@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AddVaccine from "./addVaccine";
-import DeleteVaccine from "../components/deleteVaccine";
+import AddVaccine from "../CRUD/addVaccine";
+import DeleteVaccine from "../CRUD/deleteVaccine";
 import Pagination from "../../../utils/pagination";
 import VaccineDetails from "./detailVaccine";
 import { ToastContainer } from "react-toastify";
@@ -12,7 +12,10 @@ import {
   Eye,
   SquarePen,
 } from "lucide-react";
-import UpdateVaccine from "./updateVaccine";
+import UpdateVaccine from "../CRUD/updateVaccine";
+
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const VaccineList = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,10 +26,13 @@ const VaccineList = () => {
   const [selectedVaccineId, setSelectedVaccineId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] = useState(null);
+  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] =
+    useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [vaccines, setVaccines] = useState([]);
+
+  const api = useAxios();
 
   const fetchVaccines = async () => {
     try {
@@ -100,7 +106,9 @@ const VaccineList = () => {
 
   const handleUpdateSuccess = (updatedVaccine) => {
     setVaccines((prev) =>
-      prev.map((item) => (item.id === updatedVaccine.id ? updatedVaccine : item))
+      prev.map((item) =>
+        item.id === updatedVaccine.id ? updatedVaccine : item
+      )
     );
     handleCloseUpdateModal();
   };

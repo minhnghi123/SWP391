@@ -3,23 +3,15 @@ import { useRef, useState, useEffect, useContext } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 
-import imgAvatar from '../../assets/p15.jpg'
-// import { AuthContext } from "../Services/AuthLogin";
-
-
-
-
-
 import Dashboard from "../dashboard/Section/dashboard";
 import User from "../dashboard/Section/manageUser";
-import Child from "../dashboard/Section/manageChild";
 import FeedBack from "../dashboard/Section/manageFeedback";
 import Vaccine from "../dashboard/Section/manageVaccine";
 import Tracking from "../dashboard/Section/manageTracking";
 import Booking from "../dashboard/Section/manageBooking";
 import Payments from "../dashboard/Section/payments";
 import Combo from "../dashboard/Section/manageCombo"
-import LoginPage from "../../pages/loginPage";
+import Children from "../dashboard/Section/manageChild"
 import AvatarHomePage from "../home/avatarHomePage";
 const RightSide = () => {
   // const {logout} = useContext(AuthContext);
@@ -54,25 +46,16 @@ const RightSide = () => {
   //   email:'teei8191@gmail.com'
   // }
 
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    searchRef.current.focus();
-    setSearch("");
-  };
 
   // Hàm render section với ID user
   const renderSection = () => {
     switch (section) {
       case "dashboard":
         return <Dashboard />;
+      case "children":
+        return <Children / >;
       case "user":
         return <User />;
-      case "child":
-        return <Child />;
       case "vaccine":
         return <Vaccine />;
         case "combo":
@@ -99,8 +82,8 @@ const RightSide = () => {
             <div className="space-y-2">
               <h1 className="text-2xl font-bold text-gray-800 capitalize">
                 {section === "dashboard" && "Dashboard"}
+                {section === "children" && "Children"}
                 {section === "user" && "Manage User"}
-                {section === "child" && "Manage Child"}
                 {section === "vaccine" && "Manage Vaccine"}
                 {section === "combo" && "Manage Vaccine Combo"}
                 {section === "booking" && "Manage Booking"}

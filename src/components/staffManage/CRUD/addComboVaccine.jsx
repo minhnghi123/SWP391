@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus } from "lucide-react";
 import { toast } from "react-toastify";
+import useAxios from "../../../utils/useAxios";
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddVaccineComboComponent = ({ onAddSuccess }) => {
   const [showForm, setShowForm] = useState(false);
@@ -9,6 +11,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
   const [error, setError] = useState(null);
   const [showVaccines, setShowVaccines] = useState(false);
   const [vaccines, setVaccines] = useState([]);
+  const api = useAxios();
 
   const [newVaccineCombo, setNewVaccineCombo] = useState({
     comboName: "",
@@ -62,8 +65,8 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
 
   const fetchVaccineById = async (id) => {
     try {
-      const response = await axios.get(
-        `https://localhost:7280/api/Vaccine/get-vaccine-by-id/${id}`
+      const response = await api.get(
+        `${url}/Vaccine/get-vaccine-by-id/${id}`
       );
       return response.data;
     } catch (error) {
@@ -75,7 +78,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
   const fetchAllVaccines = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("https://localhost:7280/api/Vaccine/get-all-vaccines");
+      const response = await api.get(`${url}/Vaccine/get-all-vaccines`);
       setVaccines(response.data);
       setError(null);
     } catch (error) {
@@ -154,8 +157,8 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
 
     try {
       console.log("Sending API request with data:", vaccineComboData); // Debug log
-      const response = await axios.post(
-        "https://localhost:7280/api/VaccineCombo/create-vaccine-combo",
+      const response = await api.post(
+        `${url}/VaccineCombo/create-vaccine-combo`,
         vaccineComboData,
         {
           headers: {
@@ -209,10 +212,10 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
     <>
       <button
         onClick={() => setShowForm(!showForm)}
-        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
+        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-5 py-2.5 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
       >
         <Plus className="w-5 h-5" />
-        Add Combo Vaccine Stock
+        <span className="font-medium">Add Combo Vaccine Stock</span>
       </button>
 
       {showForm && (

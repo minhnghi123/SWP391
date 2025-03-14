@@ -1,25 +1,29 @@
 import { Trash2 } from "lucide-react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAxios from "../../../utils/useAxios";
+
+const url = import.meta.env.VITE_BASE_URL_DB;
 
 const DeleteVaccineButton = ({ vaccineId, isCombo = false, onDeleteSuccess }) => {
+  const api = useAxios();
+
   const handleDelete = async () => {
     try {
-      const url = isCombo
-        ? `https://localhost:7280/api/VaccineCombo/soft-delete-combo/${encodeURIComponent(vaccineId)}`
-        : `https://localhost:7280/api/Vaccine/soft-delete-vaccine/${encodeURIComponent(vaccineId)}`;
+      // Define the endpoint based on whether it's a combo or single vaccine
+      const endpoint = isCombo
+        ? `${url}/VaccineCombo/soft-delete-combo/${encodeURIComponent(vaccineId)}`
+        : `${url}/Vaccine/soft-delete-vaccine/${encodeURIComponent(vaccineId)}`;
 
-      const response = isCombo
-        ? await axios.patch(url)
-        : await axios.patch(url);
+      // Make the PATCH request using the axios instance from useAxios
+      const response = await api.patch(endpoint);
 
       if (response.status === 200 || response.status === 204) {
         toast.success(
           `${isCombo ? "Combo Vaccine" : "Vaccine"} deleted successfully!`,
           { autoClose: 3000 }
         );
-        onDeleteSuccess(); // Gọi hàm callback sau khi xóa thành công
+        if (onDeleteSuccess) onDeleteSuccess(); // Call the callback if provided
       } else {
         toast.error(
           `Failed to delete ${isCombo ? "combo vaccine" : "vaccine"}.`,
@@ -31,7 +35,10 @@ const DeleteVaccineButton = ({ vaccineId, isCombo = false, onDeleteSuccess }) =>
         `Error deleting ${isCombo ? "combo vaccine" : "vaccine"}:`,
         error
       );
-      toast.error(`Error deleting ${isCombo ? "combo vaccine" : "vaccine"}.`);
+      toast.error(
+        `Error deleting ${isCombo ? "combo vaccine" : "vaccine"}.`,
+        { autoClose: 3000 }
+      );
     }
   };
 

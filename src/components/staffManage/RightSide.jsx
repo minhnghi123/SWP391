@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -9,9 +10,9 @@ import imgAvatar from '../../assets/p15.jpg'
 
 import Dashboard from "../staffManage/section/dashboardStaff";
 import ManageVaccine from "../staffManage/section/manageVaccine";
-import Appointments from "../staffManage/section/apointments";
-import LoginPage from "../../pages/loginPage";
+import Appointments from "./section/apointments";
 import AvatarHomePage from "../home/avatarHomePage";
+
 
 const RightSide = () => {
   const navigate = useNavigate();

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Plus, Clock } from "lucide-react";
 import { toast } from "react-toastify";
 import useAxios from "../../../utils/useAxios";
+
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddVaccineComponent = ({ onAddSuccess }) => {
@@ -32,32 +32,23 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    const numericFields = [
+      "quantity",
+      "price",
+      "doesTimes",
+      "suggestAgeMin",
+      "suggestAgeMax",
+      "addressId",
+      "minimumIntervalDate",
+      "maximumIntervalDate",
+    ];
 
-    // Ngăn nhập dấu - và ký tự không phải số cho các trường number
-    if (
-      [
-        "quantity",
-        "price",
-        "doesTimes",
-        "suggestAgeMin",
-        "suggestAgeMax",
-        "addressId",
-        "minimumIntervalDate",
-        "maximumIntervalDate",
-      ].includes(name)
-    ) {
-      if (value && !/^[0-9]*\.?[0-9]*$/.test(value)) {
-        return; // Chỉ cho phép số và dấu chấm (cho price)
-      }
-      if (value.startsWith("-")) {
-        return; // Ngăn dấu -
-      }
+    if (numericFields.includes(name)) {
+      if (value && !/^[0-9]*\.?[0-9]*$/.test(value)) return;
+      if (value.startsWith("-")) return;
     }
 
-    setNewVaccine((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setNewVaccine((prev) => ({ ...prev, [name]: value }));
   };
 
   const resetForm = () => {
@@ -65,37 +56,39 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
     setError(null);
   };
 
-  const handleAddVaccine = async () => {
+  const validateForm = () => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh chính xác ngày
+    today.setHours(0, 0, 0, 0);
 
-    // Validate suggestAgeMin < suggestAgeMax
     const minAge = parseInt(newVaccine.suggestAgeMin) || 0;
     const maxAge = parseInt(newVaccine.suggestAgeMax) || 0;
+
     if (newVaccine.suggestAgeMin && newVaccine.suggestAgeMax && minAge >= maxAge) {
-      setError("Độ tuổi tối thiểu phải nhỏ hơn độ tuổi tối đa.");
-      toast.error("Độ tuổi tối thiểu phải nhỏ hơn độ tuổi tối đa!", { autoClose: 3000 });
-      return;
+      return "Minimum age must be less than maximum age.";
     }
 
-    // Validate entryDate phải là quá khứ hoặc hôm nay
     if (newVaccine.entryDate) {
       const entryDate = new Date(newVaccine.entryDate);
       if (entryDate > today) {
-        setError("Ngày nhập kho phải là ngày trong quá khứ hoặc hôm nay.");
-        toast.error("Ngày nhập kho không hợp lệ!", { autoClose: 3000 });
-        return;
+        return "Entry date must be in the past or today.";
       }
     }
 
-    // Validate timeExpired phải là tương lai
     if (newVaccine.timeExpired) {
       const expiredDate = new Date(newVaccine.timeExpired);
       if (expiredDate <= today) {
-        setError("Ngày hết hạn phải là ngày trong tương lai.");
-        toast.error("Ngày hết hạn không hợp lệ!", { autoClose: 3000 });
-        return;
+        return "Expiration date must be in the future.";
       }
+    }
+
+    return null;
+  };
+
+  const handleAddVaccine = async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
     }
 
     setLoading(true);
@@ -107,40 +100,33 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
       description: newVaccine.description || "",
       price: parseFloat(newVaccine.price) || 0,
       doesTimes: parseInt(newVaccine.doesTimes) || 0,
-      suggestAgeMin: minAge,
-      suggestAgeMax: maxAge,
-      entryDate: newVaccine.entryDate 
-        ? new Date(newVaccine.entryDate).toISOString() 
+      suggestAgeMin: parseInt(newVaccine.suggestAgeMin) || 0,
+      suggestAgeMax: parseInt(newVaccine.suggestAgeMax) || 0,
+      entryDate: newVaccine.entryDate
+        ? new Date(newVaccine.entryDate).toISOString()
         : new Date().toISOString(),
-      timeExpired: newVaccine.timeExpired 
-        ? new Date(newVaccine.timeExpired).toISOString() 
+      timeExpired: newVaccine.timeExpired
+        ? new Date(newVaccine.timeExpired).toISOString()
         : new Date().toISOString(),
       addressId: parseInt(newVaccine.addressId) || 0,
-      status: newVaccine.status || "AVAILABLE",
+      status: newVaccine.status,
       minimumIntervalDate: parseInt(newVaccine.minimumIntervalDate) || 0,
       maximumIntervalDate: parseInt(newVaccine.maximumIntervalDate) || 0,
       fromCountry: newVaccine.fromCountry || "",
     };
 
-    console.log("Sending vaccine data:", vaccineData);
-
     try {
-      const response = await api.post(
-        `${url}/Vaccine/create-vaccine`,
-        vaccineData
-      );
-
+      const response = await api.post(`${url}/Vaccine/create-vaccine`, vaccineData);
       if (response.status === 201 || response.status === 200) {
         toast.success("Vaccine added successfully!", { autoClose: 3000 });
         setShowForm(false);
         resetForm();
         onAddSuccess();
       } else {
-        toast.error("Failed to add vaccine.", { autoClose: 3000 });
+        throw new Error("Failed to add vaccine.");
       }
-    } catch (error) {
-      console.error("Error adding vaccine:", error.response?.data || error);
-      const errorMessage = error.response?.data?.message || "Unknown error occurred while adding vaccine.";
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Error adding vaccine.";
       setError(errorMessage);
       toast.error(errorMessage, { autoClose: 3000 });
     } finally {
@@ -149,30 +135,20 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
   };
 
   const DateInput = ({ label, name, value, onChange }) => {
-    const today = new Date().toISOString().split("T")[0]; // Lấy ngày hiện tại định dạng YYYY-MM-DD
-
+    const today = new Date().toISOString().split("T")[0];
     return (
       <div className="relative">
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-          {label}
-        </label>
-        <div className="relative group">
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-            <Clock size={18} className="text-gray-400" />
-          </div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <div className="relative">
+          <Clock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="date"
             name={name}
             value={value}
             onChange={onChange}
-            className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 shadow-sm group-hover:shadow-md ${
-              (name === "entryDate" && value && new Date(value) > new Date(today)) ||
-              (name === "timeExpired" && value && new Date(value) <= new Date(today))
-                ? "border-red-500"
-                : ""
-            }`}
-            max={name === "entryDate" ? today : undefined} // Giới hạn entryDate không chọn ngày tương lai
-            min={name === "timeExpired" ? today : undefined} // Giới hạn timeExpired không chọn ngày quá khứ
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400"
+            max={name === "entryDate" ? today : undefined}
+            min={name === "timeExpired" ? today : undefined}
           />
         </div>
       </div>
@@ -186,20 +162,19 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
           setShowForm(!showForm);
           if (showForm) resetForm();
         }}
-        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
+        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-5 py-2.5 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
       >
         <Plus className="w-5 h-5" />
-        Add Vaccine Stock
+        <span className="font-medium">Add Vaccine Stock</span>
       </button>
 
       {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl w-[600px] max-w-[90%] text-center relative">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">
-              Add Vaccines
-            </h2>
-
-            {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-20 z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-100 hover:scale-[1.02]">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-5 text-center">Add New Vaccine</h2>
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-md border border-red-300">{error}</div>
+            )}
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <input
@@ -208,7 +183,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Vaccine Name"
                 value={newVaccine.name}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="number"
@@ -216,8 +191,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Quantity"
                 value={newVaccine.quantity}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                 min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="text"
@@ -225,7 +200,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Description"
                 value={newVaccine.description}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="number"
@@ -233,9 +208,9 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Price"
                 value={newVaccine.price}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                 min="0"
                 step="0.01"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="number"
@@ -243,8 +218,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Doses Times"
                 value={newVaccine.doesTimes}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                 min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="text"
@@ -252,7 +227,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Country"
                 value={newVaccine.fromCountry}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="number"
@@ -260,13 +235,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Min Age"
                 value={newVaccine.suggestAgeMin}
                 onChange={handleInputChange}
-                className={`w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors ${
-                  newVaccine.suggestAgeMin && newVaccine.suggestAgeMax && 
-                  parseInt(newVaccine.suggestAgeMin) >= parseInt(newVaccine.suggestAgeMax)
-                    ? "border-red-500"
-                    : ""
-                }`}
                 min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="number"
@@ -274,13 +244,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Max Age"
                 value={newVaccine.suggestAgeMax}
                 onChange={handleInputChange}
-                className={`w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors ${
-                  newVaccine.suggestAgeMin && newVaccine.suggestAgeMax && 
-                  parseInt(newVaccine.suggestAgeMin) >= parseInt(newVaccine.suggestAgeMax)
-                    ? "border-red-500"
-                    : ""
-                }`}
                 min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="number"
@@ -288,8 +253,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Address ID"
                 value={newVaccine.addressId}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                 min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="number"
@@ -297,8 +262,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Min Interval (days)"
                 value={newVaccine.minimumIntervalDate}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                 min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <input
                 type="number"
@@ -306,8 +271,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 placeholder="Max Interval (days)"
                 value={newVaccine.maximumIntervalDate}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                 min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-300 focus:border-teal-500 transition-all duration-200 hover:border-teal-400 placeholder-gray-400"
               />
               <DateInput
                 label="Entry Date"
@@ -323,7 +288,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
               />
             </div>
 
-            <div className="flex items-center space-x-2 mb-6">
+            <div className="flex items-center space-x-3 mb-6">
               <input
                 type="checkbox"
                 name="status"
@@ -334,22 +299,22 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                     status: e.target.checked ? "AVAILABLE" : "UNAVAILABLE",
                   }))
                 }
-                className="w-5 h-5 accent-teal-500"
+                className="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
               />
-              <label className="text-gray-700">AVAILABLE</label>
+              <label className="text-gray-700 font-medium">Available</label>
             </div>
 
-            <div className="mt-6 flex justify-end space-x-4">
+            <div className="flex justify-end space-x-4">
               <button
                 onClick={() => setShowForm(false)}
-                className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-5 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddVaccine}
                 disabled={loading}
-                className="px-6 py-2.5 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:bg-teal-300"
+                className="px-5 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all duration-200 shadow-sm hover:shadow-md disabled:bg-teal-400 disabled:cursor-not-allowed"
               >
                 {loading ? "Adding..." : "Add Vaccine"}
               </button>

@@ -17,8 +17,14 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
     vaccineName: '',
     vaccinationDate: ''
   });
-  const findSchedule = sortLinkList.flat().filter(dose => dose.status.toLowerCase() === "schedule")
-  const findCompleted = sortLinkList.flat().filter(dose => dose.status.toLowerCase() === "completed")
+  const findSchedule = (sortLinkList || [])
+    .flat()
+    .filter(dose =>
+      dose.status?.toLowerCase() === "schedule" &&
+      dose.previousVaccination === 0
+    );
+
+  const findCompleted = sortLinkList.flat().filter(dose => dose.status.toLowerCase() === "success")
   const checkReaction = findCompleted.filter(item => item.reaction === 'Nothing')
 
   const handleOpenModalReSchedule = (trackingID, vaccinationDate, vaccineName) => {
@@ -45,6 +51,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
     const data = {
       reaction: reaction[trackingID]
     };
+    console.log('data', data);
     try {
       const res = await updateData('VaccinesTracking/update-vaccine-user', trackingID, data)
       if (res.status === 200) {
@@ -62,7 +69,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case 'completed': return 'text-emerald-500 bg-emerald-50 ring-1 ring-emerald-100';
+      case 'success': return 'text-emerald-500 bg-emerald-50 ring-1 ring-emerald-100';
       case 'schedule': return 'text-violet-500 bg-violet-50 ring-1 ring-violet-100';
       case 'waiting': return 'text-amber-500 bg-amber-50 ring-1 ring-amber-100';
       default: return 'text-slate-500 bg-slate-50 ring-1 ring-slate-100';
@@ -71,7 +78,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
 
   const getStatusIcon = (status) => {
     switch (status.toLowerCase()) {
-      case 'completed': return <CheckCircle className="w-5 h-5" />;
+      case 'success': return <CheckCircle className="w-5 h-5" />;
       case 'schedule': return <Calendar className="w-5 h-5" />;
       case 'waiting': return <Clock className="w-5 h-5" />;
       default: return <AlertCircle className="w-5 h-5" />;
@@ -95,15 +102,13 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
         {sortLinkList.map((chain, index) => {
           const vaccineName = chain[0]?.vaccineName || 'Unknown Vaccine';
           const completed = chain.filter(item =>
-            item.status.toLowerCase() === 'completed'
-          ).length;
-          const findOverdue = chain.filter(item =>
-            item.vaccinationDate && new Date(item.vaccinationDate) < new Date()
+            item.status.toLowerCase() === 'success'
           ).length;
           const total = chain.length;
           const percentage = Math.round((completed / total) * 100) || 0;
-          const percentageOverdue = Math.round((findOverdue / total) * 100) || 0;
- 
+
+
+
           return (
             <div
               key={index}
@@ -129,7 +134,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                     percentage={percentage}
                     current={completed}
                     total={total}
-                    percentageOverdue={percentageOverdue}
+
                   />
                 </div>
               </div>
@@ -172,7 +177,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                   </button>
 
                                 )
-                              }<span className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${dose.status.toLowerCase() === 'completed' ? 'bg-emerald-100 text-emerald-800' :
+                              }<span className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${dose.status.toLowerCase() === 'success' ? 'bg-emerald-100 text-emerald-800' :
                                 dose.status.toLowerCase() === 'schedule' ? 'bg-violet-100 text-violet-800' :
                                   'bg-amber-100 text-amber-800'
                                 }`}>
@@ -232,8 +237,8 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                       <button
                                         onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: true }))}
                                         className={`mt-2 flex items-center gap-2 ${dose.reaction === 'Nothing'
-                                            ? 'text-amber-600 hover:text-amber-700'
-                                            : 'text-green-600 hover:text-green-700'
+                                          ? 'text-amber-600 hover:text-amber-700'
+                                          : 'text-green-600 hover:text-green-700'
                                           } transition-colors text-sm`}
                                       >
                                         <PlusCircle className="w-4 h-4" />
@@ -241,7 +246,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                       </button>
                                     ) : (
                                       <span className={dose.reaction === 'Nothing' ? 'text-amber-600' : 'text-green-600'}>
-                                        {ToUpperCase(dose.status) !== 'Completed'
+                                        {(dose.status).toLowerCase() !== 'success'
                                           ? 'After completed vaccination, you can add your reaction'
                                           : dose.reaction}
                                       </span>
@@ -255,8 +260,8 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                           value={reaction[dose.trackingID] || ""}
                                           onChange={(e) => setReaction(prev => ({ ...prev, [dose.trackingID]: e.target.value }))}
                                           className={`w-full p-2 text-sm border ${dose.reaction === 'Nothing'
-                                              ? 'border-amber-200 focus:ring-amber-300 focus:border-amber-300'
-                                              : 'border-green-200 focus:ring-green-300 focus:border-green-300'
+                                            ? 'border-amber-200 focus:ring-amber-300 focus:border-amber-300'
+                                            : 'border-green-200 focus:ring-green-300 focus:border-green-300'
                                             } rounded-lg focus:ring-2 outline-none resize-none`}
                                           rows="2"
                                         />
@@ -264,8 +269,8 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                           <button
                                             onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: false }))}
                                             className={`px-3 py-1 text-sm ${dose.reaction === 'Nothing'
-                                                ? 'text-amber-700 bg-amber-50 hover:bg-amber-100'
-                                                : 'text-green-700 bg-green-50 hover:bg-green-100'
+                                              ? 'text-amber-700 bg-amber-50 hover:bg-amber-100'
+                                              : 'text-green-700 bg-green-50 hover:bg-green-100'
                                               } rounded-lg transition-colors`}
                                           >
                                             Cancel
@@ -273,8 +278,8 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                           <button
                                             onClick={() => handleSubmit(dose.trackingID)}
                                             className={`px-3 py-1 text-sm text-white ${dose.reaction === 'Nothing'
-                                                ? 'bg-amber-500 hover:bg-amber-600'
-                                                : 'bg-green-500 hover:bg-green-600'
+                                              ? 'bg-amber-500 hover:bg-amber-600'
+                                              : 'bg-green-500 hover:bg-green-600'
                                               } rounded-lg transition-colors`}
                                           >
                                             Save

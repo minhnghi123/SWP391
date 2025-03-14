@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import {
     MonetizationOnOutlined, CheckCircleOutline, AppsOutlined, CancelOutlined, PendingOutlined, VaccinesOutlined
 } from '@mui/icons-material';
-import formatCurrency from '../../../utils/calculateMoney';
-import { fetchData } from '../../../Api/axios';
-import AppointmentCard from '../Section/history/AppointmentCard';
-import useAxios from '../../../utils/useAxios';
+import formatCurrency from '../../../../utils/calculateMoney';
+import { fetchData } from '../../../../Api/axios';
+import AppointmentCard from './AppointmentCard';
+import useAxios from '../../../../utils/useAxios';
 const url = import.meta.env.VITE_BASE_URL_DB
 const History = ({ id }) => {
 
@@ -33,7 +33,7 @@ const History = ({ id }) => {
             }
         };
         fetchDataHistory();
-    }, [id]);
+    }, [id,isTrigger]);
 
 
     //sort data
@@ -114,7 +114,7 @@ const History = ({ id }) => {
             ) : filteredData && filteredData.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredData.map((bill) => (
-                        <AppointmentCard key={bill.id} bill={bill} VaccineItem={VaccineItem} STATUS_CONFIG={STATUS_CONFIG} id={id} />
+                        <AppointmentCard key={bill.id} bill={bill} VaccineItem={VaccineItem} STATUS_CONFIG={STATUS_CONFIG} id={id} setTrigger={setIsTrigger} />
                     ))}
                 </div>
             ) : (

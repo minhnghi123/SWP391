@@ -37,14 +37,7 @@ export default function Stage3Payment() {
                 Message: queryParams.get("Message") || "N/A",
                 TrancasionID: queryParams.get("TrancasionID") || "N/A"
             });
-        } else {
-            setData({
-                OrderId: orderData.orderId,
-                Amount: orderData.amount,
-                BookingID: orderData.bookingID,
-                Message: orderData.message,
-                TrancasionID: orderData.trancasionID
-            })
+       
         }
     }, [location.search, orderData]);
 

@@ -69,7 +69,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
 
     try {
       const response = await axios.post(
-        "https://localhost:7280/api/Vaccine/create-vaccine",
+        "http://localhost:5272/api/Vaccine/create-vaccine",
         vaccineData
       );
 

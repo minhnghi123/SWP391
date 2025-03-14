@@ -14,7 +14,7 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
       setError(null);
       
       try {
-        const response = await fetch(`https://localhost:7280/api/Vaccine/get-vaccine-by-id/${id}`, {
+        const response = await fetch(`http://localhost:5272/api/Vaccine/get-vaccine-by-id/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

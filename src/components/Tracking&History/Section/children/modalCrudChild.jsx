@@ -1,5 +1,5 @@
 import { X, Save, Sparkles, Edit } from "lucide-react";
-
+import formatDate from "../../../../utils/FormDate";
 const ModalCrudChild = ({ setIsModalOpen, currentChild, isEditing, handleInputChange, handleSaveChild, err }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">

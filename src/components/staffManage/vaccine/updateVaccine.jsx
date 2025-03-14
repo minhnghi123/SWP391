@@ -59,7 +59,7 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
       console.log("Sending data:", updateData);
 
       const response = await axios.put(
-        `https://localhost:7280/api/Vaccine/update-vaccine/${formData.id}`,
+        `http://localhost:5272/api/Vaccine/update-vaccine/${formData.id}`,
         updateData
       );
 

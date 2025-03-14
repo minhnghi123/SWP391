@@ -40,14 +40,13 @@ function boydVaritants() {
     const fetchDataVariants = async () => {
       try {
         const [vaccines, comboVaccine] = await Promise.all([
-          
           api.get(`${url}/Vaccine/get-all-vaccines`),
           api.get(`${url}/VaccineCombo/get-all-vaccine-combo`)
         ])
         if (vaccines.status === 200) setVaccines(vaccines.data)
         if (comboVaccine.status === 200) setComboVaccines(comboVaccine.data)
       } catch (error) {
-
+        console.error("Error fetching data:", error);
       }
     }
     fetchDataVariants()
@@ -68,11 +67,14 @@ function boydVaritants() {
     const name = type === 'combo' ? vaccine.comboName : vaccine.name;
 
     // Kiểm tra xem item đã tồn tại trong giỏ hàng hay chưa
-    const isItemInCart = cart.some(item => item.id === ischeck);
+    const isItemInCart = cart.some(item => 
+      (type === 'combo' && item.type === 'combo' && item.id === vaccine.id) || 
+      (type === 'vaccine' && item.type === 'vaccine' && item.id === vaccine.id)
+    );
 
     if (isItemInCart) {
       // Nếu đã có, xóa khỏi giỏ
-      removeFromCart(ischeck, type);
+      removeFromCart(vaccine.id, type);
     } else {
       // Nếu chưa có, thêm vào giỏ
       if (isCombo) {
@@ -91,6 +93,9 @@ function boydVaritants() {
           name: name,
           price: vaccine.price,
           description: vaccine.description,
+          country: vaccine.fromCountry,
+          maxAge: vaccine.suggestAgeMax,
+          minAge: vaccine.suggestAgeMin,
           type: type,
         }));
       }
@@ -177,6 +182,8 @@ function boydVaritants() {
                       priceGoc={null}
                       priceSale={vaccine.price}
                       country={vaccine.fromCountry}
+                      maxAge={vaccine.suggestAgeMax}
+                      minAge={vaccine.suggestAgeMin}
                       onClick={() => handleAddToCart(vaccine, 'vaccine')}
                       isBooking={isBooking}
                     />
@@ -185,7 +192,7 @@ function boydVaritants() {
               </section>
             )}
 
-            {(filterType === "All" || filterType === "Combo") && (
+             {(filterType === "All" || filterType === "Combo") && (
               <section>
                 <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
                   <span className="mr-2">Vaccine Combos</span>
@@ -200,16 +207,20 @@ function boydVaritants() {
                       name={combo.comboName}
                       description={combo.description}
                       type="combo"
+                      discount={combo.discount}
                       priceGoc={combo.discount ? combo.totalPrice : null}
                       priceSale={combo.discount ? combo.finalPrice : combo.price}
                       country={combo.fromCountry}
+                      maxAge={combo.vaccines && combo.vaccines.length > 0 ? combo.vaccines.reduce((max, vaccine) => Math.max(max, vaccine.suggestAgeMax || 0), 0) : 0}
+                      minAge={combo.vaccines && combo.vaccines.length > 0 ? combo.vaccines.reduce((min, vaccine) => Math.min(min, vaccine.suggestAgeMin || 0), 100) : 0}
+                      vaccines={combo.vaccines}
                       onClick={() => handleAddToCart(combo, 'combo')}
                       isBooking={isBooking}
                     />
                   ))}
                 </div>
               </section>
-            )}
+            )} 
           </div>
 
           {/* Right Side - Cart Summary (30%) */}
@@ -234,7 +245,6 @@ function boydVaritants() {
                         {cart.filter(item => item.type === 'vaccine').map(item => (
                           <div key={`cart-vaccine-${item.id}`} className="flex justify-between items-center py-2 group">
                             <div className="flex items-center flex-1 min-w-0">
-
                               <span className="truncate text-sm">{item.name}</span>
                             </div>
                             <div className="flex items-center ml-2">
@@ -260,7 +270,6 @@ function boydVaritants() {
                         {cart.filter(item => item.type === 'combo').map(item => (
                           <div key={`cart-combo-${item.id}`} className="flex justify-between items-center py-2 group">
                             <div className="flex items-center flex-1 min-w-0">
-
                               <span className="truncate text-sm">{item.name}</span>
                             </div>
                             <div className="flex items-center ml-2">
@@ -282,7 +291,6 @@ function boydVaritants() {
 
                   {/* Price Summary */}
                   <div className="border-t pt-4 mt-2">
-
                     <div className="flex justify-between items-center text-lg font-bold mt-4 pt-2 border-t">
                       <span>Total</span>
                       <span className="text-blue-600">{FormmatDeicimal(totalPrice)} {` `} VND</span>

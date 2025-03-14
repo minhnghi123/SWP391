@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     };
     const loginByGoogle = async (data) => {
         const value = { googleToken: data.googleToken, clientID: data.clientID };
-        console.log(value)
+       
         try {
             const res = await addData('User/login-by-google', value);
             if (res.status === 200 && res.data?.res) {

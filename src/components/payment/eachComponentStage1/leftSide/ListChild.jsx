@@ -4,7 +4,7 @@ const ListChild = ({ child, index, isSelected, handleChoose }) => {
         <div
             key={index}
             className={`relative group ${isSelected.some((children) => children.id === child.id)
-                ? 'bg-gradient-to-r from-teal-50 to-teal-100/50'
+                ? 'bg-gradient-to-r from-[#E8F5F6] to-[#F0F9FA]'
                 : 'bg-white hover:bg-gray-50'
                 } rounded-2xl border border-gray-200 transition-all duration-300`}
         >
@@ -21,8 +21,8 @@ const ListChild = ({ child, index, isSelected, handleChoose }) => {
                             {child.gender === 0 ? '👦' : '👧'}
                         </span>
                         {isSelected.some((children) => children.id === child.id) && (
-                            <div className="absolute -top-2 -right-2 w-5 h-5 bg-teal-500 rounded-full 
-                                                                flex items-center justify-center border-2 border-white">
+                            <div className="absolute -top-2 -right-2 w-5 h-5 bg-[#00a0aa] rounded-full 
+                                flex items-center justify-center border-2 border-white">
                                 <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round"
@@ -42,11 +42,11 @@ const ListChild = ({ child, index, isSelected, handleChoose }) => {
                                 {CalculateAge(child.dateOfBirth)}
                             </span>
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                                ${child.gender === 0
+                                ${child.gender === 0
                                     ? 'bg-blue-100 text-blue-700'
                                     : 'bg-pink-100 text-pink-700'}`}
                             >
-                                {child.gender ===0 ?'Male':'Female'}
+                                {child.gender === 0 ? 'Male' : 'Female'}
                             </span>
                         </div>
                     </div>
@@ -54,23 +54,18 @@ const ListChild = ({ child, index, isSelected, handleChoose }) => {
 
                 {/* Right Section: Actions */}
                 <div className="flex items-center gap-3">
-
                     <button
                         onClick={handleChoose}
                         className={`relative px-5 py-2 rounded-xl text-sm font-medium 
-                                                            transition-all duration-300 ${isSelected.some((children) => children.id === child.id)
-                                ? 'bg-teal-500 text-white hover:bg-teal-600'
-                                : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-500 hover:text-teal-500'
+                            transition-all duration-300 ${isSelected.some((children) => children.id === child.id)
+                                ? 'bg-[#00a0aa] text-white hover:opacity-90'
+                                : 'bg-white border border-gray-200 text-gray-700 hover:border-[#00a0aa] hover:text-[#00a0aa]'
                             }`}
                     >
                         {isSelected.some((children) => children.id === child.id) ? 'Selected' : 'Select'}
                     </button>
-
-
                 </div>
             </div>
-
-
         </div>
     )
 }

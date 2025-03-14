@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import AddUser from "../CRUD/addUser";
 import DeleteComponent from "../CRUD/delete";
 import Pagination from "../../../utils/pagination";
-import { Search, User, SquarePen, Plus } from "lucide-react";
+import { Search, User, SquarePen, Plus, Eye } from "lucide-react";
 import AddStaff from "../CRUD/addStaff";
 import UpdateUser from "../CRUD/updateUser";
 import { ToastContainer } from "react-toastify";
 import useAxios from "../../../utils/useAxios";
+import DetailUser from "../CRUD/detailUser";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -18,9 +19,10 @@ const UserManagement = () => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showAddStaffForm, setShowAddStaffForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [showModal, setShowModal] = useState(false); // Đổi tên cho rõ ràng
   const [selectedUser, setSelectedUser] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1); // Thêm state cho phân trang
-  const [itemsPerPage, setItemsPerPage] = useState(5); // Số item mỗi trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const api = useAxios();
 
   useEffect(() => {
@@ -48,11 +50,11 @@ const UserManagement = () => {
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
-    setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+    setCurrentPage(1);
   };
 
   const filteredUsers = users.filter((user) =>
-    user.username.toLowerCase().includes(search.toLowerCase())
+    user.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleAddSuccess = () => {
@@ -89,11 +91,21 @@ const UserManagement = () => {
     setShowUpdateForm(true);
   };
 
+  const handleViewUser = (user) => {
+    console.log("Selected user:", user);
+    setSelectedUser(user);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedUser(null);
+  };
 
   // Tính toán phân trang
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem); // Sử dụng filteredUsers thay vì sortedItems
+  const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <>
@@ -127,7 +139,7 @@ const UserManagement = () => {
             />
             <input
               type="text"
-              placeholder="Search users by username..."
+              placeholder="Search users by name"
               value={search}
               onChange={handleSearch}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
@@ -137,122 +149,84 @@ const UserManagement = () => {
 
         <div className="overflow-x-auto">
           {loading ? (
-            <p>Loading users...</p>
+            <p className="text-gray-500 text-center">Loading users...</p>
           ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : (
+            <p className="text-red-500 text-center">{error}</p>
+          ) : currentItems.length > 0 ? (
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    ID
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Username
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Email
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Phone
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    DOB
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Gender
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Role
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Actions
-                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Username</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Email</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Phone</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">DOB</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Gender</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Role</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((user) => (
-                    <tr
-                      key={user.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {user.id}
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                            <User className="w-5 h-5 text-teal-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {user.name}
-                            </p>
-                          </div>
+                {currentItems.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-4 text-sm text-gray-600">{user.id}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
+                          <User className="w-5 h-5 text-teal-600" />
                         </div>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {user.username}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {user.gmail}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {user.phoneNumber}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {new Date(user.dateOfBirth).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {user.gender === 0
-                          ? "Male"
-                          : user.gender === 1
-                          ? "Female"
-                          : "Other"}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {user.role || "N/A"}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {user.status}
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleUpdateClick(user)}
-                            className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                            title="Edit user"
-                          >
-                            <SquarePen size={16} />
-                          </button>
-                          <DeleteComponent
-                            id={user.id}
-                            isUser={true}
-                            onDeleteSuccess={handleDeleteSuccess}
-                          />
+                        <div>
+                          <p className="font-medium text-gray-900">{user.name}</p>
                         </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={10}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
-                      No users found matching your search criteria.
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">{user.username}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">{user.gmail}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">{user.phoneNumber}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {new Date(user.dateOfBirth).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {user.gender === 0 ? "Male" : user.gender === 1 ? "Female" : "Other"}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">{user.role || "N/A"}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">{user.status}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleViewUser(user)}
+                          className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
+                          title="View Childern"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleUpdateClick(user)}
+                          className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
+                          title="Edit user"
+                        >
+                          <SquarePen size={16} />
+                        </button>
+                        <DeleteComponent
+                          id={user.id}
+                          isUser={true}
+                          onDeleteSuccess={handleDeleteSuccess}
+                        />
+                      </div>
                     </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
+          ) : (
+            <p className="text-gray-500 text-center py-8">
+              No users found matching your search criteria.
+            </p>
           )}
         </div>
 
@@ -266,17 +240,11 @@ const UserManagement = () => {
         />
 
         {showAddUserForm && (
-          <AddUser
-            onAddSuccess={handleAddSuccess}
-            setShowForm={setShowAddUserForm}
-          />
+          <AddUser onAddSuccess={handleAddSuccess} setShowForm={setShowAddUserForm} />
         )}
 
         {showAddStaffForm && (
-          <AddStaff
-            onAddSuccess={handleAddSuccess}
-            setShowForm={setShowAddStaffForm}
-          />
+          <AddStaff onAddSuccess={handleAddSuccess} setShowForm={setShowAddStaffForm} />
         )}
 
         {showUpdateForm && selectedUser && (
@@ -284,6 +252,14 @@ const UserManagement = () => {
             user={selectedUser}
             onAddSuccess={handleAddSuccess}
             setShowForm={setShowUpdateForm}
+          />
+        )}
+
+        {showModal && selectedUser && (
+          <DetailUser
+            parentId={selectedUser.id}
+            isOpen={showModal}
+            onClose={handleCloseModal} // Truyền hàm đóng modal
           />
         )}
       </div>

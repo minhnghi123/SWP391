@@ -3,13 +3,46 @@ import formatDateTime from '../../../../utils/Date';
 import { useState } from 'react';
 import formatCurrency from '../../../../utils/calculateMoney';
 import PaymentModal from './PaymentModal';
-
-const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG,id }) => {
+import useAxios from '../../../../utils/useAxios';
+import { toast } from 'react-toastify';
+const url = import.meta.env.VITE_BASE_URL_DB
+const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) => {
     const totalChild = bill.childrenList.map(child => child.id)
     const appointmentDate = formatDateTime(bill.arrivedAt)
     const [isExpanded, setIsExpanded] = useState(false);
     const totalVaccines = bill.vaccineList.length + bill.comboList.length;
     const [isOpenModal, setIsOpenModal] = useState(false);
+
+    const api = useAxios()
+    const handleRefundBooking = async (bookingId) => {
+        console.log(bookingId);
+        try {
+            const res = await api.get(`${url}/VaccinesTracking/get-by-booking-id/${bookingId}`);
+            if (res.status === 200) {
+                const trackingData = res.data;
+                const refundPercentage = trackingData.find(item => item.previousVaccination === 0 && item.status.toLowerCase() === "success");
+                const percentage = refundPercentage ? 0 : 1
+                if (percentage) {
+                    const response = await api.post(`${url}/Payment/refund`, {
+                        bookingID: bookingId,
+                        paymentStatusEnum: percentage
+                    });
+                    if (response.status === 200) {
+                        toast.success("Refunded successfully!");
+                        setTrigger(true);
+                    }
+                    else {
+                        toast.info("No refundable vaccines found.");
+                    }
+
+                }
+            }
+        } catch (error) {
+            console.error("Refund error:", error);
+            toast.error("Refund failed. Please try again.");
+        }
+    };
+
 
     return (
         <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100">
@@ -97,7 +130,27 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG,id }) => {
                     >
                         Proceed to Payment
                     </button>
+
+
                 )}
+                {
+                    bill?.status?.toLowerCase() === 'success' &&
+                    bill?.paymentMethod && (bill.paymentMethod.toLowerCase() === 'cash' || bill.paymentMethod.toLowerCase() === 'vnpay') &&
+                    new Date() - new Date(bill.arrivedAt) <= 48 * 60 * 60 * 1000 && (  // Không quá 2 ngày (48h)
+                        <button
+                            onClick={() => handleRefundBooking(bill.id)}
+                            className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
+                            aria-label="View Payment History"
+                        >
+                            Refund
+                        </button>
+                    )
+                }
+
+
+
+
+
             </div>
             {isOpenModal && (
                 <PaymentModal onClose={() => setIsOpenModal(false)} bill={bill} id={id} />

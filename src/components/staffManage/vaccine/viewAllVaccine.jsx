@@ -37,7 +37,9 @@ const VaccineList = () => {
   const fetchVaccines = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${url}/Vaccine/get-all-vaccines`);
+      const response = await axios.get(
+        "http://localhost:5272/api/Vaccine/get-all-vaccines"
+      );
       setVaccines(response.data);
       setError(null);
     } catch (error) {

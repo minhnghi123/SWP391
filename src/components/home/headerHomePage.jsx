@@ -3,6 +3,8 @@ import AvatarHomePage from "./avatarHomePage";
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { useDispatch, useSelector } from 'react-redux';
+import ModalNotification from './modalNotification';
+import { useState, useRef, useEffect } from 'react';
 
 export default function Header() {
     const dispatch = useDispatch()
@@ -16,6 +18,20 @@ export default function Header() {
         { label: "Review", id: "feedback" },
         { label: "Contact", id: "contact" },
     ];
+
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const notificationRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setIsNotificationOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleScroll = (id) => {
         document.getElementById(id)?.scrollIntoView({
@@ -42,12 +58,7 @@ export default function Header() {
                             Health<span className="text-blue-500">Blue</span>
                         </span>
                     </div>
-                    <div className="w-10 h-10 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors">
-                        <NotificationsOutlinedIcon
-                            className="text-gray-600 hover:text-blue-500 transition-colors mb-3"
-                            fontSize="medium"
-                        />
-                    </div>
+                    
                 </div>
             </Link>
 
@@ -65,7 +76,7 @@ export default function Header() {
                         ))}
                     </ul>
                 </nav>
-                <div onClick={() => navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1">
+                {/* <div onClick={() => navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full">
                         <ShoppingCartOutlinedIcon className="text-gray-600" />
                     </div>
@@ -74,7 +85,25 @@ export default function Header() {
                             {cart.length}
                         </p>
                     )}
-                </div>
+                </div> */}
+                <div className="relative" ref={notificationRef}>
+                        <div 
+                            className="w-10 h-10 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors relative"
+                            onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                        >
+                            <NotificationsOutlinedIcon
+                                className="text-gray-600 hover:text-blue-500 transition-colors"
+                                fontSize="medium"
+                            />
+                            <span className="absolute top-1 left-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                                2
+                            </span>
+                        </div>
+                        <ModalNotification 
+                            isOpen={isNotificationOpen} 
+                            onClose={() => setIsNotificationOpen(false)} 
+                        />
+                    </div>
 
                 {user?.id ? (
                     <AvatarHomePage />

@@ -42,17 +42,19 @@ export default function Stage2Payment() {
     const handleSubmit = async () => {
         try {
             setLoading(true)
-            const totalPrice = (CalculateTotal || 0) + ((CalculateTotal || 0) * 0.05) + (Object.keys(advitory_detail || {}).length ? listChildren.length * 50000 : 0);
+           
             const value = {
                 parentId: id || "N/A",
                 advisoryDetail: Object.keys(advitory_detail || {}).length ? advitory_detail : 'no',
-                totalPrice: totalPrice,
+                totalPrice: CalculateTotal,
                 paymentId: paymentMenthod,
                 arrivedAt: arriveDate || "N/A",
                 childrenIds: (listChildren || []).map(child => child.id),
                 vaccineIds: (listVaccine || []).map(vaccine => vaccine.id),
                 vaccineComboIds: (listComboVaccine || []).map(combo => combo.id)
             };
+           
+            
             const res = await api.post(`${url}/Booking/add-booking`, value);
             if (res.status === 200 && res.data) {
                 if (paymentMenthod === 1) {
@@ -62,7 +64,7 @@ export default function Stage2Payment() {
                     dispatch(methodPaymentAction.resetMethodPayment())
                     dispatch(childAction.resetForm())
                     dispatch(orderAction.savePaymentData(res.data))
-                    navigate(`/confirm/pending`)
+                    window.location.href = res.data;
                 }
                 else {
                     window.location.href = res.data;
@@ -85,7 +87,7 @@ export default function Stage2Payment() {
 
     return (
         <>
-            <ToastContainer />
+           
             <div className="max-w-7xl mx-auto px-4 py-16">
                 <div className="flex flex-col lg:flex-row gap-12">
                     {/* Left Side */}

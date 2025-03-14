@@ -17,11 +17,19 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`${url}/Vaccine/get-vaccine-by-id/${id}`);
-       if(response.status===200){
-        setVaccine(response.data);
-       }
-        
+        const response = await fetch(`http://localhost:5272/api/Vaccine/get-vaccine-by-id/${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch vaccine data: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setVaccine(data);
       } catch (err) {
         setError(err.message);
         console.error('Error fetching vaccine:', err);

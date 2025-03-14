@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import Profile from './Section/profile/profile'
-import History from './Section/hisotry'
+import History from './Section/history/hisotry'
 import Tracking from './Section/tracking/tracking'
 import ListChildren from '../Tracking&History/Section/children/listChidren';
 import AvatarHomePage from '../home/avatarHomePage'

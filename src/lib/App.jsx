@@ -37,7 +37,7 @@ function App() {
     if (token && !excludedPaths.includes(location.pathname)) {
       timeoutIdRef.current = setTimeout(() => {
         setShowModal(true);
-      }, 1000 *60 *10); // 10 giây
+      }, 1000 *60 *30); 
     }
   };
 

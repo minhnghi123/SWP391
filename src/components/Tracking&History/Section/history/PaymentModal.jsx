@@ -2,7 +2,8 @@ import { Close, Info, Payment, LocalOffer, Vaccines, ExpandMore, ExpandLess } fr
 import formatCurrency from '../../../../utils/calculateMoney';
 import { useState } from 'react';
 import { addData } from '../../../../Api/axios';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
+
 const PaymentModal = ({ onClose, bill, id }) => {
     const [selectedMethod, setSelectedMethod] = useState(1);
     const [expandedComboId, setExpandedComboId] = useState(null);
@@ -10,15 +11,15 @@ const PaymentModal = ({ onClose, bill, id }) => {
     const [error, setError] = useState(null);
     const [isTrigger, setIsTrigger] = useState(false);
     const paymentMethods = [
-        {
-            id: 1,
-            name: 'Cash',
-            icon: '💵',
-            desc: 'Pay at location',
-            bgColor: 'bg-green-50',
-            hoverColor: 'hover:bg-green-100',
-            borderColor: 'border-green-500'
-        },
+        // {
+        //     id: 1,
+        //     name: 'Cash',
+        //     icon: '💵',
+        //     desc: 'Pay at location',
+        //     bgColor: 'bg-green-50',
+        //     hoverColor: 'hover:bg-green-100',
+        //     borderColor: 'border-green-500'
+        // },
         {
             id: 2,
             name: 'MoMo',
@@ -47,6 +48,7 @@ const PaymentModal = ({ onClose, bill, id }) => {
             borderColor: 'border-indigo-500'
         },
     ];
+    console.log('bill', bill);
     const totalPrice = bill.amount;
     const childrenIds = bill.childrenList.map(child => child.idid);
     const NumberOfChildren = childrenIds.length;
@@ -56,18 +58,18 @@ const PaymentModal = ({ onClose, bill, id }) => {
         try {
             setIsLoading(true);
             const value = {
-                parentId: 0,
-                advisoryDetail: 'string',
-                totalPrice: 0,
-                arrivedAt: new Date().toISOString(),
+                parentId: id,
+                advisoryDetail: bill.advisoryDetail,
+                totalPrice: totalPrice,
+                arrivedAt: bill.arrivedAt,
                 paymentId: selectedMethod,
-                childrenIds: [0],
-                vaccineIds: [0],
-                vaccineComboIds: [0],
+                childrenIds: bill.childrenList.map(child => child.childId),
+                vaccineIds: bill.vaccineList.map(vaccine => vaccine.id),
+                vaccineComboIds: bill.comboList.map(combo => combo.id),
                 bookingID: bill.id,
 
             }
-            console.log('value', value);
+           
             const res = await addData('Booking/add-booking', value);
 
             if (res && res.status === 200 && res.data) {

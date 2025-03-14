@@ -4,13 +4,13 @@ const HeaderLeftSide = ({ user }) => {
     return (
         <>
             {/* Welcome Section */}
-            <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-3xl p-8 text-white">
+            <div className="bg-gradient-to-r from-[#00a0aa] to-[#3AC5C9] rounded-3xl p-8 text-white shadow-lg">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold mb-2">
+                        <h1 className="text-3xl font-bold mb-2">
                             Welcome Back, {user?.name}!
                         </h1>
-                        <p className="text-teal-100">
+                        <p className="text-white/90 text-lg">
                             Complete your payment information below
                         </p>
                     </div>
@@ -26,8 +26,6 @@ const HeaderLeftSide = ({ user }) => {
                 img={user?.avatar}
             />
         </>
-
-
     )
 }
 

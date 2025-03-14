@@ -5,45 +5,39 @@ import useAxios from "../../../utils/useAxios";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
-const DeleteAdmin = ({ id, isCombo = false, isUser = false, onDeleteSuccess }) => {
+const DeleteAdmin = ({ id, isUser = false, onDeleteSuccess }) => {
   const api = useAxios();
 
   const handleDelete = async () => {
     try {
-      // Define the endpoint based on whether it's a user, combo vaccine, or single vaccine
+      // Xác định endpoint dựa trên loại entity (User hoặc Child)
       const endpoint = isUser
         ? `${url}/User/soft-delete-user/${encodeURIComponent(id)}`
-        : isCombo
-          ? `${url}/VaccineCombo/soft-delete-combo/${encodeURIComponent(id)}`
-          : `${url}/Vaccine/soft-delete-vaccine/${encodeURIComponent(id)}`;
+        : `${url}/Child/soft-delete-child/${encodeURIComponent(id)}`;
 
-      // Make the PATCH request using the axios instance from useAxios
+      // Gửi yêu cầu PATCH để soft delete
       const response = await api.patch(endpoint);
 
+      // Kiểm tra phản hồi thành công
       if (response.status === 200 || response.status === 204) {
         const successMessage = isUser
           ? "User deleted successfully!"
-          : isCombo
-            ? "Combo Vaccine deleted successfully!"
-            : "Vaccine deleted successfully!";
+          : "Child deleted successfully!";
         toast.success(successMessage, { autoClose: 3000 });
-        if (onDeleteSuccess) onDeleteSuccess(); // Call the callback if provided
+
+        // Gọi callback nếu được cung cấp
+        if (typeof onDeleteSuccess === "function") {
+          onDeleteSuccess(id); // Truyền id để component cha xử lý
+        }
       } else {
-        const errorMessage = isUser
-          ? "Failed to delete user."
-          : isCombo
-            ? "Failed to delete combo vaccine."
-            : "Failed to delete vaccine.";
-        toast.error(errorMessage, { autoClose: 3000 });
+        throw new Error("Unexpected response status");
       }
     } catch (error) {
       const errorMessage = isUser
-        ? "Error deleting user"
-        : isCombo
-          ? "Error deleting combo vaccine"
-          : "Error deleting vaccine";
+        ? "Failed to delete user"
+        : "Failed to delete child";
       console.error(`${errorMessage}:`, error);
-      toast.error(`${errorMessage}.`, { autoClose: 3000 });
+      toast.error(`${errorMessage}. Please try again.`, { autoClose: 3000 });
     }
   };
 

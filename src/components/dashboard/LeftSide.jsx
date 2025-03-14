@@ -6,6 +6,7 @@ import VaccinesIcon from '@mui/icons-material/Vaccines';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import PaymentIcon from '@mui/icons-material/Payment';
 import FollowTheSignsIcon from '@mui/icons-material/FollowTheSigns';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
 
 const LeftSide = () => {
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ const LeftSide = () => {
       <div className="px-4">
         <nav className="space-y-1">
           <EachMenu path="/dashboardPage/dashboard" label="Dashboard" icon={<SpaceDashboardIcon />} />
+          <EachMenu path="/dashboardPage/children" label="Children" icon={<ChildCareIcon />} />
           <EachMenu path="/dashboardPage/user" label="User" icon={<PersonIcon />} />
           <EachMenu path="/dashboardPage/vaccine" label="Vaccine" icon={<VaccinesIcon />} />
           <EachMenu path="/dashboardPage/combo" label="Combo" icon={<VaccinesIcon />} />

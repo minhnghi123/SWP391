@@ -1,144 +1,285 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
-import DateFormatter from "../../../utils/FormDate";
-import AddChild from "../CRUD/addChild";
-import DeleteComponent from "../CRUD/delete"; // Import component chung
-import useAxios from "../../../utils/useAxios";
-const url = import.meta.env.VITE_BASE_URL_DB;
+  import React, { useState, useEffect } from "react";
+  import { Search, ArrowUpDown, BabyIcon, Eye, SquarePen } from "lucide-react";
+  import { ToastContainer } from "react-toastify";
+  import DateFormatter from "../../../utils/FormDate";
+  import AddChild from "../CRUD/addChild";
+  import UpdateChild from "../CRUD/updateChildren";
+  import DeleteComponent from "../CRUD/delete";
+  import DetailChild from "../CRUD/detailChild"; // Import the new component
+  import useAxios from "../../../utils/useAxios";
+  import Pagination from "../../../utils/pagination";
+  const url = import.meta.env.VITE_BASE_URL_DB;
 
-const ChildManagement = () => {
-  const [children, setChildren] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const api = useAxios();
+  const ChildManagement = () => {
+    const [children, setChildren] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState("name");
+    const [sortOrder, setSortOrder] = useState("asc");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [isLoading, setIsLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [selectedChildId, setSelectedChildId] = useState(null);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const api = useAxios();
 
-  const fetchChildren = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get(`${url}/Child/get-all-child-admin`);
-      setChildren(response.data);
-      setErrorMessage(null);
-    } catch (error) {
-      console.error("Failed to fetch children:", error);
-      setErrorMessage("Failed to load children. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const fetchChildren = async () => {
+      try {
+        setIsLoading(true);
+        const childrenResponse = await api.get(`${url}/Child/get-all-child-admin`);
+        const childrenData = childrenResponse.data;
 
-  useEffect(() => {
-    fetchChildren();
-  }, []);
+        const parentsResponse = await api.get(`${url}/User/get-all-user-admin`);
+        const parentsData = parentsResponse.data;
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
+        const childrenWithParentNames = childrenData.map((child) => {
+          const parent = parentsData.find((p) => p.id === child.parentID);
+          return {
+            ...child,
+            status: child.status || "Active",
+            parentName: parent ? parent.name : "Unknown",
+          };
+        });
 
-  const filteredChildren = children.filter((child) =>
-    child.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+        setChildren(childrenWithParentNames);
+        setErrorMessage(null);
+      } catch (error) {
+        console.error("Failed to fetch children or parents:", error);
+        setErrorMessage("Failed to load children. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const refreshChildrenList = async () => {
-    try {
-      const response = await api.get(`${url}/Child/get-all-child-admin`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setChildren(
-        response.data.map((child) => ({
-          ...child,
-          status: child.status || "Active",
-        }))
+    useEffect(() => {
+      fetchChildren();
+    }, []);
+
+    const handleSearch = (e) => {
+      setSearchTerm(e.target.value);
+      setCurrentPage(1);
+    };
+
+    const handleUpdateSuccess = (updatedChild) => {
+      setChildren((prev) =>
+        prev.map((child) =>
+          child.id === updatedChild.id ? { ...child, ...updatedChild } : child
+        )
       );
-    } catch (error) {
-      console.error("Failed to refresh children list:", error);
-      setErrorMessage("Failed to refresh children list.");
-      toast.error("Error refreshing children list.");
-    }
-  };
+    };
 
-  const handleDeleteSuccess = (deletedId) => {
-    setChildren((prev) => prev.filter((child) => child.id !== deletedId));
-  };
+    const handleDeleteSuccess = () => {
+      fetchChildren();
+    };
 
-  return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Child Management</h1>
-        <AddChild onAddSuccess={refreshChildrenList} />
-      </div>
+    const handleViewDetails = (childId) => {
+      setSelectedChildId(childId);
+      setIsDetailOpen(true);
+    };
 
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="w-full p-3 rounded-lg border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-      </div>
+    const handleCloseDetails = () => {
+      setIsDetailOpen(false);
+      setSelectedChildId(null);
+    };
 
-      {isLoading && <p className="text-center text-gray-500">Loading children...</p>}
-      {errorMessage && <p className="text-center text-red-500">{errorMessage}</p>}
+    const filteredChildren = children.filter((child) =>
+      (child.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+    );
 
-      {!isLoading && !errorMessage && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full table-auto">
-            <thead className="bg-gray-100 border-b">
-              <tr>
-                {["Name", "Date of Birth", "Gender", "Status", "Created At", "Actions"].map(
-                  (header) => (
-                    <th
-                      key={header}
-                      className="px-6 py-3 text-left text-sm font-medium text-gray-600"
-                    >
-                      {header}
+    const sortedChildren = [...filteredChildren].sort((a, b) => {
+      const valueA = a[sortBy] || "";
+      const valueB = b[sortBy] || "";
+      return sortOrder === "asc"
+        ? valueA > valueB
+          ? 1
+          : -1
+        : valueA < valueB
+        ? 1
+        : -1;
+    });
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentChildren = sortedChildren.slice(indexOfFirstItem, indexOfLastItem);
+
+    return (
+      <>
+        <ToastContainer />
+        <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+            <h1 className="text-2xl font-bold text-gray-900">Child Management</h1>
+            <AddChild onAddSuccess={fetchChildren} />
+          </div>
+
+          <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">
+            <div className="relative">
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+              <input
+                type="text"
+                placeholder="Search children by name..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <ArrowUpDown size={18} className="text-gray-500" />
+              <select
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [field, order] = e.target.value.split("-");
+                  setSortBy(field);
+                  setSortOrder(order);
+                }}
+                className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
+              >
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+                <option value="dateOfBirth-asc">Date of Birth (Oldest)</option>
+                <option value="dateOfBirth-desc">Date of Birth (Newest)</option>
+                <option value="createdAt-asc">Created At (Oldest)</option>
+                <option value="createdAt-desc">Created At (Newest)</option>
+                <option value="parentName-asc">Parent Name (A-Z)</option>
+                <option value="parentName-desc">Parent Name (Z-A)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            {isLoading ? (
+              <p className="text-gray-500 text-center">Loading children...</p>
+            ) : errorMessage ? (
+              <p className="text-red-500 text-center">{errorMessage}</p>
+            ) : (
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                      ID
                     </th>
-                  )
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredChildren.length > 0 ? (
-                filteredChildren.map((child) => (
-                  <tr key={child.id} className="border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-800">{child.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {DateFormatter(child.dateOfBirth)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {child.gender === 0 ? "Male" : "Female"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{child.status}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800">
-                      {DateFormatter(child.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800">
-                      <DeleteComponent
-                        id={child.id}
-                        endpoint="https://localhost:7280/api/Child/soft-delete-child/{id}"
-                        entityName="Child"
-                        onDeleteSuccess={handleDeleteSuccess}
-                      />
-                    </td>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                      Parent Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                      Date of Birth
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                      Gender
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                      Created At
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                      Actions
+                    </th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                    No children found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-};
+                </thead>
+                <tbody>
+                  {currentChildren.length > 0 ? (
+                    currentChildren.map((child) => (
+                      <tr
+                        key={child.id}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-4 py-4 text-sm text-gray-600">
+                          {child.id}
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
+                              <BabyIcon className="w-5 h-5 text-teal-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {child.name}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-600">
+                          {child.parentName}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-600">
+                          {DateFormatter(child.dateOfBirth)}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-600">
+                          {child.gender === 0
+                            ? "Male"
+                            : child.gender === 1
+                            ? "Female"
+                            : "Other"}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-600">
+                          {child.status}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-600">
+                          {DateFormatter(child.createdAt)}
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleViewDetails(child.id)}
+                              className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
+                              title="View details"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            <UpdateChild
+                              child={child}
+                              onUpdateSuccess={handleUpdateSuccess}
+                              onCancel={() => {}}
+                            />
+                            <DeleteComponent
+                              id={child.id}
+                              onDeleteSuccess={handleDeleteSuccess}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={8}
+                        className="px-4 py-8 text-center text-gray-500"
+                      >
+                        No children found matching your search criteria.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
 
-export default ChildManagement;
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(sortedChildren.length / itemsPerPage)}
+            itemsPerPage={itemsPerPage}
+            setCurrentPage={setCurrentPage}
+            setItemsPerPage={setItemsPerPage}
+            totalItems={sortedChildren.length}
+          />
+
+          {isDetailOpen && (
+            <DetailChild
+              childId={selectedChildId}
+              isOpen={isDetailOpen}
+              onClose={handleCloseDetails}
+            />
+          )}
+        </div>
+      </>
+    );
+  };
+
+  export default ChildManagement;

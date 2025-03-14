@@ -1,63 +1,28 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useRef, useState, useEffect, useContext } from "react";
+import { useRef, useState, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-
-import imgAvatar from '../../assets/p15.jpg'
-
-
+import imgAvatar from "../../assets/p15.jpg";
 import Dashboard from "../staffManage/section/dashboardStaff";
 import ManageVaccine from "../staffManage/section/manageVaccine";
 import Appointments from "./section/apointments";
-// import LoginPage from "../../pages/loginPage";
 import AvatarHomePage from "../home/avatarHomePage";
+
 const RightSide = () => {
-  // const {logout} = useContext(AuthContext);
-  // const handleLogout = () => {
-  //   logout();
-  //   localStorage.removeItem('Account');
-    
-  //   navigate('../loginPage');
-  // }
   const navigate = useNavigate();
-  const { section } = useParams(); // Lấy section từ URL
+  const { section } = useParams();
   const searchRef = useRef(null);
   const [search, setSearch] = useState("");
-  // const [isOpen, setIsOpen] = useState(false);
-      // const dropdownRef = useRef(null);
-  
-  
-  //     // Click outside handler
-  //     useEffect(() => {
-  //         const handleClickOutside = (event) => {
-  //             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-  //                 //phần tử được click không nằm bên trong dropdown.
-  //                 setIsOpen(false);
-  //             }
-  //         };
-  
-  //         document.addEventListener('mousedown', handleClickOutside);
-  //         return () => document.removeEventListener('mousedown', handleClickOutside);
-  //     }, []);
 
-  // const user ={
-  //   name:'Shu',
-  //   email:'teei8191@gmail.com'
-  // }
-
-  // Hàm render section với ID user
-  const renderSection = () => {
-    switch (section) {
-      case "dashboard":
-        return <Dashboard />;
-      case "manageVaccine":
-        return <ManageVaccine />;
-      case "appointments":
-        return <Appointments />;
-      default:
-        return <Dashboard />;
-    }
+  // Ánh xạ section với tiêu đề và component
+  const sectionConfig = {
+    dashboard: { title: "Dashboard", component: <Dashboard /> },
+    manageVaccine: { title: "Manage Vaccine", component: <ManageVaccine /> },
+    appointments: { title: "Appointments", component: <Appointments /> },
   };
+
+  // Lấy config dựa trên section, mặc định là dashboard
+  const currentSection = sectionConfig[section] || sectionConfig["dashboard"];
 
   return (
     <div className="p-4">
@@ -67,30 +32,26 @@ const RightSide = () => {
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <h1 className="text-2xl font-bold text-gray-800 capitalize">
-                {section === "dashboard" && "Dashboard"}
-                {section === "manageVaccine" && "Manage Vaccine"}
-                {section === "appointments" && "Appointments"}
+                {currentSection.title}
               </h1>
             </div>
-              <div className="flex items-center space-x-6">
-              {/* Avatar và Notification cùng hàng */}
+            <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-4">
                 {/* Notification */}
                 <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-200">
                   <NotificationsNoneOutlinedIcon className="w-6 h-6 text-gray-600" />
                   <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                 </button>
-
                 {/* Avatar */}
-              {/* <AvatarHomePage/> */}
+                {/* <AvatarHomePage /> */}
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Section rendering */}
-      <div>{renderSection()}</div>
+      <div>{currentSection.component}</div>
     </div>
   );
 };

@@ -64,7 +64,7 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
   if (!vaccine) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white p-6 border-b border-gray-100 flex items-center justify-between z-10">
           <h2 className="text-xl font-bold text-gray-900">Vaccine Details</h2>
@@ -155,7 +155,7 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
                   <span className="text-sm text-gray-500">Age Range:</span>
                   <p className="font-medium text-gray-900">
                     {vaccine.suggestAgeMin || vaccine.suggestAgeMax
-                      ? `${vaccine.suggestAgeMin || 0} - ${vaccine.suggestAgeMax || "N/A"} months`
+                      ? `${vaccine.suggestAgeMin || 0} - ${vaccine.suggestAgeMax || "N/A"} `
                       : "Not specified"}
                   </p>
                 </div>

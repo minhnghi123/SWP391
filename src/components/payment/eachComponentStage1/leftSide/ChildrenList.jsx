@@ -4,9 +4,9 @@ const ChildrenList = ({ listChildren, child, handleAddChildren, isOpenFirst, set
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                         Children List
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-100 text-sm font-medium text-teal-600">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E8F5F6] text-sm font-medium text-[#00a0aa]">
                             {listChildren.length}
                         </span>
                     </h3>
@@ -17,13 +17,13 @@ const ChildrenList = ({ listChildren, child, handleAddChildren, isOpenFirst, set
 
                 <button
                     onClick={() => setIsOpenFirst(!isOpenFirst)}
-                    className="px-4 py-2 bg-teal-50 text-teal-600 rounded-full text-sm font-medium hover:bg-teal-100 transition-all"
+                    className="px-4 py-2 bg-[#E8F5F6] text-[#00a0aa] rounded-full text-sm font-medium hover:bg-[#d0ebec] transition-all"
                 >
                     Add New Child
                 </button>
             </div>
 
-            {/* Danh sách trẻ */}
+            {/* Children list */}
             <div className="grid gap-4">
                 {child && child.length > 0 ? (
                     child.map((child) => (
@@ -35,16 +35,16 @@ const ChildrenList = ({ listChildren, child, handleAddChildren, isOpenFirst, set
                         />
                     ))
                 ) : (
-                    <div>Not Found</div>
+                    <div className="text-center py-6 text-gray-500">Not Found</div>
                 )}
             </div>
 
-            {/* Nếu không có trẻ nào */}
+            {/* If no children */}
             {child?.length === 0 && (
                 <div className="mt-6 text-center">
                     <button
                         onClick={() => setIsOpenFirst(!isOpenFirst)}
-                        className="px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-md hover:from-teal-600 hover:to-teal-700 transition-all"
+                        className="px-6 py-3 bg-gradient-to-r from-[#00a0aa] to-[#3AC5C9] text-white rounded-xl font-medium shadow-md hover:opacity-90 transition-all"
                     >
                         Add Your First Child
                     </button>

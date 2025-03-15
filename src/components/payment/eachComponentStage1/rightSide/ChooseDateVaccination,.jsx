@@ -4,7 +4,6 @@ import { RefreshCcw } from "lucide-react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { arriveActions } from "../../../redux/reducers/arriveDate";
-import { format } from "date-fns";
 import formatDate from "../../../../utils/Date";
 
 const ChooseDateVaccination = ({ arriveDate }) => {
@@ -12,23 +11,22 @@ const ChooseDateVaccination = ({ arriveDate }) => {
     const dispatch = useDispatch();
 
     return (
-        <div className="h-[100px] flex flex-row justify-between items-center p-4 bg-gradient-to-r from-blue-50 via-white to-blue-100 shadow-md rounded-lg">
-            <h3 className="text-xl font-bold text-gray-900">Danh sách trẻ được chích</h3>
+        <div className="h-[100px] flex flex-row justify-between items-center p-4 bg-gradient-to-r from-[#E8F5F6] via-white to-[#F0F9FA] shadow-md rounded-lg">
+            <h3 className="text-xl font-bold text-gray-900">Children Vaccination List</h3>
             <div className="relative">
-                {/* Nếu chưa chọn ngày, hiển thị nút "Chọn ngày chích" */}
+                {/* If date not selected, show "Choose vaccination date" button */}
                 {!arriveDate && (
                     <button
-                        aria-label="Chọn ngày chích"
+                        aria-label="Choose vaccination date"
                         onClick={() => setShowCalendar(!showCalendar)}
-                        className="px-4 py-2 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 text-white rounded-lg text-sm font-medium 
-transition-all duration-300 ease-in-out shadow-md hover:shadow-lg 
-hover:from-blue-400 hover:to-blue-600"
+                        className="px-4 py-2 bg-gradient-to-r from-[#00a0aa] to-[#3AC5C9] text-white rounded-lg text-sm font-medium 
+                            transition-all duration-300 ease-in-out shadow-md hover:opacity-90"
                     >
-                        📅 Chọn ngày chích
+                        📅 Choose vaccination date
                     </button>
                 )}
 
-                {/* Hiển thị lịch khi click nút */}
+                {/* Show calendar when clicked */}
                 {showCalendar && (
                     <div
                         className="absolute top-full mt-2 bg-white p-3 border rounded-lg shadow-lg z-10"
@@ -47,12 +45,12 @@ hover:from-blue-400 hover:to-blue-600"
                     </div>
                 )}
 
-                {/* Khi đã chọn ngày, hiển thị ngày đã chọn + nút reset */}
+                {/* When date is selected, show selected date + reset button */}
                 {arriveDate && (
-                    <div className="mt-3 flex items-center gap-4 bg-green-50 p-3 rounded-lg">
-                        <p className="text-sm text-green-700 font-medium flex items-center">
+                    <div className="mt-3 flex items-center gap-4 bg-[#E8F5F6] p-3 rounded-lg">
+                        <p className="text-sm text-[#00a0aa] font-medium flex items-center">
                             <svg
-                                className="w-5 h-5 mr-2 text-green-600"
+                                className="w-5 h-5 mr-2 text-[#00a0aa]"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
                                 aria-hidden="true"
@@ -63,11 +61,11 @@ hover:from-blue-400 hover:to-blue-600"
                                     clipRule="evenodd"
                                 />
                             </svg>
-                            Ngày đã chọn: {formatDate(arriveDate)}
+                            Selected date: {formatDate(arriveDate)}
                         </p>
                         <button
-                            aria-label="Xóa ngày đã chọn"
-                            onClick={() => dispatch(arriveActions.resetArriveDate())} // Bọc trong arrow function
+                            aria-label="Reset selected date"
+                            onClick={() => dispatch(arriveActions.resetArriveDate())}
                             className="p-2 bg-gray-200 text-gray-700 rounded-full transition duration-300 hover:bg-gray-300"
                         >
                             <RefreshCcw className="w-5 h-5" />

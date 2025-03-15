@@ -8,7 +8,10 @@ import ModalCrudChild from './ModalCrudChild';
 import ModalDelete from './ModalDelete';
 import formatDate from '../../../../utils/Date';
 import { fetchData, addData, updateData, deleteData } from '../../../../Api/axios'
+import useAxios from '../../../../utils/useAxios'
+const url = import.meta.env.VITE_BASE_URL_DB
 export default function ListChildren({ id }) {
+    const api = useAxios()
     const [listChildren, setListChildren] = useState([]);
     const [filteredChildren, setFilteredChildren] = useState([]);
     const [currentChild, setCurrentChild] = useState(null);
@@ -24,7 +27,7 @@ export default function ListChildren({ id }) {
         if (!id) return;
         const fetchChildren = async () => {
             try {
-                const res = await fetchData(`Child/get-child-by-parents-id/${id}`);
+                const res = await api.get(`${url}/Child/get-child-by-parents-id/${id}`);
                 if (res.status === 200) setListChildren(res.data);
             } catch (error) {
                 setErr("Failed to fetch children data.");
@@ -37,7 +40,7 @@ export default function ListChildren({ id }) {
         setFilteredChildren(listChildren);
     }, [listChildren]);
 
-
+   
     const handleOpenAddChildModal = () => {
         setCurrentChild(defaultChild);
         setIsEditing(false);
@@ -50,7 +53,7 @@ export default function ListChildren({ id }) {
         if (![0, 1].includes(Number(currentChild.gender))) return setErr("Please choose a valid gender.");
 
         try {
-            const res = await addData("Child/create-child", currentChild);
+            const res = await api.post(`${url}/Child/create-child`, currentChild);
             if (res.status === 200) {
                 setTrigger(prev => !prev);
                 setIsModalOpen(false);
@@ -74,7 +77,7 @@ export default function ListChildren({ id }) {
         if (![0, 1].includes(Number(currentChild.gender))) return setErr("Please choose a valid gender.");
 
         try {
-            const res = await updateData(`Child/update-child`, currentChild.id, currentChild);
+            const res = await api.put(`${url}/Child/update-child/${currentChild.id}`, currentChild);
             if (res.status === 200) {
                 setTrigger(prev => !prev);
                 setIsModalOpen(false);
@@ -94,7 +97,7 @@ export default function ListChildren({ id }) {
 
     const handleDeleteChild = async () => {
         try {
-            const res = await deleteData(`Child/delete-child`,deleteId);
+            const res = await api.delete(`${url}/Child/delete-child`, deleteId);
             if (res.status === 200) {
                 setTrigger(prev => !prev);
                 toast.success("Child deleted successfully!");

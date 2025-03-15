@@ -6,6 +6,7 @@ export default {
   ],
   theme: {
     extend: {
+      scrollbar: ['rounded'],
       keyframes: {
         slideLeftIn: {
           '0%': { transform: 'translateX(100%)' },
@@ -59,5 +60,5 @@ export default {
       fadeInDelay: "fadeIn 0.5s ease-in-out 1s forwards", // 1s delay
     },
   },
-  plugins: [require("tailwind-scrollbar-hide")],
+  plugins: [require("tailwind-scrollbar-hide"),],
 };

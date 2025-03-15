@@ -5,11 +5,16 @@ import { ToastContainer } from "react-toastify";
 import FormFeedback from './formFeedback';
 import FeedbackParent from '../home/FeedbackParent';
 import { FeedbackContext } from '../Context/FeedbackContext';
-import { fetchData } from '../../Api/axios';
+import useAxios from '@/utils/useAxios';
+
+const url = import.meta.env.VITE_BASE_URL_DB;
+
 const BodyFeedback = () => {
     const navigate = useNavigate();
     const {
+        
         feedback,
+        setFeedback,
         inputData,
         currentValue,
         hoverValue,
@@ -20,21 +25,58 @@ const BodyFeedback = () => {
         handleMouseOver
     } = useContext(FeedbackContext);
 
-    const [sorted, setSorted] = useState(feedback);
+    const [sorted, setSorted] = useState([]);
     const [activeFilter, setActiveFilter] = useState(0);
+    const [user, setUser] = useState();
+    const api = useAxios();
 
+    // Fetch feedback data when component mounts
     useEffect(() => {
-        setSorted(feedback.sort((a, b) => (b.id - a.id)));
+        const fetchFeedbackData = async () => {
+            try {
+                // const response = await api.get(`${url}/Feedback/get-all-feedback`);
+                const resUser = await api.get(`${url}/User/get-all-user`)
+                if(resUser.status === 200){
+                    setUser(resUser.data);
+                }
+                
+                
+
+            } catch (error) {
+                console.error("Failed to fetch feedback data:", error);
+            }
+        };
+        
+        fetchFeedbackData();
+    }, []);
+    console.log(user);
+
+    // Update sorted data whenever feedback changes
+    useEffect(() => {
+        if (Array.isArray(feedback) && feedback.length > 0) {
+            // Initial sort by ID (newest first)
+            const sortedByDate = [...feedback].sort((a, b) => (b.id - a.id));
+            setSorted(sortedByDate);
+        }
     }, [feedback]);
 
     const handleSortRating = (rating) => {
         setActiveFilter(rating);
+        
+        if (!Array.isArray(feedback) || feedback.length === 0) {
+            setSorted([]);
+            return;
+        }
+        
         let newSorted;
         if (rating === 0) {
+            // "All Feedback" option - sort by newest (highest ID first)
             newSorted = [...feedback].sort((a, b) => (b.id - a.id));
         } else {
-            newSorted = feedback.filter(item => item.starRating === rating);
+            // Filter by exact star rating match
+            newSorted = [...feedback].filter(item => Number(item.starRating) === rating);
         }
+        
         setSorted(newSorted);
     };
 
@@ -108,7 +150,16 @@ const BodyFeedback = () => {
                     
                     {/* Rating Filters */}
                     <div className="flex gap-4 overflow-x-auto pb-4 mb-8">
-                        {[0, 1, 2, 3, 4, 5].map((rating) => (
+                        <button
+                            onClick={() => handleSortRating(0)}
+                            className={`px-6 py-3 rounded-lg whitespace-nowrap transition-all duration-200
+                                ${activeFilter === 0 
+                                    ? 'bg-blue-600 text-white shadow-md' 
+                                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
+                        >
+                            All Feedback
+                        </button>
+                        {[1, 2, 3, 4, 5].map((rating) => (
                             <button
                                 key={rating}
                                 onClick={() => handleSortRating(rating)}
@@ -117,11 +168,7 @@ const BodyFeedback = () => {
                                         ? 'bg-blue-600 text-white shadow-md' 
                                         : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
                             >
-                                {rating === 0 ? 'All Feedback' : (
-                                    <>
-                                        {rating} <FaStar className={activeFilter === rating ? 'text-white' : 'text-yellow-400'} />
-                                    </>
-                                )}
+                                {rating} <FaStar className={activeFilter === rating ? 'text-white' : 'text-yellow-400'} />
                             </button>
                         ))}
                     </div>
@@ -132,10 +179,10 @@ const BodyFeedback = () => {
                             sorted.map((eachFeedback) => (
                                 <FeedbackParent
                                     key={eachFeedback.id}
-                                    image={eachFeedback.image}
-                                    randomNumber={eachFeedback.starRating}
+                                    image={user && user.find ? user.find(u => u.id === eachFeedback.userId)?.avatar : 'Unknown'}
+                                    randomNumber={eachFeedback.ratingScore}
                                     description={eachFeedback.description}
-                                    username={eachFeedback.username}
+                                    username={user && user.find ? user.find(u => u.id === eachFeedback.userId)?.name : 'Unknown'}
                                 />
                             ))
                         ) : (

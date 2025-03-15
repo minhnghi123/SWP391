@@ -37,7 +37,7 @@ const DashboardOverview = () => {
         setNewPatients(recentUsers.length);
 
         // Fetch Bookings (for Appointments and Total Income)
-        const bookingsResponse = await fetch("https://localhost:7280/api/Booking");
+        const bookingsResponse = await fetch("https://localhost:7280/api/Booking/get-all-booking");
         if (!bookingsResponse.ok) throw new Error("Failed to fetch bookings");
         const bookingsData = await bookingsResponse.json();
         const recentBookings = bookingsData.filter(booking => new Date(booking.arrivedAt) >= tenDaysAgo);

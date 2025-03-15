@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import FormDate from "../../../utils/FormDate";
-import axios from "axios";
 import useAxios from "../../../utils/useAxios";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
@@ -60,7 +59,7 @@ const BodyDoctorManage = () => {
         }).length;
 
         // Fetch all bookings
-        const bookingsResponse = await api.get(`${url}/Booking`);
+        const bookingsResponse = await api.get(`${url}/Booking/get-all-booking`);
         const allBookings = bookingsResponse.data;
         const latestBookings = allBookings.filter((booking) => {
           const arrivedAt = new Date(booking.arrivedAt); // Dùng arrivedAt cho booking

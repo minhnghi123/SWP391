@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { X, Refrigerator, Pill, Calendar } from "lucide-react";
 import useAxios from "../../../utils/useAxios";
 
-
 const url = import.meta.env.VITE_BASE_URL_DB;
 const VaccineDetails = ({ id, isOpen, onClose }) => {
   const [vaccine, setVaccine] = useState(null);
@@ -17,22 +16,15 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:5272/api/Vaccine/get-vaccine-by-id/${id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch vaccine data: ${response.status}`);
+        const response = await api.get(
+          `${url}/Vaccine/get-vaccine-by-id/${id}`
+        );
+        if (response.status === 200) {
+          setVaccine(response.data);
         }
-
-        const data = await response.json();
-        setVaccine(data);
       } catch (err) {
         setError(err.message);
-        console.error('Error fetching vaccine:', err);
+        console.error("Error fetching vaccine:", err);
       } finally {
         setLoading(false);
       }
@@ -89,8 +81,9 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
               <Refrigerator className="w-8 h-8 text-teal-600" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-900">{vaccine.name}</h3>
-              <p className="text-sm text-gray-500">{vaccine.description || "No description available"}</p>
+              <h3 className="text-2xl font-bold text-gray-900">
+                {vaccine.name}
+              </h3>
             </div>
           </div>
 
@@ -105,14 +98,18 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
                     <Pill className="w-4 h-4" />
                     <span>Quantity</span>
                   </div>
-                  <span className="font-medium text-teal-600">{vaccine.quantity || 0}</span>
+                  <span className="font-medium text-teal-600">
+                    {vaccine.quantity || 0}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-gray-600">
                     <Pill className="w-4 h-4" />
                     <span>Dose Times</span>
                   </div>
-                  <span className="font-medium text-teal-600">{vaccine.doesTimes || 0}</span>
+                  <span className="font-medium text-teal-600">
+                    {vaccine.doesTimes || 0}
+                  </span>
                 </div>
               </div>
             </div>
@@ -150,42 +147,63 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <h4 className="text-sm font-semibold text-gray-500 mb-3">
-                Administration Details
+                Vaccine Details
               </h4>
               <div className="space-y-3">
                 <div>
+                  <span className="text-sm text-gray-500">Description:</span>
+                  <p className="font-medium text-gray-900">
+                    {vaccine.description || "No description available"}
+                  </p>
+                </div>
+                <div>
                   <span className="text-sm text-gray-500">Price:</span>
                   <p className="font-medium text-gray-900">
-                    {vaccine.price ? `$${vaccine.price.toLocaleString()}` : "N/A"} per dose
+                    {vaccine.price
+                      ? `$${vaccine.price.toLocaleString()}`
+                      : "N/A"}{" "}
+                    per dose
                   </p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Age Range:</span>
                   <p className="font-medium text-gray-900">
                     {vaccine.suggestAgeMin || vaccine.suggestAgeMax
-                      ? `${vaccine.suggestAgeMin || 0} - ${vaccine.suggestAgeMax || "N/A"} `
+                      ? `${vaccine.suggestAgeMin || 0} - ${
+                          vaccine.suggestAgeMax || "N/A"
+                        } `
                       : "Not specified"}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-500">Country of Origin:</span>
-                  <p className="font-medium text-gray-900">{vaccine.fromCountry || "Not specified"}</p>
+                  <span className="text-sm text-gray-500">
+                    Country of Origin:
+                  </span>
+                  <p className="font-medium text-gray-900">
+                    {vaccine.fromCountry || "Not specified"}
+                  </p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Dose Interval:</span>
                   <p className="font-medium text-gray-900">
-                    {(vaccine.minimumIntervalDate || vaccine.maximumIntervalDate)
-                      ? `${vaccine.minimumIntervalDate || 0} to ${vaccine.maximumIntervalDate || "N/A"} days`
+                    {vaccine.minimumIntervalDate || vaccine.maximumIntervalDate
+                      ? `${vaccine.minimumIntervalDate || 0} to ${
+                          vaccine.maximumIntervalDate || "N/A"
+                        } days`
                       : "Not specified"}
                   </p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Address ID:</span>
-                  <p className="font-medium text-gray-900">{vaccine.addressId || "N/A"}</p>
+                  <p className="font-medium text-gray-900">
+                    {vaccine.addressId || "N/A"}
+                  </p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Status:</span>
-                  <p className="font-medium text-gray-900">{vaccine.status || "N/A"}</p>
+                  <p className="font-medium text-gray-900">
+                    {vaccine.status || "N/A"}
+                  </p>
                 </div>
               </div>
             </div>

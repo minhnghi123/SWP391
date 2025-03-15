@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import AddUser from "../CRUD/addUser";
 import DeleteComponent from "../CRUD/delete";
 import Pagination from "../../../utils/pagination";
-import { Search, User, SquarePen, Plus, Eye } from "lucide-react";
+import { Search, User, SquarePen, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import AddStaff from "../CRUD/addStaff";
 import UpdateUser from "../CRUD/updateUser";
 import { ToastContainer } from "react-toastify";
 import useAxios from "../../../utils/useAxios";
-import DetailUser from "../CRUD/detailUser";
+import AddChildren from "../CRUD/addChild"; // Component mới để thêm children
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -19,8 +19,10 @@ const UserManagement = () => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showAddStaffForm, setShowAddStaffForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
-  const [showModal, setShowModal] = useState(false); // Đổi tên cho rõ ràng
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [expandedUserId, setExpandedUserId] = useState(null); // Theo dõi user nào được mở rộng
+  const [childrenData, setChildrenData] = useState({}); // Lưu children theo userId
+  const [showAddChildrenForm, setShowAddChildrenForm] = useState(false); // State cho form add children
+  const [selectedUser, setSelectedUser] = useState(null); // User được chọn để update hoặc add children
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const api = useAxios();
@@ -69,6 +71,7 @@ const UserManagement = () => {
         );
         setShowAddUserForm(false);
         setShowAddStaffForm(false);
+        setShowAddChildrenForm(false);
       } catch (error) {
         console.error("Error refreshing user list:", error);
         setError("Failed to refresh user list.");
@@ -91,15 +94,31 @@ const UserManagement = () => {
     setShowUpdateForm(true);
   };
 
-  const handleViewUser = (user) => {
-    console.log("Selected user:", user);
-    setSelectedUser(user);
-    setShowModal(true);
+  const handleExpandUser = async (user) => {
+    if (expandedUserId === user.id) {
+      setExpandedUserId(null); // Thu gọn nếu đã mở
+    } else {
+      try {
+        setLoading(true);
+        const response = await api.get(`${url}/Child/get-child-by-parents-id/${user.id}`); // Giả định endpoint này
+        setChildrenData((prev) => ({
+          ...prev,
+          [user.id]: response.data || [],
+        }));
+        setExpandedUserId(user.id);
+        setSelectedUser(user); // Lưu user để dùng cho Add/Update
+      } catch (error) {
+        console.error("Error fetching children:", error);
+        setError("Failed to fetch children data.");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedUser(null);
+  const handleAddChildrenSuccess = () => {
+    handleExpandUser(selectedUser); // Refresh children sau khi thêm
+    setShowAddChildrenForm(false);
   };
 
   // Tính toán phân trang
@@ -190,80 +209,105 @@ const UserManagement = () => {
               </thead>
               <tbody>
                 {currentItems.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {user.id}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                          <User className="w-5 h-5 text-teal-600" />
+                  <React.Fragment key={user.id}>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-4 text-sm text-gray-600">{user.id}</td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
+                            <User className="w-5 h-5 text-teal-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{user.name}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {user.name}
-                          </p>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">{user.username}</td>
+                      <td className="px-4 py-4 text-sm text-gray-600">{user.gmail}</td>
+                      <td className="px-4 py-4 text-sm text-gray-600">{user.phoneNumber}</td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {new Date(user.dateOfBirth).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {user.gender === 0 ? "Male" : user.gender === 1 ? "Female" : "Other"}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">{user.role || "N/A"}</td>
+                      <td
+                        className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
+                          user.status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {user.status}
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleExpandUser(user)}
+                            className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
+                            title="View Children"
+                          >
+                            {expandedUserId === user.id ? (
+                              <ChevronUp size={16} />
+                            ) : (
+                              <ChevronDown size={16} />
+                            )}
+                          </button>
+                          <DeleteComponent
+                            id={user.id}
+                            isUser={true}
+                            onDeleteSuccess={handleDeleteSuccess}
+                          />
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {user.username}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {user.gmail}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {user.phoneNumber}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {new Date(user.dateOfBirth).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {user.gender === 0
-                        ? "Male"
-                        : user.gender === 1
-                        ? "Female"
-                        : "Other"}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {user.role || "N/A"}
-                    </td>
-                    <td
-                      className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
-                        user.status === "Active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {user.status}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleViewUser(user)}
-                          className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                          title="View Childern"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleUpdateClick(user)}
-                          className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                          title="Edit user"
-                        >
-                          <SquarePen size={16} />
-                        </button>
-                        <DeleteComponent
-                          id={user.id}
-                          isUser={true}
-                          onDeleteSuccess={handleDeleteSuccess}
-                        />
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                    </tr>
+                    {/* Phần mở rộng hiển thị children */}
+                    {expandedUserId === user.id && (
+                      <tr>
+                        <td colSpan="10" className="px-4 py-4 bg-gray-50">
+                          <div className="ml-12">
+                            <div className="flex gap-4 mb-4">
+                              <AddChildren onAddSuccess={handleAddChildrenSuccess} />
+                              <button
+                                onClick={() => handleUpdateClick(user)}
+                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center gap-2"
+                              >
+                                <SquarePen size={16} />
+                                Update User
+                              </button>
+                            </div>
+                            {childrenData[user.id]?.length > 0 ? (
+                              <table className="w-full border-collapse">
+                                <thead>
+                                  <tr className="bg-gray-100">
+                                    <th className="p-2 text-left text-sm font-semibold text-gray-600">ID</th>
+                                    <th className="p-2 text-left text-sm font-semibold text-gray-600">Name</th>
+                                    <th className="p-2 text-left text-sm font-semibold text-gray-600">DOB</th>
+                                    <th className="p-2 text-left text-sm font-semibold text-gray-600">Gender</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {childrenData[user.id].map((child) => (
+                                    <tr key={child.id} className="border-b">
+                                      <td className="p-2 text-sm text-gray-600">{child.id}</td>
+                                      <td className="p-2 text-sm text-gray-600">{child.name}</td>
+                                      <td className="p-2 text-sm text-gray-600">
+                                        {new Date(child.dateOfBirth).toLocaleDateString()}
+                                      </td>
+                                      <td className="p-2 text-sm text-gray-600">
+                                        {child.gender === 0 ? "Male" : child.gender === 1 ? "Female" : "Other"}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            ) : (
+                              <p className="text-gray-500">No children found for this user.</p>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
@@ -302,14 +346,6 @@ const UserManagement = () => {
             user={selectedUser}
             onAddSuccess={handleAddSuccess}
             setShowForm={setShowUpdateForm}
-          />
-        )}
-
-        {showModal && selectedUser && (
-          <DetailUser
-            parentId={selectedUser.id}
-            isOpen={showModal}
-            onClose={handleCloseModal} // Truyền hàm đóng modal
           />
         )}
       </div>

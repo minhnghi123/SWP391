@@ -8,8 +8,11 @@ import ProfileForm from './ProfileForm'
 import ProfileInfo from './ProfileInFor'
 import Notification from './Notification'
 import { fetchData, addData, deleteData, updateData } from '../../../../Api/axios'
+import useAxios from '../../../../utils/useAxios'
+const url = import.meta.env.VITE_BASE_URL_DB
 const Profile = ({ id }) => {
     const dispatch = useDispatch();
+    const api = useAxios()
     const [profileData, setProfileData] = useState(null);
     const [editProfile, setEditProfile] = useState(null);
     const [edit, setEdit] = useState(false);
@@ -37,7 +40,7 @@ const Profile = ({ id }) => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const res = await fetchData(`User/get-user-by-id/${id}`);
+                const res = await api.get(`${url}/User/get-user-by-id/${id}`);
                 if (res?.status === 200 && res?.data) {
                     setProfileData(res.data.user);
                     setEditProfile(res.data.user);
@@ -68,7 +71,7 @@ const Profile = ({ id }) => {
         try {
             let imageUrl = profileData.avatar || '';
 
-            // Nếu có avatar mới thì upload lên Cloudinary
+            
             if (avatar) {
                 const formData = new FormData();
                 formData.append("file", avatar);
@@ -100,7 +103,7 @@ const Profile = ({ id }) => {
 
             // console.log(updatedProfile)
             // Gửi dữ liệu cập nhật lên server
-            const response = await updateData(`User/update-user`, id, updatedProfile);
+            const response = await api.put(`${url}/User/update-user/${id}`, updatedProfile);
             if (response?.status === 200) {
                 setNote("Profile updated successfully");
                 setEdit(false);

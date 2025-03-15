@@ -111,7 +111,7 @@ const TrackingChildbyUser = ({ id }) => {
 
     // fillter each emlement in sortLinkList
     const completedVaccines = sortLinkList.filter(chain =>
-      chain.every(dose => dose.status.toLowerCase() === "completed")
+      chain.every(dose => dose.status.toLowerCase() === "success")
     ).length;
     const totalVaccines = sortLinkList.length;
     return {
@@ -161,32 +161,31 @@ export default TrackingChildbyUser;
 
 
 
-const ProgressBar = ({ percentage, vaccineName, current, total, percentageOverdue }) => {
+const ProgressBar = ({ percentage, vaccineName, current, total }) => {
   return (
     <div className="mb-6">
       <div className="flex justify-between mb-2">
         <span className="text-sm font-medium text-gray-700">
           {vaccineName} ({current}/{total})
         </span>
-        <span className={`text-sm ${percentageOverdue > 0 ? "text-red-500" : "text-gray-500"}`}>
+        <span className="text-sm text-gray-500">
           {percentage}%
         </span>
       </div>
-      <div className="h-4 bg-gray-200 rounded-full overflow-hidden flex">
-        {/* Phần hoàn thành (Xanh) */}
+
+      {/* Progress Bar Container */}
+      <div className="relative h-4 bg-gray-200 rounded-full">
+        {/* Filled Progress Bar */}
         <div
-          className="h-full bg-blue-500 transition-all duration-300"
+          className="h-full bg-blue-500 rounded-full transition-all duration-300"
           style={{ width: `${percentage}%` }}
-        />
-        {/* Phần quá hạn (Đỏ) */}
-        <div
-          className="h-full bg-red-500 transition-all duration-300"
-          style={{ width: `${percentageOverdue}%` }}
         />
       </div>
     </div>
   );
 };
+
+
 
 
 

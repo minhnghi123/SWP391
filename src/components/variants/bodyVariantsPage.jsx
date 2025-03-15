@@ -86,14 +86,20 @@ function boydVaritants() {
           country: vaccine.fromCountry,
           vaccines: vaccine.vaccines,
           type: type,
+          vaccines: vaccine.vaccines.map(vaccine => ({
+            id: vaccine.id,
+            name: vaccine.name,
+            price: vaccine.price,
+            suggestAgeMax: vaccine.suggestAgeMax,
+            suggestAgeMin: vaccine.suggestAgeMin,
+          }))
         }));
       } else {
         dispatch(vaccineAction.addVaccine({
           id: vaccine.id,
           name: name,
           price: vaccine.price,
-          description: vaccine.description,
-          country: vaccine.fromCountry,
+
           maxAge: vaccine.suggestAgeMax,
           minAge: vaccine.suggestAgeMin,
           type: type,

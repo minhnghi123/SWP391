@@ -6,7 +6,7 @@ import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNone
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MenuIcon from "@mui/icons-material/Menu";
-import TrackingVaccine from "./section/trackingVaccine";
+import TrackingStaff from "./section/trackingStaff";
 import imgAvatar from '../../assets/p15.jpg'
 
 import Dashboard from "../staffManage/section/dashboardStaff";
@@ -69,7 +69,7 @@ const RightSide = () => {
       case "appointments":
         return <Appointments />;
       case 'trackingVaccine':
-        return <TrackingVaccine />
+        return <TrackingStaff />
       default:
         return <Dashboard />;
     }

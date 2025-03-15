@@ -37,7 +37,7 @@ function App() {
     if (token && !excludedPaths.includes(location.pathname)) {
       timeoutIdRef.current = setTimeout(() => {
         setShowModal(true);
-      }, 1000 *60 *30); 
+      }, 1000 * 60 * 30);
     }
   };
 
@@ -63,7 +63,7 @@ function App() {
 
   return (
     <AuthProvider>
-      <ToastContainer autoClose={1500} />
+      <ToastContainer autoClose={1500} position="bottom-right" />
       {showModal && (
         <ModalReloadPage
           onRefresh={resettimeAfter10p}
@@ -80,14 +80,14 @@ function App() {
 
         {/* Private Route */}
         {/* <Route element={<PrivateRoute />}> */}
-          <Route path="/dashboardPage/:section" element={<DashboardPage />} />
-          <Route path="/staffPage/:section" element={<StaffPage />} />
-          <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
-          <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
-          <Route path="/feedbackPage" element={<FeedbackProvider><FeedbackPage /></FeedbackProvider>} />
-          <Route path="/information/:id" element={<Stage1Payment />} />
-          <Route path="/payment/:id" element={<Stage2Payment />} />
-          <Route path="/confirm/:status" element={<Stage3Payment />} />
+        <Route path="/dashboardPage/:section" element={<DashboardPage />} />
+        <Route path="/staffPage/:section" element={<StaffPage />} />
+        <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
+        <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
+        <Route path="/feedbackPage" element={<FeedbackProvider><FeedbackPage /></FeedbackProvider>} />
+        <Route path="/information/:id" element={<Stage1Payment />} />
+        <Route path="/payment/:id" element={<Stage2Payment />} />
+        <Route path="/confirm/:status" element={<Stage3Payment />} />
         {/* </Route> */}
       </Routes>
     </AuthProvider>

@@ -51,7 +51,7 @@ export default function AvatarHomePage() {
                 <div className="w-full h-full rounded-full overflow-hidden">
                     <img
                         className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
-                        src={user.avatar}
+                        src={user?.avatar}
                         alt="User avatar"
                     />
                 </div>

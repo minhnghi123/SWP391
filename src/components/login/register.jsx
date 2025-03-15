@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import Avatar from '../../../avatar.json'
 import useAxios from "../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB
@@ -32,9 +32,8 @@ const StepIndicator = ({ currentStep, totalSteps }) => {
             {[...Array(totalSteps)].map((_, index) => (
                 <div
                     key={index}
-                    className={`h-2 w-2 rounded-full transition-all duration-300 ${
-                        index < currentStep ? 'bg-blue-600 w-8' : 'bg-gray-300'
-                    }`}
+                    className={`h-2 w-2 rounded-full transition-all duration-300 ${index < currentStep ? 'bg-blue-600 w-8' : 'bg-gray-300'
+                        }`}
                 />
             ))}
         </div>
@@ -46,6 +45,7 @@ export default function Register({ setRegister }) {
     const avatar = Avatar
     const [err, setErr] = useState("");
     const [step, setStep] = useState(1);
+    const [stage, setStage] = useState(1); // Stage 1: Information collection, Stage 2: Verification
     const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
     const [input, setInput] = useState({
         firstName: "",
@@ -58,6 +58,7 @@ export default function Register({ setRegister }) {
         gender: "",
         email: "",
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSignIn = () => {
         setRegister(0);
@@ -88,32 +89,18 @@ export default function Register({ setRegister }) {
                 return input.password && input.confirmPassword && input.password === input.confirmPassword;
             case 4:
                 return input.birthDay && input.gender;
-            case 5:
-                return verificationCode.every(code => code.length === 1);
             default:
                 return false;
         }
     };
 
-    const handleNext = async () => {
+    const handleNext = () => {
         if (step === 3 && input.password !== input.confirmPassword) {
             setErr("Passwords do not match");
             return;
         }
-        
-        if (step === 4) {
-            // Send verification code before moving to step 5
-            try {
-                const value = { gmail: input.email };
-                await api.post(`${url}/User/verify-email`, value);
-                setStep(step + 1);
-            } catch (error) {
-                setErr("Failed to send verification code");
-                return;
-            }
-        } else {
-            setStep(step + 1);
-        }
+
+        setStep(step + 1);
     };
 
     const handleBack = () => {
@@ -121,42 +108,61 @@ export default function Register({ setRegister }) {
         setErr("");
     };
 
-    const handleSubmit = async (e) => {
+    // Submit all user information and request verification code
+    const handleStage1Submit = async (e) => {
         e.preventDefault();
-        
+        setIsSubmitting(true);
         const avatarUrl = avatar[Math.floor(Math.random() * avatar.length)].avatar;
-        
+
+        try {
+            const value = {
+                name: `${input.firstName} ${input.lastName}`,
+                username: input.userName,
+                gmail: input.email,
+                phoneNumber: input.phone,
+                dateofBirth: new Date(input.birthDay).toISOString(),
+                password: input.password,
+                avatar: avatarUrl,
+                gender: input.gender?.toLowerCase() === "male" ? 0 : 1,
+                
+            }
+           
+            const res = await api.post(`${url}/User/register`, value)
+            if (res?.status === 200) {
+                setStage(2);
+                setIsSubmitting(false);
+            }
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || "Failed to send verification code";
+            setErr(errorMsg);
+            toast.error(errorMsg);
+            setIsSubmitting(false);
+        }
+    };
+
+    // Complete registration with verification code
+    const handleFinalSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+       
         try {
             // First verify the code
             const verifyValue = {
-                verifyCode: verificationCode.join("")
+                otp: verificationCode.join("")
             };
-            const verifyRes = await api.post(`${url}/User/verify-code`, verifyValue);
-            
+            const verifyRes = await api.post(`${url}/User/verify-register`, verifyValue);
+
             if (verifyRes?.status === 200) {
-                // Then register the user
-                const registerValue = {
-                    name: `${input.firstName} ${input.lastName}`,
-                    dateofBirth: new Date(input.birthDay).toISOString(),
-                    username: input.userName,
-                    password: input.password,
-                    phoneNumber: input.phone,
-                    gmail: input.email,
-                    gender: input.gender?.toLowerCase() === "male" ? 0 : 1,
-                    avatar: avatarUrl,
-                };
-
-                const res = await api.post(`${url}/User/register`, registerValue);
-
-                if (res?.status === 200) {
-                    toast.success("Registered successfully");
-                    setTimeout(() => setRegister(0), 1500);
-                }
+                toast.success("Registered successfully");
+                setTimeout(() => setRegister(0), 1500);
             }
         } catch (error) {
             const errorMsg = error.response?.data?.message || "Registration failed";
             setErr(errorMsg);
             toast.error(errorMsg);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -261,31 +267,33 @@ export default function Register({ setRegister }) {
                         </div>
                     </div>
                 );
-            case 5:
-                return (
-                    <div className="space-y-6">
-                        <p className="text-center text-gray-600">
-                            We've sent a verification code to your email
-                        </p>
-                        <div className="flex justify-between space-x-3">
-                            {verificationCode.map((digit, index) => (
-                                <input
-                                    key={index}
-                                    id={`code-${index}`}
-                                    type="text"
-                                    maxLength="1"
-                                    value={digit}
-                                    onChange={(e) => handleVerificationChange(index, e.target.value)}
-                                    className="w-12 h-12 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg
-                                    focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                />
-                            ))}
-                        </div>
-                    </div>
-                );
             default:
                 return null;
         }
+    };
+
+    const renderVerificationStage = () => {
+        return (
+            <div className="space-y-6">
+                <p className="text-center text-gray-600">
+                    We've sent a verification code to your email
+                </p>
+                <div className="flex justify-between space-x-3">
+                    {verificationCode.map((digit, index) => (
+                        <input
+                            key={index}
+                            id={`code-${index}`}
+                            type="text"
+                            maxLength="1"
+                            value={digit}
+                            onChange={(e) => handleVerificationChange(index, e.target.value)}
+                            className="w-12 h-12 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg
+                            focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                        />
+                    ))}
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -297,47 +305,96 @@ export default function Register({ setRegister }) {
             >
                 <div className="text-center space-y-4">
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                        {step === 5 ? "Verify Your Email" : "Create Account"}
+                        {stage === 2 ? "Verify Your Email" : "Create Account"}
                     </h1>
-                    <p className="text-gray-600">
-                        Step {step} of 5
-                    </p>
+                    {stage === 1 && (
+                        <p className="text-gray-600">
+                            Step {step} of 4
+                        </p>
+                    )}
                 </div>
 
-                <StepIndicator currentStep={step} totalSteps={5} />
+                {stage === 1 && <StepIndicator currentStep={step} totalSteps={4} />}
 
                 <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl">
-                    <form onSubmit={step === 5 ? handleSubmit : (e) => e.preventDefault()}>
-                        {renderStep()}
-                        
-                        {err && (
-                            <p className="text-red-500 text-sm mt-4 text-center">{err}</p>
-                        )}
+                    {stage === 1 ? (
+                        <form onSubmit={step === 4 ? handleStage1Submit : (e) => e.preventDefault()}>
+                            {renderStep()}
 
-                        <div className="flex justify-between mt-8">
-                            {step > 1 && (
+                            {err && (
+                                <p className="text-red-500 text-sm mt-4 text-center">{err}</p>
+                            )}
+
+                            <div className="flex justify-between mt-8">
+                                {step > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={handleBack}
+                                        className="px-6 py-3 text-blue-600 hover:text-blue-800 font-medium"
+                                        disabled={isSubmitting}
+                                    >
+                                        Back
+                                    </button>
+                                )}
+                                {step < 4 ? (
+                                    <button
+                                        type="button"
+                                        onClick={handleNext}
+                                        disabled={!isStepValid() || isSubmitting}
+                                        className={`px-6 py-3 rounded-xl font-medium transition-all duration-300
+                                            ${isStepValid() && !isSubmitting
+                                                ? "bg-blue-600 text-white hover:bg-blue-700"
+                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                            } ml-auto`}
+                                    >
+                                        Continue
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="submit"
+                                        disabled={!isStepValid() || isSubmitting}
+                                        className={`px-6 py-3 rounded-xl font-medium transition-all duration-300
+                                            ${isStepValid() && !isSubmitting
+                                                ? "bg-blue-600 text-white hover:bg-blue-700"
+                                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                            } ml-auto`}
+                                    >
+                                        {isSubmitting ? "Sending..." : "Submit & Verify Email"}
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleFinalSubmit}>
+                            {renderVerificationStage()}
+
+                            {err && (
+                                <p className="text-red-500 text-sm mt-4 text-center">{err}</p>
+                            )}
+
+                            <div className="flex justify-between mt-8">
                                 <button
                                     type="button"
-                                    onClick={handleBack}
+                                    onClick={() => setStage(1)}
                                     className="px-6 py-3 text-blue-600 hover:text-blue-800 font-medium"
+                                    disabled={isSubmitting}
                                 >
                                     Back
                                 </button>
-                            )}
-                            <button
-                                type={step === 5 ? "submit" : "button"}
-                                onClick={step === 5 ? undefined : handleNext}
-                                disabled={!isStepValid()}
-                                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300
-                                    ${isStepValid()
-                                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                    } ml-auto`}
-                            >
-                                {step === 5 ? "Complete Registration" : "Continue"}
-                            </button>
-                        </div>
-                    </form>
+                                <button
+                                    type="submit"
+                                    disabled={!verificationCode.every(code => code.length === 1) || isSubmitting}
+                                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-300
+                                        ${verificationCode.every(code => code.length === 1) && !isSubmitting
+                                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                        } ml-auto`}
+                                >
+                                    {isSubmitting ? "Processing..." : "Complete Registration"}
+                                </button>
+                            </div>
+                        </form>
+                    )}
                 </div>
 
                 <div className="text-center">
@@ -352,6 +409,7 @@ export default function Register({ setRegister }) {
                     </p>
                 </div>
             </motion.div>
+         
         </div>
     );
 }

@@ -97,7 +97,7 @@ export default function ListChildren({ id }) {
 
     const handleDeleteChild = async () => {
         try {
-            const res = await api.delete(`${url}/Child/delete-child`, deleteId);
+            const res = await api.patch(`${url}/Child/soft-delete-child/${deleteId}`);
             if (res.status === 200) {
                 setTrigger(prev => !prev);
                 toast.success("Child deleted successfully!");

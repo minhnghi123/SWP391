@@ -5,6 +5,7 @@ const ListChild = ({ child, index, isSelected, handleChoose, isVaccineSuitableFo
     const isComboSuitable = isComboSuitableForAnyChild ? isComboSuitableForAnyChild(child) : true;
     const isSuitableForVaccination = isVaccineSuitable || isComboSuitable;
     
+
     // Determine if the child is already selected
     const isChildSelected = isSelected.some((children) => children.id === child.id);
     

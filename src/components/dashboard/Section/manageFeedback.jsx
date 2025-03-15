@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import useAxios from "../../../utils/useAxios";
+import { toast } from "react-toastify";
+import { Trash2 } from "lucide-react";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const Feedback = () => {
@@ -27,6 +29,26 @@ const Feedback = () => {
 
     fetchDataAsync();
   }, []);
+
+  console.log(feedbacks);
+  
+
+  const handleSoftDelete = async (id) => {
+    try {
+      const rs = await api.patch(`${url}/Feedback/soft-delete-feedback/${id}`);
+      if (rs.status === 200) {
+        setFeedbacks(feedbacks.map((feedback) =>
+          feedback.id === id ? { ...feedback, isDeleted: true } : feedback
+        ));
+        toast.success("Delete Feedback successfully");
+      } else {
+        toast.error("Delete Feedback failed");
+      }
+    } catch (error) {
+      console.error("Error deleting feedback:", error);
+      toast.error("An error occurred while deleting feedback");
+    }
+  }
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -63,6 +85,8 @@ const Feedback = () => {
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">User ID</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Rating Score</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Description</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -72,6 +96,12 @@ const Feedback = () => {
                     <td className="px-6 py-4 text-sm text-gray-800">{feedback.userId}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{feedback.ratingScore} ⭐</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{feedback.description}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{feedback.isDeleted? "Deleted" : "Not Deleted"} </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      <button onClick={()=>handleSoftDelete(feedback.id)}>
+                        <Trash2 size={16} style={{color : "red"}}/>
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (

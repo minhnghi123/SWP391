@@ -1,32 +1,56 @@
-import React, { useState } from "react";
-import { Clock } from "lucide-react";
-import { toast } from "react-toastify"; // Thêm toast để đồng bộ với AddUserComponent
+import React, { useState, useEffect } from "react";
+import { Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { toast } from "react-toastify";
 import useAxios from "../../../utils/useAxios";
+
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
   const api = useAxios();
   const [formData, setFormData] = useState({
-    id: user.id || "",
     name: user.name || "",
-    gmail: user.gmail || "",
-    phoneNumber: user.phoneNumber || "",
     dateOfBirth: user.dateOfBirth
       ? new Date(user.dateOfBirth).toISOString().split("T")[0]
       : "",
     gender: user.gender !== undefined ? user.gender : 0,
-    role: user.role || "",
-    isDelete: user.isDelete === true,
     avatar: user.avatar || "",
+    gmail: user.gmail || "",
+    phoneNumber: user.phoneNumber || "",
+    status: user.status || "Active",
+    childIds: [], // Ban đầu để trống, sẽ được cập nhật từ API
   });
   const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false); // Thêm loading để đồng bộ
+  const [loading, setLoading] = useState(false);
+  const [showChildren, setShowChildren] = useState(false);
+  const [children, setChildren] = useState([]); // Chỉ lưu children của user
+
+  // Fetch children hiện tại của user
+  useEffect(() => {
+    const fetchChildren = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(`${url}/Child/get-child-by-parents-id/${user.id}`);
+        const userChildren = response.data || [];
+        setChildren(userChildren);
+        setFormData((prev) => ({
+          ...prev,
+          childIds: userChildren.map((child) => child.id), // Cập nhật childIds
+        }));
+      } catch (error) {
+        console.error("Error fetching children:", error);
+        setErrorMessage("Failed to load children data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchChildren();
+  }, [user.id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "isDelete" ? value === "true" : value,
+      [name]: name === "gender" ? parseInt(value, 10) : value,
     }));
   };
 
@@ -36,13 +60,26 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
     return phoneRegex.test(phone);
   };
 
+  // Xử lý chọn/bỏ chọn child
+  const handleChildSelect = (childId) => {
+    const isSelected = formData.childIds.includes(childId);
+    const updatedChildIds = isSelected
+      ? formData.childIds.filter((id) => id !== childId)
+      : [...formData.childIds, childId];
+
+    setFormData((prev) => ({
+      ...prev,
+      childIds: updatedChildIds,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage(null);
 
     // Basic validation
-    if (!formData.id) {
+    if (!user.id) {
       setErrorMessage("User ID is missing.");
       setLoading(false);
       return;
@@ -53,7 +90,6 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
       return;
     }
 
-    // Validate phone number nếu có nhập
     if (formData.phoneNumber && !validatePhoneNumber(formData.phoneNumber)) {
       setErrorMessage(
         "Invalid phone number. It must be a 10-digit number starting with 03, 05, 07, 08, or 09."
@@ -68,20 +104,21 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
         dateOfBirth: formData.dateOfBirth
           ? new Date(formData.dateOfBirth).toISOString()
           : null,
-        gender: parseInt(formData.gender, 10),
-        avatar: formData.avatar,
-        isDeleted: formData.isDelete,
+        gender: formData.gender,
+        avatar: formData.avatar || "",
         gmail: formData.gmail,
-        phoneNumber: formData.phoneNumber || null,
+        phoneNumber: formData.phoneNumber || "",
+        status: formData.status,
+        childIds: formData.childIds,
       };
 
       const response = await api.put(
-        `${url}/User/update-user/${formData.id}`,
+        `${url}/User/update-user/admin/${user.id}`,
         payload
       );
 
       console.log("Update successful:", response.data);
-      toast.success("User updated successfully!", { autoClose: 3000 }); // Thêm toast
+      toast.success("User updated successfully!", { autoClose: 3000 });
       onAddSuccess();
       setShowForm(false);
     } catch (error) {
@@ -95,7 +132,7 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
         error.response?.data?.message ||
         "Failed to update user. Please check your input and try again.";
       setErrorMessage(errorMsg);
-      toast.error(errorMsg, { autoClose: 3000 }); // Thêm toast
+      toast.error(errorMsg, { autoClose: 3000 });
     } finally {
       setLoading(false);
     }
@@ -123,7 +160,7 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-8 rounded-2xl shadow-2xl w-[600px] max-w-[90%] text-center relative">
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-[600px] max-w-[90%] text-center relative max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Update User</h2>
 
         {errorMessage && (
@@ -186,25 +223,76 @@ const UpdateUser = ({ user, onAddSuccess, setShowForm }) => {
                 })
               }
             />
-            <input
-              type="text"
-              name="role"
-              placeholder="Role"
-              value={formData.role}
-              onChange={handleChange}
-              readOnly
-              className="w-full p-2.5 border border-gray-300 rounded-md bg-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
-            />
             <select
-              name="isDelete"
-              value={formData.isDelete.toString()}
+              name="status"
+              value={formData.status}
               onChange={handleChange}
               className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
             >
-              <option value="false">ACTIVE</option>
-              <option value="true">INACTIVE</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
             </select>
           </div>
+
+          {/* Nút hiển thị/ẩn danh sách children */}
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={() => setShowChildren((prev) => !prev)}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2"
+            >
+              {showChildren ? (
+                <>
+                  <ChevronUp size={18} /> Hide Children
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={18} /> Show Children
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Danh sách children của user */}
+          {showChildren && (
+            <div className="mt-4">
+              <h4 className="text-sm font-medium">User's Children:</h4>
+              {loading ? (
+                <p className="text-gray-500">Loading children...</p>
+              ) : children.length > 0 ? (
+                <div className="grid grid-cols-1 gap-2 mt-2 max-h-40 overflow-y-auto">
+                  {children.map((child) => {
+                    const isSelected = formData.childIds.includes(child.id);
+                    return (
+                      <div
+                        key={child.id}
+                        className={`flex items-center p-2 rounded-lg border ${
+                          isSelected ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleChildSelect(child.id)}
+                          className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <span
+                          className={`ml-2 text-sm ${
+                            isSelected ? "text-blue-600 font-semibold" : "text-gray-600"
+                          }`}
+                        >
+                          {child.name} (ID: {child.id}) (DOB:{" "}
+                          {new Date(child.dateOfBirth).toLocaleDateString()})
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-gray-500">No children assigned to this user.</p>
+              )}
+            </div>
+          )}
 
           <div className="mt-6 flex justify-end space-x-4">
             <button

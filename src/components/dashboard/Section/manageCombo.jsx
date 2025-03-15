@@ -170,9 +170,6 @@ const ManageCombo = () => {
                     Combo Name
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Description
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                     Discount
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
@@ -210,9 +207,6 @@ const ManageCombo = () => {
                             </p>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.description}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
                         {item.discount}%

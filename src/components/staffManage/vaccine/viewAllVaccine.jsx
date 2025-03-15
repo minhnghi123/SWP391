@@ -175,9 +175,6 @@ const VaccineList = () => {
                     Name
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Description
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                     Quantity
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
@@ -217,9 +214,6 @@ const VaccineList = () => {
                         </div>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.description}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
                         {item.quantity}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
@@ -228,7 +222,16 @@ const VaccineList = () => {
                       <td className="px-4 py-4 text-sm text-gray-600">
                         {item.fromCountry}
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
+                      {/* <td className="px-4 py-4 text-sm text-gray-600">
+                        {item.status}
+                      </td> */}
+                      <td
+                        className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
+                          item.status === "AVAILABLE"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
                         {item.status}
                       </td>
                       <td className="px-4 py-4">

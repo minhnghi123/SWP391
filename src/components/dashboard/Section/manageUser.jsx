@@ -156,16 +156,36 @@ const UserManagement = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Username</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Email</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Phone</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">DOB</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Gender</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Role</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Username
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Phone
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    DOB
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Gender
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Role
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -174,28 +194,52 @@ const UserManagement = () => {
                     key={user.id}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-4 py-4 text-sm text-gray-600">{user.id}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {user.id}
+                    </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
                           <User className="w-5 h-5 text-teal-600" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{user.name}</p>
+                          <p className="font-medium text-gray-900">
+                            {user.name}
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">{user.username}</td>
-                    <td className="px-4 py-4 text-sm text-gray-600">{user.gmail}</td>
-                    <td className="px-4 py-4 text-sm text-gray-600">{user.phoneNumber}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {user.username}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {user.gmail}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {user.phoneNumber}
+                    </td>
                     <td className="px-4 py-4 text-sm text-gray-600">
                       {new Date(user.dateOfBirth).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">
-                      {user.gender === 0 ? "Male" : user.gender === 1 ? "Female" : "Other"}
+                      {user.gender === 0
+                        ? "Male"
+                        : user.gender === 1
+                        ? "Female"
+                        : "Other"}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">{user.role || "N/A"}</td>
-                    <td className="px-4 py-4 text-sm text-gray-600">{user.status}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {user.role || "N/A"}
+                    </td>
+                    <td
+                      className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
+                        user.status === "Active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {user.status}
+                    </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <button
@@ -240,11 +284,17 @@ const UserManagement = () => {
         />
 
         {showAddUserForm && (
-          <AddUser onAddSuccess={handleAddSuccess} setShowForm={setShowAddUserForm} />
+          <AddUser
+            onAddSuccess={handleAddSuccess}
+            setShowForm={setShowAddUserForm}
+          />
         )}
 
         {showAddStaffForm && (
-          <AddStaff onAddSuccess={handleAddSuccess} setShowForm={setShowAddStaffForm} />
+          <AddStaff
+            onAddSuccess={handleAddSuccess}
+            setShowForm={setShowAddStaffForm}
+          />
         )}
 
         {showUpdateForm && selectedUser && (

@@ -8,13 +8,27 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
   const [editedBooking, setEditedBooking] = useState(null);
   const [availableVaccines, setAvailableVaccines] = useState([]);
   const [availableVaccineCombos, setAvailableVaccineCombos] = useState([]);
+  const [selectedChildren, setSelectedChildren] = useState([]);
 
+  // Initialize data when appointment prop changes
   useEffect(() => {
     if (appointment) {
-      setEditedBooking({ ...appointment });
+      setEditedBooking({
+        ...appointment,
+        vaccineList: appointment.vaccineList || [],
+        vaccineComboList: appointment.vaccineComboList || []
+      });
+
+      setSelectedChildren(
+        appointment.childrenList?.map((child) => ({
+          ...child,
+          age: child.age || 15 // Fallback age if not provided
+        })) || []
+      );
     }
   }, [appointment]);
 
+  // Fetch vaccines and combos data
   useEffect(() => {
     let isMounted = true;
 
@@ -25,7 +39,7 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
           api.get(`${url}/VaccineCombo/get-all-vaccine-combo`),
         ]);
 
-        if (isMounted) { 
+        if (isMounted) {
           if (vaccinesRes.status === 200 && vaccineCombosRes.status === 200) {
             setAvailableVaccines(vaccinesRes.data);
             setAvailableVaccineCombos(vaccineCombosRes.data);
@@ -34,7 +48,7 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
           }
         }
       } catch (error) {
-        console.error("Error fetching vaccines:", error.response ? error.response.data : error.message);
+        console.error("Error fetching data:", error.response?.data || error.message);
       }
     };
 
@@ -43,15 +57,17 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [api]);
 
+  // Handle checkbox changes for vaccines and combos
   const handleCheckboxChange = (listType, itemId, sourceList) => {
     if (!editedBooking) return;
 
     setEditedBooking((prev) => {
-      const updatedList = prev[listType].some((item) => item.id === itemId)
-        ? prev[listType].filter((item) => item.id !== itemId)
-        : [...prev[listType], sourceList.find((item) => item.id === itemId)];
+      const currentList = prev[listType] || [];
+      const updatedList = currentList.some((item) => item.id === itemId)
+        ? currentList.filter((item) => item.id !== itemId)
+        : [...currentList, sourceList.find((item) => item.id === itemId)];
       return { ...prev, [listType]: updatedList };
     });
   };
@@ -60,6 +76,26 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
     if (editedBooking) {
       onSave(editedBooking);
     }
+  };
+
+  // Check vaccine suitability
+  const isVaccineSuitableForAnyChild = (vaccine) => {
+    if (!selectedChildren.length) return true;
+    return selectedChildren.some((child) => 
+      child.age >= (vaccine.suggestAgeMin || 0) && 
+      child.age <= (vaccine.suggestAgeMax || Infinity)
+    );
+  };
+
+  // Check combo suitability
+  const isComboSuitableForAnyChild = (combo) => {
+    if (!selectedChildren.length) return true;
+    return selectedChildren.some((child) =>
+      combo.vaccines.every((vaccine) => 
+        child.age >= (vaccine.suggestAgeMin || 0) && 
+        child.age <= (vaccine.suggestAgeMax || Infinity)
+      )
+    );
   };
 
   if (!editedBooking) {
@@ -72,7 +108,7 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-60">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="p-6 bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-gray-200 flex items-center justify-between">
           <h3 className="text-2xl font-semibold text-indigo-800">Edit Vaccination Appointment</h3>
@@ -111,19 +147,13 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
                     <span className="font-medium text-gray-500">Phone Number:</span> {editedBooking.phoneNumber}
                   </p>
                 )}
-                {editedBooking.appointmentDate && (
-                  <p className="text-gray-700">
-                    <span className="font-medium text-gray-500">Date:</span>{" "}
-                    {new Date(editedBooking.appointmentDate).toLocaleDateString()}
-                  </p>
-                )}
               </div>
             </div>
 
             <div className="mb-6">
               <h4 className="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Children</h4>
               <div className="space-y-3">
-                {editedBooking.childrenList?.map((child) => (
+                {selectedChildren?.map((child) => (
                   <div
                     key={child.childId}
                     className="p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-sm"
@@ -133,12 +163,8 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
                       <span className="text-sm px-2 py-1 rounded-full bg-indigo-100 text-indigo-800">
                         {child.gender === 0 ? "Male" : "Female"}
                       </span>
+                      <span>Age: {child.age}</span>
                     </div>
-                    {child.dob && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        DOB: {new Date(child.dob).toLocaleDateString()}
-                      </p>
-                    )}
                   </div>
                 ))}
               </div>
@@ -150,23 +176,31 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
             <div className="mb-6">
               <h4 className="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Vaccines</h4>
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                {availableVaccines.map((vaccine) => (
-                  <label
-                    key={vaccine.id}
-                    className="flex items-center justify-between p-3 mb-2 rounded-md hover:bg-indigo-50 transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                        checked={editedBooking.vaccineList.some((v) => v.id === vaccine.id)}
-                        onChange={() => handleCheckboxChange("vaccineList", vaccine.id, availableVaccines)}
-                      />
-                      <span className="font-medium text-gray-800">{vaccine.name}</span>
-                    </div>
-                    <span className="text-indigo-700 font-medium">{vaccine.price.toLocaleString()} VND</span>
-                  </label>
-                ))}
+                {availableVaccines.map((vaccine) => {
+                  const isSuitable = isVaccineSuitableForAnyChild(vaccine);
+                  return (
+                    <label
+                      key={vaccine.id}
+                      className={`flex items-center justify-between p-3 mb-2 rounded-lg ${
+                        isSuitable ? "hover:bg-indigo-50" : "opacity-50 cursor-not-allowed"
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                          checked={editedBooking.vaccineList?.some((v) => v.id === vaccine.id) || false}
+                          onChange={() => handleCheckboxChange("vaccineList", vaccine.id, availableVaccines)}
+                          disabled={!isSuitable}
+                        />
+                        <span className="ml-3 text-gray-800">
+                          {vaccine.name} (Ages {vaccine.suggestAgeMin || 0}-{vaccine.suggestAgeMax || "∞"})
+                        </span>
+                      </div>
+                      <span className="text-indigo-700">{vaccine.price?.toLocaleString() || 0} VND</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
@@ -175,28 +209,34 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
                 Vaccine Combos
               </h4>
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                {availableVaccineCombos.map((combo) => (
-                  <label
-                    key={combo.id}
-                    className="flex items-center justify-between p-3 mb-2 rounded-md hover:bg-indigo-50 transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                        checked={editedBooking.comboList.some((c) => c.id === combo.id)}
-                        onChange={() => handleCheckboxChange("comboList", combo.id, availableVaccineCombos)}
-                      />
-                      <div>
-                        <span className="font-medium text-gray-800">{combo.comboName}</span>
-                        <span className="ml-2 text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                          {combo.discount}% off
-                        </span>
+                {availableVaccineCombos.map((combo) => {
+                  const isSuitable = isComboSuitableForAnyChild(combo);
+                  return (
+                    <label
+                      key={combo.id}
+                      className={`flex items-center justify-between p-3 mb-2 rounded-lg ${
+                        isSuitable ? "hover:bg-indigo-50" : "opacity-50 cursor-not-allowed"
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                          checked={editedBooking.vaccineComboList?.some((c) => c.id === combo.id) || false}
+                          onChange={() => handleCheckboxChange("vaccineComboList", combo.id, availableVaccineCombos)}
+                          disabled={!isSuitable}
+                        />
+                        <div className="ml-3">
+                          <span className="text-gray-800">{combo.comboName}</span>
+                          <p className="text-sm text-gray-600">
+                            {combo.vaccines?.map((v) => v.name).join(", ") || ""}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <span className="text-indigo-700 font-medium">{combo.finalPrice.toLocaleString()} VND</span>
-                  </label>
-                ))}
+                      <span className="text-indigo-700">{combo.finalPrice?.toLocaleString() || 0} VND</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </div>

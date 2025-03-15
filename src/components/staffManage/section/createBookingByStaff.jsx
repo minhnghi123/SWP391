@@ -167,7 +167,7 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
 
         setIsLoading(true);
         try {
-          
+
             const totalPrice =
                 selectedVaccines.reduce((sum, vaccine) => sum + vaccine.price, 0) +
                 selectedCombos.reduce((sum, combo) => sum + combo.finalPrice, 0);
@@ -183,9 +183,9 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
                 totalPrice: finalTotalPrice,
                 paymentId: 1,
             };
-           
 
-            
+
+
             const response = await api.post(`${url}/Booking/add-booking-by-staff`, bookingData);
             if (response.status === 200 && response.data.toLowerCase() === 'success') {
                 toast.success("Booking created successfully");

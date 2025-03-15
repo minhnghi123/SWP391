@@ -617,6 +617,7 @@ const BookingManagementPage = () => {
           appointment={editingBooking}
           onSave={handleSaveBookingChanges}
           onCancel={() => setIsEditModalOpen(false)}
+          
         />
       )}
       {

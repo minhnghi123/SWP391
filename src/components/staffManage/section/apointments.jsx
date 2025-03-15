@@ -19,13 +19,13 @@ const BookingManagementPage = () => {
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [isModalConfirmOpen, setIsModalConfirmOpen] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const [tracking, setTracking] = useState([]);
   useEffect(() => {
     const fetchBookings = async () => {
       const [bookingRes, trackingRes] = await Promise.all([
         api.get(`${url}/Booking/get-all-booking`),
-        api.get(`${url}/VaccinesTracking`)
+        api.get(`${url}/VaccinesTracking/get-all-staff`)
       ]);
       setAppointments(bookingRes.data);
       setTracking(trackingRes.data);
@@ -35,6 +35,7 @@ const BookingManagementPage = () => {
       setTrigger(false);
     }
   }, [trigger]);
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
@@ -72,42 +73,67 @@ const BookingManagementPage = () => {
   };
 
   const handleSaveBookingChanges = async (updatedBooking) => {
+    
     try {
-      const response = await api.put(`${url}/Booking/${updatedBooking.id}`, updatedBooking);
+        const totalPrice = updatedBooking.vaccineList.reduce((acc, vaccine) => acc + vaccine.price, 0) + updatedBooking.comboList.reduce((acc, combo) => acc + combo.price, 0)
+      const value = {
+        parentId: updatedBooking.parentId,
+        advisoryDetail: updatedBooking.advisoryDetail,
+        amount: totalPrice,
+        arrivedAt: updatedBooking.arrivedAt,
+        paymentId: updatedBooking.paymentId,
+        childrenIds: updatedBooking.childrenIds.map(child => child.id),
+        vaccineIds: updatedBooking.vaccineList.map(vaccine => vaccine.id),
+        vaccineComboIds: updatedBooking.comboList.map(combo => combo.id),
 
-      if (response.status === 200) {
-        toast.success("Update booking successfully!");
-
-        // Nếu bạn có state bookings, cập nhật lại dữ liệu
-        setBookings((prev) =>
-          prev.map((booking) =>
-            booking.id === updatedBooking.id ? { ...booking, ...updatedBooking } : booking
-          )
-        );
-
+        
 
       }
+      // const response = await api.put(`${url}/Booking/${updatedBooking.id}`, );
+
+      // if (response.status === 200) {
+      //   toast.success("Update booking successfully!");
+
+      //   // Nếu bạn có state bookings, cập nhật lại dữ liệu
+      //   setBookings((prev) =>
+      //     prev.map((booking) =>
+      //       booking.id === updatedBooking.id ? { ...booking, ...updatedBooking } : booking
+      //     )
+      //   );
+
+
+      // }
     } catch (error) {
       toast.error("Update booking failed!");
     }
   };
 
 
-  const handleCompleteBooking = async (bookingId) => {
+  const handleCompleteBooking = async (bookingComplete) => {
+    setLoading(true)
     try {
       const value = {
-        status: "Success"
+        parentId: bookingComplete.parentId,
+        advisoryDetail: bookingComplete.advisoryDetail,
+        totalPrice: bookingComplete.amount,
+        paymentId: 1,
+        arrivedAt: bookingComplete.arrivedAt,
+        childrenIds: bookingComplete.childrenList.map(child => child.childId) || [],
+        vaccineIds: bookingComplete.vaccineList.map(vaccine => vaccine.id) || [],
+        vaccineComboIds: bookingComplete.comboList.map(combo => combo.id) || [],
+        bookingID: bookingComplete.id   
       }
-      const response = await api.put(`${url}/Booking/${bookingId}`, value);
+      const response = await api.post(`${url}/Booking/add-booking-by-staff`, value);
       if (response.status === 200) {
       setAppointments(prevAppointments =>
         prevAppointments.map(appointment =>
-          appointment.id === bookingId
+          appointment.id === bookingComplete.id
             ? { ...appointment, status: "Success" }
             : appointment
         )
       );
       setIsModalConfirmOpen(false)
+      setIsModalOpen(false)
       toast.success("Booking marked as completed!");
       }
 
@@ -116,6 +142,8 @@ const BookingManagementPage = () => {
     } catch (error) {
       setIsModalConfirmOpen(false)
       toast.error("Error marking booking as completed!");
+    } finally {
+      setLoading(false)
     }
 
   };
@@ -141,7 +169,6 @@ const BookingManagementPage = () => {
         });
 
         if (response.status === 200) {
-          // Cập nhật trạng thái booking sau khi hoàn tiền thành công
           setAppointments(prevAppointments =>
             prevAppointments.map(appointment =>
               appointment.id === bookingId ? { ...appointment, status: "refunded" } : appointment
@@ -289,7 +316,7 @@ const BookingManagementPage = () => {
                         </button>
                       </div>
                     ) : (
-                      appointment?.status.toLowerCase() === "success" &&
+                      appointment?.status.toLowerCase() === "success" && appointment?.paymentMethod.toLowerCase() === "momo" &&
                      ( 
                         <button
                           onClick={() => handleRefundBooking(appointment.id)}
@@ -455,6 +482,7 @@ const BookingManagementPage = () => {
                           <span className="font-medium text-gray-500">Phone Number:</span>
                           <span className="font-medium">{selectedBooking.phoneNumber}</span>
                         </div>
+                      
                       </div>
                     </div>
 
@@ -593,16 +621,14 @@ const BookingManagementPage = () => {
                 {selectedBooking && selectedBooking.status === "Pending" && (
                   <button
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-150 focus:ring-2 focus:ring-green-400 mr-3"
-                    onClick={() => {
-                      handleCompleteBooking(selectedBooking.id)
-                      setIsModalOpen(false)
-                    }}
+                    onClick={() => 
+                      handleCompleteBooking(selectedBooking)}
                   >
                     <div className="flex items-center">
                       <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                       </svg>
-                      Complete Booking
+                     {loading ? "Loading..." : "Complete Booking"}
                     </div>
                   </button>
                 )}
@@ -617,7 +643,7 @@ const BookingManagementPage = () => {
           appointment={editingBooking}
           onSave={handleSaveBookingChanges}
           onCancel={() => setIsEditModalOpen(false)}
-          
+          loading={loading}
         />
       )}
       {
@@ -634,8 +660,9 @@ const BookingManagementPage = () => {
           <ModalConfirm
             title="Confirm Complete Booking"
             message="Are you sure you want to complete this booking?"
-            handleConfirm={() => handleCompleteBooking(selectedBooking.id)}
+            handleConfirm={() => handleCompleteBooking(selectedBooking)}
             handleCancel={() => setIsModalConfirmOpen(false)}
+            loading={loading}
           />
         )
       }

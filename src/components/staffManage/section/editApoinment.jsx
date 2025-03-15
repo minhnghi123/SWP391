@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import useAxios from "../../../utils/useAxios";
-
+import ToUpperCase  from '../../../utils/upperCaseFirstLetter'
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const EditAppointment = ({ appointment, onSave, onCancel }) => {
@@ -16,15 +16,10 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
       setEditedBooking({
         ...appointment,
         vaccineList: appointment.vaccineList || [],
-        vaccineComboList: appointment.vaccineComboList || []
+        comboList: appointment.comboList || []
       });
 
-      setSelectedChildren(
-        appointment.childrenList?.map((child) => ({
-          ...child,
-          age: child.age || 15 // Fallback age if not provided
-        })) || []
-      );
+      setSelectedChildren(appointment.childrenList)
     }
   }, [appointment]);
 
@@ -77,6 +72,7 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
       onSave(editedBooking);
     }
   };
+
 
   // Check vaccine suitability
   const isVaccineSuitableForAnyChild = (vaccine) => {
@@ -142,11 +138,18 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
                     <span className="font-medium text-gray-500">Parent Name:</span> {editedBooking.parentName}
                   </p>
                 )}
-                {editedBooking.phoneNumber && (
+                {/* {editedBooking.phoneNumber !== undefined && (
                   <p className="text-gray-700">
                     <span className="font-medium text-gray-500">Phone Number:</span> {editedBooking.phoneNumber}
                   </p>
-                )}
+                )} */}
+                {
+                  editedBooking.advisoryDetail && (
+                    <p className="text-gray-700">
+                      <span className="font-medium text-gray-500">Advitory:</span> {ToUpperCase(editedBooking.advisoryDetail)}
+                    </p>
+                  )
+                }
               </div>
             </div>
 

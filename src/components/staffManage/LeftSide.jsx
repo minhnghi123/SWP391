@@ -87,16 +87,16 @@ const LeftSide = ({ isOpen, setIsOpen }) => {
       {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          className="fixed inset-0 bg-black bg-opacity-50 "
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div 
-        className={`${isOpen ? (isMobile ? 'translate-x-0 w-72' : 'w-72') : 'w-20'} 
+        className={`${isOpen ? (isMobile ? 'translate-x-0 w-72 ' : 'w-72') : 'w-20'} 
           fixed h-screen bg-white border-r border-gray-200 shadow-lg flex flex-col 
-          transition-all duration-300 ease-in-out z-30
+          transition-all duration-300 ease-in-out 
           ${isMobile && !isOpen ? '-translate-x-full' : ''}`}
       >
         {/* Logo Section */}
@@ -119,7 +119,7 @@ const LeftSide = ({ isOpen, setIsOpen }) => {
           {!isMobile && (
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-full hover:bg-gray-100"
+              className=" p-2 rounded-full hover:bg-gray-100"
             >
               {isOpen ? <ChevronLeftIcon /> : <MenuIcon />}
             </button>

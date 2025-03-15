@@ -5,14 +5,14 @@ import HeaderLeftSide from "./eachComponentStage1/leftSide/HeaderLeftSide";
 import ChildrenList from "./eachComponentStage1/leftSide/ChildrenList";
 import FormAddChildren from "./eachComponentStage1/leftSide/formAddChildren";
 import ChildCard from "./eachComponentStage1/rightSide/ChildCard";
-import ChooseDateVaccination from "./eachComponentStage1/rightSide/ChooseDateVaccination,";
+import ChooseDateVaccination from "./eachComponentStage1/rightSide/ChooseDateVaccination";
 import FormAdvitory_detail from "./eachComponentStage1/rightSide/FormAdvitory_detail";
 import NoSelectChildren from "./eachComponentStage1/rightSide/NoSelectChildren";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../../utils/useAxios";
 import CalculateAge from "../../utils/calculateYearOld";
-
+import { toast } from "react-toastify";
 const url = import.meta.env.VITE_BASE_URL_DB
 export default function Stage1Payment({ id }) {
   const api = useAxios()
@@ -34,17 +34,15 @@ export default function Stage1Payment({ id }) {
   const [inputAdvisory, setInputAdvisory] = useState("");
   const listVaccine = useSelector((state) => state.vaccine.listVaccine);
   const listComboVaccine = useSelector((state) => state.vaccine.listComboVaccine);
-
+  const [trigger, setTrigger] = useState(false)
   const [checkSent, setSent] = useState(false);
-  const [inputDat, setData] = useState({
-    parentID: id || "",
-    id: "",
+  const [inputData, setData] = useState({
+    parentId: id || "",
     name: "",
     dateOfBirth: "",
     gender: "",
-    status: true,
-    createDate: "",
   });
+
 
 
   useEffect(() => {
@@ -52,33 +50,82 @@ export default function Stage1Payment({ id }) {
   }, []);
   useEffect(() => {
     if (!id) return;
-
     const getUserData = async () => {
       setLoading(true);
       setErr(null);
-
       try {
         // Fetch user data
-        const response = await api.get(`${url}/User/get-user-by-id/${id}`)
-        if (response.status === 200) {
-          setUser(response.data);
+        const [user, child] = await Promise.all([
+          api.get(`${url}/User/get-user-by-id/${id}`),
+          api.get(`${url}/Child/get-child-by-parents-id/${id}`)
+        ])
+        if (user.status === 200) {
+          setUser(user.data.user)
+        }
+        if (child.status === 200) {
+          setChild(child.data)
         }
 
-        // Fetch child data
-        const res = await api.get(`${url}/Child/get-child-by-parents-id/${id}`)
-        if (res.status === 200) {
-          setChild(res.data);
-        }
       } catch (error) {
 
         setErr("Fetch failed");
       } finally {
         setLoading(false);
       }
+
     };
 
     getUserData();
-  }, [id]);
+  }, [id, trigger]);
+  //create child
+  const handleOnchange = (e) => {
+    const { name, value } = e.target
+    setData({ ...inputData, [name]: value })
+
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErr(null);
+    setLoading(true);
+
+    if (!inputData.name || !inputData.dateOfBirth || !inputData.gender) {
+      setErr("Please enter all fields");
+      setLoading(false);
+      return;
+    }
+
+    const dateOfBirthISO = inputData.dateOfBirth instanceof Date
+      ? inputData.dateOfBirth.toISOString()
+      : new Date(inputData.dateOfBirth).toISOString();
+
+    try {
+      const value = {
+        parentId: id,
+        name: inputData.name,
+        dateOfBirth: dateOfBirthISO,
+        gender: inputData.gender === 'Male' ? 0 : 1,
+      };
+
+
+      const response = await api.post(`${url}/Child/create-child`, value);
+      if (response.status === 200) {
+        toast.success("Create child successfully")
+        setTrigger(prev => !prev)
+        setIsOpenFirst(false);
+        setData({
+          name: "",
+          dateOfBirth: "",
+          gender: "",
+        })
+      }
+    } catch (error) {
+      console.error("Error:", error.response ? error.response.data : error);
+      setErr(error.response?.data?.message || "Create child failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleInputAdvisory = (e) => {
@@ -102,71 +149,40 @@ export default function Stage1Payment({ id }) {
   const handleAddChildren = (child) => {
     dispatch(
       childAction.chooseChildren({
-        parentID: user.id,
         ...child,
+        parentID: id,
       })
     );
   };
 
-  console.log(listChildren) 
-  console.log(listVaccine)
-  console.log(listComboVaccine)
 
-  const handleChange = (e) => {
-    dispatch(childAction.handleOnChange({ name: e.target.name, value: e.target.value }));
-  };
 
-  //add new children
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!inputDat.name || !inputDat.dateOfBirth) return alert("Vui lòng nhập đủ thông tin!");
-    setData({ parentID: user.id, id: "", name: "", dateOfBirth: "", gender: "", status: true });
-    setIsOpenFirst(false);
-  };
-  //check 
+  //check vaccine suitable for any child
   const isVaccineSuitableForAnyChild = (childToCheck) => {
-    if (!childToCheck) {
-      // If no child is provided, check if any child in the list is suitable
-      if (!listChildren.length) return true;
-      return listChildren.some(child => {
-        const childAge = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
-        return listVaccine.some(vaccine => {
-          return childAge >= vaccine.minAge && childAge <= vaccine.maxAge;
-        });
-      });
-    } else {
-      // Check if the specific child is suitable
-      const childAge = parseInt(CalculateAge(childToCheck.dateOfBirth).split(" ")[0], 10);
-      return listVaccine.some(vaccine => {
-        return childAge >= vaccine.suggestAgeMin && childAge <= vaccine.suggestAgeMax;
-      });
-    }
-  };
+    if (!childToCheck || !childToCheck.dateOfBirth) return false; 
 
+    const ageString = CalculateAge(childToCheck.dateOfBirth);
+    const age = parseInt(ageString.split(" ")[0], 10); 
+
+    if (isNaN(age)) return false; // Nếu age không hợp lệ, trả về false
+
+    return listVaccine?.some(vaccine => age >= vaccine.minAge && age <= vaccine.maxAge) || false;
+  };
 
   // Check combo suitability
   const isComboSuitableForAnyChild = (childToCheck) => {
-    if (!childToCheck) {
-      // If no child is provided, check if any child in the list is suitable
-      if (!listChildren.length) return true;
-      return listChildren.some(child => {
-        const Age = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
-        return listComboVaccine.some(combo => {
-          return combo.vaccines.every(vaccine => {
-            return Age >= vaccine.suggestAgeMin && Age <= vaccine.suggestAgeMax;
-          });
-        });
-      });
-    } else {
-      // Check if the specific child is suitable
-      const Age = parseInt(CalculateAge(childToCheck.dateOfBirth).split(" ")[0], 10);
-      return listComboVaccine.some(combo => {
-        return combo.vaccines.every(vaccine => {
-          return Age >= vaccine.suggestAgeMin && Age <= vaccine.suggestAgeMax;
-        });
-      });
-    }
+    if (!childToCheck || !childToCheck.dateOfBirth) return false;
+
+    const ageString = CalculateAge(childToCheck.dateOfBirth);
+    const age = parseInt(ageString.split(" ")[0], 10);
+
+    if (isNaN(age)) return false;
+
+    return listComboVaccine?.some(combo =>
+      combo.vaccines.every(vaccine => age >= vaccine.suggestAgeMin && age <= vaccine.suggestAgeMax)
+    ) || false;
   };
+
 
   return (
 
@@ -174,7 +190,7 @@ export default function Stage1Payment({ id }) {
     <div className="max-w-[1400px] my-10 mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col lg:flex-row gap-8 justify-center">
         <div className="w-full lg:w-[550px] space-y-8">
-          <HeaderLeftSide user={user?.user} />
+          <HeaderLeftSide user={user} />
           <ChildrenList
             child={child}
             listChildren={listChildren}
@@ -184,8 +200,12 @@ export default function Stage1Payment({ id }) {
             isVaccineSuitableForAnyChild={isVaccineSuitableForAnyChild}
             isComboSuitableForAnyChild={isComboSuitableForAnyChild}
           />
-          {isOpenFirst && <FormAddChildren handleOnchange={handleChange} handleSubmit={handleSubmit} />}
+          {isOpenFirst && <FormAddChildren handleOnchange={handleOnchange} handleSubmit={handleSubmit} err={err} />}
         </div>
+
+
+
+
         <div className="w-full lg:w-[650px] space-y-6">
           <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 sticky top-6">
             {listChildren.length > 0 ? (
@@ -201,7 +221,7 @@ export default function Stage1Payment({ id }) {
                       key={child.id}
                       child={child}
                       handleRemove={() => handleRemove(child.id)}
-                      parentName={user?.user?.name}
+                      parentName={user?.name}
                       isVaccineSuitableForAnyChild={isVaccineSuitableForAnyChild}
                       isComboSuitableForAnyChild={isComboSuitableForAnyChild}
                     />

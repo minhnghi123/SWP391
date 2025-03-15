@@ -11,9 +11,10 @@ import NoSelectChildren from "./eachComponentStage1/rightSide/NoSelectChildren";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../../utils/useAxios";
+import CalculateAge from "../../utils/calculateYearOld";
 
 const url = import.meta.env.VITE_BASE_URL_DB
-export default function Stage1Payment({id}) {
+export default function Stage1Payment({ id }) {
   const api = useAxios()
   const navigate = useNavigate()
 
@@ -31,6 +32,8 @@ export default function Stage1Payment({id}) {
   const [child, setChild] = useState(null);
   const [isOpenFirst, setIsOpenFirst] = useState(false);
   const [inputAdvisory, setInputAdvisory] = useState("");
+  const listVaccine = useSelector((state) => state.vaccine.listVaccine);
+  const listComboVaccine = useSelector((state) => state.vaccine.listComboVaccine);
 
   const [checkSent, setSent] = useState(false);
   const [inputDat, setData] = useState({
@@ -62,12 +65,12 @@ export default function Stage1Payment({id}) {
         }
 
         // Fetch child data
-      const res = await api.get(`${url}/Child/get-child-by-parents-id/${id}`)
+        const res = await api.get(`${url}/Child/get-child-by-parents-id/${id}`)
         if (res.status === 200) {
           setChild(res.data);
         }
       } catch (error) {
-       
+
         setErr("Fetch failed");
       } finally {
         setLoading(false);
@@ -105,6 +108,9 @@ export default function Stage1Payment({id}) {
     );
   };
 
+  console.log(listChildren) 
+  console.log(listVaccine)
+  console.log(listComboVaccine)
 
   const handleChange = (e) => {
     dispatch(childAction.handleOnChange({ name: e.target.name, value: e.target.value }));
@@ -117,65 +123,113 @@ export default function Stage1Payment({id}) {
     setData({ parentID: user.id, id: "", name: "", dateOfBirth: "", gender: "", status: true });
     setIsOpenFirst(false);
   };
+  //check 
+  const isVaccineSuitableForAnyChild = (childToCheck) => {
+    if (!childToCheck) {
+      // If no child is provided, check if any child in the list is suitable
+      if (!listChildren.length) return true;
+      return listChildren.some(child => {
+        const childAge = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
+        return listVaccine.some(vaccine => {
+          return childAge >= vaccine.minAge && childAge <= vaccine.maxAge;
+        });
+      });
+    } else {
+      // Check if the specific child is suitable
+      const childAge = parseInt(CalculateAge(childToCheck.dateOfBirth).split(" ")[0], 10);
+      return listVaccine.some(vaccine => {
+        return childAge >= vaccine.suggestAgeMin && childAge <= vaccine.suggestAgeMax;
+      });
+    }
+  };
+
+
+  // Check combo suitability
+  const isComboSuitableForAnyChild = (childToCheck) => {
+    if (!childToCheck) {
+      // If no child is provided, check if any child in the list is suitable
+      if (!listChildren.length) return true;
+      return listChildren.some(child => {
+        const Age = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
+        return listComboVaccine.some(combo => {
+          return combo.vaccines.every(vaccine => {
+            return Age >= vaccine.suggestAgeMin && Age <= vaccine.suggestAgeMax;
+          });
+        });
+      });
+    } else {
+      // Check if the specific child is suitable
+      const Age = parseInt(CalculateAge(childToCheck.dateOfBirth).split(" ")[0], 10);
+      return listComboVaccine.some(combo => {
+        return combo.vaccines.every(vaccine => {
+          return Age >= vaccine.suggestAgeMin && Age <= vaccine.suggestAgeMax;
+        });
+      });
+    }
+  };
 
   return (
-   
-
-      <div className="max-w-[1400px] my-10 mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-8 justify-center">
-          <div className="w-full lg:w-[550px] space-y-8">
-            <HeaderLeftSide user={user?.user} />
-            <ChildrenList
-             child={child}
-              listChildren={listChildren}
-              handleAddChildren={handleAddChildren}
-              isOpenFirst={isOpenFirst}
-              setIsOpenFirst={setIsOpenFirst}
-            />
-            {isOpenFirst && <FormAddChildren handleOnchange={handleChange} handleSubmit={handleSubmit} />}
-          </div>
-          <div className="w-full lg:w-[650px] space-y-6">
-            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 sticky top-6">
-              {listChildren.length > 0 ? (
-                <>
-                  <ChooseDateVaccination
-                    arriveDate={arriveDate}
 
 
-                  />
-                  <div className="space-y-1 border-gray-200 border-b mb-5">
-                    {listChildren.map((child) => (
-                      <ChildCard
-                        key={child.id}
-                        child={child}
-                        handleRemove={() => handleRemove(child.id)}
-                        parentName={user?.user?.name}
-                      />
-                    ))}
-                  </div>
-                  <FormAdvitory_detail
-                    advitory={advitory}
-                    inputAdvisory={inputAdvisory}
-                    setInputAdvisory={setInputAdvisory}
-                    checkSent={checkSent}
-                    handleInputAdvisory={handleInputAdvisory}
-                    resetForm={resetForm}
-                  />
-                  <button
-                    onClick={arriveDate !== null ? ()=>navigate(`/payment/${id}`) : undefined}
-                    className={`w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-lg transition-all duration-300 ${arriveDate !== null ? "hover:from-teal-600 hover:to-teal-700" : "pointer-events-none opacity-50"
-                      }`}
-                  >
-                    Proceed to Payment
-                  </button>
-                </>
-              ) : (
-                <NoSelectChildren />
-              )}
-            </div>
+    <div className="max-w-[1400px] my-10 mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col lg:flex-row gap-8 justify-center">
+        <div className="w-full lg:w-[550px] space-y-8">
+          <HeaderLeftSide user={user?.user} />
+          <ChildrenList
+            child={child}
+            listChildren={listChildren}
+            handleAddChildren={handleAddChildren}
+            isOpenFirst={isOpenFirst}
+            setIsOpenFirst={setIsOpenFirst}
+            isVaccineSuitableForAnyChild={isVaccineSuitableForAnyChild}
+            isComboSuitableForAnyChild={isComboSuitableForAnyChild}
+          />
+          {isOpenFirst && <FormAddChildren handleOnchange={handleChange} handleSubmit={handleSubmit} />}
+        </div>
+        <div className="w-full lg:w-[650px] space-y-6">
+          <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 sticky top-6">
+            {listChildren.length > 0 ? (
+              <>
+                <ChooseDateVaccination
+                  arriveDate={arriveDate}
+
+
+                />
+                <div className="space-y-1 border-gray-200 border-b mb-5">
+                  {listChildren.map((child) => (
+                    <ChildCard
+                      key={child.id}
+                      child={child}
+                      handleRemove={() => handleRemove(child.id)}
+                      parentName={user?.user?.name}
+                      isVaccineSuitableForAnyChild={isVaccineSuitableForAnyChild}
+                      isComboSuitableForAnyChild={isComboSuitableForAnyChild}
+                    />
+                  ))}
+                </div>
+                <FormAdvitory_detail
+                  advitory={advitory}
+                  inputAdvisory={inputAdvisory}
+                  setInputAdvisory={setInputAdvisory}
+                  checkSent={checkSent}
+                  handleInputAdvisory={handleInputAdvisory}
+                  resetForm={resetForm}
+                />
+                <button
+                  onClick={arriveDate !== null ? () => navigate(`/payment/${id}`) : undefined}
+                  className={`w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-lg transition-all duration-300 ${arriveDate !== null ? "hover:from-teal-600 hover:to-teal-700" : "pointer-events-none opacity-50"
+                    }`}
+                >
+                  Proceed to Payment
+                </button>
+              </>
+            ) : (
+              <NoSelectChildren />
+            )}
           </div>
         </div>
       </div>
- 
+    </div>
+
   );
 }

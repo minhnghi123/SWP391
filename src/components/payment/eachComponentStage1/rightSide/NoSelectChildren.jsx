@@ -1,6 +1,6 @@
 const NoSelectChildren = () => {
     return (
-        <div className="text-center py-12 bg-white rounded-3xl shadow-lg border border-gray-100">
+        <div className="text-center py-12 bg-white rounded-3xl ">
             <div className="w-16 h-16 bg-[#E8F5F6] rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-[#00a0aa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"

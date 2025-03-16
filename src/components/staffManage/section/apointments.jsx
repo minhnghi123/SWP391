@@ -73,38 +73,26 @@ const BookingManagementPage = () => {
   };
 
   const handleSaveBookingChanges = async (updatedBooking) => {
-    
+    setLoading(true)
     try {
-        const totalPrice = updatedBooking.vaccineList.reduce((acc, vaccine) => acc + vaccine.price, 0) + updatedBooking.comboList.reduce((acc, combo) => acc + combo.price, 0)
+      const totalPrice = updatedBooking.vaccineList.reduce((acc, vaccine) => acc + vaccine.price, 0) + updatedBooking.comboList.reduce((acc, combo) => acc + combo.price, 0)
       const value = {
-        parentId: updatedBooking.parentId,
-        advisoryDetail: updatedBooking.advisoryDetail,
-        amount: totalPrice,
-        arrivedAt: updatedBooking.arrivedAt,
-        paymentId: updatedBooking.paymentId,
-        childrenIds: updatedBooking.childrenIds.map(child => child.id),
-        vaccineIds: updatedBooking.vaccineList.map(vaccine => vaccine.id),
-        vaccineComboIds: updatedBooking.comboList.map(combo => combo.id),
-
-        
-
+        bookingId: updatedBooking.id,
+        vaccinesList: updatedBooking.vaccineList.map(vaccine => vaccine.id),
+        vaccinesCombo: updatedBooking.comboList.map(combo => combo.id),
+       
       }
-      // const response = await api.put(`${url}/Booking/${updatedBooking.id}`, );
-
-      // if (response.status === 200) {
-      //   toast.success("Update booking successfully!");
-
-      //   // Nếu bạn có state bookings, cập nhật lại dữ liệu
-      //   setBookings((prev) =>
-      //     prev.map((booking) =>
-      //       booking.id === updatedBooking.id ? { ...booking, ...updatedBooking } : booking
-      //     )
-      //   );
-
-
-      // }
+      // console.log(value);
+      const res = await api.patch(`${url}/Booking/update-booking-details`, value);
+      if (res.status === 200) {
+        toast.success("Update booking successfully!");
+        setIsEditModalOpen(false);
+        setTrigger(true);
+      }
     } catch (error) {
       toast.error("Update booking failed!");
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -121,20 +109,20 @@ const BookingManagementPage = () => {
         childrenIds: bookingComplete.childrenList.map(child => child.childId) || [],
         vaccineIds: bookingComplete.vaccineList.map(vaccine => vaccine.id) || [],
         vaccineComboIds: bookingComplete.comboList.map(combo => combo.id) || [],
-        bookingID: bookingComplete.id   
+        bookingID: bookingComplete.id
       }
       const response = await api.post(`${url}/Booking/add-booking-by-staff`, value);
       if (response.status === 200) {
-      setAppointments(prevAppointments =>
-        prevAppointments.map(appointment =>
-          appointment.id === bookingComplete.id
-            ? { ...appointment, status: "Success" }
-            : appointment
-        )
-      );
-      setIsModalConfirmOpen(false)
-      setIsModalOpen(false)
-      toast.success("Booking marked as completed!");
+        setAppointments(prevAppointments =>
+          prevAppointments.map(appointment =>
+            appointment.id === bookingComplete.id
+              ? { ...appointment, status: "Success" }
+              : appointment
+          )
+        );
+        setIsModalConfirmOpen(false)
+        setIsModalOpen(false)
+        toast.success("Booking marked as completed!");
       }
 
 
@@ -159,6 +147,7 @@ const BookingManagementPage = () => {
 
 
   const handleRefundBooking = async (bookingId) => {
+    setLoading(true)
     try {
       const checkFirstDose = tracking.find(item => item.bookingId === bookingId && item.previousVaccination === 0 && item.status.toLowerCase() === "success")
       const refundPercentage = checkFirstDose ? 0 : 1;
@@ -182,6 +171,8 @@ const BookingManagementPage = () => {
     } catch (error) {
       console.error("Refund error:", error);
       toast.error("Refund failed. Please try again.");
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -317,7 +308,7 @@ const BookingManagementPage = () => {
                       </div>
                     ) : (
                       appointment?.status.toLowerCase() === "success" && appointment?.paymentMethod.toLowerCase() === "momo" &&
-                     ( 
+                      (
                         <button
                           onClick={() => handleRefundBooking(appointment.id)}
                           className="flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition duration-150"
@@ -336,7 +327,7 @@ const BookingManagementPage = () => {
                               d="M15 19l-7-7 7-7"
                             ></path>
                           </svg>
-                          Refund
+                          {loading ? "Refunding..." : "Refund"}
                         </button>
                       )
                     )}
@@ -482,7 +473,7 @@ const BookingManagementPage = () => {
                           <span className="font-medium text-gray-500">Phone Number:</span>
                           <span className="font-medium">{selectedBooking.phoneNumber}</span>
                         </div>
-                      
+
                       </div>
                     </div>
 
@@ -621,14 +612,14 @@ const BookingManagementPage = () => {
                 {selectedBooking && selectedBooking.status === "Pending" && (
                   <button
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-150 focus:ring-2 focus:ring-green-400 mr-3"
-                    onClick={() => 
+                    onClick={() =>
                       handleCompleteBooking(selectedBooking)}
                   >
                     <div className="flex items-center">
                       <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                       </svg>
-                     {loading ? "Loading..." : "Complete Booking"}
+                      {loading ? "Loading..." : "Complete Booking"}
                     </div>
                   </button>
                 )}

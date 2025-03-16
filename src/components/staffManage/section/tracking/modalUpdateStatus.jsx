@@ -69,17 +69,7 @@ const ModalUpdateStatus = ({ newStatus, setNewStatus, isStatusModalOpen, setIsSt
                         )}
 
                         {/* Nếu trạng thái hiện tại là "success" */}
-                        {selectedRecord?.status.toLowerCase() === "success" && (
-                            <RadioGroup value={newStatus} onValueChange={setNewStatus} className="space-y-3">
-                                <div className="flex items-center space-x-2 border border-blue-100 p-3 rounded-md hover:bg-blue-50/50">
-                                    <RadioGroupItem value="cancel" id="status-cancelled" className="text-blue-600" />
-                                    <Label htmlFor="status-cancel" className="flex items-center">
-                                        <X className="h-4 w-4 text-red-600 mr-2" />
-                                        <span>Cancel</span>
-                                    </Label>
-                                </div>
-                            </RadioGroup>
-                        )}
+                        
                     </div>
                 )}
 

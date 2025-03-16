@@ -5,12 +5,12 @@ import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNone
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MenuIcon from "@mui/icons-material/Menu";
-import TrackingStaff from "./section/trackingStaff";
+import TrackingStaff from "./section/tracking/trackingStaff";
 import imgAvatar from '../../assets/p15.jpg'
 
 import Dashboard from "../staffManage/section/dashboardStaff";
 import ManageVaccine from "../staffManage/section/manageVaccine";
-import Appointments from "./section/apointments";
+import Appointments from "./section/appoinment/apointments";
 import AvatarHomePage from "../home/avatarHomePage";
 import LeftSide from "./LeftSide";
 
@@ -101,7 +101,7 @@ const RightSide = () => {
         }`}
       >
         {/* Top Bar */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+        <div className="sticky top-0  bg-white border-b border-gray-200 shadow-sm">
           <div className="px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
               {/* Left side - Menu Toggle & Page Title */}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import AddVaccine from "../../staffManage/CRUD/addVaccine";
+import AddVaccineComponent from "../../staffManage/CRUD/addVaccine";
 import DeleteVaccine from "../../staffManage/CRUD/deleteVaccine";
 import Pagination from "../../../utils/pagination";
 import VaccineDetails from "../../staffManage/vaccine/detailVaccine";
@@ -121,7 +120,7 @@ const VaccineList = () => {
       <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <h1 className="text-2xl font-bold text-gray-900">Vaccine List</h1>
-          <AddVaccine onAddSuccess={handleAddSuccess} />
+          <AddVaccineComponent onAddSuccess={handleAddSuccess} />
         </div>
 
         <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">

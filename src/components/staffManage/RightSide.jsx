@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
-
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";

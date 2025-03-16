@@ -7,7 +7,7 @@ import AddStaff from "../CRUD/addStaff";
 import UpdateUser from "../CRUD/updateUser";
 import { ToastContainer } from "react-toastify";
 import useAxios from "../../../utils/useAxios";
-import AddChildren from "../CRUD/addChild"; // Component mới để thêm children
+import AddChildren from "../CRUD/addChild";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -19,10 +19,10 @@ const UserManagement = () => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showAddStaffForm, setShowAddStaffForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
-  const [expandedUserId, setExpandedUserId] = useState(null); // Theo dõi user nào được mở rộng
-  const [childrenData, setChildrenData] = useState({}); // Lưu children theo userId
-  const [showAddChildrenForm, setShowAddChildrenForm] = useState(false); // State cho form add children
-  const [selectedUser, setSelectedUser] = useState(null); // User được chọn để update hoặc add children
+  const [expandedUserId, setExpandedUserId] = useState(null);
+  const [childrenData, setChildrenData] = useState({});
+  const [showAddChildrenForm, setShowAddChildrenForm] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const api = useAxios();
@@ -96,28 +96,61 @@ const UserManagement = () => {
 
   const handleExpandUser = async (user) => {
     if (expandedUserId === user.id) {
-      setExpandedUserId(null); // Thu gọn nếu đã mở
+      setExpandedUserId(null);
+      setError(null);
     } else {
       try {
         setLoading(true);
-        const response = await api.get(`${url}/Child/get-child-by-parents-id/${user.id}`); // Giả định endpoint này
+        const response = await api.get(`${url}/Child/get-child-by-parents-id/${user.id}`);
         setChildrenData((prev) => ({
           ...prev,
           [user.id]: response.data || [],
         }));
         setExpandedUserId(user.id);
-        setSelectedUser(user); // Lưu user để dùng cho Add/Update
+        setSelectedUser(user);
+        setError(null);
       } catch (error) {
         console.error("Error fetching children:", error);
-        setError("Failed to fetch children data.");
+        if (error.response?.status === 404) {
+          setChildrenData((prev) => ({
+            ...prev,
+            [user.id]: [],
+          }));
+          setExpandedUserId(user.id);
+          setSelectedUser(user);
+          setError(null);
+        } else {
+          setError("Failed to fetch children data.");
+        }
       } finally {
         setLoading(false);
       }
     }
   };
 
+  // Callback để refresh children sau khi update
+  const refreshChildren = async (userId) => {
+    try {
+      const response = await api.get(`${url}/Child/get-child-by-parents-id/${userId}`);
+      setChildrenData((prev) => ({
+        ...prev,
+        [userId]: response.data || [],
+      }));
+    } catch (error) {
+      console.error("Error refreshing children:", error);
+      if (error.response?.status === 404) {
+        setChildrenData((prev) => ({
+          ...prev,
+          [userId]: [],
+        }));
+      } else {
+        setError("Failed to refresh children data.");
+      }
+    }
+  };
+
   const handleAddChildrenSuccess = () => {
-    handleExpandUser(selectedUser); // Refresh children sau khi thêm
+    handleExpandUser(selectedUser);
     setShowAddChildrenForm(false);
   };
 
@@ -266,7 +299,10 @@ const UserManagement = () => {
                         <td colSpan="10" className="px-4 py-4 bg-gray-50">
                           <div className="ml-12">
                             <div className="flex gap-4 mb-4">
-                              <AddChildren onAddSuccess={handleAddChildrenSuccess} />
+                              <AddChildren
+                                userId={user.id}
+                                onAddSuccess={handleAddChildrenSuccess}
+                              />
                               <button
                                 onClick={() => handleUpdateClick(user)}
                                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center gap-2"
@@ -275,18 +311,18 @@ const UserManagement = () => {
                                 Update User
                               </button>
                             </div>
-                            {childrenData[user.id]?.length > 0 ? (
-                              <table className="w-full border-collapse">
-                                <thead>
-                                  <tr className="bg-gray-100">
-                                    <th className="p-2 text-left text-sm font-semibold text-gray-600">ID</th>
-                                    <th className="p-2 text-left text-sm font-semibold text-gray-600">Name</th>
-                                    <th className="p-2 text-left text-sm font-semibold text-gray-600">DOB</th>
-                                    <th className="p-2 text-left text-sm font-semibold text-gray-600">Gender</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {childrenData[user.id].map((child) => (
+                            <table className="w-full border-collapse">
+                              <thead>
+                                <tr className="bg-gray-100">
+                                  <th className="p-2 text-left text-sm font-semibold text-gray-600">ID</th>
+                                  <th className="p-2 text-left text-sm font-semibold text-gray-600">Name</th>
+                                  <th className="p-2 text-left text-sm font-semibold text-gray-600">DOB</th>
+                                  <th className="p-2 text-left text-sm font-semibold text-gray-600">Gender</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {childrenData[user.id]?.length > 0 ? (
+                                  childrenData[user.id].map((child) => (
                                     <tr key={child.id} className="border-b">
                                       <td className="p-2 text-sm text-gray-600">{child.id}</td>
                                       <td className="p-2 text-sm text-gray-600">{child.name}</td>
@@ -297,12 +333,16 @@ const UserManagement = () => {
                                         {child.gender === 0 ? "Male" : child.gender === 1 ? "Female" : "Other"}
                                       </td>
                                     </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            ) : (
-                              <p className="text-gray-500">No children found for this user.</p>
-                            )}
+                                  ))
+                                ) : (
+                                  <tr>
+                                    <td colSpan="4" className="p-2 text-center text-gray-500">
+                                      This user has no children.
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
                           </div>
                         </td>
                       </tr>
@@ -346,6 +386,7 @@ const UserManagement = () => {
             user={selectedUser}
             onAddSuccess={handleAddSuccess}
             setShowForm={setShowUpdateForm}
+            refreshChildren={refreshChildren} // Truyền callback để refresh children
           />
         )}
       </div>

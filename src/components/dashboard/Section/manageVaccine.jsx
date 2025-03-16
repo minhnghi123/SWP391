@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import AddVaccineComponent from "../../staffManage/CRUD/addVaccine";
 import DeleteVaccine from "../../staffManage/CRUD/deleteVaccine";
 import Pagination from "../../../utils/pagination";
-import VaccineDetails from "../../staffManage/vaccine/detailVaccine";
+import VaccineDetails from "../../staffManage/section//vaccine/detailVaccine";
 import { ToastContainer } from "react-toastify";
 import {
   Search,
@@ -119,7 +119,7 @@ const VaccineList = () => {
       <ToastContainer />
       <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">Vaccine List</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Vaccine Inventory</h1>
           <AddVaccineComponent onAddSuccess={handleAddSuccess} />
         </div>
 
@@ -222,14 +222,16 @@ const VaccineList = () => {
                       <td className="px-4 py-4 text-sm text-gray-600">
                         {item.fromCountry}
                       </td>
-                      <td
-                        className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
-                          item.status.toLowerCase() === "available"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {item.status}
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
+                            item.status === "AVAILABLE"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {item.status || "UNKNOWN"}
+                        </span>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">

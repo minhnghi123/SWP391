@@ -6,19 +6,19 @@ const SummaryCard = ({ uniqueParents, totalVaccinations, uniqueChildren }) => {
         <div className="grid gap-4 md:grid-cols-3">
         <Card className="border-blue-100 bg-white shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-blue-600">Total Parents</CardTitle>
+            <CardTitle className="text-sm font-medium ">Total Parents</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <Users className="h-5 w-5 text-blue-500 mr-2" />
-              <div className="text-2xl font-bold text-blue-800">{uniqueParents}</div>
+              <Users className="h-5 w-5  mr-2" />
+              <div className="text-2xl font-bold">{uniqueParents}</div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-blue-100 bg-white shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-blue-600">Total Children</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Children</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
@@ -32,25 +32,25 @@ const SummaryCard = ({ uniqueParents, totalVaccinations, uniqueChildren }) => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-blue-500 mr-2"
+                className=" mr-2"
               >
                 <path d="M9 18h6"></path>
                 <path d="M10 22h4"></path>
                 <path d="m3 9 9-7 9 7v13H3V9z"></path>
               </svg>
-              <div className="text-2xl font-bold text-blue-800">{uniqueChildren}</div>
+              <div className="text-2xl font-bold ">{uniqueChildren}</div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-blue-100 bg-white shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-blue-600">Total Vaccinations</CardTitle>
+            <CardTitle className="text-sm font-medium ">Total Vaccinations</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <Syringe className="h-5 w-5 text-blue-500 mr-2" />
-              <div className="text-2xl font-bold text-blue-800">{totalVaccinations}</div>
+              <Syringe className="h-5 w-5 mr-2" />
+              <div className="text-2xl font-bold ">{totalVaccinations}</div>
             </div>
           </CardContent>
         </Card>

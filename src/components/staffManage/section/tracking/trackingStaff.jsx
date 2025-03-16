@@ -1,50 +1,14 @@
-import { format, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "../../../../utils/useAxios";
 import { toast } from "react-toastify";
-import ModalDetail from "./tracking/modalDetail";
-import DatePicker from "react-datepicker";
+import ModalDetail from "./modalDetail";
 import "react-datepicker/dist/react-datepicker.css";
-import ModalUpdateStatus from "./tracking/modalUpdateStatus";
-import CartTable from "./tracking/carttable";
-import SummaryCard from "./tracking/summartCard";
-import ModalReaction from "./tracking/modalReaction";
-import ModalChangeSchedule from "./tracking/modalChangeSchedule";
+import ModalUpdateStatus from "./modalUpdateStatus";
+import CartTable from "./carttable";
+import SummaryCard from "./summartCard";
+import ModalReaction from "./modalReaction";
+import ModalChangeSchedule from "./modalChangeSchedule";
 
-const datePickerStyles = `
-  .react-datepicker {
-    font-family: inherit;
-    border-radius: 0.5rem;
-    border: 1px solid #e2e8f0;
-  }
-  .react-datepicker__header {
-    background-color: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-    padding-top: 0.5rem;
-  }
-  .react-datepicker__day--selected {
-    background-color: #2563eb !important;
-    color: white !important;
-  }
-  .react-datepicker__day--keyboard-selected {
-    background-color: #bfdbfe !important;
-    color: #1e40af !important;
-  }
-  .react-datepicker__day:hover {
-    background-color: #eff6ff !important;
-  }
-  .react-datepicker__day--disabled {
-    color: #cbd5e1 !important;
-  }
-  .react-datepicker__navigation {
-    top: 0.5rem;
-  }
-  .react-datepicker__day {
-    border-radius: 0.375rem;
-  }
-`;
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -87,7 +51,7 @@ export function VaccinationTrackingDashboard() {
         if (vaccineRes.status === 200 && childRes.status === 200) {
           setData(vaccineRes.data);
           setChildData(childRes.data);
-          setFilteredData(vaccineRes.data);
+          setFilteredData(vaccineRes.data.filter(item => item.previousVaccination === 0));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -95,11 +59,15 @@ export function VaccinationTrackingDashboard() {
     };
     fetchData();
   }, []);
-
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
+  
   const sortData = (dataToSort) => {
     return [...dataToSort].sort((a, b) => {
       if (!sortField) return 0;
-      
+
       if (sortField === "status") {
         const statusOrder = { success: 1, schedule: 2, waiting: 3, cancel: 4 };
         const aValue = statusOrder[a.status.toLowerCase()] || 999;
@@ -150,14 +118,13 @@ export function VaccinationTrackingDashboard() {
     setStatus(newStatus);
   };
 
-  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+ 
 
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleViewDetails = (record) => {
@@ -245,8 +212,12 @@ export function VaccinationTrackingDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-blue-700">Vaccination Tracking Dashboard</h1>
       </div>
+
+      {/* summary */}
       <SummaryCard uniqueParents={uniqueParents} totalVaccinations={totalVaccinations} uniqueChildren={uniqueChildren} />
-      <CartTable 
+      
+      {/* table */}
+      <CartTable
         setSelectedRecord={setSelectedRecord}
         setIsReactionModalOpen={setIsReactionModalOpen}
         setIsChangeScheduleModalOpen={setIsChangeScheduleModalOpen}
@@ -269,12 +240,79 @@ export function VaccinationTrackingDashboard() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
-      <ModalDetail isDetailModalOpen={isDetailModalOpen} setIsDetailModalOpen={setIsDetailModalOpen} selectRecordArray={selectRecordArray} />
-      <ModalReaction reaction={reaction} isReactionModalOpen={isReactionModalOpen} setIsReactionModalOpen={setIsReactionModalOpen} selectedRecord={selectedRecord} handleReactionUpdate={handleReactionUpdate} setReaction={setReaction} />
-      <ModalUpdateStatus newStatus={newStatus} setNewStatus={setNewStatus} isStatusModalOpen={isStatusModalOpen} setIsStatusModalOpen={setIsStatusModalOpen} selectedRecord={selectedRecord} childData={childData} handleStatusUpdate={handleStatusUpdate} />
-      <ModalChangeSchedule setDate={setDate} selectedRecord={selectedRecord} childData={childData} date={date} handleScheduleChange={handleScheduleChange} showCalendar={showCalendar} isChangeScheduleModalOpen={isChangeScheduleModalOpen} setIsChangeScheduleModalOpen={setIsChangeScheduleModalOpen} />
+
+      {/* modal detail */}
+      <ModalDetail
+        isDetailModalOpen={isDetailModalOpen}
+        setIsDetailModalOpen={setIsDetailModalOpen}
+        selectRecordArray={selectRecordArray}
+      />
+
+      {/* modal Reaction */}
+      <ModalReaction
+        reaction={reaction}
+        isReactionModalOpen={isReactionModalOpen}
+        setIsReactionModalOpen={setIsReactionModalOpen}
+        selectedRecord={selectedRecord}
+        handleReactionUpdate={handleReactionUpdate} setReaction={setReaction}
+      />
+
+      {/* modal Update Status */}
+      <ModalUpdateStatus
+        newStatus={newStatus}
+        setNewStatus={setNewStatus}
+        isStatusModalOpen={isStatusModalOpen}
+        setIsStatusModalOpen={setIsStatusModalOpen}
+        selectedRecord={selectedRecord} childData={childData}
+        handleStatusUpdate={handleStatusUpdate} 
+        />
+
+      {/* modal Change Schedule */}
+      <ModalChangeSchedule
+        setDate={setDate}
+        selectedRecord={selectedRecord}
+        childData={childData}
+        date={date}
+        handleScheduleChange={handleScheduleChange}
+        showCalendar={showCalendar}
+        isChangeScheduleModalOpen={isChangeScheduleModalOpen}
+        setIsChangeScheduleModalOpen={setIsChangeScheduleModalOpen} 
+        />
     </div>
   );
 }
-
+const datePickerStyles = `
+  .react-datepicker {
+    font-family: inherit;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+  .react-datepicker__header {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    padding-top: 0.5rem;
+  }
+  .react-datepicker__day--selected {
+    background-color: #2563eb !important;
+    color: white !important;
+  }
+  .react-datepicker__day--keyboard-selected {
+    background-color: #bfdbfe !important;
+    color: #1e40af !important;
+  }
+  .react-datepicker__day:hover {
+    background-color: #eff6ff !important;
+  }
+  .react-datepicker__day--disabled {
+    color: #cbd5e1 !important;
+  }
+  .react-datepicker__navigation {
+    top: 0.5rem;
+  }
+  .react-datepicker__day {
+    border-radius: 0.375rem;
+  }
+`;
 export default VaccinationTrackingDashboard;

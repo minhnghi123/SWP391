@@ -1,6 +1,6 @@
 import { useState, useEffect, useLayoutEffect } from "react";
-import useAxios from "../../../utils/useAxios";
-import CalculateAge from "../../../utils/calculateYearOld";
+import useAxios from "../../../../utils/useAxios";
+import CalculateAge from "../../../../utils/calculateYearOld";
 import { toast } from "react-toastify";
 
 const url = import.meta.env.VITE_BASE_URL_DB;

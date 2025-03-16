@@ -102,37 +102,37 @@ const CartTable = ({setSelectedRecord, setIsReactionModalOpen, setIsChangeSchedu
           <Table>
             <TableHeader className="bg-blue-50/50">
               <TableRow className="hover:bg-blue-50/80">
-                <TableHead className="text-blue-700">ID</TableHead>
-                <TableHead className="text-blue-700">Vaccine</TableHead>
-                <TableHead className="text-blue-700">Patient</TableHead>
-                <TableHead className="text-blue-700">Child Name</TableHead>
-                <TableHead className="text-blue-700">Vaccination Date</TableHead>
-                <TableHead className="text-blue-700">Status</TableHead>
-                <TableHead className="text-blue-700">Reaction</TableHead>
-                <TableHead className="text-blue-700">Action</TableHead>
+                <TableHead className="text-blue-700 text-center">ID</TableHead>
+                <TableHead className="text-blue-700 text-center">Vaccine</TableHead>
+                <TableHead className="text-blue-700 text-center">Patient</TableHead>
+                <TableHead className="text-blue-700 text-center">Child Name</TableHead>
+                <TableHead className="text-blue-700 text-center">Vaccination Date</TableHead>
+                <TableHead className="text-blue-700 text-center">Status</TableHead>
+                <TableHead className="text-blue-700 text-center">Reaction</TableHead>
+                <TableHead className="text-blue-700 text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedData.map((record) => (
                 <TableRow key={record.trackingID} className="hover:bg-blue-50/30 border-b border-blue-50">
-                  <TableCell className="font-medium text-blue-800">#{record.trackingID}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
+                  <TableCell className="font-medium text-blue-800 text-center">#{record.trackingID}</TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center">
                       <Syringe className="h-4 w-4 text-blue-500 mr-2" />
                       <span>{record.vaccineName}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{record.userName}</TableCell>
-                  <TableCell>{childData.find((item) => item.id === record.childId)?.name}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
+                  <TableCell className="text-center">{record.userName}</TableCell>
+                  <TableCell className="text-center">{childData.find((item) => item.id === record.childId)?.name}</TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center">
                       <Calendar className="h-4 w-4 text-blue-500 mr-2" />
                       {record.vaccinationDate ? FormatDate(record.vaccinationDate) : "N/A"}
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(record.status.toLowerCase())}</TableCell>
-                  <TableCell>{getReactionBadge(record.reaction)}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-center"  >{getStatusBadge(record.status.toLowerCase())}</TableCell>
+                  <TableCell className="text-center">{getReactionBadge(record.reaction)}</TableCell>
+                  <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
@@ -147,7 +147,7 @@ const CartTable = ({setSelectedRecord, setIsReactionModalOpen, setIsChangeSchedu
                         >
                           View details
                         </DropdownMenuItem>
-                        {record.status.toLowerCase() !== 'cancel' && (
+                        {record.status.toLowerCase() !== 'cancel' && record.status.toLowerCase() !== 'success' && (
                           <DropdownMenuItem
                             className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
                             onClick={() => handleUpdateStatus(record)}

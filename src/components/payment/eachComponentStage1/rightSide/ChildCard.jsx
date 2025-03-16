@@ -4,12 +4,18 @@ import { MdFamilyRestroom } from "react-icons/md";
 import CalculateAge from '../../../../utils/calculateYearOld'
 import ToUperCaseFirstLetter from '../../../../utils/upperCaseFirstLetter'
 import FormDate from '../../../../utils/Date'
-const ChildInfoCard = ({ child, handleRemove, parentName }) => {
+const ChildInfoCard = ({ child, handleRemove, parentName, isVaccineSuitableForAnyChild, isComboSuitableForAnyChild }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const isVaccineSuitable = isVaccineSuitableForAnyChild(child);
+    const isComboSuitable = isComboSuitableForAnyChild(child);
+    
+    // Add a warning message if the child is not suitable for any vaccine or combo
+    const isSuitableForVaccination = isVaccineSuitable || isComboSuitable;
+    
     return (
         <div className="max-w-2xl mx-auto p-4">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300">
-                <div className="bg-gradient-to-r from-blue-50 via-white to-purple-100 p-4">
+                <div className={`${isSuitableForVaccination ? 'bg-gradient-to-r from-blue-50 via-white to-purple-100' : 'bg-gradient-to-r from-red-50 via-white to-orange-100'} p-4`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                             <div className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md flex items-center justify-center text-4xl">
@@ -33,6 +39,15 @@ const ChildInfoCard = ({ child, handleRemove, parentName }) => {
                                     </span>
                                     <span className="ml-2 text-gray-600">Created: {FormDate(child.createdAt)}</span>
                                 </div>
+                                
+                                {/* Add warning if child is not suitable */}
+                                {!isSuitableForVaccination && (
+                                    <div className="mt-1">
+                                        <span className="text-red-500 text-sm font-medium">
+                                            Not eligible for available vaccines
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

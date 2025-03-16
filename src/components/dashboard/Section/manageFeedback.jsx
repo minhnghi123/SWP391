@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import useAxios from "../../../utils/useAxios";
+import { toast } from "react-toastify";
+import { ArchiveRestore, Trash2 } from "lucide-react";
+// import { aw } from "framer-motion/dist/types.d-6pKw1mTI";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const Feedback = () => {
@@ -27,6 +30,38 @@ const Feedback = () => {
 
     fetchDataAsync();
   }, []);
+
+  console.log(feedbacks);
+
+  const handleSoftDelete = async (id) => {
+    try {
+      const rs = await api.patch(`${url}/Feedback/soft-delete-feedback/${id}`);
+      if (rs.status === 200) {
+        setFeedbacks(feedbacks.map((feedback) => (feedback.id === id ? { ...feedback, isDeleted: true } : feedback)));
+        toast.success("Delete Feedback successfully");
+      } else {
+        toast.error("Delete Feedback failed");
+      }
+    } catch (error) {
+      console.error("Error deleting feedback:", error);
+      toast.error("An error occurred while deleting feedback");
+    }
+  };
+
+  const handleRestore = async(id) => {
+    try{
+        const rs = await api.patch(`${url}/Feedback/restore-feedback/${id}`);
+        if(rs.status === 200){
+          setFeedbacks(feedbacks.map((feedback) => (feedback.id === id ? { ...feedback, isDeleted: false } : feedback)));
+          toast.success("Restore Feedback successfully");
+        }else{
+          toast.error("Restore Feedback failed");
+        }
+    }catch(error){
+      console.error("Error deleting feedback:", error);
+      toast.error("An error occurred while restoring feedback");
+    }
+  };
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -63,6 +98,8 @@ const Feedback = () => {
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">User ID</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Rating Score</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Description</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -72,6 +109,23 @@ const Feedback = () => {
                     <td className="px-6 py-4 text-sm text-gray-800">{feedback.userId}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{feedback.ratingScore} ⭐</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{feedback.description}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {feedback.isDeleted ? "Deleted" : "Not Deleted"}{" "}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600 flex items-center space-x-4">
+                      <button
+                        onClick={() => handleSoftDelete(feedback.id)}
+                        className="p-2 rounded-lg bg-red-100 hover:bg-red-200 transition duration-200"
+                      >
+                        <Trash2 size={16} className="text-red-600" />
+                      </button>
+
+                      <button 
+                        onClick={()=> handleRestore(feedback.id)}
+                        className="p-2 rounded-lg bg-green-100 hover:bg-green-200 transition duration-200">
+                        <ArchiveRestore size={16} className="text-green-600" />
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (

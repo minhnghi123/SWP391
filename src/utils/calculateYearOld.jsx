@@ -10,21 +10,21 @@ export default function CalculateAge(dateOfBirth) {
     const dayDifference = today.getDate() - birthDate.getDate();
 
     if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-        age--;
+        age = 0;
     }
 
     // Nếu tuổi = 0, tính số tháng
-    if (age === 0) {
-        let months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
+    // if (age === 0) {
+    //     let months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
 
-        // Nếu chưa đủ ngày trong tháng này, trừ đi 1 tháng
-        if (today.getDate() < birthDate.getDate()) {
-            months--;
-        }
+    //     // Nếu chưa đủ ngày trong tháng này, trừ đi 1 tháng
+    //     if (today.getDate() < birthDate.getDate()) {
+    //         months--;
+    //     }
 
-        return `${months} month${months > 1 ? "s" : ""}`;
+    //     return `${months} month${months > 1 ? "s" : ""}`;
 
-    }
+    // }
 
     return `${age} years old`;
 }

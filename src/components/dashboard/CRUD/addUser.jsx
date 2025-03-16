@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { toast } from "react-toastify";
 import useAxios from "../../../utils/useAxios";
+import axios from "axios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const api = useAxios();
 
   const initialUserState = {
@@ -16,7 +19,6 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
     password: "",
     phoneNumber: "",
     dateOfBirth: "",
-    avatar: "",
     gender: 0,
   };
 
@@ -30,29 +32,55 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size must be less than 5MB");
+        return;
+      }
+      if (!file.type.match("image.*")) {
+        setError("Please select an image file");
+        return;
+      }
+      
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const resetForm = () => {
     setNewUser(initialUserState);
     setError(null);
+    setAvatarFile(null);
+    setAvatarPreview(null);
   };
 
-  // Hàm validate số điện thoại Việt Nam
   const validatePhoneNumber = (phone) => {
     const phoneRegex = /^(03|05|07|08|09)[0-9]{8}$/;
     return phoneRegex.test(phone);
+  };
+
+  const validateDateOfBirth = (date) => {
+    const selectedDate = new Date(date);
+    const currentDate = new Date();
+    return selectedDate <= currentDate;
   };
 
   const handleAddUser = async () => {
     setLoading(true);
     setError(null);
 
-    // Basic validation
     if (!newUser.name || !newUser.username || !newUser.gmail || !newUser.password) {
       setError("Name, username, email, and password are required.");
       setLoading(false);
       return;
     }
 
-    // Validate phone number nếu có nhập
     if (newUser.phoneNumber && !validatePhoneNumber(newUser.phoneNumber)) {
       setError(
         "Invalid phone number. It must be a 10-digit number starting with 03, 05, 07, 08, or 09."
@@ -61,21 +89,46 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
       return;
     }
 
-    const userData = {
-      name: newUser.name,
-      username: newUser.username,
-      gmail: newUser.gmail,
-      password: newUser.password,
-      phoneNumber: newUser.phoneNumber || null, // Gửi null nếu không có
-      dateOfBirth: newUser.dateOfBirth
-        ? new Date(newUser.dateOfBirth).toISOString()
-        : null, // Gửi null nếu không nhập
-      avatar: newUser.avatar || null,
-      gender: parseInt(newUser.gender, 10) || 0,
-    };
+    if (newUser.dateOfBirth && !validateDateOfBirth(newUser.dateOfBirth)) {
+      setError("Date of birth cannot be in the future.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      const response = await api.post(`${url}/User/register`, userData);
+      let imageUrl = "";
+
+      // Upload avatar to Cloudinary if a file is selected
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("file", avatarFile);
+        formData.append("upload_preset", "First_time_using");
+        formData.append("cloud_name", "dzmx76ojp");
+
+        const uploadResponse = await axios.post(
+          "https://api.cloudinary.com/v1_1/dzmx76ojp/image/upload",
+          formData
+        );
+
+        imageUrl = uploadResponse.data.secure_url;
+      }
+
+      const userData = {
+        name: newUser.name.trim(),
+        username: newUser.username.trim(),
+        gmail: newUser.gmail.trim(),
+        password: newUser.password,
+        phoneNumber: newUser.phoneNumber ? newUser.phoneNumber.trim() : "",
+        dateOfBirth: newUser.dateOfBirth ? new Date(newUser.dateOfBirth).toISOString() : "",
+        avatar: imageUrl,
+        gender: parseInt(newUser.gender, 10),
+      };
+
+      const response = await api.post(`${url}/User/register`, userData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response.status === 201 || response.status === 200) {
         toast.success("User added successfully!", { autoClose: 3000 });
@@ -83,13 +136,13 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
         resetForm();
         onAddSuccess();
       } else {
-        toast.error("Failed to add user.", { autoClose: 3000 });
-        setError("Unexpected response from server.");
+        throw new Error("Unexpected response from server");
       }
     } catch (error) {
       console.error("Error adding user:", error.response?.data || error);
       const errorMessage =
         error.response?.data?.message ||
+        error.message ||
         "Failed to add user. Please check your input and try again.";
       setError(errorMessage);
       toast.error(errorMessage, { autoClose: 3000 });
@@ -97,6 +150,15 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
       setLoading(false);
     }
   };
+
+  // Cleanup preview URL on component unmount or when new file is selected
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
 
   const DateInput = ({ label, name, value, onChange }) => (
     <div className="relative">
@@ -112,6 +174,7 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
           name={name}
           value={value}
           onChange={onChange}
+          max={new Date().toISOString().split("T")[0]}
           className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 shadow-sm group-hover:shadow-md"
         />
       </div>
@@ -170,14 +233,24 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
             onChange={handleInputChange}
             className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
           />
-          <input
-            type="text"
-            name="avatar"
-            placeholder="Avatar URL"
-            value={newUser.avatar}
-            onChange={handleInputChange}
-            className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
-          />
+          <div className="flex flex-col">
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Avatar
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+            {avatarPreview && (
+              <img
+                src={avatarPreview}
+                alt="Avatar preview"
+                className="mt-2 w-20 h-20 object-cover rounded-full mx-auto"
+              />
+            )}
+          </div>
           <select
             name="gender"
             value={newUser.gender}

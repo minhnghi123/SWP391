@@ -267,7 +267,7 @@ const UserManagement = () => {
                       <td className="px-4 py-4 text-sm text-gray-600">{user.role || "N/A"}</td>
                       <td
                         className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
-                          user.status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                          user.status.toLowerCase() === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                         }`}
                       >
                         {user.status}

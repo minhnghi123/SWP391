@@ -36,7 +36,7 @@ const VaccineCombo = () => {
     try {
       setLoading(true);
       const response = await api.get(
-        `${url}/VaccineCombo/get-all-vaccine-combo`
+        `${url}/VaccineCombo/get-all-vaccine-combo-admin`
       );
       setVaccineCombos(response.data);
       setError(null);

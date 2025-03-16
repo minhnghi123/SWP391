@@ -87,8 +87,7 @@ export default function Stage2Payment() {
 
     return (
         <>
-           
-            <div className="max-w-7xl mx-auto px-4 py-16">
+            <div className="max-w-7xl mx-auto px-4 py-16 animate-fadeIn">
                 <div className="flex flex-col lg:flex-row gap-12">
                     {/* Left Side */}
                     <div className="w-full lg:w-[600px] space-y-8">
@@ -113,6 +112,5 @@ export default function Stage2Payment() {
                 </div>
             </div>
         </>
-
     );
 }

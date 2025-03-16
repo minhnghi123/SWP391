@@ -56,155 +56,107 @@ export default function Stage3Payment() {
     }, [status])
   console.log(data)
     const getStatusConfig = () => {
-        const configs = {
-            success: {
-                icon: <FaCheckCircle className="text-6xl" />,
-                iconComponent: <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center animate-pulse">
-                    <FaCheckCircle className="text-4xl text-blue-600" />
-                </div>,
-                title: "Payment Successful!",
-                description: "Your vaccination appointment has been confirmed.",
-                bgColor: "bg-gradient-to-r from-blue-50 to-blue-100",
-                textColor: "text-blue-700",
-                borderColor: "border-blue-200",
-                buttonColor: "bg-blue-600 hover:bg-blue-700",
-                animation: "animate-bounce",
-                confetti: true
-            },
-            failed: {
-                icon: <FaTimesCircle className="text-6xl" />,
-                iconComponent: <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center animate-bounce">
-                    <FaTimesCircle className="text-4xl text-red-600" />
-                </div>,
-                title: "Payment Failed",
-                description: "We couldn't process your vaccination payment.",
-                bgColor: "bg-gradient-to-r from-red-50 to-red-100",
-                textColor: "text-red-700",
-                borderColor: "border-red-200",
-                buttonColor: "bg-red-600 hover:bg-red-700",
-                animation: "animate-shake"
-            },
-            pending: {
-                icon: <FaClock className="text-6xl" />,
-                iconComponent: <div className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center animate-pulse">
-                    <FaClock className="text-4xl text-yellow-600" />
-                </div>,
-                title: "Payment Pending",
-                description: "Please complete your vaccination payment at the clinic.",
-                bgColor: "bg-gradient-to-r from-yellow-50 to-yellow-100",
-                textColor: "text-yellow-700",
-                borderColor: "border-yellow-200",
-                buttonColor: "bg-yellow-600 hover:bg-yellow-700",
-                animation: "animate-pulse"
-            }
-        };
-        return configs[status?.toLowerCase()] || configs.failed;
+        switch (status?.toLowerCase()) {
+            case "success":
+                return {
+                    icon: <FaCheckCircle className="text-5xl text-green-500" />,
+                    title: "Payment Successful!",
+                    message: "Your vaccination appointment has been confirmed.",
+                    color: "text-green-600",
+                    bgColor: "bg-gradient-to-br from-green-50 to-green-100",
+                    borderColor: "border-green-200",
+                    buttonColor: "bg-gradient-to-r from-green-600 to-green-500",
+                    iconBg: "bg-green-100"
+                };
+            case "failed":
+                return {
+                    icon: <FaTimesCircle className="text-5xl text-red-500" />,
+                    title: "Payment Failed",
+                    message: "We couldn't process your payment. Please try again.",
+                    color: "text-red-600",
+                    bgColor: "bg-gradient-to-br from-red-50 to-red-100",
+                    borderColor: "border-red-200",
+                    buttonColor: "bg-gradient-to-r from-red-600 to-red-500",
+                    iconBg: "bg-red-100"
+                };
+            case "pending":
+            default:
+                return {
+                    icon: <FaClock className="text-5xl text-yellow-500" />,
+                    title: "Payment Pending",
+                    message: "Your payment is being processed. Please wait.",
+                    color: "text-yellow-600",
+                    bgColor: "bg-gradient-to-br from-yellow-50 to-yellow-100",
+                    borderColor: "border-yellow-200",
+                    buttonColor: "bg-gradient-to-r from-yellow-600 to-yellow-500",
+                    iconBg: "bg-yellow-100"
+                };
+        }
     };
 
     const config = getStatusConfig();
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-6">
-            <div className="max-w-md w-full space-y-6">
-                {/* Logo and Brand */}
-                <div className="flex items-center justify-center mb-6">
-                    <div className="bg-white p-3 rounded-full shadow-md">
-                        <Syringe className="text-blue-600 w-8 h-8" />
-                    </div>
-                    <span className="ml-3 text-2xl font-bold text-blue-800">KidVaccine</span>
-                </div>
-
-                {/* Main Card with floating effect */}
-                <div className={`bg-white rounded-3xl shadow-xl overflow-hidden border ${config.borderColor} transform hover:translate-y-1 transition-all duration-500 animate-fadeIn`}>
-                    {/* Status Header */}
-                    <div className={`${config.bgColor} p-8 text-center relative overflow-hidden`}>
-                        {/* Background pattern */}
-                        <div className="absolute inset-0 opacity-20">
-                            <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                                <pattern id="vaccinePattern" patternUnits="userSpaceOnUse" width="10" height="10">
-                                    <circle cx="5" cy="5" r="1" fill="currentColor" className="text-blue-700 opacity-20" />
-                                </pattern>
-                                <rect width="100%" height="100%" fill="url(#vaccinePattern)" />
-                            </svg>
+        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 animate-fadeIn">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                    {/* Header */}
+                    <div className={`${config.bgColor} ${config.borderColor} border-b px-8 py-10 text-center`}>
+                        <div className="flex justify-center mb-6">
+                            <div className={`${config.iconBg} w-24 h-24 rounded-full flex items-center justify-center shadow-inner`}>
+                                {config.icon}
+                            </div>
                         </div>
-                        
-                        {/* Icon with animation */}
-                        <div className="flex justify-center mb-4">
-                            {config.iconComponent}
-                        </div>
-                        
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">{config.title}</h2>
-                        <p className="text-gray-600">{config.description}</p>
+                        <h1 className={`text-3xl font-bold ${config.color}`}>{config.title}</h1>
+                        <p className="text-gray-600 mt-3 text-lg">{config.message}</p>
                     </div>
-
-                    {/* Payment Details */}
-                    <div className="p-6 space-y-6">
-                        {(status?.toLowerCase() === "success" || status?.toLowerCase() === "pending") && (
-                            <div className="bg-white rounded-2xl p-6 shadow-md border border-blue-100 transform transition-all duration-300 hover:shadow-lg">
-                                <div className="space-y-4">
-                                    {/* Transaction Details */}
-                                    <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                                        <span className="text-gray-500 flex items-center">
-                                            <FaShieldAlt className="mr-2 text-blue-500" />
-                                            Transaction ID
-                                        </span>
-                                        <span className="font-mono text-gray-800 bg-blue-50 py-1 px-2 rounded-lg">{data?.TrancasionID || "N/A"}</span>
-                                    </div>
-                                    
-                                    <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                                        <span className="text-gray-500 flex items-center">
-                                            <FaHistory className="mr-2 text-blue-500" />
-                                            Order ID
-                                        </span>
-                                        <span className="font-mono text-gray-800 bg-blue-50 py-1 px-2 rounded-lg">{data?.OrderId || "N/A"}</span>
-                                    </div>
-                                    
-                                    <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                                        <span className="text-gray-500 flex items-center">
-                                            <FaInfoCircle className="mr-2 text-blue-500" />
-                                            Booking ID
-                                        </span>
-                                        <span className="font-mono text-gray-800 bg-blue-50 py-1 px-2 rounded-lg">{data?.BookingID || "N/A"}</span>
-                                    </div>
-                                    
-                                    <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                                        <span className="text-gray-500 flex items-center">
-                                            <CreditCard className="mr-2 text-blue-500" />
-                                            Amount
-                                        </span>
-                                        <span className="font-bold text-lg bg-blue-100 text-blue-700 py-1 px-3 rounded-lg">
-                                            {formatDecimal(data?.Amount) } {` ` } VND
-                                        </span>
-                                    </div>
-                                    
-                                    {data?.Message && data.Message !== "N/A" && (
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500">Message</span>
-                                            <span className="text-gray-800 italic">{data.Message}</span>
-                                        </div>
-                                    )}
+                    
+                    {/* Content */}
+                    <div className="p-8 md:p-10 space-y-8">
+                        {/* Order Details */}
+                        <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-8 border border-blue-100 shadow-md">
+                            <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                                <CreditCard className="mr-3 text-blue-500" />
+                                Payment Details
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                    <p className="text-sm text-gray-500 mb-1">Order ID</p>
+                                    <p className="font-medium text-gray-800">{orderData?.orderId || data.OrderId}</p>
+                                </div>
+                                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                    <p className="text-sm text-gray-500 mb-1">Amount</p>
+                                    <p className="font-bold text-blue-600">{formatDecimal(orderData?.totalPrice || data.Amount)} VND</p>
+                                </div>
+                                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                    <p className="text-sm text-gray-500 mb-1">Booking ID</p>
+                                    <p className="font-medium text-gray-800">{orderData?.bookingId || data.BookingID}</p>
+                                </div>
+                                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                    <p className="text-sm text-gray-500 mb-1">Transaction ID</p>
+                                    <p className="font-medium text-gray-800">{orderData?.transactionId || data.TrancasionID}</p>
                                 </div>
                             </div>
-                        )}
+                        </div>
 
                         {/* Pending Instructions */}
                         {status?.toLowerCase() === "pending" && (
-                            <div className="bg-yellow-50 rounded-2xl p-5 border border-yellow-200 flex items-start animate-pulse">
-                                <FaInfoCircle className="mr-3 mt-1 text-xl text-yellow-600" />
+                            <div className="bg-gradient-to-br from-white to-yellow-50 rounded-2xl p-8 border border-yellow-200 flex items-start shadow-md">
+                                <FaInfoCircle className="mr-4 mt-1 text-2xl text-yellow-500 flex-shrink-0" />
                                 <div>
-                                    <p className="font-semibold mb-2 text-yellow-800">Important Notes:</p>
-                                    <ul className="space-y-2">
+                                    <p className="font-bold mb-4 text-yellow-800 text-lg">Important Notes:</p>
+                                    <ul className="space-y-4">
                                         <li className="flex items-center">
-                                            <span className="mr-2 bg-yellow-200 text-yellow-800 rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
-                                            Complete payment within 48 hours
+                                            <span className="mr-3 bg-yellow-200 text-yellow-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+                                            <span>Complete payment within <span className="font-bold">48 hours</span> to secure your appointment</span>
                                         </li>
                                         <li className="flex items-center">
-                                            <span className="mr-2 bg-yellow-200 text-yellow-800 rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
-                                            Visit any of our partnered clinics
+                                            <span className="mr-3 bg-yellow-200 text-yellow-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+                                            <span>Visit any of our partnered clinics with your <span className="font-bold">booking confirmation</span></span>
                                         </li>
                                         <li className="flex items-center">
-                                            <span className="mr-2 bg-yellow-200 text-yellow-800 rounded-full w-5 h-5 flex items-center justify-center text-xs">3</span>
-                                            Provide booking ID at the counter
+                                            <span className="mr-3 bg-yellow-200 text-yellow-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+                                            <span>Provide your <span className="font-bold">Booking ID</span> at the reception counter</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -213,11 +165,23 @@ export default function Stage3Payment() {
 
                         {/* Success Message */}
                         {status?.toLowerCase() === "success" && (
-                            <div className="bg-blue-50 rounded-2xl p-5 border border-blue-200 flex items-start">
-                                <Baby className="mr-3 text-blue-600" />
+                            <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-8 border border-blue-200 flex items-start shadow-md">
+                                <Baby className="mr-4 text-2xl text-blue-500 flex-shrink-0" />
                                 <div>
-                                    <p className="font-semibold mb-2 text-blue-800">Your child's vaccination is confirmed!</p>
-                                    <p className="text-blue-600">Please arrive 15 minutes before your appointment time. Don't forget to bring your child's vaccination record.</p>
+                                    <p className="font-bold mb-3 text-blue-800 text-lg">Your child's vaccination is confirmed!</p>
+                                    <p className="text-blue-600">Please arrive <span className="font-bold">15 minutes</span> before your appointment time. Don't forget to bring your child's vaccination record and any required identification documents.</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Failed Message */}
+                        {status?.toLowerCase() === "failed" && (
+                            <div className="bg-gradient-to-br from-white to-red-50 rounded-2xl p-8 border border-red-200 flex items-start shadow-md">
+                                <FaInfoCircle className="mr-4 text-2xl text-red-500 flex-shrink-0" />
+                                <div>
+                                    <p className="font-bold mb-3 text-red-800 text-lg">Payment could not be processed</p>
+                                    <p className="text-red-600 mb-3">This could be due to insufficient funds, network issues, or card restrictions. Please try again with a different payment method.</p>
+                                    <p className="text-gray-600">If you continue to experience issues, please contact our support team at <span className="font-bold text-blue-600">support@healthblue.com</span></p>
                                 </div>
                             </div>
                         )}
@@ -266,7 +230,7 @@ export default function Stage3Payment() {
                             {/* Home Button */}
                             <button
                                 onClick={() => navigate('/')}
-                                className="w-full bg-white border border-blue-200 text-blue-600 py-3 rounded-xl font-medium hover:bg-blue-50 transition-all duration-300 flex items-center justify-center mt-2"
+                                className="w-full bg-white border border-blue-200 text-blue-600 py-3 rounded-xl font-medium hover:bg-blue-50 transition-all duration-300 flex items-center justify-center mt-2 transform hover:scale-105"
                             >
                                 <House className="mr-2" />
                                 Return to Home
@@ -276,8 +240,13 @@ export default function Stage3Payment() {
                 </div>
                 
                 {/* Footer */}
-                <div className="text-center text-gray-500 text-sm mt-6">
-                    <p>© 2025 KidVaccine - Keeping children safe and healthy</p>
+                <div className="text-center text-gray-500 text-sm mt-8">
+                    <p>© 2025 HealthBlue - Keeping children safe and healthy</p>
+                    <div className="flex justify-center space-x-4 mt-3">
+                        <span className="hover:text-blue-600 cursor-pointer">Terms</span>
+                        <span className="hover:text-blue-600 cursor-pointer">Privacy</span>
+                        <span className="hover:text-blue-600 cursor-pointer">Support</span>
+                    </div>
                 </div>
             </div>
         </div>

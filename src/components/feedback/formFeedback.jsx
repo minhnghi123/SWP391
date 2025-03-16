@@ -1,6 +1,8 @@
 import { FaStar, FaUserCircle } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 
 const FormFeedback = ({
+    username,
     inputData,
     handleSubmit,
     handleOnChange,
@@ -10,6 +12,7 @@ const FormFeedback = ({
     currentValue,
     hoverValue,
 }) => {
+    const user = useSelector((state) => state.account.user);
     return (
         <form 
             className="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-sm"
@@ -20,7 +23,7 @@ const FormFeedback = ({
                 <FaUserCircle className="w-10 h-10 text-blue-600" />
                 <input
                     type="text"
-                    value={inputData.username || ""}
+                    value={user.name || ""}
                     readOnly
                     className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-600 cursor-not-allowed"
                 />

@@ -224,7 +224,7 @@ const VaccineList = () => {
                       </td>
                       <td
                         className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
-                          item.status === "AVAILABLE"
+                          item.status.toLowerCase() === "available"
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                         }`}

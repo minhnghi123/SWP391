@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AddVaccineComboComponent from "../CRUD/addComboVaccine";
-import DeleteVaccine from "../CRUD/deleteVaccine";
-import Pagination from "../../../utils/pagination";
+import Pagination from "../../../../utils/pagination";
 import DetailCombo from "../combo/detailsCombo";
 import { ToastContainer } from "react-toastify";
 import {
@@ -12,8 +10,7 @@ import {
   Eye,
   SquarePen,
 } from "lucide-react";
-import UpdateVaccineCombo from "../CRUD/updateCombo";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "../../../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const VaccineCombo = () => {
@@ -117,7 +114,6 @@ const VaccineCombo = () => {
         <h1 className="text-2xl font-bold text-gray-900">
           Vaccine Combo Inventory
         </h1>
-        <AddVaccineComboComponent onAddSuccess={handleSuccess} />
       </div>
 
       {/* Search and Filters */}
@@ -226,14 +222,16 @@ const VaccineCombo = () => {
                         (1 - item.discount / 100)
                       )?.toLocaleString()}
                     </td>
-                    <td
-                      className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
-                        item.status === "AVAILABLE"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {item.status}
+                    <td className="px-4 py-4">
+                      <span
+                        className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
+                          item.status === "AVAILABLE"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {item.status || "UNKNOWN"}
+                      </span>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
@@ -244,18 +242,6 @@ const VaccineCombo = () => {
                         >
                           <Eye size={16} />
                         </button>
-                        <button
-                          onClick={() => handleOpenUpdateModal(item)}
-                          className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                          title="Edit combo"
-                        >
-                          <SquarePen size={16} />
-                        </button>
-                        <DeleteVaccine
-                          vaccineId={item.id}
-                          isCombo={true}
-                          onDeleteSuccess={handleSuccess}
-                        />
                       </div>
                     </td>
                   </tr>
@@ -295,13 +281,6 @@ const VaccineCombo = () => {
       )}
 
       {/* Update Vaccine Combo Modal */}
-      {isUpdateModalOpen && selectedVaccineForUpdate && (
-        <UpdateVaccineCombo
-          combo={selectedVaccineForUpdate}
-          onSave={handleUpdateSuccess}
-          onCancel={handleCloseUpdateModal}
-        />
-      )}
     </div>
   );
 };

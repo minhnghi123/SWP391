@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ViewAllVaccine from "../vaccine/viewAllVaccine";
-import ViewAllCombo from "../combo/viewAllCombo";
+import ViewAllVaccine from "../section/vaccine/viewAllVaccine";
+import ViewAllCombo from "../section/combo/viewAllCombo";
 import { Pill, Package } from "lucide-react";
 
 const ManageVaccine = () => {
@@ -17,7 +17,7 @@ const ManageVaccine = () => {
                 <Pill className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-3xl font-extrabold bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
-                Vaccine Management
+                Vaccine
               </h1>
             </div>
             <span className="text-sm text-gray-500">

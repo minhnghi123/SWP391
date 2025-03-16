@@ -10,7 +10,7 @@ import {
 import AddVaccineComboComponent from "../../staffManage/CRUD/addComboVaccine";
 import DeleteVaccine from "../../staffManage/CRUD/deleteVaccine";
 import Pagination from "../../../utils/pagination";
-import DetailCombo from "../../staffManage/combo/detailsCombo";
+import DetailCombo from "../../staffManage/section/combo/detailsCombo";
 import UpdateVaccineCombo from "../../staffManage/CRUD/updateCombo";
 import useAxios from "../../../utils/useAxios";
 
@@ -23,7 +23,8 @@ const ManageCombo = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selectedVaccine, setSelectedVaccine] = useState(null);
-  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] = useState(null);
+  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] =
+    useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,9 @@ const ManageCombo = () => {
   const fetchVaccineCombos = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${url}/VaccineCombo/get-all-vaccine-combo-admin`);
+      const response = await api.get(
+        `${url}/VaccineCombo/get-all-vaccine-combo-admin`
+      );
       setVaccineCombos(response.data);
       setError(null);
     } catch (error) {
@@ -113,7 +116,9 @@ const ManageCombo = () => {
       <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">Vaccine Combo List</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Vaccine Combo Inventory
+          </h1>
           <AddVaccineComboComponent onAddSuccess={handleSuccess} />
         </div>
 
@@ -216,17 +221,20 @@ const ManageCombo = () => {
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
                         {(
-                          item.totalPrice * (1 - item.discount / 100)
+                          item.totalPrice *
+                          (1 - item.discount / 100)
                         )?.toLocaleString()}
                       </td>
-                      <td
-                        className={`inline-block mt-2 px-4 py-4 text-sm font-medium rounded-full ${
-                          item.status.toLowerCase() === "available"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {item.status}
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
+                            item.status === "AVAILABLE"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {item.status || "UNKNOWN"}
+                        </span>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">

@@ -54,7 +54,7 @@ export default function Stage3Payment() {
             removeDataStage2()
         }
     }, [status])
-  console.log(data)
+
     const getStatusConfig = () => {
         switch (status?.toLowerCase()) {
             case "success":

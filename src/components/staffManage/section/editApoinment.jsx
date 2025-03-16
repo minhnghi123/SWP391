@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import useAxios from "../../../utils/useAxios";
-import ToUpperCase  from '../../../utils/upperCaseFirstLetter'
+import ToUpperCase from '../../../utils/upperCaseFirstLetter'
 const url = import.meta.env.VITE_BASE_URL_DB;
 
-const EditAppointment = ({ appointment, onSave, onCancel }) => {
+const EditAppointment = ({ appointment, onSave, onCancel, loading }) => {
   const api = useAxios();
   const [editedBooking, setEditedBooking] = useState(null);
   const [availableVaccines, setAvailableVaccines] = useState([]);
@@ -77,8 +77,8 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
   // Check vaccine suitability
   const isVaccineSuitableForAnyChild = (vaccine) => {
     if (!selectedChildren.length) return true;
-    return selectedChildren.some((child) => 
-      child.age >= (vaccine.suggestAgeMin || 0) && 
+    return selectedChildren.some((child) =>
+      child.age >= (vaccine.suggestAgeMin || 0) &&
       child.age <= (vaccine.suggestAgeMax || Infinity)
     );
   };
@@ -87,12 +87,22 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
   const isComboSuitableForAnyChild = (combo) => {
     if (!selectedChildren.length) return true;
     return selectedChildren.some((child) =>
-      combo.vaccines.every((vaccine) => 
-        child.age >= (vaccine.suggestAgeMin || 0) && 
+      combo.vaccines.every((vaccine) =>
+        child.age >= (vaccine.suggestAgeMin || 0) &&
         child.age <= (vaccine.suggestAgeMax || Infinity)
       )
     );
   };
+  const checkValue = () => {
+    if (!editedBooking || !appointment) return true; // Nếu chưa có dữ liệu, không cho sửa
+    else if (editedBooking.vaccineList.length === 0 && editedBooking.comboList.length === 0) return true;
+    // Kiểm tra xem vaccineList hoặc comboList có thay đổi không
+    const vaccineChanged = JSON.stringify(editedBooking.vaccineList) !== JSON.stringify(appointment.vaccineList);
+    const comboChanged = JSON.stringify(editedBooking.comboList) !== JSON.stringify(appointment.comboList);
+
+    return !(vaccineChanged || comboChanged); // Nếu không có thay đổi thì true (vô hiệu hóa nút)
+  };
+
 
   if (!editedBooking) {
     return (
@@ -184,9 +194,8 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
                   return (
                     <label
                       key={vaccine.id}
-                      className={`flex items-center justify-between p-3 mb-2 rounded-lg ${
-                        isSuitable ? "hover:bg-indigo-50" : "opacity-50 cursor-not-allowed"
-                      }`}
+                      className={`flex items-center justify-between p-3 mb-2 rounded-lg ${isSuitable ? "hover:bg-indigo-50" : "opacity-50 cursor-not-allowed"
+                        }`}
                     >
                       <div className="flex items-center">
                         <input
@@ -217,9 +226,8 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
                   return (
                     <label
                       key={combo.id}
-                      className={`flex items-center justify-between p-3 mb-2 rounded-lg ${
-                        isSuitable ? "hover:bg-indigo-50" : "opacity-50 cursor-not-allowed"
-                      }`}
+                      className={`flex items-center justify-between p-3 mb-2 rounded-lg ${isSuitable ? "hover:bg-indigo-50" : "opacity-50 cursor-not-allowed"
+                        }`}
                     >
                       <div className="flex items-center">
                         <input
@@ -255,10 +263,14 @@ const EditAppointment = ({ appointment, onSave, onCancel }) => {
           </button>
           <button
             onClick={handleSaveChanges}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-md"
+            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-md 
+  disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={checkValue()} // Nút sẽ bị vô hiệu hóa nếu không có thay đổi
           >
-            Save Changes
+            {checkValue() ? "No Changes" : loading ? "Saving..." : "Save Changes"}
           </button>
+
+
         </div>
       </div>
     </div>

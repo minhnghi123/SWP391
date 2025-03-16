@@ -120,22 +120,24 @@ export default function Register({ setRegister }) {
                 username: input.userName,
                 gmail: input.email,
                 phoneNumber: input.phone,
-                dateofBirth: new Date(input.birthDay).toISOString(),
+                dateOfBirth: new Date(input.birthDay).toISOString(),
                 password: input.password,
                 avatar: avatarUrl,
                 gender: input.gender?.toLowerCase() === "male" ? 0 : 1,
                 
             }
-           
+         
             const res = await api.post(`${url}/User/register`, value)
             if (res?.status === 200) {
                 setStage(2);
                 setIsSubmitting(false);
             }
         } catch (error) {
-            const errorMsg = error.response?.data?.message || "Failed to send verification code";
+            const errorMsg = error.response?.data || "Failed to send verification code";
             setErr(errorMsg);
             toast.error(errorMsg);
+            setIsSubmitting(false);
+        }finally{
             setIsSubmitting(false);
         }
     };

@@ -7,7 +7,7 @@ const ChildrenList = ({ listChildren, child, handleAddChildren, isOpenFirst, set
                     <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                         Children List
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E8F5F6] text-sm font-medium text-[#00a0aa]">
-                            {/* {child.length} */}
+                            {child?.length}
                         </span>
                     </h3>
                     <p className="text-sm text-gray-500 mt-2">

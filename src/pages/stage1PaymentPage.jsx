@@ -9,10 +9,10 @@ export default function stage1Payment() {
   return (
     <>
 
-      {/* <HeaderPayment /> */}
+      
 
         <Stage1Payment id={id} />
-        <FooterHomePage />
+     
    
 
       )

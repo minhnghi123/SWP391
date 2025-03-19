@@ -97,8 +97,8 @@ export default function Stage3Payment() {
     const config = getStatusConfig();
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 animate-fadeIn">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 my-12">
                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
                     {/* Header */}
                     <div className={`${config.bgColor} ${config.borderColor} border-b px-8 py-10 text-center`}>
@@ -240,15 +240,8 @@ export default function Stage3Payment() {
                 </div>
                 
                 {/* Footer */}
-                <div className="text-center text-gray-500 text-sm mt-8">
-                    <p>© 2025 HealthBlue - Keeping children safe and healthy</p>
-                    <div className="flex justify-center space-x-4 mt-3">
-                        <span className="hover:text-blue-600 cursor-pointer">Terms</span>
-                        <span className="hover:text-blue-600 cursor-pointer">Privacy</span>
-                        <span className="hover:text-blue-600 cursor-pointer">Support</span>
-                    </div>
-                </div>
+               
             </div>
-        </div>
+       
     );
 }

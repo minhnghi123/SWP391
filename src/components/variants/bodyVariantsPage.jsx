@@ -97,7 +97,7 @@ function boydVaritants() {
           country: vaccine.fromCountry,
           vaccines: vaccine.vaccines,
           type: type,
-          vaccines: vaccine.vaccines.map(item => ({
+          listVaccine: vaccine.vaccines.map(item => ({
             id: item.id,
             name: item.name,
             price: item.price,

@@ -1,5 +1,8 @@
-
+import { useState } from 'react'
+import ModalLasterNews from './modalLasterNews'
+import { motion } from 'framer-motion'
 const News = ({ label, title, description, image, date, author }) => {
+    const [isOpen, setIsOpen] = useState(false)
     return (
 
         <div className='bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group hover:-translate-y-1'>
@@ -45,7 +48,7 @@ const News = ({ label, title, description, image, date, author }) => {
                             </div>
                             <span className='text-sm text-gray-600'>{author}</span>
                         </div>
-                        <button className='group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 text-sm font-medium'>
+                        <button onClick={() => setIsOpen(true)} className='group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 text-sm font-medium'>
                             Read More
                             <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -54,6 +57,9 @@ const News = ({ label, title, description, image, date, author }) => {
                     </div>
                 </div>
             </div>
+            {
+                isOpen && <ModalLasterNews isOpen={isOpen} setIsOpen={setIsOpen} title={title} description={description} date={date} author={author} image={image} topic={label} />
+            }
         </div>
 
     )

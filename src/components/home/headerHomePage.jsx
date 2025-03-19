@@ -36,7 +36,7 @@ export default function Header() {
     const handleScroll = (id) => {
         document.getElementById(id)?.scrollIntoView({
             behavior: "smooth", // Cuộn mượt
-            block: "start",    
+            block: "start",
         });
     };
 
@@ -58,7 +58,7 @@ export default function Header() {
                             Health<span className="text-blue-500">Blue</span>
                         </span>
                     </div>
-                    
+
                 </div>
             </Link>
 
@@ -87,28 +87,33 @@ export default function Header() {
                     )}
                 </div> */}
                 <div className="relative" ref={notificationRef}>
-                        <div 
-                            className="w-10 h-10 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors relative"
-                            onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                        >
-                            <NotificationsOutlinedIcon
-                                className="text-gray-600 hover:text-blue-500 transition-colors"
-                                fontSize="medium"
-                            />
-                            <span className="absolute top-1 left-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                2
-                            </span>
-                        </div>
-                        <ModalNotification 
-                            isOpen={isNotificationOpen} 
-                            onClose={() => setIsNotificationOpen(false)} 
+                    <div
+                        className="w-10 h-10 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors relative"
+                        onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                    >
+                        <NotificationsOutlinedIcon
+                            className="text-gray-600 hover:text-blue-500 transition-colors"
+                            fontSize="medium"
                         />
+                        <span className="absolute top-1 left-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                            2
+                        </span>
                     </div>
+                    <ModalNotification
+                        isOpen={isNotificationOpen}
+                        onClose={() => setIsNotificationOpen(false)}
+                    />
+                </div>
 
                 {user?.id ? (
                     <AvatarHomePage />
                 ) : (
-                    <button onClick={() => navigate('/loginPage')}>Login</button>
+                    <button
+                        onClick={() => navigate("/loginPage")}
+                        className="px-5 py-2 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full font-medium hover:shadow-md transition-all duration-300"
+                    >
+                        Login
+                    </button>
                 )}
             </div>
         </div>

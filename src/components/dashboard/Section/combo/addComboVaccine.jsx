@@ -58,7 +58,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
   const handleStatusChange = (e) => {
     setNewVaccineCombo((prev) => ({
       ...prev,
-      status: e.target.checked ? "Instock" : "Instock",
+      status: e.target.checked ? "Instock" : "Outstock", // Sửa lại để có thể chọn trạng thái khác
     }));
   };
 
@@ -76,7 +76,6 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
     }
   };
 
-
   const handleRemoveVaccine = (vaccineId) => {
     setNewVaccineCombo((prev) => ({
       ...prev,
@@ -85,6 +84,12 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
   };
 
   const handleVaccineSelect = (vaccine) => {
+    // Không cho phép chọn vaccine có status "Outstock"
+    if (vaccine.status === "Outstock") {
+      toast.error("Cannot select an 'Outstock' vaccine.");
+      return;
+    }
+
     setNewVaccineCombo((prev) => {
       const updatedVaccines = prev.vaccines.some((v) => v.id === vaccine.id)
         ? prev.vaccines.filter((v) => v.id !== vaccine.id)
@@ -94,7 +99,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
   };
 
   const handleAddVaccine = async () => {
-    console.log("handleAddVaccine called"); // Debug log to confirm function is triggered
+    console.log("handleAddVaccine called");
 
     if (!newVaccineCombo.comboName.trim()) {
       setError("Combo name is required and cannot be empty.");
@@ -129,7 +134,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
     };
 
     try {
-      console.log("Sending API request with data:", vaccineComboData); // Debug log
+      console.log("Sending API request with data:", vaccineComboData);
       const response = await api.post(
         `${url}/VaccineCombo/create-vaccine-combo`,
         vaccineComboData,
@@ -140,7 +145,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
         }
       );
 
-      console.log("API response:", response); // Debug log
+      console.log("API response:", response);
 
       if (response.status === 201 || response.status === 200) {
         toast.success("Vaccine combo added successfully!");
@@ -151,7 +156,6 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
             vaccines: newVaccineCombo.vaccines,
           });
         }
-        // Reset form after successful submission
         setNewVaccineCombo({
           comboName: "",
           discount: "",
@@ -271,22 +275,31 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
                     <p className="text-red-500">{error}</p>
                   ) : vaccines.length > 0 ? (
                     <div className="grid grid-cols-1 gap-2 mt-2 max-h-40 overflow-y-auto">
-                      {vaccines.map((vaccine) => (
-                        <div key={vaccine.id} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={newVaccineCombo.vaccines.some(
-                              (v) => v.id === vaccine.id
-                            )}
-                            onChange={() => handleVaccineSelect(vaccine)}
-                            className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-600">
-                            {vaccine.name} (ID: {vaccine.id}) (Price:{" "}
-                            {vaccine.price})
-                          </span>
-                        </div>
-                      ))}
+                      {vaccines.map((vaccine) => {
+                        const isSelected = newVaccineCombo.vaccines.some(
+                          (v) => v.id === vaccine.id
+                        );
+                        const isOutstock = vaccine.status === "Outstock";
+                        return (
+                          <div
+                            key={vaccine.id}
+                            className={`flex items-center ${
+                              isOutstock ? "opacity-50" : ""
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => handleVaccineSelect(vaccine)}
+                              disabled={isOutstock} // Vô hiệu hóa nếu Outstock
+                              className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:cursor-not-allowed"
+                            />
+                            <span className="ml-2 text-sm text-gray-600">
+                              {vaccine.name} (ID: {vaccine.id}) (Price: {vaccine.price}) (Status: {vaccine.status})
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="text-gray-500">No vaccines available.</p>
@@ -304,9 +317,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
                         className="flex justify-between items-center bg-gray-100 p-2 rounded"
                       >
                         <span>
-                          ID: {vaccine.id}{" "}
-                          {vaccine.name ? `- ${vaccine.name}` : ""} (Price:{" "}
-                          {vaccine.price})
+                          {vaccine.name} (ID: {vaccine.id}) (Price: {vaccine.price}) (Status: {vaccine.status})
                         </span>
                         <button
                           onClick={() => handleRemoveVaccine(vaccine.id)}
@@ -332,7 +343,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
               </button>
               <button
                 onClick={() => {
-                  console.log("Add button clicked"); // Debug log
+                  console.log("Add button clicked");
                   handleAddVaccine();
                 }}
                 disabled={loading}

@@ -7,7 +7,7 @@ const stage2Payment = () => {
         <>
          
                 <Stage2Payment />
-                <FooterHomePage />
+                {/* <FooterHomePage /> */}
            
         </>
 

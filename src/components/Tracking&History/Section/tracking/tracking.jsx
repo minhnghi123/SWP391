@@ -131,11 +131,11 @@ const TrackingChildbyUser = ({ id }) => {
   const handleSortChange = (status) => {
     const vaccineChains = createVaccineChains(trackingData);
     if (status.toLowerCase() === 'all') {
-      setSortLinkList(vaccineChains);
+      setSortLinkList(vaccineChains.filter(chain => chain.some(dose => dose.childId === selectedChild)));
     }
     else {
       const filteredVaccines = vaccineChains.filter(chain =>
-        chain.some(dose => dose.status.toLowerCase() === status)
+        chain.some(dose => dose.status.toLowerCase() === status && dose.childId === selectedChild)
       );
       setSortLinkList(filteredVaccines);
     }

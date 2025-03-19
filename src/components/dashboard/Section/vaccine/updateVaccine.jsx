@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { Save, X } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import useAxios from "../../../utils/useAxios";
-
+import useAxios from "../../../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
@@ -13,17 +12,20 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
 
   useEffect(() => {
     if (vaccine) {
+      const entryDate = vaccine.entryDate ? new Date(vaccine.entryDate).toISOString().split("T")[0] : "";
+      const timeExpired = vaccine.timeExpired ? new Date(vaccine.timeExpired).toISOString().split("T")[0] : "";
+
       setFormData({
         ...vaccine,
-        entryDate: vaccine.entryDate ? new Date(vaccine.entryDate).toISOString().split("T")[0] : "",
-        timeExpired: vaccine.timeExpired ? new Date(vaccine.timeExpired).toISOString().split("T")[0] : "",
-        status: vaccine.status === "AVAILABLE" ? "AVAILABLE" : "UNAVAILABLE", // Đồng bộ với AVAILABLE/UNAVAILABLE
+        entryDate,
+        timeExpired,
+        status: vaccine.status || "Instock",
       });
     }
   }, [vaccine]);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
 
     const numericFields = [
       "quantity",
@@ -43,7 +45,7 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (checked ? "AVAILABLE" : "UNAVAILABLE") : value, // Sửa thành AVAILABLE/UNAVAILABLE
+      [name]: value,
     }));
   };
 
@@ -63,6 +65,7 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
 
     if (formData.entryDate) {
       const entryDate = new Date(formData.entryDate);
+      entryDate.setHours(0, 0, 0, 0); // Đảm bảo so sánh chỉ dựa trên ngày
       if (entryDate > today) {
         return "Entry date must be in the past or today.";
       }
@@ -100,7 +103,7 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
       entryDate: formData.entryDate ? new Date(formData.entryDate).toISOString() : null,
       timeExpired: formData.timeExpired ? new Date(formData.timeExpired).toISOString() : null,
       addressId: Number(formData.addressId) || 0,
-      status: formData.status, // Giữ nguyên AVAILABLE/UNAVAILABLE
+      status: formData.status,
       minimumIntervalDate: Number(formData.minimumIntervalDate) || 0,
       maximumIntervalDate: Number(formData.maximumIntervalDate) || 0,
       fromCountry: formData.fromCountry || "Unknown",
@@ -133,7 +136,7 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
     { label: "Interval Age (Min)", name: "minimumIntervalDate", type: "number" },
     { label: "Interval Age (Max)", name: "maximumIntervalDate", type: "number" },
     { label: "Address ID", name: "addressId", type: "number" },
-    { label: "Status", name: "status", type: "checkbox" },
+    { label: "Status", name: "status", type: "select" },
   ];
 
   if (!formData) {
@@ -169,19 +172,17 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     rows={3}
                   />
-                ) : field.type === "checkbox" ? (
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name={field.name}
-                      checked={formData[field.name] === "AVAILABLE"}
-                      onChange={handleInputChange}
-                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                    />
-                    <span className="ml-2 text-sm text-gray-600">
-                      {formData[field.name] === "AVAILABLE" ? "Available" : "Unavailable"}
-                    </span>
-                  </div>
+                ) : field.type === "select" ? (
+                  <select
+                    name={field.name}
+                    value={formData[field.name]}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  >
+                    <option value="Instock">In Stock</option>
+                    <option value="Nearly Outstock">Nearly Out of Stock</option>
+                    <option value="Outstock">Out of Stock</option>
+                  </select>
                 ) : (
                   <input
                     type={field.type}

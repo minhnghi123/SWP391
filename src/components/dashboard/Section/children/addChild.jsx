@@ -1,25 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "react-toastify";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "../../../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
-
-const AddChild = ({ onAddSuccess }) => {
+const AddChild = ({ onAddSuccess, parentId }) => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [parents, setParents] = useState([]); // State để lưu danh sách parent
+  const [parents, setParents] = useState([]);
   const api = useAxios();
 
   const [newChild, setNewChild] = useState({
-    parentID: "",
+    parentID: parentId || "",
     name: "",
     dateOfBirth: "",
-    gender: "0", // 0 for male, 1 for female
+    gender: "0",
   });
 
-  // Fetch danh sách parent từ API
   const fetchParents = async () => {
     try {
       const response = await api.get(`${url}/User/get-all-user-admin`);
@@ -30,12 +28,15 @@ const AddChild = ({ onAddSuccess }) => {
     }
   };
 
-  // Gọi fetchParents khi form được mở
   useEffect(() => {
     if (showForm) {
       fetchParents();
+      setNewChild((prev) => ({
+        ...prev,
+        parentID: parentId || "",
+      }));
     }
-  }, [showForm]);
+  }, [showForm, parentId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -59,21 +60,26 @@ const AddChild = ({ onAddSuccess }) => {
       return;
     }
 
+    // Kiểm tra nếu ngày sinh trong tương lai
+    const today = new Date();
+    const dob = new Date(newChild.dateOfBirth);
+    if (dob > today) {
+      setError("Date of birth cannot be in the future.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     const childData = {
-      parentID: newChild.parentID, // Giữ nguyên parentID dạng string hoặc number tùy API yêu cầu
+      parentID: newChild.parentID,
       name: newChild.name.trim(),
       dateOfBirth: newChild.dateOfBirth,
       gender: parseInt(newChild.gender),
     };
 
     try {
-      const response = await api.post(
-        `${url}/Child/create-child`,
-        childData,
-      );
+      const response = await api.post(`${url}/Child/create-child`, childData);
 
       if (response.status === 201 || response.status === 200) {
         toast.success("Child added successfully!");
@@ -84,7 +90,7 @@ const AddChild = ({ onAddSuccess }) => {
           });
         }
         setNewChild({
-          parentID: "",
+          parentID: parentId || "",
           name: "",
           dateOfBirth: "",
           gender: "0",
@@ -99,6 +105,15 @@ const AddChild = ({ onAddSuccess }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Định dạng ngày hôm nay theo yyyy-mm-dd để dùng cho thuộc tính max
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -152,6 +167,7 @@ const AddChild = ({ onAddSuccess }) => {
                 name="dateOfBirth"
                 value={newChild.dateOfBirth}
                 onChange={handleInputChange}
+                max={getTodayDate()} // Giới hạn ngày tối đa là hôm nay
                 className="w-full p-2.5 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
                 required
               />

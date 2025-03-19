@@ -1,19 +1,39 @@
 import React, { useState, useEffect } from "react";
 import Pagination from "../../../../utils/pagination";
-import VaccineDetails from "../vaccine/detailVaccine"; // Updated to match file name
+import VaccineDetails from "../../../dashboard/Section/vaccine/detailVaccine";
 import { ToastContainer } from "react-toastify";
-import { Search, ArrowUpDown, Refrigerator, Eye } from "lucide-react";
+import { Search, Filter, MoreHorizontal, Refrigerator, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import useAxios from "../../../../utils/useAxios";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
+const getStatusBadge = (status) => {
+  switch (status.toLowerCase()) {
+    case "instock":
+      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100" variant="outline">In Stock</Badge>;
+    case "nearly out stock":
+      return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100" variant="outline">Nearly Out</Badge>;
+    case "outofstock":
+      return <Badge className="bg-red-100 text-red-800 hover:bg-red-100" variant="outline">Out of Stock</Badge>;
+    default:
+      return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100" variant="outline">{status}</Badge>;
+  }
+};
+
 const VaccineList = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("name");
+  const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [selectedVaccine, setSelectedVaccine] = useState(null); // Changed to store full vaccine object
+  const [rowsPerPage] = useState(5);
+  const [selectedVaccine, setSelectedVaccine] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -29,10 +49,7 @@ const VaccineList = () => {
       setError(null);
     } catch (error) {
       console.error("Error fetching vaccines:", error);
-      setError(
-        error.response?.data?.message ||
-          "Failed to fetch vaccines. Please try again later."
-      );
+      setError(error.response?.data?.message || "Failed to fetch vaccines. Please try again later.");
       setVaccines([]);
     } finally {
       setLoading(false);
@@ -43,36 +60,34 @@ const VaccineList = () => {
     fetchVaccines();
   }, []);
 
-  const filteredItems = vaccines.filter(
-    (item) =>
-      item?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+  const filteredItems = vaccines.filter((item) =>
+    item?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
   );
 
-  const sortedItems = [...filteredItems].sort((a, b) => {
-    const valueA = a[sortBy] ?? "";
-    const valueB = b[sortBy] ?? "";
-    if (sortBy === "price" || sortBy === "quantity") {
+  const sortData = (data) => {
+    return [...data].sort((a, b) => {
+      const valueA = a[sortField] ?? "";
+      const valueB = b[sortField] ?? "";
+      if (sortField === "price" || sortField === "quantity") {
+        return sortOrder === "asc" ? Number(valueA) - Number(valueB) : Number(valueB) - Number(valueA);
+      }
       return sortOrder === "asc"
-        ? Number(valueA) - Number(valueB)
-        : Number(valueB) - Number(valueA);
-    }
-    return sortOrder === "asc"
-      ? String(valueA).localeCompare(String(valueB))
-      : String(valueB).localeCompare(String(valueA));
-  });
+        ? String(valueA).localeCompare(String(valueB))
+        : String(valueB).localeCompare(String(valueA));
+    });
+  };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedItems.slice(indexOfFirstItem, indexOfLastItem);
+  const sortedItems = sortData(filteredItems);
+  const totalPages = Math.ceil(sortedItems.length / rowsPerPage);
+  const paginatedData = sortedItems.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const handleViewItem = (item) => {
     if (item) {
-      setSelectedVaccine(item); // Store the full vaccine object
+      setSelectedVaccine(item);
       setIsModalOpen(true);
     }
   };
@@ -85,176 +100,190 @@ const VaccineList = () => {
   return (
     <>
       <ToastContainer />
-      <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Vaccine Inventory
-          </h1>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Search vaccines..."
-              value={searchTerm}
-              onChange={handleSearch}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <ArrowUpDown size={18} className="text-gray-500" />
-            <select
-              value={`${sortBy}-${sortOrder}`}
-              onChange={(e) => {
-                const [field, order] = e.target.value.split("-");
-                setSortBy(field);
-                setSortOrder(order);
-                setCurrentPage(1);
-              }}
-              className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
-            >
-              <option value="name-asc">Name (A-Z)</option>
-              <option value="name-desc">Name (Z-A)</option>
-              <option value="price-asc">Price (Low to High)</option>
-              <option value="price-desc">Price (High to Low)</option>
-              <option value="quantity-asc">Quantity (Low to High)</option>
-              <option value="quantity-desc">Quantity (High to Low)</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Loading vaccines...</p>
-            </div>
-          ) : error ? (
-            <div className="text-center py-8">
-              <p className="text-red-500">{error}</p>
-              <button
-                onClick={fetchVaccines}
-                className="mt-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
+      <Card className="border-blue-100 bg-white shadow-sm">
+        <CardHeader className="border-b border-blue-50">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle className="text-blue-700">Vaccine Inventory</CardTitle>
+            <div className="flex flex-wrap gap-2">
+              <div className="relative w-[250px]">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500" />
+                <Input
+                  placeholder="Search vaccines..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                />
+              </div>
+              <Select
+                value={sortField}
+                onValueChange={(value) => {
+                  setSortField(value);
+                  setCurrentPage(1);
+                }}
               >
-                Retry
-              </button>
+                <SelectTrigger className="w-[180px] border-blue-200 focus:ring-blue-400">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-blue-500" />
+                    <SelectValue placeholder="Sort by" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="price">Price</SelectItem>
+                  <SelectItem value="quantity">Quantity</SelectItem>
+                  <SelectItem value="fromCountry">From Country</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  setCurrentPage(1);
+                }}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                {sortOrder === "asc" ? "↑" : "↓"}
+              </Button>
             </div>
-          ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    ID
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Quantity
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Price
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    From Country
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.id}
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                            <Refrigerator className="w-5 h-5 text-teal-600" />
-                          </div>
-                          <p className="font-medium text-gray-900">
-                            {item.name || "N/A"}
-                          </p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-blue-50/50">
+                <TableRow className="hover:bg-blue-50/80">
+                  <TableHead className="text-blue-700 text-center">ID</TableHead>
+                  <TableHead className="text-blue-700 text-center">Name</TableHead>
+                  <TableHead className="text-blue-700 text-center">Quantity</TableHead>
+                  <TableHead className="text-blue-700 text-center">Price</TableHead>
+                  <TableHead className="text-blue-700 text-center">From Country</TableHead>
+                  <TableHead className="text-blue-700 text-center">Status</TableHead>
+                  <TableHead className="text-blue-700 text-center">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-blue-600">
+                      Loading vaccines...
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-red-500">
+                      {error}
+                      <Button
+                        onClick={fetchVaccines}
+                        variant="outline"
+                        className="ml-4 border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        Retry
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedData.length > 0 ? (
+                  paginatedData.map((item) => (
+                    <TableRow key={item.id} className="hover:bg-blue-50/30 border-b border-blue-50">
+                      <TableCell className="font-medium text-blue-800 text-center">#{item.id}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Refrigerator className="h-4 w-4 text-blue-500" />
+                          <span>{item.name || "N/A"}</span>
                         </div>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.quantity ?? 0}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        ${item.price?.toFixed(2) ?? "0.00"}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.fromCountry || "N/A"}
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                            item.status === "AVAILABLE"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {item.status || "UNKNOWN"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <button
-                          onClick={() => handleViewItem(item)}
-                          className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                          title="View details"
-                        >
-                          <Eye size={16} />
-                        </button>
-                      </td>
-                    </tr>
+                      </TableCell>
+                      <TableCell className="text-center">{item.quantity ?? 0}</TableCell>
+                      <TableCell className="text-center">${item.price?.toFixed(2) ?? "0.00"}</TableCell>
+                      <TableCell className="text-center">{item.fromCountry || "N/A"}</TableCell>
+                      <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="border-blue-100">
+                            <DropdownMenuItem
+                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                              onClick={() => handleViewItem(item)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View details
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
                   ))
                 ) : (
-                  <tr>
-                    <td
-                      colSpan={6} // Adjusted to match column count
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-blue-600">
                       No vaccines found matching your search criteria.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
+          </div>
+          {!loading && !error && (
+            <div className="p-4 flex justify-between items-center border-t border-blue-50 bg-blue-50/30">
+              <div className="text-sm text-blue-700">
+                Showing <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> to{" "}
+                <span className="font-medium">{Math.min(currentPage * rowsPerPage, sortedItems.length)}</span>{" "}
+                of <span className="font-medium">{sortedItems.length}</span> records
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                {[...Array(totalPages)].map((_, index) => (
+                  <Button
+                    key={index + 1}
+                    variant="outline"
+                    size="sm"
+                    className={`border-blue-200 ${
+                      currentPage === index + 1
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "text-blue-700 hover:bg-blue-50"
+                    }`}
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
-        </div>
+        </CardContent>
+      </Card>
 
-        {!loading && !error && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil(sortedItems.length / itemsPerPage)}
-            itemsPerPage={itemsPerPage}
-            setCurrentPage={setCurrentPage}
-            setItemsPerPage={setItemsPerPage}
-            totalItems={sortedItems.length}
-          />
-        )}
-
-        {isModalOpen && selectedVaccine && (
-          <VaccineDetails
-            id={selectedVaccine.id}
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            vaccineData={selectedVaccine} // Pass full vaccine object
-          />
-        )}
-      </div>
+      {isModalOpen && selectedVaccine && (
+        <VaccineDetails
+          id={selectedVaccine.id}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          vaccineData={selectedVaccine}
+        />
+      )}
     </>
   );
 };

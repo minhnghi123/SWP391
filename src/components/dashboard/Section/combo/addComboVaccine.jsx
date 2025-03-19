@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Plus } from "lucide-react";
 import { toast } from "react-toastify";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "../../../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddVaccineComboComponent = ({ onAddSuccess }) => {
@@ -18,7 +17,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
     discount: "",
     totalPrice: 0,
     finalPrice: 0,
-    status: "AVAILABLE",
+    status: "Instock",
     vaccines: [],
   });
 
@@ -59,20 +58,8 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
   const handleStatusChange = (e) => {
     setNewVaccineCombo((prev) => ({
       ...prev,
-      status: e.target.checked ? "AVAILABLE" : "UNAVAILABLE",
+      status: e.target.checked ? "Instock" : "Instock",
     }));
-  };
-
-  const fetchVaccineById = async (id) => {
-    try {
-      const response = await api.get(
-        `${url}/Vaccine/get-vaccine-by-id/${id}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching vaccine:", error);
-      throw new Error("Failed to fetch vaccine details");
-    }
   };
 
   const fetchAllVaccines = async () => {
@@ -89,23 +76,6 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
     }
   };
 
-  const handleAddVaccineToCombo = async (vaccineId) => {
-    const id = parseInt(vaccineId);
-    if (!isNaN(id) && id >= 0 && !newVaccineCombo.vaccines.some((v) => v.id === id)) {
-      try {
-        setLoading(true);
-        const vaccineData = await fetchVaccineById(id);
-        setNewVaccineCombo((prev) => ({
-          ...prev,
-          vaccines: [...prev.vaccines, vaccineData],
-        }));
-      } catch (error) {
-        setError("Could not add vaccine: " + error.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
 
   const handleRemoveVaccine = (vaccineId) => {
     setNewVaccineCombo((prev) => ({
@@ -130,7 +100,10 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
       setError("Combo name is required and cannot be empty.");
       return;
     }
-    if (newVaccineCombo.discount === "" || isNaN(parseInt(newVaccineCombo.discount))) {
+    if (
+      newVaccineCombo.discount === "" ||
+      isNaN(parseInt(newVaccineCombo.discount))
+    ) {
       setError("Discount is required and must be a valid number.");
       return;
     }
@@ -184,7 +157,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
           discount: "",
           totalPrice: 0,
           finalPrice: 0,
-          status: "AVAILABLE",
+          status: "Instock",
           vaccines: [],
         });
         setShowForm(false);
@@ -192,9 +165,13 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
         toast.error("Failed to add vaccine combo.");
       }
     } catch (error) {
-      console.error("Error adding vaccine combo:", error.response?.data || error);
+      console.error(
+        "Error adding vaccine combo:",
+        error.response?.data || error
+      );
       toast.error(
-        error.response?.data?.message || "Unknown error occurred while adding vaccine combo."
+        error.response?.data?.message ||
+          "Unknown error occurred while adding vaccine combo."
       );
     } finally {
       setLoading(false);
@@ -212,7 +189,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
     <>
       <button
         onClick={() => setShowForm(!showForm)}
-        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-5 py-2.5 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
+        className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
       >
         <Plus className="w-5 h-5" />
         <span className="font-medium">Add Combo Vaccine Stock</span>
@@ -221,7 +198,9 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
       {showForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-8 rounded-2xl shadow-2xl w-[600px] max-w-[90%] max-h-[90vh] overflow-y-auto text-center relative">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Add Combo Vaccines</h2>
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              Add Combo Vaccines
+            </h2>
 
             {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
 
@@ -265,11 +244,11 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
                 <input
                   type="checkbox"
                   name="status"
-                  checked={newVaccineCombo.status === "AVAILABLE"}
+                  checked={newVaccineCombo.status === "Instock"}
                   onChange={handleStatusChange}
                   className="w-5 h-5 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 />
-                <label className="text-sm text-gray-600">AVAILABLE</label>
+                <label className="text-sm text-gray-600">Instock</label>
               </div>
             </div>
 
@@ -296,12 +275,15 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
                         <div key={vaccine.id} className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={newVaccineCombo.vaccines.some((v) => v.id === vaccine.id)}
+                            checked={newVaccineCombo.vaccines.some(
+                              (v) => v.id === vaccine.id
+                            )}
                             onChange={() => handleVaccineSelect(vaccine)}
                             className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           />
                           <span className="ml-2 text-sm text-gray-600">
-                            {vaccine.name} (ID: {vaccine.id}) (Price: {vaccine.price})
+                            {vaccine.name} (ID: {vaccine.id}) (Price:{" "}
+                            {vaccine.price})
                           </span>
                         </div>
                       ))}
@@ -322,7 +304,8 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
                         className="flex justify-between items-center bg-gray-100 p-2 rounded"
                       >
                         <span>
-                          ID: {vaccine.id} {vaccine.name ? `- ${vaccine.name}` : ""} (Price:{" "}
+                          ID: {vaccine.id}{" "}
+                          {vaccine.name ? `- ${vaccine.name}` : ""} (Price:{" "}
                           {vaccine.price})
                         </span>
                         <button
@@ -353,7 +336,7 @@ const AddVaccineComboComponent = ({ onAddSuccess }) => {
                   handleAddVaccine();
                 }}
                 disabled={loading}
-                className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-lg hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 shadow-lg shadow-teal-500/20 disabled:from-teal-300 disabled:to-emerald-300"
+                className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
               >
                 {loading ? "Adding..." : "Add Vaccine Combo"}
               </button>

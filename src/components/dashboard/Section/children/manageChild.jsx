@@ -1,65 +1,69 @@
 import React, { useState, useEffect } from "react";
-import AddVaccineComponent from "../../staffManage/CRUD/addVaccine";
-import DeleteVaccine from "../../staffManage/CRUD/deleteVaccine";
-import Pagination from "../../../utils/pagination";
-import VaccineDetails from "../../staffManage/section//vaccine/detailVaccine";
+import { Search, ArrowUpDown, BabyIcon, SquarePen } from "lucide-react";
 import { ToastContainer } from "react-toastify";
-import {
-  Search,
-  ArrowUpDown,
-  Refrigerator,
-  Eye,
-  SquarePen,
-} from "lucide-react";
-import UpdateVaccine from "../../staffManage/CRUD/updateVaccine";
+import DateFormatter from "../../../../utils/FormDate";
+import UpdateChild from "../children/updateChildren";
+import DeleteComponent from "../../delete";
+import useAxios from "../../../../utils/useAxios";
+import Pagination from "../../../../utils/pagination";
 
-import useAxios from "../../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
-const VaccineList = () => {
+const ChildManagement = () => {
+  const [children, setChildren] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [selectedVaccineId, setSelectedVaccineId] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] =
-    useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [vaccines, setVaccines] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
   const api = useAxios();
 
-  const fetchVaccines = async () => {
+  const fetchChildren = async () => {
     try {
-      setLoading(true);
-      const response = await api.get(`${url}/Vaccine/get-all-vaccines-admin`);
-      setVaccines(response.data);
-      setError(null);
+      setIsLoading(true);
+      const childrenResponse = await api.get(`${url}/Child/get-all-child-admin`);
+      const childrenData = childrenResponse.data.map((child) => ({
+        ...child,
+        status: child.status || "Active",
+      }));
+      setChildren(childrenData);
+      setErrorMessage(null);
     } catch (error) {
-      console.error("Error fetching vaccines:", error);
-      setError("Failed to fetch vaccines. Please try again later.");
+      console.error("Failed to fetch children:", error);
+      setErrorMessage("Failed to load children. Please try again later.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchVaccines();
+    fetchChildren();
   }, []);
 
-  const handleDeleteSuccess = () => {
-    fetchVaccines();
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
-  const filteredItems = vaccines.filter((item) =>
-    (item.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  const handleUpdateSuccess = (updatedChild) => {
+    setChildren((prev) =>
+      prev.map((child) =>
+        child.id === updatedChild.id ? { ...child, ...updatedChild } : child
+      )
+    );
+  };
+
+  const handleDeleteSuccess = () => {
+    fetchChildren();
+  };
+
+  const filteredChildren = children.filter((child) =>
+    (child.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
-  const sortedItems = [...filteredItems].sort((a, b) => {
+  const sortedChildren = [...filteredChildren].sort((a, b) => {
     const valueA = a[sortBy] || "";
     const valueB = b[sortBy] || "";
     return sortOrder === "asc"
@@ -73,54 +77,14 @@ const VaccineList = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedItems.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleViewItem = (item) => {
-    console.log("Viewing vaccine with ID:", item.id); // Debug log
-    setSelectedVaccineId(item.id);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedVaccineId(null);
-  };
-
-  const handleOpenUpdateModal = (item) => {
-    setSelectedVaccineForUpdate(item);
-    setIsUpdateModalOpen(true);
-  };
-
-  const handleCloseUpdateModal = () => {
-    setIsUpdateModalOpen(false);
-    setSelectedVaccineForUpdate(null);
-  };
-
-  const handleUpdateSuccess = (updatedVaccine) => {
-    setVaccines((prev) =>
-      prev.map((item) =>
-        item.id === updatedVaccine.id ? updatedVaccine : item
-      )
-    );
-    handleCloseUpdateModal();
-  };
-
-  const handleAddSuccess = () => {
-    fetchVaccines();
-  };
+  const currentChildren = sortedChildren.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <>
       <ToastContainer />
       <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">Vaccine Inventory</h1>
-          <AddVaccineComponent onAddSuccess={handleAddSuccess} />
+          <h1 className="text-2xl font-bold text-gray-900">Child Management</h1>
         </div>
 
         <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">
@@ -131,7 +95,7 @@ const VaccineList = () => {
             />
             <input
               type="text"
-              placeholder="Search vaccines..."
+              placeholder="Search children by name..."
               value={searchTerm}
               onChange={handleSearch}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
@@ -150,40 +114,40 @@ const VaccineList = () => {
             >
               <option value="name-asc">Name (A-Z)</option>
               <option value="name-desc">Name (Z-A)</option>
-              <option value="price-asc">Price (Low to High)</option>
-              <option value="price-desc">Price (High to Low)</option>
-              <option value="quantity-asc">Quantity (Low to High)</option>
-              <option value="quantity-desc">Quantity (High to Low)</option>
+              <option value="dateOfBirth-asc">Date of Birth (Oldest)</option>
+              <option value="dateOfBirth-desc">Date of Birth (Newest)</option>
+              <option value="createdAt-asc">Created At (Oldest)</option>
+              <option value="createdAt-desc">Created At (Newest)</option>
             </select>
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          {loading ? (
-            <p>Loading vaccines...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
+          {isLoading ? (
+            <p className="text-gray-500 text-center">Loading children...</p>
+          ) : errorMessage ? (
+            <p className="text-red-500 text-center">{errorMessage}</p>
           ) : (
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Id
+                    ID
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                     Name
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Quantity
+                    Date of Birth
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Price
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    From Country
+                    Gender
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                     Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Created At
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                     Actions
@@ -191,66 +155,60 @@ const VaccineList = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((item) => (
+                {currentChildren.length > 0 ? (
+                  currentChildren.map((child) => (
                     <tr
-                      key={item.id}
+                      key={child.id}
                       className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                     >
                       <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.id}
+                        {child.id}
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                            <Refrigerator className="w-5 h-5 text-teal-600" />
+                            <BabyIcon className="w-5 h-5 text-teal-600" />
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">
-                              {item.name}
+                              {child.name}
                             </p>
                           </div>
                         </div>
                       </td>
-
                       <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.quantity}
+                        {DateFormatter(child.dateOfBirth)}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
-                        ${item.price}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {item.fromCountry}
+                        {child.gender === 0
+                          ? "Male"
+                          : child.gender === 1
+                          ? "Female"
+                          : "Other"}
                       </td>
                       <td className="px-4 py-4">
                         <span
                           className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                            item.status === "AVAILABLE"
+                            child.status.toLowerCase() === "active"
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
                           }`}
                         >
-                          {item.status || "UNKNOWN"}
+                          {child.status || "UNKNOWN"}
                         </span>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {DateFormatter(child.createdAt)}
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleViewItem(item)}
-                            className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                            title="View details"
-                          >
-                            <Eye size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleOpenUpdateModal(item)}
-                            className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                            title="Edit vaccine"
-                          >
-                            <SquarePen size={16} />
-                          </button>
-                          <DeleteVaccine
-                            vaccineId={item.id}
+                          <UpdateChild
+                            child={child}
+                            onUpdateSuccess={handleUpdateSuccess}
+                            onCancel={() => {}}
+                          />
+                          <DeleteComponent
+                            id={child.id}
                             onDeleteSuccess={handleDeleteSuccess}
                           />
                         </div>
@@ -260,10 +218,10 @@ const VaccineList = () => {
                 ) : (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={7}
                       className="px-4 py-8 text-center text-gray-500"
                     >
-                      No vaccines found matching your search criteria.
+                      No children found matching your search criteria.
                     </td>
                   </tr>
                 )}
@@ -274,31 +232,15 @@ const VaccineList = () => {
 
         <Pagination
           currentPage={currentPage}
-          totalPages={Math.ceil(sortedItems.length / itemsPerPage)}
+          totalPages={Math.ceil(sortedChildren.length / itemsPerPage)}
           itemsPerPage={itemsPerPage}
           setCurrentPage={setCurrentPage}
           setItemsPerPage={setItemsPerPage}
-          totalItems={sortedItems.length}
+          totalItems={sortedChildren.length}
         />
-
-        {isModalOpen && selectedVaccineId && (
-          <VaccineDetails
-            id={selectedVaccineId}
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-          />
-        )}
-
-        {isUpdateModalOpen && selectedVaccineForUpdate && (
-          <UpdateVaccine
-            vaccine={selectedVaccineForUpdate}
-            onSave={handleUpdateSuccess}
-            onCancel={handleCloseUpdateModal}
-          />
-        )}
       </div>
     </>
   );
 };
 
-export default VaccineList;
+export default ChildManagement;

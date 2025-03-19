@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import {
+  Search,
+  ArrowUpDown,
+  ArchiveRestore,
+  Trash2,
+  MessageSquare,
+} from "lucide-react";
+import Pagination from "../../../utils/pagination";
 import useAxios from "../../../utils/useAxios";
-import { toast } from "react-toastify";
-import { ArchiveRestore, Trash2 } from "lucide-react";
-// import { aw } from "framer-motion/dist/types.d-6pKw1mTI";
+
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const Feedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
-  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("description"); // Mặc định sắp xếp theo mô tả
+  const [sortOrder, setSortOrder] = useState("asc"); // Mặc định tăng dần
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const api = useAxios();
@@ -17,7 +27,9 @@ const Feedback = () => {
     const fetchDataAsync = async () => {
       try {
         setLoading(true);
-        const feedbackRes = await api.get(`${url}/Feedback/get-all-feedback-admin`);
+        const feedbackRes = await api.get(
+          `${url}/Feedback/get-all-feedback-admin`
+        );
         setFeedbacks(feedbackRes.data);
         setError(null);
       } catch (error) {
@@ -31,13 +43,15 @@ const Feedback = () => {
     fetchDataAsync();
   }, []);
 
-  console.log(feedbacks);
-
   const handleSoftDelete = async (id) => {
     try {
       const rs = await api.patch(`${url}/Feedback/soft-delete-feedback/${id}`);
       if (rs.status === 200) {
-        setFeedbacks(feedbacks.map((feedback) => (feedback.id === id ? { ...feedback, isDeleted: true } : feedback)));
+        setFeedbacks(
+          feedbacks.map((feedback) =>
+            feedback.id === id ? { ...feedback, isDeleted: true } : feedback
+          )
+        );
         toast.success("Delete Feedback successfully");
       } else {
         toast.error("Delete Feedback failed");
@@ -48,98 +62,206 @@ const Feedback = () => {
     }
   };
 
-  const handleRestore = async(id) => {
-    try{
-        const rs = await api.patch(`${url}/Feedback/restore-feedback/${id}`);
-        if(rs.status === 200){
-          setFeedbacks(feedbacks.map((feedback) => (feedback.id === id ? { ...feedback, isDeleted: false } : feedback)));
-          toast.success("Restore Feedback successfully");
-        }else{
-          toast.error("Restore Feedback failed");
-        }
-    }catch(error){
-      console.error("Error deleting feedback:", error);
+  const handleRestore = async (id) => {
+    try {
+      const rs = await api.patch(`${url}/Feedback/restore-feedback/${id}`);
+      if (rs.status === 200) {
+        setFeedbacks(
+          feedbacks.map((feedback) =>
+            feedback.id === id ? { ...feedback, isDeleted: false } : feedback
+          )
+        );
+        toast.success("Restore Feedback successfully");
+      } else {
+        toast.error("Restore Feedback failed");
+      }
+    } catch (error) {
+      console.error("Error restoring feedback:", error);
       toast.error("An error occurred while restoring feedback");
     }
   };
 
   const handleSearch = (e) => {
-    setSearch(e.target.value);
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   const filteredFeedbacks = feedbacks.filter((feedback) =>
-    feedback.description.toLowerCase().includes(search.toLowerCase())
+    (feedback.description?.toLowerCase() || "").includes(
+      searchTerm.toLowerCase()
+    )
   );
 
+  const sortedFeedbacks = [...filteredFeedbacks].sort((a, b) => {
+    const valueA =
+      sortBy === "ratingScore" ? a[sortBy] : (a[sortBy] || "").toLowerCase();
+    const valueB =
+      sortBy === "ratingScore" ? b[sortBy] : (b[sortBy] || "").toLowerCase();
+    return sortOrder === "asc"
+      ? valueA > valueB
+        ? 1
+        : -1
+      : valueA < valueB
+      ? 1
+      : -1;
+  });
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedFeedbacks.slice(indexOfFirstItem, indexOfLastItem);
+
+  const formatStatus = (isDeleted) => {
+    return isDeleted ? "Deleted" : "Not Deleted";
+  };
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Feedback Management</h1>
-      </div>
+    <>
+      <ToastContainer position="bottom-right" />
+      <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Feedback Management
+          </h1>
+        </div>
 
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search by description..."
-          value={search}
-          onChange={handleSearch}
-          className="w-full p-3 rounded-lg border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-      </div>
+        <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={18}
+            />
+            <input
+              type="text"
+              placeholder="Search feedback by description..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <ArrowUpDown size={18} className="text-gray-500" />
+            <select
+              value={`${sortBy}-${sortOrder}`}
+              onChange={(e) => {
+                const [field, order] = e.target.value.split("-");
+                setSortBy(field);
+                setSortOrder(order);
+              }}
+              className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
+            >
+              <option value="ratingScore-asc">Rating (Low to High)</option>
+              <option value="ratingScore-desc">Rating (High to Low)</option>
+            </select>
+          </div>
+        </div>
 
-      {loading && <p className="text-center text-gray-500">Loading feedback...</p>}
-      {error && <p className="text-center text-red-500">{error}</p>}
-
-      {!loading && !error && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full table-auto">
-            <thead className="bg-gray-100 border-b">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">User ID</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Rating Score</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Description</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredFeedbacks.length > 0 ? (
-                filteredFeedbacks.map((feedback) => (
-                  <tr key={feedback.userId} className="border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-800">{feedback.userId}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{feedback.ratingScore} ⭐</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{feedback.description}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {feedback.isDeleted ? "Deleted" : "Not Deleted"}{" "}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 flex items-center space-x-4">
-                      <button
-                        onClick={() => handleSoftDelete(feedback.id)}
-                        className="p-2 rounded-lg bg-red-100 hover:bg-red-200 transition duration-200"
-                      >
-                        <Trash2 size={16} className="text-red-600" />
-                      </button>
-
-                      <button 
-                        onClick={()=> handleRestore(feedback.id)}
-                        className="p-2 rounded-lg bg-green-100 hover:bg-green-200 transition duration-200">
-                        <ArchiveRestore size={16} className="text-green-600" />
-                      </button>
+        <div className="overflow-x-auto">
+          {loading ? (
+            <p className="text-gray-500 text-center">Loading feedback...</p>
+          ) : error ? (
+            <p className="text-red-500 text-center">{error}</p>
+          ) : (
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    User ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Rating Score
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Description
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentItems.length > 0 ? (
+                  currentItems.map((feedback) => (
+                    <tr
+                      key={feedback.id}
+                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {feedback.userId}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
+                            <MessageSquare className="w-5 h-5 text-teal-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {feedback.ratingScore} ⭐
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600 max-w-[300px] overflow-hidden whitespace-nowrap text-ellipsis">
+                        {feedback.description}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
+                            feedback.isDeleted
+                              ? "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {formatStatus(feedback.isDeleted)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleSoftDelete(feedback.id)}
+                            className="p-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
+                            title="Delete feedback"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleRestore(feedback.id)}
+                            className="p-1.5 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
+                            title="Restore feedback"
+                          >
+                            <ArchiveRestore size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
+                      No feedback found matching your search criteria.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center text-gray-500">
-                    No feedback found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
-      )}
-    </div>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(sortedFeedbacks.length / itemsPerPage)}
+          itemsPerPage={itemsPerPage}
+          setCurrentPage={setCurrentPage}
+          setItemsPerPage={setItemsPerPage}
+          totalItems={sortedFeedbacks.length}
+        />
+      </div>
+    </>
   );
 };
 

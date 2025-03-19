@@ -1,45 +1,55 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Pagination from "../../../../utils/pagination";
-import DetailCombo from "../combo/detailsCombo";
 import { ToastContainer } from "react-toastify";
-import {
-  Search,
-  ArrowUpDown,
-  Refrigerator,
-  Eye,
-  SquarePen,
-} from "lucide-react";
+import { Search, Filter, MoreHorizontal, Refrigerator, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import useAxios from "../../../../utils/useAxios";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import DetailCombo from "../../../dashboard/Section/combo/detailsCombo";
+
 const url = import.meta.env.VITE_BASE_URL_DB;
+
+const getStatusBadge = (status) => {
+  switch (status.toLowerCase()) {
+    case "instock":
+      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100" variant="outline">In Stock</Badge>;
+    case "nearly out stock":
+      return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100" variant="outline">Nearly Out</Badge>;
+    case "outofstock":
+      return <Badge className="bg-red-100 text-red-800 hover:bg-red-100" variant="outline">Out of Stock</Badge>;
+    default:
+      return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100" variant="outline">{status}</Badge>;
+  }
+};
 
 const VaccineCombo = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("comboName");
+  const [sortField, setSortField] = useState("comboName");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [rowsPerPage] = useState(5);
   const [selectedVaccine, setSelectedVaccine] = useState(null);
-  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] =
-    useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [vaccineCombos, setVaccineCombos] = useState([]);
+
   const api = useAxios();
 
   const fetchVaccineCombos = async () => {
     try {
       setLoading(true);
-      const response = await api.get(
-        `${url}/VaccineCombo/get-all-vaccine-combo-admin`
-      );
-      setVaccineCombos(response.data);
+      const response = await api.get(`${url}/VaccineCombo/get-all-vaccine-combo`);
+      setVaccineCombos(Array.isArray(response.data) ? response.data : []);
       setError(null);
     } catch (error) {
       console.error("Error fetching vaccine combos:", error);
       setError("Failed to fetch vaccine combos. Please try again later.");
+      setVaccineCombos([]);
     } finally {
       setLoading(false);
     }
@@ -49,38 +59,33 @@ const VaccineCombo = () => {
     fetchVaccineCombos();
   }, []);
 
-  // Filter, Sort, Pagination logic
   const filteredItems = vaccineCombos.filter((item) =>
     (item.comboName?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
-  const sortedItems = [...filteredItems].sort((a, b) => {
-    const valueA = a[sortBy] || "";
-    const valueB = b[sortBy] || "";
-    return sortOrder === "asc"
-      ? valueA > valueB
-        ? 1
-        : -1
-      : valueA < valueB
-      ? 1
-      : -1;
-  });
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedItems.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
+  const sortData = (data) => {
+    return [...data].sort((a, b) => {
+      const valueA = sortField === "finalPrice" ? a.totalPrice * (1 - a.discount / 100) : a[sortField] || "";
+      const valueB = sortField === "finalPrice" ? b.totalPrice * (1 - b.discount / 100) : b[sortField] || "";
+      if (sortField === "totalPrice" || sortField === "discount" || sortField === "finalPrice") {
+        return sortOrder === "asc" ? Number(valueA) - Number(valueB) : Number(valueB) - Number(valueA);
+      }
+      return sortOrder === "asc"
+        ? String(valueA).localeCompare(String(valueB))
+        : String(valueB).localeCompare(String(valueA));
+    });
   };
 
-  const handleSuccess = () => {
-    fetchVaccineCombos();
+  const sortedItems = sortData(filteredItems);
+  const totalPages = Math.ceil(sortedItems.length / rowsPerPage);
+  const paginatedData = sortedItems.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const handleViewItem = (item) => {
-    console.log("Selected vaccine:", item); // Debug log to check data
+    console.log("Selected vaccine combo:", item);
     setSelectedVaccine(item);
     setIsModalOpen(true);
   };
@@ -90,198 +95,198 @@ const VaccineCombo = () => {
     setSelectedVaccine(null);
   };
 
-  const handleOpenUpdateModal = (item) => {
-    setSelectedVaccineForUpdate(item);
-    setIsUpdateModalOpen(true);
-  };
-
-  const handleCloseUpdateModal = () => {
-    setIsUpdateModalOpen(false);
-    setSelectedVaccineForUpdate(null);
-  };
-
-  const handleUpdateSuccess = (updatedCombo) => {
-    setVaccineCombos((prev) =>
-      prev.map((item) => (item.id === updatedCombo.id ? updatedCombo : item))
-    );
-    handleCloseUpdateModal();
-  };
-
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
+    <>
       <ToastContainer />
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Vaccine Combo Inventory
-        </h1>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={18}
-          />
-          <input
-            type="text"
-            placeholder="Search vaccines..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <ArrowUpDown size={18} className="text-gray-500" />
-          <select
-            value={`${sortBy}-${sortOrder}`}
-            onChange={(e) => {
-              const [field, order] = e.target.value.split("-");
-              setSortBy(field);
-              setSortOrder(order);
-            }}
-            className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
-          >
-            <option value="comboName-asc">Name (A-Z)</option>
-            <option value="comboName-desc">Name (Z-A)</option>
-            <option value="totalPrice-asc">Price (Low to High)</option>
-            <option value="totalPrice-desc">Price (High to Low)</option>
-            <option value="discount-asc">Discount (Low to High)</option>
-            <option value="discount-desc">Discount (High to Low)</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="overflow-x-auto">
-        {loading ? (
-          <p>Loading combos...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Id
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Combo Name
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Discount
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Total Price (VND)
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Final Price (VND)
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.length > 0 ? (
-                currentItems.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {item.id}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                          <Refrigerator className="w-5 h-5 text-teal-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {item.comboName}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {item.discount}%
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {item.totalPrice?.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {(
-                        item.totalPrice *
-                        (1 - item.discount / 100)
-                      )?.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                          item.status === "AVAILABLE"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+      <Card className="border-blue-100 bg-white shadow-sm">
+        <CardHeader className="border-b border-blue-50">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle className="text-blue-700">Vaccine Combo Inventory</CardTitle>
+            <div className="flex flex-wrap gap-2">
+              <div className="relative w-[250px]">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500" />
+                <Input
+                  placeholder="Search combos..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                />
+              </div>
+              <Select
+                value={sortField}
+                onValueChange={(value) => {
+                  setSortField(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[180px] border-blue-200 focus:ring-blue-400">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-blue-500" />
+                    <SelectValue placeholder="Sort by" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="comboName">Name</SelectItem>
+                  <SelectItem value="totalPrice">Total Price</SelectItem>
+                  <SelectItem value="discount">Discount</SelectItem>
+                  <SelectItem value="finalPrice">Final Price</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  setCurrentPage(1);
+                }}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                {sortOrder === "asc" ? "↑" : "↓"}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-blue-50/50">
+                <TableRow className="hover:bg-blue-50/80">
+                  <TableHead className="text-blue-700 text-center">ID</TableHead>
+                  <TableHead className="text-blue-700 text-center">Combo Name</TableHead>
+                  <TableHead className="text-blue-700 text-center">Discount</TableHead>
+                  <TableHead className="text-blue-700 text-center">Total Price (VND)</TableHead>
+                  <TableHead className="text-blue-700 text-center">Final Price (VND)</TableHead>
+                  <TableHead className="text-blue-700 text-center">Status</TableHead>
+                  <TableHead className="text-blue-700 text-center">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-blue-600">
+                      Loading combos...
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-red-500">
+                      {error}
+                      <Button
+                        onClick={fetchVaccineCombos}
+                        variant="outline"
+                        className="ml-4 border-blue-200 text-blue-700 hover:bg-blue-50"
                       >
-                        {item.status || "UNKNOWN"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleViewItem(item)}
-                          className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                          title="View details"
-                        >
-                          <Eye size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-а4 py-8 text-center text-gray-500"
+                        Retry
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedData.length > 0 ? (
+                  paginatedData.map((item) => (
+                    <TableRow key={item.id} className="hover:bg-blue-50/30 border-b border-blue-50">
+                      <TableCell className="font-medium text-blue-800 text-center">#{item.id}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Refrigerator className="h-4 w-4 text-blue-500" />
+                          <div className="text-left">
+                            <p className="font-medium text-blue-800">{item.comboName || "N/A"}</p>
+                            <p className="text-xs text-blue-600">{item.description || ""}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">{item.discount}%</TableCell>
+                      <TableCell className="text-center">{item.totalPrice?.toLocaleString() || "0"}</TableCell>
+                      <TableCell className="text-center">
+                        {(item.totalPrice * (1 - item.discount / 100))?.toLocaleString() || "0"}
+                      </TableCell>
+                      <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="border-blue-100">
+                            <DropdownMenuItem
+                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                              onClick={() => handleViewItem(item)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View details
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-blue-600">
+                      No combos found matching your search criteria.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          {!loading && !error && (
+            <div className="p-4 flex justify-between items-center border-t border-blue-50 bg-blue-50/30">
+              <div className="text-sm text-blue-700">
+                Showing <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> to{" "}
+                <span className="font-medium">{Math.min(currentPage * rowsPerPage, sortedItems.length)}</span>{" "}
+                of <span className="font-medium">{sortedItems.length}</span> records
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                {[...Array(totalPages)].map((_, index) => (
+                  <Button
+                    key={index + 1}
+                    variant="outline"
+                    size="sm"
+                    className={`border-blue-200 ${
+                      currentPage === index + 1
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "text-blue-700 hover:bg-blue-50"
+                    }`}
+                    onClick={() => handlePageChange(index + 1)}
                   >
-                    No combos found matching your search criteria.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
-      </div>
+                    {index + 1}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Pagination */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(sortedItems.length / itemsPerPage)}
-        itemsPerPage={itemsPerPage}
-        setCurrentPage={setCurrentPage}
-        setItemsPerPage={setItemsPerPage}
-        totalItems={sortedItems.length}
-      />
-
-      {/* Vaccine Combo Details Modal */}
       {isModalOpen && selectedVaccine && (
         <DetailCombo
-          vaccineId={selectedVaccine.id} // Pass the ID instead of the full object
+          vaccineId={selectedVaccine.id}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
         />
       )}
-
-      {/* Update Vaccine Combo Modal */}
-    </div>
+    </>
   );
 };
 

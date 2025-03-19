@@ -42,7 +42,7 @@ export default function Stage2Payment() {
     const handleSubmit = async () => {
         try {
             setLoading(true)
-           
+
             const value = {
                 parentId: id || "N/A",
                 advisoryDetail: Object.keys(advitory_detail || {}).length ? advitory_detail : 'no',
@@ -51,20 +51,23 @@ export default function Stage2Payment() {
                 arrivedAt: arriveDate || "N/A",
                 childrenIds: (listChildren || []).map(child => child.id),
                 vaccineIds: (listVaccine || []).map(vaccine => vaccine.id),
-                vaccineComboIds: (listComboVaccine || []).map(combo => combo.id)
+                vaccineComboIds: (listComboVaccine || []).map(combo => combo.id),
+               
             };
-           
-            
+            // console.log(value);
+
+
             const res = await api.post(`${url}/Booking/add-booking`, value);
             if (res.status === 200 && res.data) {
                 if (paymentMenthod === 1) {
+                    // dispatch(orderAction.savePaymentData(res.data))
                     dispatch(childAction.completePayment())
                     dispatch(vaccineAction.completePayment())
                     dispatch(arriveActions.resetArriveDate())
                     dispatch(methodPaymentAction.resetMethodPayment())
                     dispatch(childAction.resetForm())
-                    dispatch(orderAction.savePaymentData(res.data))
-                    window.location.href = res.data;
+                 
+                    // window.location.href = res.data;
                 }
                 else {
                     window.location.href = res.data;

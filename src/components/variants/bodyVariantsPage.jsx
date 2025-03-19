@@ -30,20 +30,22 @@ function BoydVaritants() {
   }, []);
 
   useEffect(() => {
+   
     const fetchDataVariants = async () => {
       try {
-        const [vaccines, comboVaccine] = await Promise.all([
+        const [vaccinesRes, comboVaccineRes] = await Promise.all([
           api.get(`${url}/Vaccine/get-all-vaccines`),
-          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`),
-        ]);
-        if (vaccines.status === 200) setVaccines(vaccines.data);
-        if (comboVaccine.status === 200) setComboVaccines(comboVaccine.data);
+          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`)
+        ])
+        if (vaccines.status === 200) setVaccines(vaccines.data)
+        if (comboVaccine.status === 200) setComboVaccines(comboVaccine.data)
       } catch (error) {
         console.error('Error fetching data:', error);
       }
-    };
-    fetchDataVariants();
-  }, []);
+    }
+    fetchDataVariants()
+  }, [])
+
 
   const filteredVaccines = vaccines.filter((vaccine) =>
     vaccine.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -56,8 +58,12 @@ function BoydVaritants() {
   const handleAddToCart = (vaccine, type) => {
     const isCombo = Array.isArray(vaccine?.vaccines) && vaccine.vaccines.length > 0;
     const finalPrice = isCombo ? vaccine.finalPrice : vaccine.price;
-    const isItemInCart = cart.some((item) =>
-      (type === 'combo' && item.type === 'combo' && item.id === vaccine.id) ||
+    const ischeck = type === 'combo' ? `combo-${vaccine.id}` : `vaccine-${vaccine.id}`;
+    const name = type === 'combo' ? vaccine.comboName : vaccine.name;
+
+    // Kiểm tra xem item đã tồn tại trong giỏ hàng hay chưa
+    const isItemInCart = cart.some(item => 
+      (type === 'combo' && item.type === 'combo' && item.id === vaccine.id) || 
       (type === 'vaccine' && item.type === 'vaccine' && item.id === vaccine.id)
     );
 
@@ -65,35 +71,32 @@ function BoydVaritants() {
       removeFromCart(vaccine.id, type);
     } else {
       if (isCombo) {
-        dispatch(
-          vaccineAction.addComboVaccine({
-            id: vaccine.id,
-            name: vaccine.comboName,
-            price: finalPrice,
-            description: vaccine.description,
-            country: vaccine.fromCountry,
-            vaccines: vaccine.vaccines,
-            type: type,
-            vaccines: vaccine.vaccines.map((v) => ({
-              id: v.id,
-              name: v.name,
-              price: v.price,
-              suggestAgeMax: v.suggestAgeMax,
-              suggestAgeMin: v.suggestAgeMin,
-            })),
-          })
-        );
-      } else {
-        dispatch(
-          vaccineAction.addVaccine({
+        dispatch(vaccineAction.addComboVaccine({
+          id: vaccine.id,
+          name: name,
+          price: finalPrice,
+          description: vaccine.description,
+          country: vaccine.fromCountry,
+          vaccines: vaccine.vaccines,
+          type: type,
+          vaccines: vaccine.vaccines.map(vaccine => ({
             id: vaccine.id,
             name: vaccine.name,
             price: vaccine.price,
-            maxAge: vaccine.suggestAgeMax,
-            minAge: vaccine.suggestAgeMin,
-            type: type,
-          })
-        );
+            suggestAgeMax: vaccine.suggestAgeMax,
+            suggestAgeMin: vaccine.suggestAgeMin,
+          }))
+        }));
+      } else {
+        dispatch(vaccineAction.addVaccine({
+          id: vaccine.id,
+          name: name,
+          price: vaccine.price,
+
+          maxAge: vaccine.suggestAgeMax,
+          minAge: vaccine.suggestAgeMin,
+          type: type,
+        }));
       }
     }
   };
@@ -121,7 +124,10 @@ function BoydVaritants() {
           <h1 className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text">
             Vaccine Booking
           </h1>
-          <div className="w-10" />
+          <div>
+            
+          </div>
+
         </div>
       </header>
 
@@ -159,21 +165,21 @@ function BoydVaritants() {
                   <span className="mr-3">Single Vaccines</span>
                   <span className="text-sm font-medium text-gray-500">({filteredVaccines.length} available)</span>
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                   {filteredVaccines.map((vaccine) => (
                     <Variants
-                      key={`vaccine-${vaccine.id}`}
-                      id={vaccine.id}
-                      image={vaccine.image}
-                      name={vaccine.name}
-                      description={vaccine.description}
+                      key={`vaccine-${item.id}`}
+                      id={item.id}
+                      image={item.image}
+                      name={item.name}
+                      description={item.description}
                       type="vaccine"
                       priceGoc={null}
-                      priceSale={vaccine.price}
-                      country={vaccine.fromCountry}
-                      maxAge={vaccine.suggestAgeMax}
-                      minAge={vaccine.suggestAgeMin}
-                      onClick={() => handleAddToCart(vaccine, 'vaccine')}
+                      priceSale={item.price}
+                      country={item.fromCountry}
+                      maxAge={item.suggestAgeMax}
+                      minAge={item.suggestAgeMin}
+                      onClick={() => handleAddToCart(item, 'vaccine')}
                       isBooking={isBooking}
                       className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-white/90 backdrop-blur-sm"
                     />
@@ -182,7 +188,7 @@ function BoydVaritants() {
               </section>
             )}
 
-            {(filterType === 'All' || filterType === 'Combo') && (
+             {(filterType === "All" || filterType === "Combo") && (
               <section>
                 <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
                   <span className="mr-3">Vaccine Combos</span>

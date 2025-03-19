@@ -191,7 +191,7 @@ const DetailAppoinment = ({selectedBooking, setIsModalOpen, handleCompleteBookin
                                 <span className="font-medium text-gray-700">Included Vaccines:</span>
                               </div>
                               <ul className="space-y-2 mt-2">
-                                {combo.vaccineResponseBooking.map((vaccine) => (
+                                {combo.vaccineResponeBooking.map((vaccine) => (
                                   <li key={vaccine.id} className="flex justify-between items-center px-3 py-2 bg-gray-50 rounded-md">
                                     <span className="text-gray-800">{vaccine.name}</span>
                                     <span className="text-blue-700">{vaccine.price.toLocaleString()} VND</span>

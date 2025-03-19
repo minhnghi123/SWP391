@@ -18,7 +18,7 @@ import { fetchData } from '../../Api/axios'
 import { useSelector, useDispatch } from "react-redux";
 import '../css/loading.css'
 import { vaccineAction } from '../redux/reducers/selectVaccine'
-import  useAxios  from '../../utils/useAxios'
+import useAxios from '../../utils/useAxios'
 // Animation variants
 
 const fadeInUp = {
@@ -257,28 +257,39 @@ export default function BodyHomePage() {
     const pictures = pictureBody;
     const [currentPicIndex, setCurrentPicIndex] = useState(0);
     const [bestVaccine, setBestVaccine] = useState([])
-
-
+    const [feedback, setFeedback] = useState([])
+    const [user, setUser] = useState([])
     const isBooking = useSelector((state) => state.vaccine.isBooking)
 
-   
+
     useEffect(() => {
-       
+
         const fetchData = async () => {
-       try {
-        const res = await api.get(`${url}/Vaccine/get-all-vaccines`)
-        if(res.status === 200){
-            const sortedTop3 = [...res.data]
-            .sort((a, b) => b.price - a.price)
-            .slice(0, 3);
-            setBestVaccine(sortedTop3);
+            try {
+                const [vaccineRes, feedbackRes, userRes] = await Promise.all([
+                    api.get(`${url}/Vaccine/get-all-vaccines`),
+                    api.get(`${url}/Feedback/get-all-feedback`),
+                    api.get(`${url}/User/get-all-user`)
+                ])
+
+                if (vaccineRes.status === 200 && feedbackRes.status === 200 && userRes.status === 200) {
+                    const sortedTop3 = [...vaccineRes.data]
+                        .sort((a, b) => b.price - a.price)
+                        .slice(0, 3)
+
+                    const top3Feedback = feedbackRes.data.sort((a, b) => b.rating - a.rating).slice(0, 3)
+                    setBestVaccine(sortedTop3)
+                    setFeedback(top3Feedback)
+                    setUser(userRes.data)
+
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
         }
-       } catch (error) {
-        
-       }
-    }
-    fetchData()
-    }, []); 
+        fetchData()
+    }, []);
+    console.log(feedback)
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -334,7 +345,7 @@ export default function BodyHomePage() {
                 </motion.div>
 
                 {/* Navigation Dots */}
-                <motion.div
+                {/* <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8, duration: 0.5 }}
@@ -353,7 +364,7 @@ export default function BodyHomePage() {
                             `}
                         />
                     ))}
-                </motion.div>
+                </motion.div> */}
 
                 {/* Overlay Content */}
                 <div className="absolute rounded-3xl inset-0 bg-gradient-to-b from-white/10 to-black/50 opacity-0 animate-fadeInDelay">
@@ -516,6 +527,8 @@ export default function BodyHomePage() {
                                         priceGoc={null}
                                         priceSale={vaccine.price}
                                         country={vaccine.fromCountry}
+                                        maxAge={vaccine.suggestAgeMax}
+                                        minAge={vaccine.suggestAgeMin}
                                         onClick={() => handleAddToCart(vaccine, 'vaccine')}
                                         isBooking={isBooking}
                                     />
@@ -581,7 +594,7 @@ export default function BodyHomePage() {
                             date={"08/01/2025"}
                             title={"New vaccines against seasonal flu are now available"}
                             image={img2}
-                            description={"New generation flu vaccines, which are more effective in preventing common virus strains, are now available at our facilities..."}
+                            description={"New generation flu vaccines, developed with advanced technology, are now available at our healthcare facilities. These vaccines offer improved protection against common virus strains, helping to reduce infection risks and severe complications. Health experts emphasize that regular vaccination is essential not only for personal protection but also for building community immunity. High-risk groups, including the elderly, young children, pregnant women, and individuals with underlying health conditions, are strongly encouraged to get vaccinated early for maximum effectiveness. For more details on vaccination schedules and locations, please contact your nearest healthcare center or visit our official website"}
                             author={"Dr. Johnson"}
                         />
                     </motion.div>
@@ -591,7 +604,7 @@ export default function BodyHomePage() {
                             date={"07/28/2025"}
                             title={"Healthcare system implements new digital records"}
                             image={img4}
-                            description={"Digital transformation in healthcare brings new opportunities for better patient care and streamlined operations..."}
+                            description={"The healthcare system has recently implemented a new digital records system, which allows parents to easily access and manage their children's health records. This system provides a secure and convenient way to store and share medical information, ensuring that parents always have the latest health updates at their fingertips. The system also allows healthcare providers to quickly access patient records, improving the efficiency of medical services and reducing the risk of errors. Parents can now easily view their child's vaccination history, medical history, and other important health information, making it easier to monitor their child's health and ensure they receive the best possible care."}
                             author={"Dr. Chen"}
                         />
                     </motion.div>
@@ -696,39 +709,25 @@ export default function BodyHomePage() {
                 <motion.div
                     variants={staggerContainer}
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <motion.div
-                        variants={slideFromLeft}
-                        whileHover={{ scale: 1.05, y: -10 }}>
-                        <FeedbackParent
-                            randomNumber={5}
-                            image={img12}
-                            description={"The doctors here are kind and patient, making my child feel comfortable and at ease during every visit. A wonderful experience!"}
-                            babyName={"John"}
-                            username={"Sarah Johnson"}
-                        />
-                    </motion.div>
-                    <motion.div
-                        variants={slideUp}
-                        whileHover={{ scale: 1.05, y: -10 }}>
-                        <FeedbackParent
-                            randomNumber={5}
-                            image={img12}
-                            description={"The vaccination tracking system has made it so much easier to stay on top of my children's immunization schedule. Highly recommended!"}
-                            babyName={"John"}
-                            username={"Michael Chen"}
-                        />
-                    </motion.div>
-                    <motion.div
-                        variants={slideFromRight}
-                        whileHover={{ scale: 1.05, y: -10 }}>
-                        <FeedbackParent
-                            randomNumber={5}
-                            image={img12}
-                            description={"The reminders and notifications have been a lifesaver. I never miss an important vaccination appointment anymore!"}
-                            babyName={"John"}
-                            username={"Emma Davis"}
-                        />
-                    </motion.div>
+                    {
+                        feedback.map((item) => (
+                            <motion.div
+                                variants={slideFromLeft}
+                                whileHover={{ scale: 1.05, y: -10 }}>
+                                <FeedbackParent
+                                    key={item.id}
+                                    randomNumber={item.ratingScore}
+                                    image={user.find(user => user.id === item.userId)?.avatar}
+                                    description={item.description}
+                                    // babyName={item.babyName}
+                                    username={user.find(user => user.id === item.userId)?.username}
+                                />
+                            </motion.div>
+
+                        ))
+                    }
+
+
                 </motion.div>
             </motion.div>
         </div>

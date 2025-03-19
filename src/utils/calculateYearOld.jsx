@@ -10,7 +10,7 @@ export default function CalculateAge(dateOfBirth) {
     const dayDifference = today.getDate() - birthDate.getDate();
 
     if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-        age = 0;
+        age --;
     }
 
     // Nếu tuổi = 0, tính số tháng

@@ -58,6 +58,7 @@ const ModalCrudChild = ({ setIsModalOpen, currentChild, isEditing, handleInputCh
                                 name="dateOfBirth"
                                 value={currentChild?.dateOfBirth ? new Date(currentChild.dateOfBirth).toISOString().split('T')[0] : ""}
                                 onChange={handleInputChange}
+                                max={new Date().toISOString().split('T')[0]}
                                 required
                                 className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
                             />

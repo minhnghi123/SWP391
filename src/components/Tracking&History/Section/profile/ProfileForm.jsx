@@ -38,6 +38,7 @@ const ProfileForm = ({ editProfile, profileData, handleEdit, handleSave, setEdit
                         name="dateOfBirth"
                         value={FormDate(editProfile.dateOfBirth)}
                         onChange={handleEdit}
+                        max={new Date().toISOString().split('T')[0]}
                         className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     />
                 </div>

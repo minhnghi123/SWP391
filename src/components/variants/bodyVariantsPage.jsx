@@ -36,21 +36,32 @@ function boydVaritants() {
   }, []);
 
   useEffect(() => {
-   
+    let isMounted = true; // Cờ để kiểm tra component có bị unmount không
+
     const fetchDataVariants = async () => {
       try {
-        const [vaccines, comboVaccine] = await Promise.all([
+        const [vaccinesRes, comboVaccineRes] = await Promise.all([
           api.get(`${url}/Vaccine/get-all-vaccines`),
-          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`)
-        ])
-        if (vaccines.status === 200) setVaccines(vaccines.data)
-        if (comboVaccine.status === 200) setComboVaccines(comboVaccine.data)
+          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`),
+        ]);
+
+        if (isMounted) { // Chỉ cập nhật state nếu component vẫn còn mounted
+          if (vaccinesRes.status === 200 && vaccinesRes.data)
+            setVaccines(vaccinesRes.data);
+          if (comboVaccineRes.status === 200 && comboVaccineRes.data)
+            setComboVaccines(comboVaccineRes.data);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }
-    fetchDataVariants()
-  }, [])
+    };
+
+    fetchDataVariants();
+
+    return () => {
+      isMounted = false; // Đánh dấu component đã bị unmount để tránh cập nhật state
+    };
+  }, [url]); // Thêm `url` vào dependency array nếu nó có thể thay đổi
 
 
   const filteredVaccines = vaccines.filter(vaccine =>
@@ -67,8 +78,8 @@ function boydVaritants() {
     const name = type === 'combo' ? vaccine.comboName : vaccine.name;
 
     // Kiểm tra xem item đã tồn tại trong giỏ hàng hay chưa
-    const isItemInCart = cart.some(item => 
-      (type === 'combo' && item.type === 'combo' && item.id === vaccine.id) || 
+    const isItemInCart = cart.some(item =>
+      (type === 'combo' && item.type === 'combo' && item.id === vaccine.id) ||
       (type === 'vaccine' && item.type === 'vaccine' && item.id === vaccine.id)
     );
 
@@ -86,12 +97,12 @@ function boydVaritants() {
           country: vaccine.fromCountry,
           vaccines: vaccine.vaccines,
           type: type,
-          vaccines: vaccine.vaccines.map(vaccine => ({
-            id: vaccine.id,
-            name: vaccine.name,
-            price: vaccine.price,
-            suggestAgeMax: vaccine.suggestAgeMax,
-            suggestAgeMin: vaccine.suggestAgeMin,
+          vaccines: vaccine.vaccines.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            suggestAgeMax: item.suggestAgeMax,
+            suggestAgeMin: item.suggestAgeMin,
           }))
         }));
       } else {
@@ -136,7 +147,7 @@ function boydVaritants() {
             Vaccine Booking
           </h1>
           <div>
-            
+
           </div>
 
         </div>
@@ -177,20 +188,20 @@ function boydVaritants() {
                   <span className="text-sm font-normal text-gray-500">({filteredVaccines.length} available)</span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {filteredVaccines.map((vaccine) => (
+                  {filteredVaccines.map((item) => (
                     <Variants
-                      key={`vaccine-${vaccine.id}`}
-                      id={vaccine.id}
-                      image={vaccine.image}
-                      name={vaccine.name}
-                      description={vaccine.description}
+                      key={`vaccine-${item.id}`}
+                      id={item.id}
+                      image={item.image}
+                      name={item.name}
+                      description={item.description}
                       type="vaccine"
                       priceGoc={null}
-                      priceSale={vaccine.price}
-                      country={vaccine.fromCountry}
-                      maxAge={vaccine.suggestAgeMax}
-                      minAge={vaccine.suggestAgeMin}
-                      onClick={() => handleAddToCart(vaccine, 'vaccine')}
+                      priceSale={item.price}
+                      country={item.fromCountry}
+                      maxAge={item.suggestAgeMax}
+                      minAge={item.suggestAgeMin}
+                      onClick={() => handleAddToCart(item, 'vaccine')}
                       isBooking={isBooking}
                     />
                   ))}
@@ -198,7 +209,7 @@ function boydVaritants() {
               </section>
             )}
 
-             {(filterType === "All" || filterType === "Combo") && (
+            {(filterType === "All" || filterType === "Combo") && (
               <section>
                 <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
                   <span className="mr-2">Vaccine Combos</span>
@@ -226,7 +237,7 @@ function boydVaritants() {
                   ))}
                 </div>
               </section>
-            )} 
+            )}
           </div>
 
           {/* Right Side - Cart Summary (30%) */}

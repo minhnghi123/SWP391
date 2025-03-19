@@ -1,4 +1,4 @@
-import { Calendar, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle, Shield, User, PlusCircle } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle, Shield, User, PlusCircle, Filter, Bookmark } from 'lucide-react';
 import formatDate from '../../../../utils/Date';
 import { useState } from 'react';
 import ToUpperCase from '../../../../utils/upperCaseFirstLetter';
@@ -6,12 +6,14 @@ import { updateData } from '../../../../Api/axios';
 import { toast, ToastContainer } from 'react-toastify';
 import VaccineRescheduleModal from './VaccineRescheduleModal';
 
-export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger }) {
+export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger, handleSortChange }) {
   const [isInput, setIsInput] = useState({})
   const [reaction, setReaction] = useState({})
   const [expandedVaccines, setExpandedVaccines] = useState({});
   const [hoveredCard, setHoveredCard] = useState(null);
   const [showModalReSchedule, setShowModalReSchedule] = useState(false);
+  const [showSortOptions, setShowSortOptions] = useState(false);
+  const [activeSortOption, setActiveSortOption] = useState('all');
   const [vaccinationDate, setVaccinationDate] = useState({
     trackingID: '',
     vaccineName: '',
@@ -35,9 +37,12 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
       vaccinationDate: vaccinationDate
     });
   };
-
-
-
+  
+  const handleSort = (option) => {
+    setActiveSortOption(option);
+    handleSortChange(option);
+    setShowSortOptions(false);
+  };
 
   const toggleVaccine = (index) => {
     setExpandedVaccines(prev => ({
@@ -85,16 +90,57 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
     }
   };
 
+  const sortOptions = [
+    { id: 'all', label: 'All Vaccines', icon: <Shield className="w-4 h-4" /> },
+    { id: 'success', label: 'Completed', icon: <CheckCircle className="w-4 h-4" /> },
+    { id: 'schedule', label: 'Scheduled', icon: <Calendar className="w-4 h-4" /> },
+  ];
+
   return (
-    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 ">
       <ToastContainer />
-      <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 bg-indigo-50 rounded-xl">
-          <Shield className="w-6 h-6 text-indigo-500" />
+      <div className="flex items-center gap-4 mb-8 justify-between">
+        <div className='flex items-center gap-4'>
+          <div className="p-3 bg-indigo-50 rounded-xl">
+            <Shield className="w-6 h-6 text-indigo-500" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">Vaccination Schedule</h2>
+            <p className="text-gray-500 text-sm mt-1">Track and manage your vaccination progress</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Vaccination Schedule</h2>
-          <p className="text-gray-500 text-sm mt-1">Track and manage your vaccination progress</p>
+        
+        {/* Improved Sort Controls */}
+        <div className="relative">
+          <button 
+            onClick={() => setShowSortOptions(!showSortOptions)}
+            className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-xl transition-all duration-300 font-medium"
+          >
+            <Filter className="w-4 h-4" />
+            {sortOptions.find(option => option.id === activeSortOption)?.label || 'Filter'}
+            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showSortOptions ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {showSortOptions && (
+            <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-100 z-10 w-56 overflow-hidden">
+              <div className="py-1">
+                {sortOptions.map(option => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleSort(option.id)}
+                    className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-indigo-50 transition-colors duration-200 ${
+                      activeSortOption === option.id ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700'
+                    }`}
+                  >
+                    <span className={`p-1.5 rounded-lg ${activeSortOption === option.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'}`}>
+                      {option.icon}
+                    </span>
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -134,7 +180,6 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                     percentage={percentage}
                     current={completed}
                     total={total}
-
                   />
                 </div>
               </div>

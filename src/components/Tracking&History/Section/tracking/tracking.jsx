@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { FeedbackContext } from '../../../Context/FeedbackContext';
 import useAxios from '../../../../utils/useAxios'
+
 const url = import.meta.env.VITE_BASE_URL_DB
 const TrackingChildbyUser = ({ id }) => {
 
@@ -28,7 +29,7 @@ const TrackingChildbyUser = ({ id }) => {
   const [trigger, setTrigger] = useState(false);
   const api = useAxios()
   const [showModal, setShowModal] = useState(false);
-
+  const [historyData, setHistoryData] = useState([])
 
 
   const createVaccineChains = (data) => {
@@ -63,10 +64,15 @@ const TrackingChildbyUser = ({ id }) => {
   useEffect(() => {
     const fetchTrackingData = async () => {
       try {
-        const res = await api.get(`${url}/VaccinesTracking/get-by-parent-id/${id}`);
-        if (res.status === 200) {
-          setTrackingData(res.data);
-          const childrenIds = [...new Set(res.data.map(item => item.childId))];
+
+        const [trakcingRes, historyRes] = await Promise.all([
+          api.get(`${url}/VaccinesTracking/get-by-parent-id/${id}`),
+          api.get(`${url}/Booking/booking-history/${id}`)
+        ])
+        if (trakcingRes.status === 200 && historyRes.status === 200) {
+          setHistoryData(historyRes.data)
+          setTrackingData(trakcingRes.data);
+          const childrenIds = [...new Set(trakcingRes.data.map(item => item.childId))];
 
           const childrenData = await Promise.all(
             childrenIds.map(async (childId) => {
@@ -85,7 +91,7 @@ const TrackingChildbyUser = ({ id }) => {
 
     fetchTrackingData();
   }, [id, trigger]);
-  console.log(sortLinkList)
+  // console.log(sortLinkList)
   // Set initial selected child
   useEffect(() => {
     if (children.length > 0 && !selectedChild) {
@@ -122,6 +128,18 @@ const TrackingChildbyUser = ({ id }) => {
   };
   const progressData = calculateProgress();
 
+  const handleSortChange = (status) => {
+    const vaccineChains = createVaccineChains(trackingData);
+    if (status.toLowerCase() === 'all') {
+      setSortLinkList(vaccineChains);
+    }
+    else {
+      const filteredVaccines = vaccineChains.filter(chain =>
+        chain.some(dose => dose.status.toLowerCase() === status)
+      );
+      setSortLinkList(filteredVaccines);
+    }
+  }
 
 
   if (trackingData.length === 0) {
@@ -150,7 +168,7 @@ const TrackingChildbyUser = ({ id }) => {
       <SummaryCards progressData={progressData} ProgressBar={ProgressBar} />
 
       {/* Individual Vaccine Progress */}
-      <VaccineSchedules sortLinkList={sortLinkList} ProgressBar={ProgressBar} setTrigger={setTrigger} />
+      <VaccineSchedules sortLinkList={sortLinkList} ProgressBar={ProgressBar} setTrigger={setTrigger} handleSortChange={handleSortChange} />
 
     </div>
   );

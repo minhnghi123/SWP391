@@ -31,7 +31,7 @@ const BookingManagementPage = () => {
   const [modalRefund, setModalRefund] = useState(false);
   const [refundPercentage, setRefundPercentage] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [statusSuccess, setStatusSuccess] = useState([]);
   // Add pagination states
   const itemsPerPage = 20;
   useEffect(() => {
@@ -63,6 +63,8 @@ const BookingManagementPage = () => {
       setFilteredAppointments(filtered);
     }
   }, [searchTerm, appointments]);
+
+  
 
   const handleOpenModal = (booking) => {
     setSelectedBooking(booking);
@@ -123,7 +125,7 @@ const BookingManagementPage = () => {
         setAppointments(prevAppointments =>
           prevAppointments.map(appointment =>
             appointment.id === bookingComplete.id
-              ? { ...appointment, status: "Success" }
+              ? { ...appointment, status: "Success", paymentMethod: 'Cash' }
               : appointment
           )
         );
@@ -184,15 +186,15 @@ const BookingManagementPage = () => {
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredAppointments.slice(startIndex, endIndex);
+  const paginatedData = filteredAppointments.slice(startIndex, endIndex);
 
   // Handle page changes
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
-
   return (
     <div className="container mx-auto p-6 space-y-6 animate-fade-in">
       {/* select */}
@@ -205,7 +207,7 @@ const BookingManagementPage = () => {
 
       {/* card table */}
       <CardTable
-        currentItems={currentItems}
+        paginatedData={paginatedData}
         handleOpenModal={handleOpenModal}
         handleOpenEditModal={handleOpenEditModal}
         handleConfirm={handleConfirm}
@@ -213,12 +215,18 @@ const BookingManagementPage = () => {
         setModalRefund={setModalRefund}
         setSelectedBooking={setSelectedBooking}
         setRefundPercentage={setRefundPercentage}
-        handlePageChange={handlePageChange}
+    
+
+
+
+
         currentPage={currentPage}
         totalPages={totalPages}
         startIndex={startIndex}
         endIndex={endIndex}
-        filteredAppointments={filteredAppointments}
+        totalItems={totalPages}
+        onPageChange={handlePageChange}
+
       />
 
       {isModalOpen && (

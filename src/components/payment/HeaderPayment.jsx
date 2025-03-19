@@ -34,9 +34,9 @@ const StepConnector = ({ isCompleted }) => (
     </div>
 );
 
-export default function HeaderPayment() {
-    const dispatch = useDispatch()
-    const currentStep = useSelector((state) => state.payment.currentStep)
+export default function HeaderPayment({currentStep}) {
+    // const dispatch = useDispatch()
+    // const currentStep = useSelector((state) => state.payment.currentStep)
     const navigate = useNavigate()
     return (
         <header className="bg-white shadow-xl py-8 px-4 sm:px-6 lg:px-8 rounded-3xl mx-auto max-w-[1400px] mt-4 animate-slideDown border border-gray-100">
@@ -44,7 +44,7 @@ export default function HeaderPayment() {
                 {/* Back Button */}
                 {
                     currentStep !== 3 && <button
-                        onClick={currentStep !== 1 ? () => dispatch(currenStepAction.decreaseStep()) : ()=>navigate('/variantsPage')}
+                        onClick={currentStep !== 1 ? () => navigate(-1) : ()=>navigate('/variantsPage')}
                         className="absolute bottom-[50%] flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border border-gray-200"
                     >
                         <ChevronLeft className="w-5 h-5 text-blue-500" />

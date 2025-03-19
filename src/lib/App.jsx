@@ -18,6 +18,7 @@ import { AuthProvider } from "../components/Context/AuthContext";
 import PrivateRoute from "../utils/PrivateRoute";
 import ModalReloadPage from "../components/modalReloadPage";
 import { ToastContainer } from "react-toastify";
+import Layout from "../pages/Layout";
 function App() {
   const [showModal, setShowModal] = useState(false);
   const timeoutIdRef = useRef(null);
@@ -79,16 +80,21 @@ function App() {
         <Route path="/variantsPage" element={<VariantsPage />} />
 
         {/* Private Route */}
-        {/* <Route element={<PrivateRoute />}> */}
-        <Route path="/dashboardPage/:section" element={<DashboardPage />} />
-        <Route path="/staffPage/:section" element={<StaffPage />} />
-        <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
-        <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
-        <Route path="/feedbackPage" element={<FeedbackProvider><FeedbackPage /></FeedbackProvider>} />
-        <Route path="/information/:id" element={<Stage1Payment />} />
-        <Route path="/payment/:id" element={<Stage2Payment />} />
-        <Route path="/confirm/:status" element={<Stage3Payment />} />
-        {/* </Route> */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboardPage/:section" element={<DashboardPage />} />
+          <Route path="/staffPage/:section" element={<StaffPage />} />
+          <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
+          <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
+          <Route path="/feedbackPage" element={<FeedbackProvider><FeedbackPage /></FeedbackProvider>} />
+
+
+
+          <Route element={<Layout />}>
+            <Route path="/information/:id" element={<Stage1Payment />} />
+            <Route path="/payment/:id" element={<Stage2Payment />} />
+            <Route path="/confirm/:status" element={<Stage3Payment />} />
+          </Route>
+        </Route>
       </Routes>
     </AuthProvider>
   );

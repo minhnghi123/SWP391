@@ -2,23 +2,24 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Filter, MoreHorizontal, ChevronLeft, ChevronRight, Syringe, Calendar, Search } from "lucide-react";
+import { Filter, MoreHorizontal, Syringe, Calendar, Search, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import FormatDate from "../../../../utils/Date";
+import Pagination from "../../Pagination";
 
 const getReactionBadge = (reaction) => {
-  switch (reaction.toLowerCase()) {
+  switch (reaction?.toLowerCase()) {
     case "nothing":
       return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100" variant="outline">No Reaction</Badge>;
     default:
-      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100" variant="outline">{reaction}</Badge>;
+      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100" variant="outline">{reaction || "N/A"}</Badge>;
   }
 };
 
 const getStatusBadge = (status) => {
-  switch (status.toLowerCase()) {
+  switch (status?.toLowerCase()) {
     case "success":
       return <Badge className="bg-green-100 text-green-800 hover:bg-green-100" variant="outline">Success</Badge>;
     case "schedule":
@@ -28,12 +29,40 @@ const getStatusBadge = (status) => {
     case "cancel":
       return <Badge className="bg-red-100 text-red-800 hover:bg-red-100" variant="outline">Cancel</Badge>;
     default:
-      return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100" variant="outline">{status}</Badge>;
+      return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100" variant="outline">{status || "N/A"}</Badge>;
   }
 };
 
-const CartTable = ({setSelectedRecord, setIsReactionModalOpen, setIsChangeScheduleModalOpen, filteredData,setFilteredData,sortData,  sortOrder, setSortOrder, sortField, setSortField, handleFilter,handleViewDetails, handleUpdateStatus,handlePageChange, currentPage, totalPages,rowsPerPage, paginatedData,childData, searchQuery,setSearchQuery}) => {
-
+const CartTable = ({
+  data,
+  setSelectedRecord,
+  setIsReactionModalOpen,
+  setIsChangeScheduleModalOpen,
+  filteredData,
+  setFilteredData,
+  sortData,
+  sortOrder,
+  setSortOrder,
+  sortField,
+  setSortField,
+  handleFilter,
+  handleViewDetails,
+  handleUpdateStatus,
+  currentPage,
+  totalPages,
+  paginatedData,
+  childData,
+  searchQuery,
+  setSearchQuery,
+  startIndex,
+  endIndex,
+  totalItems,
+  onPageChange,
+  statusSuccess,
+  handleExpand,
+  isExpand,
+  array,
+}) => {
   return (
     <Card className="border-blue-100 bg-white shadow-sm">
       <CardHeader className="border-b border-blue-50">
@@ -102,11 +131,13 @@ const CartTable = ({setSelectedRecord, setIsReactionModalOpen, setIsChangeSchedu
           <Table>
             <TableHeader className="bg-blue-50/50">
               <TableRow className="hover:bg-blue-50/80">
+                <TableHead className="text-blue-700 text-center"></TableHead>
                 <TableHead className="text-blue-700 text-center">ID</TableHead>
                 <TableHead className="text-blue-700 text-center">Vaccine</TableHead>
-                <TableHead className="text-blue-700 text-center">Patient</TableHead>
+                <TableHead className="text-blue-700 text-center">Parent</TableHead>
                 <TableHead className="text-blue-700 text-center">Child Name</TableHead>
                 <TableHead className="text-blue-700 text-center">Vaccination Date</TableHead>
+                <TableHead className="text-blue-700 text-center">Progress</TableHead>
                 <TableHead className="text-blue-700 text-center">Status</TableHead>
                 <TableHead className="text-blue-700 text-center">Reaction</TableHead>
                 <TableHead className="text-blue-700 text-center">Action</TableHead>
@@ -114,117 +145,193 @@ const CartTable = ({setSelectedRecord, setIsReactionModalOpen, setIsChangeSchedu
             </TableHeader>
             <TableBody>
               {paginatedData.map((record) => (
-                <TableRow key={record.trackingID} className="hover:bg-blue-50/30 border-b border-blue-50">
-                  <TableCell className="font-medium text-blue-800 text-center">#{record.trackingID}</TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center">
-                      <Syringe className="h-4 w-4 text-blue-500 mr-2" />
-                      <span>{record.vaccineName}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">{record.userName}</TableCell>
-                  <TableCell className="text-center">{childData.find((item) => item.id === record.childId)?.name}</TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center">
-                      <Calendar className="h-4 w-4 text-blue-500 mr-2" />
-                      {record.vaccinationDate ? FormatDate(record.vaccinationDate) : "N/A"}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center"  >{getStatusBadge(record.status.toLowerCase())}</TableCell>
-                  <TableCell className="text-center">{getReactionBadge(record.reaction)}</TableCell>
-                  <TableCell className="text-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="border-blue-100">
-                        <DropdownMenuItem
-                          className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                          onClick={() => handleViewDetails(record)}
-                        >
-                          View details
-                        </DropdownMenuItem>
-                        {record.status.toLowerCase() !== 'cancel' && record.status.toLowerCase() !== 'success' && (
+                <>
+                  <TableRow key={record.trackingID} className="hover:bg-blue-50/30 border-b border-blue-50">
+                    <TableCell onClick={() => handleExpand(record)} className="text-center cursor-pointer">
+                      {isExpand?.trackingID === record.trackingID ? (
+                        <ChevronUp className="h-4 w-4 text-blue-500" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-blue-500" />
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium text-blue-800 text-center">#{record.trackingID}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center">
+                        <Syringe className="h-4 w-4 text-blue-500 mr-2" />
+                        <span>{record.vaccineName}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">{record.userName}</TableCell>
+                    <TableCell className="text-center">
+                      {childData.find((item) => item.id === record.childId)?.name || "N/A"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-blue-500 mr-2" />
+                        {record.vaccinationDate ? FormatDate(record.vaccinationDate) : "N/A"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {(() => {
+                        const chain = statusSuccess.find((chain) =>
+                          chain.some((item) => item.trackingID === record.trackingID)
+                        );
+                        if (!chain) return "N/A";
+                        const totalDoses = chain.length;
+                        const successDoses = chain.filter((item) => item.status?.toLowerCase() === "success").length;
+                        return successDoses === totalDoses ? getStatusBadge("Success") : `${successDoses}/${totalDoses}`;
+                      })()}
+                    </TableCell>
+                    <TableCell className="text-center">{getStatusBadge(record.status)}</TableCell>
+                    <TableCell className="text-center">{getReactionBadge(record.reaction)}</TableCell>
+                    <TableCell className="text-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="border-blue-100">
                           <DropdownMenuItem
                             className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                            onClick={() => handleUpdateStatus(record)}
+                            onClick={() => handleViewDetails(record)}
                           >
-                            Update status
+                            View details
                           </DropdownMenuItem>
-                        )}
-                        {record.status.toLowerCase() === "success" && (
-                          <DropdownMenuItem
-                            className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                            onClick={() => {
-                              setSelectedRecord(record);
-                              setIsReactionModalOpen(true);
-                            }}
-                          >
-                            Record reaction
-                          </DropdownMenuItem>
-                        )}
-                        {record.status.toLowerCase() === "schedule" && (
-                          <DropdownMenuItem
-                            className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                            onClick={() => {
-                              setSelectedRecord(record);
-                              setIsChangeScheduleModalOpen(true);
-                            }}
-                          >
-                            Change Schedule
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                          {record.status?.toLowerCase() !== "cancel" && record.status?.toLowerCase() !== "success" && (
+                            <DropdownMenuItem
+                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                              onClick={() => handleUpdateStatus(record)}
+                            >
+                              Update status
+                            </DropdownMenuItem>
+                          )}
+                          {record.status?.toLowerCase() === "success" && (
+                            <DropdownMenuItem
+                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                              onClick={() => {
+                                setSelectedRecord(record);
+                                setIsReactionModalOpen(true);
+                              }}
+                            >
+                              Record reaction
+                            </DropdownMenuItem>
+                          )}
+                          {record.status?.toLowerCase() === "schedule" && (
+                            <DropdownMenuItem
+                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                              onClick={() => {
+                                setSelectedRecord(record);
+                                setIsChangeScheduleModalOpen(true);
+                              }}
+                            >
+                              Change Schedule
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                  {/* Expanded Section */}
+                  {isExpand?.trackingID === record.trackingID && (
+                    <TableRow className="bg-blue-50/20">
+                      <TableCell colSpan={10}>
+                        <div className="p-4">
+                          <h4 className="text-blue-700 font-medium mb-2">All Doses</h4>
+                          {array.length > 0 ? (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-blue-700 text-center">ID</TableHead>
+                                  <TableHead className="text-blue-700 text-center">Vaccination Date</TableHead>
+                                  <TableHead className="text-blue-700 text-center">Status</TableHead>
+                                  <TableHead className="text-blue-700 text-center">Reaction</TableHead>
+                                  <TableHead className="text-blue-700 text-center">Action</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {array.map((item) => (
+                                  <TableRow key={item.trackingID}>
+                                    <TableCell className="text-center">#{item.trackingID}</TableCell>
+                                    <TableCell className="text-center">
+                                      {item.vaccinationDate ? FormatDate(item.vaccinationDate) : "N/A"}
+                                    </TableCell>
+                                    <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
+                                    <TableCell className="text-center">{getReactionBadge(item.reaction)}</TableCell>
+                                    <TableCell className="text-center">
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                            <span className="sr-only">Open menu</span>
+                                          </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="border-blue-100">
+                                          <DropdownMenuItem
+                                            className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                            onClick={() => handleViewDetails(item)}
+                                          >
+                                            View details
+                                          </DropdownMenuItem>
+                                          {item.status?.toLowerCase() !== "cancel" &&
+                                            item.status?.toLowerCase() !== "success" && (
+                                              <DropdownMenuItem
+                                                className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                                onClick={() => handleUpdateStatus(item)}
+                                              >
+                                                Update status
+                                              </DropdownMenuItem>
+                                            )}
+                                          {item.status?.toLowerCase() === "success" && (
+                                            <DropdownMenuItem
+                                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                              onClick={() => {
+                                                setSelectedRecord(item);
+                                                setIsReactionModalOpen(true);
+                                              }}
+                                            >
+                                              Record reaction
+                                            </DropdownMenuItem>
+                                          )}
+                                          {item.status?.toLowerCase() === "schedule" && (
+                                            <DropdownMenuItem
+                                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                              onClick={() => {
+                                                setSelectedRecord(item);
+                                                setIsChangeScheduleModalOpen(true);
+                                              }}
+                                            >
+                                              Change Schedule
+                                            </DropdownMenuItem>
+                                          )}
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          ) : (
+                            <p className="text-blue-600">No related records found.</p>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               ))}
             </TableBody>
           </Table>
         </div>
-        <div className="p-4 flex justify-between items-center border-t border-blue-50 bg-blue-50/30">
-          <div className="text-sm text-blue-700">
-            Showing <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> to{" "}
-            <span className="font-medium">{Math.min(currentPage * rowsPerPage, filteredData.length)}</span>{" "}
-            of <span className="font-medium">{filteredData.length}</span> records
-          </div>
-          <div className="flex gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {[...Array(totalPages)].map((_, index) => (
-              <Button
-                key={index + 1}
-                variant="outline"
-                size="sm"
-                className={`border-blue-200 ${currentPage === index + 1
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "text-blue-700 hover:bg-blue-50"}`}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </Button>
-            ))}
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          startIndex={startIndex}
+          endIndex={endIndex}
+          totalItems={totalItems}
+          onPageChange={onPageChange}
+        />
       </CardContent>
     </Card>
   );

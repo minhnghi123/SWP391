@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { memo } from "react";
 
-
 const SelectAppointment = ({setSearchTerm, fillterbyStatus, setIsCreateBookingModalOpen}) => {
     return (
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -24,10 +23,10 @@ const SelectAppointment = ({setSearchTerm, fillterbyStatus, setIsCreateBookingMo
                 <SelectValue placeholder="Filter Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="success">Success</SelectItem>
-                <SelectItem value="refund">Refund</SelectItem>
+                <SelectItem value="All">All Statuses</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Success">Success</SelectItem>
+                <SelectItem value="Refund">Refund</SelectItem>
               </SelectContent>
             </Select>
           </div>

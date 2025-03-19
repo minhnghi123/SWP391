@@ -7,13 +7,13 @@ import {
   Eye,
   SquarePen,
 } from "lucide-react";
-import AddVaccineComboComponent from "../../staffManage/CRUD/addComboVaccine";
-import DeleteVaccine from "../../staffManage/CRUD/deleteVaccine";
-import Pagination from "../../../utils/pagination";
-import DetailCombo from "../../staffManage/section/combo/detailsCombo";
-import UpdateVaccineCombo from "../../staffManage/CRUD/updateCombo";
-import useAxios from "../../../utils/useAxios";
-
+import AddVaccineComboComponent from "./addComboVaccine";
+import DeleteVaccine from "../../../staffManage/deleteVaccine";
+import Pagination from "../../../../utils/pagination";
+import DetailCombo from "./detailsCombo";
+import UpdateVaccineCombo from "./updateCombo";
+import useAxios from "../../../../utils/useAxios";
+import RestoreCombo from "./restoreCombo";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const ManageCombo = () => {
@@ -23,8 +23,7 @@ const ManageCombo = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selectedVaccine, setSelectedVaccine] = useState(null);
-  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] =
-    useState(null);
+  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,9 +34,7 @@ const ManageCombo = () => {
   const fetchVaccineCombos = async () => {
     try {
       setLoading(true);
-      const response = await api.get(
-        `${url}/VaccineCombo/get-all-vaccine-combo-admin`
-      );
+      const response = await api.get(`${url}/VaccineCombo/get-all-vaccine-combo-admin`);
       setVaccineCombos(response.data);
       setError(null);
     } catch (error) {
@@ -60,13 +57,7 @@ const ManageCombo = () => {
   const sortedItems = [...filteredItems].sort((a, b) => {
     const valueA = a[sortBy] || "";
     const valueB = b[sortBy] || "";
-    return sortOrder === "asc"
-      ? valueA > valueB
-        ? 1
-        : -1
-      : valueA < valueB
-      ? 1
-      : -1;
+    return sortOrder === "asc" ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -83,7 +74,7 @@ const ManageCombo = () => {
   };
 
   const handleViewItem = (item) => {
-    console.log("Viewing combo with ID:", item.id); // Debug log
+    console.log("Viewing combo with ID:", item.id);
     setSelectedVaccine(item);
     setIsModalOpen(true);
   };
@@ -110,21 +101,34 @@ const ManageCombo = () => {
     handleCloseUpdateModal();
   };
 
+  const formatStatus = (status) => {
+    switch (status) {
+      case "Instock": return "In Stock";
+      case "Nearlyoutstock": return "Nearly Out of Stock";
+      case "Outstock": return "Out of Stock";
+      default: return "Unknown";
+    }
+  };
+
+  const formateDelete = (isDeleted) => {
+    return isDeleted ? "Deleted" : "Not Deleted";
+  };
+
   return (
     <>
-      <ToastContainer />
-      <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
+      <ToastContainer position="bottom-right" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             Vaccine Combo Inventory
           </h1>
           <AddVaccineComboComponent onAddSuccess={handleSuccess} />
         </div>
 
         {/* Search and Filters */}
-        <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">
-          <div className="relative">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 sm:mb-6">
+          <div className="relative w-full sm:w-auto flex-1">
             <Search
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               size={18}
@@ -134,10 +138,10 @@ const ManageCombo = () => {
               placeholder="Search combos..."
               value={searchTerm}
               onChange={handleSearch}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50 text-sm sm:text-base"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <ArrowUpDown size={18} className="text-gray-500" />
             <select
               value={`${sortBy}-${sortOrder}`}
@@ -146,7 +150,7 @@ const ManageCombo = () => {
                 setSortBy(field);
                 setSortOrder(order);
               }}
-              className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
+              className="w-full sm:flex-1 p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50 text-sm sm:text-base"
             >
               <option value="comboName-asc">Name (A-Z)</option>
               <option value="comboName-desc">Name (Z-A)</option>
@@ -161,32 +165,35 @@ const ManageCombo = () => {
         {/* Table */}
         <div className="overflow-x-auto">
           {loading ? (
-            <p>Loading combos...</p>
+            <p className="text-center text-gray-500 py-4">Loading combos...</p>
           ) : error ? (
-            <p className="text-red-500">{error}</p>
+            <p className="text-center text-red-500 py-4">{error}</p>
           ) : (
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse min-w-[600px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600">
                     Id
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600">
                     Combo Name
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 hidden md:table-cell">
                     Discount
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 hidden md:table-cell">
                     Total Price (VND)
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 hidden lg:table-cell">
                     Final Price (VND)
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600">
+                    Delete
+                  </th>
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600">
                     Actions
                   </th>
                 </tr>
@@ -198,56 +205,66 @@ const ManageCombo = () => {
                       key={item.id}
                       className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-4 py-4 text-sm text-gray-600">
+                      <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600">
                         {item.id}
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                            <Refrigerator className="w-5 h-5 text-teal-600" />
+                      <td className="px-2 sm:px-4 py-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-teal-50 flex items-center justify-center">
+                            <Refrigerator className="w-4 sm:w-5 h-4 sm:h-5 text-teal-600" />
                           </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {item.comboName}
-                            </p>
-                          </div>
+                          <p className="font-medium text-gray-900 text-xs sm:text-sm">
+                            {item.comboName}
+                          </p>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
+                      <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 hidden md:table-cell">
                         {item.discount}%
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
+                      <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 hidden md:table-cell">
                         {item.totalPrice?.toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {(
-                          item.totalPrice *
-                          (1 - item.discount / 100)
-                        )?.toLocaleString()}
+                      <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 hidden lg:table-cell">
+                        {(item.totalPrice * (1 - item.discount / 100))?.toLocaleString()}
+                      </td>
+                      <td className="px-2 sm:px-4 py-3">
+                        <span
+                          className={`inline-block px-2 py-1 text-xs sm:text-sm font-medium rounded-full ${
+                            item.status.toLowerCase() === "instock"
+                              ? "bg-green-100 text-green-800"
+                              : item.status.toLowerCase() === "nearlyoutstock"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : item.status.toLowerCase() === "outstock"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {formatStatus(item.status)}
+                        </span>
                       </td>
                       <td className="px-4 py-4">
                         <span
                           className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                            item.status === "AVAILABLE"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
+                            item.isDeleted
+                              ? "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
                           }`}
                         >
-                          {item.status || "UNKNOWN"}
+                          {formateDelete(item.isDeleted)}
                         </span>
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-2 sm:px-4 py-3">
+                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                           <button
                             onClick={() => handleViewItem(item)}
-                            className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
+                            className="p-1 sm:p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
                             title="View details"
                           >
                             <Eye size={16} />
                           </button>
                           <button
                             onClick={() => handleOpenUpdateModal(item)}
-                            className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
+                            className="p-1 sm:p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
                             title="Edit combo"
                           >
                             <SquarePen size={16} />
@@ -257,6 +274,7 @@ const ManageCombo = () => {
                             isCombo={true}
                             onDeleteSuccess={handleSuccess}
                           />
+                          <RestoreCombo comboId={item.id} onRestoreSuccess={handleSuccess} />
                         </div>
                       </td>
                     </tr>
@@ -264,8 +282,8 @@ const ManageCombo = () => {
                 ) : (
                   <tr>
                     <td
-                      colSpan={8}
-                      className="px-4 py-8 text-center text-gray-500"
+                      colSpan={7}
+                      className="px-4 py-8 text-center text-gray-500 text-sm"
                     >
                       No combos found matching your search criteria.
                     </td>
@@ -277,14 +295,16 @@ const ManageCombo = () => {
         </div>
 
         {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(sortedItems.length / itemsPerPage)}
-          itemsPerPage={itemsPerPage}
-          setCurrentPage={setCurrentPage}
-          setItemsPerPage={setItemsPerPage}
-          totalItems={sortedItems.length}
-        />
+        <div className="mt-4 sm:mt-6">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(sortedItems.length / itemsPerPage)}
+            itemsPerPage={itemsPerPage}
+            setCurrentPage={setCurrentPage}
+            setItemsPerPage={setItemsPerPage}
+            totalItems={sortedItems.length}
+          />
+        </div>
 
         {/* Vaccine Combo Details Modal */}
         {isModalOpen && selectedVaccine && (

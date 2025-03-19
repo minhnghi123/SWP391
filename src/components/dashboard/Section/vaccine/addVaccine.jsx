@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Clock } from "lucide-react";
 import { toast } from "react-toastify";
-import useAxios from "../../../utils/useAxios";
-
+import useAxios from "../../../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddVaccineComponent = ({ onAddSuccess }) => {
@@ -63,7 +62,11 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
     const minAge = parseInt(newVaccine.suggestAgeMin) || 0;
     const maxAge = parseInt(newVaccine.suggestAgeMax) || 0;
 
-    if (newVaccine.suggestAgeMin && newVaccine.suggestAgeMax && minAge >= maxAge) {
+    if (
+      newVaccine.suggestAgeMin &&
+      newVaccine.suggestAgeMax &&
+      minAge >= maxAge
+    ) {
       return "Minimum age must be less than maximum age.";
     }
 
@@ -116,7 +119,10 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
     };
 
     try {
-      const response = await api.post(`${url}/Vaccine/create-vaccine`, vaccineData);
+      const response = await api.post(
+        `${url}/Vaccine/create-vaccine`,
+        vaccineData
+      );
       if (response.status === 201 || response.status === 200) {
         toast.success("Vaccine added successfully!", { autoClose: 3000 });
         setShowForm(false);
@@ -126,7 +132,8 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
         throw new Error("Failed to add vaccine.");
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Error adding vaccine.";
+      const errorMessage =
+        err.response?.data?.message || "Error adding vaccine.";
       setError(errorMessage);
       toast.error(errorMessage, { autoClose: 3000 });
     } finally {
@@ -138,9 +145,14 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
     const today = new Date().toISOString().split("T")[0];
     return (
       <div className="relative">
-        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {label}
+        </label>
         <div className="relative">
-          <Clock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Clock
+            size={18}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          />
           <input
             type="date"
             name={name}
@@ -162,7 +174,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
           setShowForm(!showForm);
           if (showForm) resetForm();
         }}
-        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-5 py-2.5 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
+        className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
       >
         <Plus className="w-5 h-5" />
         <span className="font-medium">Add Vaccine Stock</span>
@@ -171,9 +183,13 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
       {showForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-20 z-50">
           <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-100 hover:scale-[1.02]">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-5 text-center">Add New Vaccine</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-5 text-center">
+              Add New Vaccine
+            </h2>
             {error && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-md border border-red-300">{error}</div>
+              <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-md border border-red-300">
+                {error}
+              </div>
             )}
 
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -278,13 +294,21 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
                 label="Entry Date"
                 name="entryDate"
                 value={newVaccine.entryDate}
-                onChange={(e) => handleInputChange({ target: { name: "entryDate", value: e.target.value } })}
+                onChange={(e) =>
+                  handleInputChange({
+                    target: { name: "entryDate", value: e.target.value },
+                  })
+                }
               />
               <DateInput
                 label="Expiration Date"
                 name="timeExpired"
                 value={newVaccine.timeExpired}
-                onChange={(e) => handleInputChange({ target: { name: "timeExpired", value: e.target.value } })}
+                onChange={(e) =>
+                  handleInputChange({
+                    target: { name: "timeExpired", value: e.target.value },
+                  })
+                }
               />
             </div>
 
@@ -314,7 +338,7 @@ const AddVaccineComponent = ({ onAddSuccess }) => {
               <button
                 onClick={handleAddVaccine}
                 disabled={loading}
-                className="px-5 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all duration-200 shadow-sm hover:shadow-md disabled:bg-teal-400 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
               >
                 {loading ? "Adding..." : "Add Vaccine"}
               </button>

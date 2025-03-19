@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Save, X } from "lucide-react";
 import { toast } from "react-toastify";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "../../../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
@@ -11,7 +10,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
     discount: combo.discount || 0,
     totalPrice: combo.totalPrice || 0,
     finalPrice: combo.finalPrice || 0,
-    status: combo.status === "AVAILABLE",
+    status: combo.status || "Instock", // Mặc định là "Instock" nếu không có status
     vaccineIds: combo.vaccineIds || [],
   });
   const [error, setError] = useState(null);
@@ -41,8 +40,9 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
           discount: comboData.discount || 0,
           totalPrice: comboData.totalPrice || 0,
           finalPrice: comboData.finalPrice || 0,
-          status: comboData.status === "AVAILABLE",
-          vaccineIds: comboData.vaccineIds || comboData.vaccines?.map((v) => v.id) || [],
+          status: combo.status || "Instock", // Mặc định là "Instock" nếu không có status
+          vaccineIds:
+            comboData.vaccineIds || comboData.vaccines?.map((v) => v.id) || [],
         });
       } catch (err) {
         console.error("Error fetching combo details:", err);
@@ -140,7 +140,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
         discount: Number(formData.discount) || 0,
         totalPrice: Number(formData.totalPrice),
         finalPrice: Number(formData.finalPrice),
-        status: formData.status ? "AVAILABLE" : "UNAVAILABLE",
+        status: formData.status,
         vaccineIds: formData.vaccineIds,
       };
 
@@ -159,13 +159,24 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
         );
         setFormData({
           ...formData,
-          vaccineIds: updatedCombo.data.vaccineIds || updatedCombo.data.vaccines?.map((v) => v.id) || [],
+          vaccineIds:
+            updatedCombo.data.vaccineIds ||
+            updatedCombo.data.vaccines?.map((v) => v.id) ||
+            [],
         });
       }
+      toast.success("Vaccine updated successfully!"); 
     } catch (err) {
-      console.error("Error updating vaccine combo:", err?.response?.data || err);
-      setError("Failed to update vaccine combo. Please check your data and try again.");
-      toast.error("Failed to update vaccine combo. Please check your data and try again.");
+      console.error(
+        "Error updating vaccine combo:",
+        err?.response?.data || err
+      );
+      setError(
+        "Failed to update vaccine combo. Please check your data and try again."
+      );
+      toast.error(
+        "Failed to update vaccine combo. Please check your data and try again."
+      );
     }
   };
 
@@ -182,10 +193,12 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white p-6 border-b border-gray-100 flex items-center justify-between z-10">
-          <h2 className="text-xl font-bold text-gray-900">Update Vaccine Combo</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            Update Vaccine Combo
+          </h2>
           <button
             onClick={onCancel}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -236,18 +249,16 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Status:
               </label>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="status"
-                  checked={formData.status}
-                  onChange={handleInputChange}
-                  className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-                <span className="ml-2 text-sm text-gray-600">
-                  {formData.status ? "AVAILABLE" : "UNAVAILABLE"}
-                </span>
-              </div>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="Instock">Instock</option>
+                <option value="Nearlyoutstock">Nearly out of stock</option>
+                <option value="Outofstock">Out of stock</option>
+              </select>
             </div>
           </div>
 
@@ -275,7 +286,9 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
                       <div
                         key={vaccine.id}
                         className={`flex items-center p-2 rounded-lg border ${
-                          isSelected ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"
+                          isSelected
+                            ? "bg-blue-50 border-blue-200"
+                            : "bg-white border-gray-200"
                         }`}
                       >
                         <input
@@ -286,10 +299,13 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
                         />
                         <span
                           className={`ml-2 text-sm ${
-                            isSelected ? "text-blue-600 font-semibold" : "text-gray-600"
+                            isSelected
+                              ? "text-blue-600 font-semibold"
+                              : "text-gray-600"
                           }`}
                         >
-                          {vaccine.name} (ID: {vaccine.id}) (Price: {vaccine.price})
+                          {vaccine.name} (ID: {vaccine.id}) (Price:{" "}
+                          {vaccine.price})
                         </span>
                       </div>
                     );

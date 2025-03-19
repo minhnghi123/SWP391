@@ -75,16 +75,6 @@ const DetailCombo = ({ vaccineId, isOpen, onClose }) => {
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">{comboName}</h3>
                   <div className="flex gap-2 items-center">
-                    <p className="text-sm text-gray-500">ID: {id}</p>
-                    <span
-                      className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                        status === "AVAILABLE"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {status}
-                    </span>
                   </div>
                 </div>
               </div>

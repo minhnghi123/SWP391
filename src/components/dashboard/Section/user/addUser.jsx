@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
 import { toast } from "react-toastify";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "../../../../utils/useAxios";
 import axios from "axios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -43,7 +43,7 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
         setError("Please select an image file");
         return;
       }
-      
+
       setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -75,7 +75,12 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
     setLoading(true);
     setError(null);
 
-    if (!newUser.name || !newUser.username || !newUser.gmail || !newUser.password) {
+    if (
+      !newUser.name ||
+      !newUser.username ||
+      !newUser.gmail ||
+      !newUser.password
+    ) {
       setError("Name, username, email, and password are required.");
       setLoading(false);
       return;
@@ -119,16 +124,15 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
         gmail: newUser.gmail.trim(),
         password: newUser.password,
         phoneNumber: newUser.phoneNumber ? newUser.phoneNumber.trim() : "",
-        dateOfBirth: newUser.dateOfBirth ? new Date(newUser.dateOfBirth).toISOString() : "",
+        dateOfBirth: newUser.dateOfBirth
+          ? new Date(newUser.dateOfBirth).toISOString()
+          : "",
         avatar: imageUrl,
         gender: parseInt(newUser.gender, 10),
       };
+      // console.log(userData)
 
-      const response = await api.post(`${url}/User/register`, userData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await api.post(`${url}/User/create-user`, userData);
 
       if (response.status === 201 || response.status === 200) {
         toast.success("User added successfully!", { autoClose: 3000 });
@@ -283,7 +287,7 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
           <button
             onClick={handleAddUser}
             disabled={loading}
-            className="px-6 py-2.5 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:bg-teal-300"
+            className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
           >
             {loading ? "Adding..." : "Add User"}
           </button>

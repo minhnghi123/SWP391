@@ -2,6 +2,7 @@ import { Eye, Search, Plus, Filter, RefreshCcw, ChevronLeft, ChevronRight } from
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { memo } from "react";
 
 
 const SelectAppointment = ({setSearchTerm, fillterbyStatus, setIsCreateBookingModalOpen}) => {
@@ -41,4 +42,4 @@ const SelectAppointment = ({setSearchTerm, fillterbyStatus, setIsCreateBookingMo
     )
 }
 
-export default SelectAppointment;
+export default memo(SelectAppointment);

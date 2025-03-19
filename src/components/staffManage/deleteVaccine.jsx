@@ -1,8 +1,7 @@
 import { Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import useAxios from "../../../utils/useAxios";
-
+import useAxios from "../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const DeleteVaccineButton = ({ vaccineId, isCombo = false, onDeleteSuccess }) => {

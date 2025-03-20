@@ -10,16 +10,16 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
     discount: combo.discount || 0,
     totalPrice: combo.totalPrice || 0,
     finalPrice: combo.finalPrice || 0,
-    status: combo.status || "Instock", // Mặc định là "Instock" nếu không có status
+    status: combo.status || "Instock",
     vaccineIds: combo.vaccineIds || [],
   });
   const [error, setError] = useState(null);
   const [showVaccines, setShowVaccines] = useState(false);
   const [vaccines, setVaccines] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const api = useAxios();
 
-  // Fetch combo details from server on mount
   useEffect(() => {
     const fetchComboDetails = async () => {
       if (!combo?.id) {
@@ -28,22 +28,25 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
         return;
       }
 
+      if (hasFetched) return;
+
       try {
         setLoading(true);
         const response = await api.get(
           `${url}/VaccineCombo/get-vaccine-combo-detail/${combo.id}`
         );
         const comboData = response.data;
-        console.log("Fetched combo data:", comboData); // Debug dữ liệu từ server
+        console.log("Fetched combo data:", comboData);
         setFormData({
           comboName: comboData.comboName || "",
           discount: comboData.discount || 0,
           totalPrice: comboData.totalPrice || 0,
           finalPrice: comboData.finalPrice || 0,
-          status: combo.status || "Instock", // Mặc định là "Instock" nếu không có status
+          status: comboData.status || "Instock",
           vaccineIds:
             comboData.vaccineIds || comboData.vaccines?.map((v) => v.id) || [],
         });
+        setHasFetched(true);
       } catch (err) {
         console.error("Error fetching combo details:", err);
         setError("Failed to load combo details");
@@ -54,9 +57,8 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
     };
 
     fetchComboDetails();
-  }, [combo?.id]);
+  }, [combo?.id, api, hasFetched]);
 
-  // Calculate total price based on vaccineIds
   const calculateTotalPrice = async (vaccineIds) => {
     try {
       const total = await Promise.all(
@@ -75,7 +77,6 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
     }
   };
 
-  // Calculate final price
   const calculateFinalPrice = (totalPrice, discount) => {
     const discountValue = parseFloat(discount) || 0;
     return totalPrice - (totalPrice * discountValue) / 100;
@@ -95,10 +96,10 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
   }, [formData.vaccineIds, formData.discount]);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
@@ -117,7 +118,14 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
   };
 
   const handleVaccineSelect = (vaccineId) => {
+    const vaccine = vaccines.find((v) => v.id === vaccineId);
     const isSelected = formData.vaccineIds.includes(vaccineId);
+
+    if (!isSelected && vaccine?.status === "Outstock") {
+      toast.error("Cannot select an 'Outstock' vaccine.");
+      return;
+    }
+
     const updatedVaccineIds = isSelected
       ? formData.vaccineIds.filter((id) => id !== vaccineId)
       : [...formData.vaccineIds, vaccineId];
@@ -128,10 +136,43 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
     }));
   };
 
+  // Hàm kiểm tra trạng thái vaccine
+  const checkVaccineStatus = async (vaccineIds) => {
+    try {
+      const vaccineStatuses = await Promise.all(
+        vaccineIds.map(async (id) => {
+          const response = await api.get(
+            `${url}/Vaccine/get-vaccine-by-id/${id}`
+          );
+          return response.data.status;
+        })
+      );
+      return vaccineStatuses;
+    } catch (error) {
+      console.error("Error checking vaccine status:", error);
+      setError("Failed to check vaccine status.");
+      return [];
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.comboName) {
       setError("Please fill in the combo name field.");
       return;
+    }
+
+    // Kiểm tra nếu status là "Instock" và có vaccine "Outstock"
+    if (formData.status === "Instock" || formData.status === "Nearlyoutstock" && formData.vaccineIds.length > 0) {
+      const vaccineStatuses = await checkVaccineStatus(formData.vaccineIds);
+      if (vaccineStatuses.includes("Outstock")) {
+        setError(
+          "Cannot set combo status to 'Instock' or 'NearlyOutstock' because one or more vaccines are 'Outstock'."
+        );
+        toast.error(
+          "Cannot set combo status to 'Instock' or 'NearlyOutstock' because one or more vaccines are 'Outstock'."
+        );
+        return;
+      }
     }
 
     try {
@@ -144,16 +185,15 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
         vaccineIds: formData.vaccineIds,
       };
 
-      console.log("Sending update data to server:", updateData); // Debug dữ liệu gửi lên
+      console.log("Sending update data to server:", updateData);
       const response = await api.put(
         `${url}/VaccineCombo/update-vaccine-combo-by-id/${combo.id}`,
         updateData
       );
 
-      console.log("Server response:", response.data); // Debug phản hồi từ server
+      console.log("Server response:", response.data);
       if (response.status === 200) {
         onSave({ id: combo.id, ...updateData });
-        // Fetch lại combo sau khi cập nhật để đảm bảo đồng bộ
         const updatedCombo = await api.get(
           `${url}/VaccineCombo/get-vaccine-combo-detail/${combo.id}`
         );
@@ -161,21 +201,23 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
           ...formData,
           vaccineIds:
             updatedCombo.data.vaccineIds ||
-            updatedCombo.data.vaccines?.map((v) => v.id) ||
-            [],
+            updatedCombo.data.vaccines?.map((v) => v.id) || [],
+          status: updatedCombo.data.status || "Instock",
         });
+        toast.success("Vaccine combo updated successfully!");
       }
-      toast.success("Vaccine updated successfully!"); 
     } catch (err) {
       console.error(
         "Error updating vaccine combo:",
         err?.response?.data || err
       );
       setError(
-        "Failed to update vaccine combo. Please check your data and try again."
+        "Failed to update vaccine combo: " +
+          (err?.response?.data?.message || "Please check your data and try again.")
       );
       toast.error(
-        "Failed to update vaccine combo. Please check your data and try again."
+        "Failed to update vaccine combo: " +
+          (err?.response?.data?.message || "Please check your data and try again.")
       );
     }
   };
@@ -256,8 +298,8 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
                 <option value="Instock">Instock</option>
-                <option value="Nearlyoutstock">Nearly out of stock</option>
-                <option value="Outofstock">Out of stock</option>
+                <option value="Nearlyoutstock">Nearlyoutstock</option>
+                <option value="Outstock">Outstock</option>
               </select>
             </div>
           </div>
@@ -282,6 +324,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
                 <div className="grid grid-cols-1 gap-2 mt-2 max-h-40 overflow-y-auto">
                   {vaccines.map((vaccine) => {
                     const isSelected = formData.vaccineIds.includes(vaccine.id);
+                    const isOutstock = vaccine.status === "Outstock";
                     return (
                       <div
                         key={vaccine.id}
@@ -289,13 +332,14 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
                           isSelected
                             ? "bg-blue-50 border-blue-200"
                             : "bg-white border-gray-200"
-                        }`}
+                        } ${isOutstock ? "opacity-50" : ""}`}
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleVaccineSelect(vaccine.id)}
-                          className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          disabled={isOutstock}
+                          className="w-5 h-5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:cursor-not-allowed"
                         />
                         <span
                           className={`ml-2 text-sm ${
@@ -304,8 +348,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
                               : "text-gray-600"
                           }`}
                         >
-                          {vaccine.name} (ID: {vaccine.id}) (Price:{" "}
-                          {vaccine.price})
+                          {vaccine.name} (ID: {vaccine.id}) (Price: {vaccine.price}) (Status: {vaccine.status})
                         </span>
                       </div>
                     );

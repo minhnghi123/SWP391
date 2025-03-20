@@ -1,182 +1,178 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import React, { useState, useEffect } from 'react';
 import { CalendarIcon, ClockIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
-import  formatDate  from '../../utils/FormDate';
+import formatDate from '../../utils/FormDate';
 import FormmatDeicimal from '../../utils/calculateMoney';
-import  useAxios  from '../../utils/useAxios';
-const url = import.meta.env.VITE_BASE_URL_DB
-const Detail = () => {
-    const { idVaccine, type } = useParams();
-    const navigate = useNavigate();
-    const [error, setError] = useState(null);
-    const [vaccine, setVaccine] = useState(null);
-    const [combo, setCombo] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const api = useAxios()
+import useAxios from '../../utils/useAxios';
 
-    useEffect(() => {
-        const fetchDataVariants = async () => {
-            setLoading(true)
-            try {
-                if (type === 'vaccine') {
-                    const res = await api.get(`${url}/Vaccine/get-vaccine-by-id/${idVaccine}`)
-                    if (res.status === 200) setVaccine(res.data)
-                }
-                else {
-                    const res = await api.get(`${url}/VaccineCombo/get-vaccine-combo-detail/${idVaccine}`)
-                    if (res.status === 200) setCombo(res.data)
-                }
-            } catch (error) {
-                setError(error)
-            } finally {
-                setLoading(false)
-            }
+const url = import.meta.env.VITE_BASE_URL_DB;
+
+const Detail = ({ idVaccine, type, onClose, mode }) => {
+  const [error, setError] = useState(null);
+  const [vaccine, setVaccine] = useState(null);
+  const [combo, setCombo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const api = useAxios();
+
+  useEffect(() => {
+    const fetchDataVariants = async () => {
+      if (!idVaccine || !type) {
+        setError(new Error('Invalid vaccine ID or type'));
+        return;
+      }
+
+      setLoading(true);
+      try {
+        let res;
+        if (type === 'vaccine') {
+          const endpoint = `${url}/Vaccine/get-vaccine-by-id/${idVaccine}`;
+          res = await api.get(endpoint);
+          if (res.status === 200) setVaccine(res.data);
+        } else if (type === 'combo') {
+          const endpoint = `${url}/VaccineCombo/get-vaccine-combo-detail/${idVaccine}`;
+          res = await api.get(endpoint);
+          if (res.status === 200) setCombo(res.data);
+        } else {
+          setError(new Error('Invalid type parameter'));
         }
-        fetchDataVariants()
+      } catch (error) {
+        console.error('API Error:', error.response || error);
+        setError(error.response?.data?.message || error.message || 'Failed to fetch data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDataVariants();
+  }, [idVaccine, type]);
 
-    }, [idVaccine]);
+  if (loading) {
+    return <div className="text-center mt-10">Loading...</div>;
+  }
 
-    if (loading) {
-        return <div className="text-center mt-10">Loading...</div>;
-    }
+  if (error) {
+    return <div className="text-red-500 text-center mt-10">Error: {error.message}</div>;
+  }
 
-    if (error) {
-        return <div className="text-red-500 text-center mt-10">Error: {error.message}</div>;
-    }
+  if (!vaccine && !combo) {
+    return <div className="text-center mt-10">No data available</div>;
+  }
 
-    return (
-        <div className="max-w-4xl mx-auto p-6 bg-white shadow-xl rounded-2xl mt-10 border border-gray-100">
-            {/* Header Section */}
-            <div className="flex justify-between items-start mb-8">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center text-blue-600 hover:text-blue-700 transition-colors group"
-                >
-                    <ArrowBackIosNewOutlinedIcon className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-                    <span className="font-medium">Back to List</span>
-                </button>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium 
-                    ${type === 'combo' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'}`}>
-                    {type === 'combo' ? 'Combo Package' : 'Single Vaccine'}
+  return (
+    <div
+      className={`relative bg-white p-6 rounded-lg shadow-lg ${
+        mode === 'centered' ? 'w-full max-w-3xl' : 'w-full max-w-4xl'
+      }`}
+    >
+      {/* Header Section */}
+      <div className="flex justify-between items-center mb-4">
+        <button
+          onClick={onClose}
+          className="flex items-center text-blue-600 hover:text-blue-700 transition-colors"
+        >
+          <span className="font-medium text-sm">← Back to List</span>
+        </button>
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            type === 'combo' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+          }`}
+        >
+          {type === 'combo' ? 'Combo Package' : 'Single Vaccine'}
+        </span>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Left Column - Image and Basic Info */}
+        <div className="md:w-1/3">
+          <div className="bg-white rounded-lg p-4">
+            <img
+              src={vaccine?.image || combo?.image || '/vaccine-placeholder.jpg'}
+              alt={type === 'combo' ? combo?.comboName : vaccine?.name}
+              className="w-full h-48 object-contain rounded-lg"
+            />
+            <div className="mt-4 space-y-2 text-gray-600 text-sm">
+              <div className="flex items-center">
+                <CurrencyDollarIcon className="w-5 h-5 mr-2" />
+                <span className="font-medium">
+                  {type === 'combo' ? (
+                    <>
+                      <span className="line-through text-gray-400">
+                        {FormmatDeicimal(combo?.totalPrice)} VND
+                      </span>
+                      <span className="ml-2 text-green-600">
+                        {FormmatDeicimal(combo?.finalPrice)} VND
+                      </span>
+                      <span className="ml-2 text-xs text-green-600">
+                        (-{combo?.discount}%)
+                      </span>
+                    </>
+                  ) : (
+                    `${FormmatDeicimal(vaccine?.price)} VND`
+                  )}
                 </span>
+              </div>
+              <div className="flex items-center">
+                <CalendarIcon className="w-5 h-5 mr-2" />
+                <span>Entry: {formatDate(type === 'combo' ? combo?.entryDate : vaccine?.entryDate)}</span>
+              </div>
+              <div className="flex items-center">
+                <ClockIcon className="w-5 h-5 mr-2" />
+                <span>Expires: {formatDate(type === 'combo' ? combo?.timeExpired : vaccine?.timeExpired)}</span>
+              </div>
             </div>
-
-            {/* Main Content */}
-            <div className="flex flex-col md:flex-row gap-8">
-                {/* Left Column - Image and Basic Info */}
-                <div className="md:w-1/3">
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <img
-                            src={vaccine?.image || '/vaccine-placeholder.jpg'}
-                            alt={type === 'combo' ? combo?.comboName : vaccine?.name}
-                            className="w-full h-64 object-contain rounded-lg"
-                        />
-                        <div className="mt-4 space-y-3">
-                            <div className="flex items-center text-gray-600">
-                                <CurrencyDollarIcon className="w-5 h-5 mr-2" />
-                                <span className="font-medium">
-                                    {type === 'combo' ? (
-                                        <>
-                                            <span className="line-through text-gray-400">
-                                                {FormmatDeicimal(combo?.totalPrice)} VND
-                                            </span>
-                                            <span className="ml-2 text-green-600">
-                                                {FormmatDeicimal(combo?.finalPrice)} VND
-                                            </span>
-                                            <span className="ml-2 text-sm text-green-600">
-                                                (-{combo?.discount}%)
-                                            </span>
-                                        </>
-                                    ) : (
-                                        `${FormmatDeicimal(vaccine?.price)} VND`
-                                    )}
-                                </span>
-                            </div>
-                            <div className="flex items-center text-gray-600">
-                                <CalendarIcon className="w-5 h-5 mr-2" />
-                                <span>Entry: {formatDate(type === 'combo' ? combo?.entryDate : vaccine?.entryDate)}</span>
-                            </div>
-                            <div className="flex items-center text-gray-600">
-                                <ClockIcon className="w-5 h-5 mr-2" />
-                                <span>Expires: {formatDate(type === 'combo' ? combo?.timeExpired : vaccine?.timeExpired)}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Column - Details */}
-                <div className="md:w-2/3 space-y-6">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                            {type === 'combo' ? combo?.comboName : vaccine?.name}
-                        </h1>
-                        <p className="text-gray-600">
-                            {type === 'combo' ? combo?.description : vaccine?.description}
-                        </p>
-                    </div>
-
-                    {/* Key Information */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-blue-50 rounded-lg">
-                            <h3 className="text-sm font-medium text-blue-800 mb-1">Quantity Available</h3>
-                            <p className="text-lg font-semibold text-gray-900">{vaccine?.quantity || 'N/A'}</p>
-                        </div>
-                        <div className="p-4 bg-orange-50 rounded-lg">
-                            <h3 className="text-sm font-medium text-orange-800 mb-1">Required Doses</h3>
-                            <p className="text-lg font-semibold text-gray-900">{vaccine?.doesTimes || 'N/A'}</p>
-                        </div>
-                    </div>
-
-                    {/* Age Range and Country */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <h3 className="text-sm font-medium text-gray-800 mb-1">Suggested Age Range</h3>
-                            <p className="text-gray-900">
-                                {vaccine?.suggestAgeMin} - {vaccine?.suggestAgeMax} years
-                            </p>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <h3 className="text-sm font-medium text-gray-800 mb-1">Country of Origin</h3>
-                            <p className="text-gray-900">{vaccine?.fromCountry}</p>
-                        </div>
-                    </div>
-
-                    {/* Combo Vaccines List */}
-                    {type === 'combo' && combo?.vaccines && (
-                        <div className="border-t border-gray-200 pt-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Included Vaccines</h3>
-                            <div className="space-y-4">
-                                {combo.vaccines.map((v) => (
-                                    <div key={v.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                        <div>
-                                            <h4 className="font-medium text-gray-900">{v.name}</h4>
-                                            <p className="text-sm text-gray-500">{v.description}</p>
-                                        </div>
-                                        <span className="text-gray-600">{FormmatDeicimal(v.price)} VND</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Footer Actions */}
-            <div className="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-3">
-                <button 
-                    onClick={() => navigate(-1)}
-                    className="px-5 py-2.5 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
-                >
-                    Back to List
-                </button>
-                <button className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
-                    Add to Cart
-                </button>
-            </div>
+          </div>
         </div>
-    );
+
+        {/* Right Column - Details */}
+        <div className="md:w-2/3 space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              {type === 'combo' ? combo?.comboName : vaccine?.name}
+            </h1>
+            <p className="text-gray-500 text-sm">{type === 'combo' ? combo?.description : vaccine?.description}</p>
+          </div>
+
+          {/* Key Information */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-3 bg-blue-50 rounded-lg">
+              <h3 className="text-xs font-medium text-blue-800 mb-1">Quantity Available</h3>
+              <p className="text-lg font-semibold text-gray-900">{vaccine?.quantity || 'N/A'}</p>
+            </div>
+            <div className="p-3 bg-orange-50 rounded-lg">
+              <h3 className="text-xs font-medium text-orange-800 mb-1">Required Doses</h3>
+              <p className="text-lg font-semibold text-gray-900">{vaccine?.doesTimes || 'N/A'}</p>
+            </div>
+          </div>
+
+          {/* Age Range and Country */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <h3 className="text-xs font-medium text-gray-800 mb-1">Suggested Age Range</h3>
+              <p className="text-sm text-gray-900">
+                {vaccine?.suggestAgeMin} - {vaccine?.suggestAgeMax} years
+              </p>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <h3 className="text-xs font-medium text-gray-800 mb-1">Country of Origin</h3>
+              <p className="text-sm text-gray-900">{vaccine?.fromCountry || combo?.fromCountry}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          onClick={onClose}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Back to List
+        </button>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default Detail;

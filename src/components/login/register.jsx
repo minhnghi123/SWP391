@@ -1,27 +1,28 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useRef } from "react"; // Added useRef
 import { motion } from "framer-motion";
-import {  toast } from "react-toastify";
-import Avatar from '../../../avatar.json'
+import { toast } from "react-toastify";
+import Avatar from '../../../avatar.json';
 import useAxios from "../../utils/useAxios";
-const url = import.meta.env.VITE_BASE_URL_DB
+const url = import.meta.env.VITE_BASE_URL_DB;
 
-const InputRegister = ({ type, placeholder, onChange, name, value, label }) => {
+const InputRegister = ({ type, placeholder, onChange, name, value, label, error }) => {
     return (
         <div className="space-y-2">
             {label && <label className="text-sm font-medium text-gray-700 ml-1">{label}</label>}
             <input
                 type={type}
                 placeholder={placeholder}
-                className="w-full p-4 border-2 border-gray-300 rounded-xl 
-                focus:outline-none focus:border-blue-500 focus:ring-2 
-                focus:ring-blue-200 transition-all duration-300 
-                bg-white/60 backdrop-blur-md hover:bg-white/70"
+                className={`w-full p-4 border-2 rounded-xl 
+                focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-300 
+                bg-white/60 backdrop-blur-md hover:bg-white/70
+                ${error ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
                 onChange={onChange}
                 value={value}
                 name={name}
                 required
             />
+            {error && <p className="text-red-500 text-xs ml-1">{error}</p>}
         </div>
     );
 };
@@ -32,8 +33,7 @@ const StepIndicator = ({ currentStep, totalSteps }) => {
             {[...Array(totalSteps)].map((_, index) => (
                 <div
                     key={index}
-                    className={`h-2 w-2 rounded-full transition-all duration-300 ${index < currentStep ? 'bg-blue-600 w-8' : 'bg-gray-300'
-                        }`}
+                    className={`h-2 w-2 rounded-full transition-all duration-300 ${index < currentStep ? 'bg-blue-600 w-8' : 'bg-gray-300'}`}
                 />
             ))}
         </div>
@@ -41,11 +41,11 @@ const StepIndicator = ({ currentStep, totalSteps }) => {
 };
 
 export default function Register({ setRegister }) {
-    const api = useAxios()
-    const avatar = Avatar
+    const api = useAxios();
+    const avatar = Avatar;
     const [err, setErr] = useState("");
     const [step, setStep] = useState(1);
-    const [stage, setStage] = useState(1); // Stage 1: Information collection, Stage 2: Verification
+    const [stage, setStage] = useState(1);
     const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
     const [input, setInput] = useState({
         firstName: "",
@@ -58,35 +58,120 @@ export default function Register({ setRegister }) {
         gender: "",
         email: "",
     });
+    const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const inputRefs = useRef([]); // Added refs for verification inputs
 
-    const handleSignIn = () => {
-        setRegister(0);
-    };
+    const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const validatePhone = (phone) => /^\d{10,11}$/.test(phone);
+    const validatePassword = (password) => password.length >= 8;
+    const validateName = (name) => /^[a-zA-Z\s-]{2,}$/.test(name);
+
+    const handleSignIn = () => setRegister(0);
 
     const handleChangeAccount = (e) => {
-        setInput({ ...input, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        let newErrors = { ...errors };
+
+        switch (name) {
+            case "firstName":
+            case "lastName":
+                if (value && !validateName(value)) {
+                    newErrors[name] = "Name must be at least 2 characters (letters only)";
+                } else {
+                    delete newErrors[name];
+                }
+                break;
+            case "email":
+                if (value && !validateEmail(value)) {
+                    newErrors.email = "Invalid email format";
+                } else {
+                    delete newErrors.email;
+                }
+                break;
+            case "phone":
+                if (value && !validatePhone(value)) {
+                    newErrors.phone = "Phone must be 10-11 digits";
+                } else {
+                    delete newErrors.phone;
+                }
+                break;
+            case "password":
+                if (value && !validatePassword(value)) {
+                    newErrors.password = "Password must be at least 8 characters";
+                } else {
+                    delete newErrors.password;
+                }
+                break;
+            case "confirmPassword":
+                if (value && value !== input.password) {
+                    newErrors.confirmPassword = "Passwords do not match";
+                } else {
+                    delete newErrors.confirmPassword;
+                }
+                break;
+            case "userName":
+                if (value && value.length < 3) {
+                    newErrors.userName = "Username must be at least 3 characters";
+                } else {
+                    delete newErrors.userName;
+                }
+                break;
+            default:
+                break;
+        }
+
+        setInput({ ...input, [name]: value });
+        setErrors(newErrors);
         setErr("");
     };
 
     const handleVerificationChange = (index, value) => {
-        if (!/^[0-9]*$/.test(value)) return;
+        if (!/^[0-9]$/.test(value) && value !== "") return;
         const newCode = [...verificationCode];
         newCode[index] = value;
         setVerificationCode(newCode);
+
         if (value && index < 5) {
-            document.getElementById(`code-${index + 1}`).focus();
+            inputRefs.current[index + 1]?.focus();
+        }
+    };
+
+    const handleKeyDown = (index, e) => {
+        if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
+            inputRefs.current[index - 1]?.focus();
+        } else if (e.key === "ArrowLeft" && index > 0) {
+            inputRefs.current[index - 1]?.focus();
+        } else if (e.key === "ArrowRight" && index < 5) {
+            inputRefs.current[index + 1]?.focus();
         }
     };
 
     const isStepValid = () => {
         switch (step) {
             case 1:
-                return input.firstName && input.lastName;
+                return (
+                    input.firstName &&
+                    input.lastName &&
+                    validateName(input.firstName) &&
+                    validateName(input.lastName)
+                );
             case 2:
-                return input.userName && input.email && input.phone;
+                return (
+                    input.userName &&
+                    input.email &&
+                    input.phone &&
+                    input.userName.length >= 3 &&
+                    validateEmail(input.email) &&
+                    validatePhone(input.phone)
+                );
             case 3:
-                return input.password && input.confirmPassword && input.password === input.confirmPassword;
+                return (
+                    input.password &&
+                    input.confirmPassword &&
+                    input.password === input.confirmPassword &&
+                    validatePassword(input.password)
+                );
             case 4:
                 return input.birthDay && input.gender;
             default:
@@ -95,12 +180,12 @@ export default function Register({ setRegister }) {
     };
 
     const handleNext = () => {
-        if (step === 3 && input.password !== input.confirmPassword) {
-            setErr("Passwords do not match");
+        if (!isStepValid()) {
+            setErr("Please fill all fields correctly");
             return;
         }
-
         setStep(step + 1);
+        setErr("");
     };
 
     const handleBack = () => {
@@ -108,9 +193,13 @@ export default function Register({ setRegister }) {
         setErr("");
     };
 
-    // Submit all user information and request verification code
     const handleStage1Submit = async (e) => {
         e.preventDefault();
+        if (!isStepValid()) {
+            setErr("Please complete all fields correctly");
+            return;
+        }
+
         setIsSubmitting(true);
         const avatarUrl = avatar[Math.floor(Math.random() * avatar.length)].avatar;
 
@@ -124,35 +213,32 @@ export default function Register({ setRegister }) {
                 password: input.password,
                 avatar: avatarUrl,
                 gender: input.gender?.toLowerCase() === "male" ? 0 : 1,
-                
-            }
-         
-            const res = await api.post(`${url}/User/register`, value)
+            };
+            console.log(value);
+
+            const res = await api.post(`${url}/User/register`, value);
             if (res?.status === 200) {
                 setStage(2);
-                setIsSubmitting(false);
             }
         } catch (error) {
-            const errorMsg = error.response?.data || "Failed to send verification code";
+            const errorMsg = error.response?.data?.msg || "Failed to send verification code";
             setErr(errorMsg);
             toast.error(errorMsg);
-            setIsSubmitting(false);
-        }finally{
+        } finally {
             setIsSubmitting(false);
         }
     };
 
-    // Complete registration with verification code
     const handleFinalSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        if (!verificationCode.every(code => code.length === 1)) {
+            setErr("Please enter complete verification code");
+            return;
+        }
 
-       
+        setIsSubmitting(true);
         try {
-            // First verify the code
-            const verifyValue = {
-                otp: verificationCode.join("")
-            };
+            const verifyValue = { otp: verificationCode.join("") };
             const verifyRes = await api.post(`${url}/User/verify-register`, verifyValue);
 
             if (verifyRes?.status === 200) {
@@ -160,7 +246,7 @@ export default function Register({ setRegister }) {
                 setTimeout(() => setRegister(0), 1500);
             }
         } catch (error) {
-            const errorMsg = error.response?.data?.message || "Registration failed";
+            const errorMsg = error.response?.data?.message || "Verification failed";
             setErr(errorMsg);
             toast.error(errorMsg);
         } finally {
@@ -180,6 +266,7 @@ export default function Register({ setRegister }) {
                             onChange={handleChangeAccount}
                             name="firstName"
                             value={input.firstName}
+                            error={errors.firstName}
                         />
                         <InputRegister
                             type="text"
@@ -188,6 +275,7 @@ export default function Register({ setRegister }) {
                             onChange={handleChangeAccount}
                             name="lastName"
                             value={input.lastName}
+                            error={errors.lastName}
                         />
                     </div>
                 );
@@ -201,6 +289,7 @@ export default function Register({ setRegister }) {
                             onChange={handleChangeAccount}
                             name="userName"
                             value={input.userName}
+                            error={errors.userName}
                         />
                         <InputRegister
                             type="email"
@@ -209,6 +298,7 @@ export default function Register({ setRegister }) {
                             onChange={handleChangeAccount}
                             name="email"
                             value={input.email}
+                            error={errors.email}
                         />
                         <InputRegister
                             type="tel"
@@ -217,6 +307,7 @@ export default function Register({ setRegister }) {
                             onChange={handleChangeAccount}
                             name="phone"
                             value={input.phone}
+                            error={errors.phone}
                         />
                     </div>
                 );
@@ -230,6 +321,7 @@ export default function Register({ setRegister }) {
                             onChange={handleChangeAccount}
                             name="password"
                             value={input.password}
+                            error={errors.password}
                         />
                         <InputRegister
                             type="password"
@@ -238,6 +330,7 @@ export default function Register({ setRegister }) {
                             onChange={handleChangeAccount}
                             name="confirmPassword"
                             value={input.confirmPassword}
+                            error={errors.confirmPassword}
                         />
                     </div>
                 );
@@ -249,6 +342,7 @@ export default function Register({ setRegister }) {
                             label="Date of Birth"
                             onChange={handleChangeAccount}
                             name="birthDay"
+                            max={new Date().toISOString().split('T')[0]}
                             value={input.birthDay}
                         />
                         <div className="space-y-2">
@@ -284,11 +378,13 @@ export default function Register({ setRegister }) {
                     {verificationCode.map((digit, index) => (
                         <input
                             key={index}
+                            ref={(el) => (inputRefs.current[index] = el)} // Assign ref
                             id={`code-${index}`}
                             type="text"
                             maxLength="1"
                             value={digit}
                             onChange={(e) => handleVerificationChange(index, e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(index, e)}
                             className="w-12 h-12 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg
                             focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                         />
@@ -310,9 +406,7 @@ export default function Register({ setRegister }) {
                         {stage === 2 ? "Verify Your Email" : "Create Account"}
                     </h1>
                     {stage === 1 && (
-                        <p className="text-gray-600">
-                            Step {step} of 4
-                        </p>
+                        <p className="text-gray-600">Step {step} of 4</p>
                     )}
                 </div>
 
@@ -322,11 +416,9 @@ export default function Register({ setRegister }) {
                     {stage === 1 ? (
                         <form onSubmit={step === 4 ? handleStage1Submit : (e) => e.preventDefault()}>
                             {renderStep()}
-
                             {err && (
                                 <p className="text-red-500 text-sm mt-4 text-center">{err}</p>
                             )}
-
                             <div className="flex justify-between mt-8">
                                 {step > 1 && (
                                     <button
@@ -369,11 +461,9 @@ export default function Register({ setRegister }) {
                     ) : (
                         <form onSubmit={handleFinalSubmit}>
                             {renderVerificationStage()}
-
                             {err && (
                                 <p className="text-red-500 text-sm mt-4 text-center">{err}</p>
                             )}
-
                             <div className="flex justify-between mt-8">
                                 <button
                                     type="button"
@@ -411,7 +501,6 @@ export default function Register({ setRegister }) {
                     </p>
                 </div>
             </motion.div>
-         
         </div>
     );
 }

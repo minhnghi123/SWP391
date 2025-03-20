@@ -1,13 +1,14 @@
 import { User, Calendar, Plus, Edit, Trash2, Baby, Heart, Activity, Shield } from 'lucide-react';
 import FormatDate from '../../../../utils/Date'
 import CalculateAge from '../../../../utils/calculateYearOld'
-import ModalDelete from './ModalDelete';
+// import ModalDelete from './ModalDelete';
 import FemaleOutlinedIcon from '@mui/icons-material/FemaleOutlined';
 import MaleOutlinedIcon from '@mui/icons-material/MaleOutlined';
 
 const ChildCart = ({ handleAddChild, sortchildren, handleEditChild, searchTerm, handleDeleteChild}) => {
+    console.log(sortchildren)
     const getStatusColor = (status) => {
-        switch (status.toLowerCase()) {
+        switch (status?.toLowerCase()) {
             case 'active': return 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border border-emerald-200';
             case 'tracking': return 'bg-gradient-to-r from-sky-100 to-blue-100 text-blue-800 border border-blue-200';
             case 'inactive': return 'bg-gradient-to-r from-slate-100 to-gray-100 text-gray-800 border border-gray-200';
@@ -60,11 +61,11 @@ const ChildCart = ({ handleAddChild, sortchildren, handleEditChild, searchTerm, 
                                         <div>
                                             <h3 className="text-base font-semibold text-gray-900 mb-1">{child.name}</h3>
                                             <div className="flex items-center gap-2">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getStatusColor(child.status)}`}>
-                                                    {child.status}
+                                                <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getStatusColor(child?.status)}`}>
+                                                    {child?.status}
                                                 </span>
                                                 <span className="text-xs text-gray-600 font-medium">
-                                                    {CalculateAge(child.dateOfBirth)}
+                                                    {CalculateAge(child?.dateOfBirth)}
                                                 </span>
                                             </div>
                                         </div>

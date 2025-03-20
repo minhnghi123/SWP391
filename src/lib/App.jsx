@@ -83,7 +83,6 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/dashboardPage/:section" element={<DashboardPage />} />
           <Route path="/staffPage/:section" element={<StaffPage />} />
-          <Route path="/detailInformationVaccine/:type/:idVaccine" element={<Detail />} />
           <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
           <Route path="/feedbackPage" element={<FeedbackProvider><FeedbackPage /></FeedbackProvider>} />
 

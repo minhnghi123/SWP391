@@ -52,7 +52,7 @@ export default function Stage2Payment() {
                 childrenIds: (listChildren || []).map(child => child.id),
                 vaccineIds: (listVaccine || []).map(vaccine => vaccine.id),
                 vaccineComboIds: (listComboVaccine || []).map(combo => combo.id),
-               
+
             };
             // console.log(value);
 
@@ -66,8 +66,9 @@ export default function Stage2Payment() {
                     dispatch(arriveActions.resetArriveDate())
                     dispatch(methodPaymentAction.resetMethodPayment())
                     dispatch(childAction.resetForm())
-                 
-                    // window.location.href = res.data;
+
+                    // console.log("Redirecting to:", res.data);
+                    window.location.href = res.data;
                 }
                 else {
                     window.location.href = res.data;

@@ -11,8 +11,10 @@ import {
 import { AlertCircle } from "lucide-react";
 
 const ModalConfirm = ({ title, message, handleConfirm, handleCancel, loading }) => {
+  
+
   return (
-    <AlertDialog defaultOpen>
+    <AlertDialog open={true}> {/* Sử dụng open thay vì defaultOpen để kiểm soát trạng thái */}
       <AlertDialogContent className="max-w-[500px] p-0 overflow-hidden border border-blue-100 shadow-md">
         <AlertDialogHeader className="bg-gradient-to-r from-blue-500 to-blue-600 p-5 text-white">
           <AlertDialogTitle className="text-xl font-semibold flex items-center gap-2">
@@ -28,11 +30,12 @@ const ModalConfirm = ({ title, message, handleConfirm, handleCancel, loading }) 
             <AlertDialogCancel
               onClick={handleCancel}
               className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 focus:ring-2 focus:ring-blue-200"
+              disabled={loading} // Vô hiệu hóa nút Cancel khi đang loading
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleConfirm}
+              onClick={handleConfirm} // Sử dụng hàm bất đồng bộ
               className="flex-1 bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
               disabled={loading}
             >

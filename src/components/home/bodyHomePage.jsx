@@ -4,8 +4,7 @@ import img5 from '../../assets/p5.jpg'
 import img6 from '../../assets/p6.webp'
 import img7 from '../../assets/p7.webp'
 import img8 from '../../assets/p8.webp'
-import img12 from '../../assets/p12.jpg'
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import pictureBody from '../../../bodyPicture.json'
 import Variants from '../home/Variants'
@@ -13,35 +12,16 @@ import BenefitforParents from '../home/BenefitForParents'
 import News from '../home/News'
 import FeedbackParent from '../home/FeedbackParent'
 import { Link, useNavigate } from 'react-router-dom'
-import { VaccineContext } from '../Context/ChildrenSelected'
-import { fetchData } from '../../Api/axios'
+import Infomation from '../../../Infomation.json'
 import { useSelector, useDispatch } from "react-redux";
 import '../css/loading.css'
 import { vaccineAction } from '../redux/reducers/selectVaccine'
 import useAxios from '../../utils/useAxios'
+import ModalDetailVaccine from './modalDetailVaccine'
+
 // Animation variants
 
-const fadeInUp = {
-    initial: {
-        y: 100,
-        opacity: 0,
-        scale: 0.9
-    },
-    animate: {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        transition: {
-            duration: 0.8,
-            ease: [0.6, -0.05, 0.01, 0.99],
-            scale: {
-                type: "spring",
-                damping: 15,
-                stiffness: 100
-            }
-        }
-    }
-};
+
 
 const slideUp = {
     initial: {
@@ -201,20 +181,7 @@ const heroButtonVariants = {
     }
 };
 
-const heroChildVariants = {
-    initial: {
-        y: 50,
-        opacity: 0
-    },
-    animate: {
-        y: 0,
-        opacity: 1,
-        transition: {
-            duration: 0.8,
-            ease: [0.6, -0.05, 0.01, 0.99]
-        }
-    }
-};
+
 
 const slideFromLeft = {
     initial: {
@@ -251,6 +218,8 @@ const slideFromRight = {
 };
 const url = import.meta.env.VITE_BASE_URL_DB;
 export default function BodyHomePage() {
+    const vc = Infomation.vaccine
+
     const api = useAxios()
     const navigate = useNavigate();
     const dispatch = useDispatch()
@@ -260,6 +229,12 @@ export default function BodyHomePage() {
     const [feedback, setFeedback] = useState([])
     const [user, setUser] = useState([])
     const isBooking = useSelector((state) => state.vaccine.isBooking)
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedVaccine, setSelectedVaccine] = useState(null);
+    const handleSelectVaccine = (vaccine) => {
+        setSelectedVaccine(vaccine);
+        setIsOpen(true);
+    };
 
 
     useEffect(() => {
@@ -289,7 +264,7 @@ export default function BodyHomePage() {
         }
         fetchData()
     }, []);
-    console.log(feedback)
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -386,7 +361,7 @@ export default function BodyHomePage() {
                             </motion.p>
 
                             {/* CTA Button */}
-                            <motion.button
+                            {/* <motion.button
                                 variants={heroButtonVariants}
                                 whileHover="hover"
                                 whileTap="tap"
@@ -394,7 +369,7 @@ export default function BodyHomePage() {
                                 font-semibold text-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30
                                 border-2 border-transparent hover:border-white/20'>
                                 Get Started Now
-                            </motion.button>
+                            </motion.button> */}
                         </div>
                     </div>
                 </div>
@@ -518,9 +493,8 @@ export default function BodyHomePage() {
                                     variants={cardVariants}
                                     whileHover="hover">
                                     <Variants
-                                        key={`vaccine-${vaccine.id}`}
                                         id={vaccine.id}
-                                        image={vaccine.image}
+                                        image={vc.find(v => v.id === vaccine.id)?.img}
                                         name={vaccine.name}
                                         description={vaccine.description}
                                         type="vaccine"
@@ -531,6 +505,8 @@ export default function BodyHomePage() {
                                         minAge={vaccine.suggestAgeMin}
                                         onClick={() => handleAddToCart(vaccine, 'vaccine')}
                                         isBooking={isBooking}
+                                        handleSelectVaccine={() => handleSelectVaccine(vaccine)}
+
                                     />
                                 </motion.div>
                             ))
@@ -730,6 +706,15 @@ export default function BodyHomePage() {
 
                 </motion.div>
             </motion.div>
+            {isOpen && selectedVaccine && (
+                <ModalDetailVaccine
+                    isOpen={isOpen}
+                    onClose={() => setIsOpen(false)}
+                    vaccine={selectedVaccine}
+                    onClick={() => handleAddToCart(selectedVaccine, 'vaccine')}
+                />
+            )}
         </div>
+
     )
 }

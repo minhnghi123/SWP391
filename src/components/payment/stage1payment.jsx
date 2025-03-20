@@ -249,7 +249,9 @@ export default function Stage1Payment({ id }) {
           </div>
         </div>
       </div>
+     
     </div>
+    
 
   );
 }

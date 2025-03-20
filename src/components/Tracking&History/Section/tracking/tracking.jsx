@@ -64,25 +64,30 @@ const TrackingChildbyUser = ({ id }) => {
   useEffect(() => {
     const fetchTrackingData = async () => {
       try {
-
-        const [trakcingRes, historyRes] = await Promise.all([
+        // Gọi API lấy thông tin tracking và lịch sử booking đồng thời
+        const [trackingRes, historyRes] = await Promise.all([
           api.get(`${url}/VaccinesTracking/get-by-parent-id/${id}`),
           api.get(`${url}/Booking/booking-history/${id}`)
-        ])
-        if (trakcingRes.status === 200 && historyRes.status === 200) {
-          setHistoryData(historyRes.data)
-          setTrackingData(trakcingRes.data);
-          const childrenIds = [...new Set(trakcingRes.data.map(item => item.childId))];
+        ]);
 
-          const childrenData = await Promise.all(
-            childrenIds.map(async (childId) => {
-              if (!childId) return null;
-              const res = await api.get(`${url}/Child/get-child-by-id/${childId}`);
-              return res.status === 200 ? res.data : null;
-            })
+        if (trackingRes.status === 200 && historyRes.status === 200) {
+          setHistoryData(historyRes.data);
+          setTrackingData(trackingRes.data);
+
+          // Lấy danh sách ID của các child từ trackingRes
+          const childrenIds = [...new Set(trackingRes.data.map(item => item.childId).filter(Boolean))];
+
+          // Gọi API lấy thông tin tất cả children song song
+          const childrenResults = await Promise.allSettled(
+            childrenIds.map(childId => api.get(`${url}/Child/get-child-by-id/${childId}`))
           );
 
-          setChildren(childrenData.filter(child => child !== null));
+          // Lọc kết quả thành công và cập nhật state
+          const childrenData = childrenResults
+            .filter(result => result.status === "fulfilled" && result.value.status === 200)
+            .map(result => result.value.data);
+
+          setChildren(childrenData);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -91,6 +96,8 @@ const TrackingChildbyUser = ({ id }) => {
 
     fetchTrackingData();
   }, [id, trigger]);
+
+
   // console.log(sortLinkList)
   // Set initial selected child
   useEffect(() => {

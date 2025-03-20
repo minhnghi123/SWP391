@@ -3,7 +3,7 @@ import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useNavigate } from 'react-router-dom';
 
-const VaccineCard = ({ id, image, name, description, country, priceSale, onClick, priceGoc, isBooking, maxAge, minAge }) => {
+const VaccineCard = ({ id, image, name, description, country, priceSale, onClick, priceGoc, isBooking, maxAge, minAge, handleSelectVaccine }) => {
   const navigate = useNavigate();
   const isBooked = isBooking?.some(bookingId => bookingId === `vaccine-${id}`);
 
@@ -20,7 +20,7 @@ const VaccineCard = ({ id, image, name, description, country, priceSale, onClick
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
             <h2 className='text-xl font-semibold text-gray-800'>{name}</h2>
-            <InfoOutlinedIcon onClick={() => navigate(`/detailInformationVaccine/vaccine/${id}`)} className='text-blue-400 cursor-pointer' />
+            <InfoOutlinedIcon onClick={handleSelectVaccine} className='text-blue-400 cursor-pointer' />
           </div>
 
           <p className="text-gray-600 text-sm mb-4 w-full truncate">{description}</p>

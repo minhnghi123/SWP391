@@ -2,11 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import formatCurrency from "../../../../utils/calculateMoney";
 import { Users, Clock, TrendingUp } from "lucide-react";
 
-const Summary = ({filteredAppointments}) => {
-    const totalBookings = filteredAppointments.length;
-    const pendingBookings = filteredAppointments.filter(a => a.status === 'Pending').length;
+const Summary = ({appointments}) => {
+    const totalBookings = appointments.length;
+    const pendingBookings = appointments.filter(a => a.status === 'Pending').length;
     const successRate = totalBookings > 0 
-      ? Math.round((filteredAppointments.filter(a => a.status === 'Success').length / totalBookings) * 100)
+      ? Math.round((appointments.filter(a => a.status === 'Success').length / totalBookings) * 100)
       : 0;
       
     return (

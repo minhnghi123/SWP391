@@ -5,16 +5,18 @@ import FormmatDeicimal from '../../utils/calculateMoney'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { vaccineAction } from '../redux/reducers/selectVaccine'
-import { fetchData } from '../../Api/axios'
+import ModalDetailVaccine from '../home/modalDetailVaccine'
+import ModalDetailCombo from '../home/modalDetailCombo'
 import useAxios from '../../utils/useAxios'
+import  Infomation  from '../../../Infomation.json'
 const url = import.meta.env.VITE_BASE_URL_DB
-// Mock data for vaccines
 
-
-// Format currency function
 
 
 function boydVaritants() {
+  const vc = Infomation.vaccine
+  const vcCombo = Infomation.vaccineCombo
+ 
   const api = useAxios()
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -30,11 +32,23 @@ function boydVaritants() {
   const [err, setErr] = useState(null)
   const [loading, setLoading] = useState(false)
   const isBooking = useSelector(state => state.vaccine.isBooking)
-
+  const [selectedVaccine, setSelectedVaccine] = useState(null)
+  const [isOpen, setIsOpen] = useState(false) 
+  const [selectedCombo, setSelectedCombo] = useState(null)
+  const [isOpenCombo, setIsOpenCombo] = useState(false)
+  const handleSelectVaccine = (vaccine) => {
+    setSelectedVaccine(vaccine)
+    setIsOpen(true)
+  }
+  const handleSelectCombo = (combo) => {
+  
+    setSelectedCombo(combo)
+    setIsOpenCombo(true)
+  }
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
+  console.log(selectedCombo)
   useEffect(() => {
     let isMounted = true; // Cờ để kiểm tra component có bị unmount không
 
@@ -192,7 +206,7 @@ function boydVaritants() {
                     <Variants
                       key={`vaccine-${item.id}`}
                       id={item.id}
-                      image={item.image}
+                      image={vc.find(v => v.id === item.id)?.img}
                       name={item.name}
                       description={item.description}
                       type="vaccine"
@@ -203,6 +217,7 @@ function boydVaritants() {
                       minAge={item.suggestAgeMin}
                       onClick={() => handleAddToCart(item, 'vaccine')}
                       isBooking={isBooking}
+                      handleSelectVaccine={() => handleSelectVaccine(item)}
                     />
                   ))}
                 </div>
@@ -220,7 +235,7 @@ function boydVaritants() {
                     <Variants
                       key={`combo-${combo.id}`}
                       id={combo.id}
-                      image={combo.image}
+                      image={vcCombo.find(v => v.id === combo.id)?.img}
                       name={combo.comboName}
                       description={combo.description}
                       type="combo"
@@ -232,6 +247,7 @@ function boydVaritants() {
                       minAge={combo.vaccines && combo.vaccines.length > 0 ? combo.vaccines.reduce((min, vaccine) => Math.min(min, vaccine.suggestAgeMin || 0), 100) : 0}
                       vaccines={combo.vaccines}
                       onClick={() => handleAddToCart(combo, 'combo')}
+                      handleSelectCombo={() => handleSelectCombo(combo)}
                       isBooking={isBooking}
                     />
                   ))}
@@ -242,7 +258,7 @@ function boydVaritants() {
 
           {/* Right Side - Cart Summary (30%) */}
           <div className="lg:w-[25%]">
-            <div className="bg-white p-6 rounded-xl shadow-md sticky top-[19rem]">
+            <div className="bg-white p-6 rounded-xl shadow-md sticky top-[19rem] ">
               <h2 className="text-xl font-bold mb-6 pb-2 border-b">Booking Summary</h2>
 
               {cart.length === 0 ? (
@@ -331,6 +347,26 @@ function boydVaritants() {
           </div>
         </div>
       </div>
+      {
+        isOpen && (
+          <ModalDetailVaccine
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            vaccine={selectedVaccine}
+            onClick={() => handleAddToCart(selectedVaccine, 'vaccine')}
+          />
+        )
+      }
+      {
+        isOpenCombo && (
+          <ModalDetailCombo
+            isOpen={isOpenCombo}
+            onClose={() => setIsOpenCombo(false)}
+            combo={selectedCombo}
+            onClick={() => handleAddToCart(selectedCombo, 'combo')}
+          />
+        )
+      }
     </div>
   );
 }

@@ -26,7 +26,7 @@ ChartJS.register(
   Legend,
   ArcElement
 );
-
+const url = import.meta.env.VITE_BASE_URL_DB
 const Dashboard = () => {
   const api = useAxios();
   const [summaryData, setSummaryData] = useState({
@@ -45,7 +45,7 @@ const Dashboard = () => {
   // Fetch data functions...
   const fetchTotalVaccinations = async () => {
     try {
-      const response = await api.get("https://localhost:7280/api/VaccinesTracking/get-all-admin");
+      const response = await api.get(`${url}/VaccinesTracking/get-all-admin`);
       const completedVaccinations = response.data.filter((v) => v.status.toLowerCase() === "completed").length;
       setSummaryData((prev) => ({
         ...prev,
@@ -59,7 +59,7 @@ const Dashboard = () => {
 
   const fetchAppointments = async () => {
     try {
-      const response = await api.get("https://localhost:7280/api/Booking/get-all-booking");
+      const response = await api.get(`${url}/Booking/get-all-booking`);
       const today = new Date().toISOString().split("T")[0];
       const todayBookings = response.data.filter((booking) => {
         const arrivedAt = new Date(booking.arrivedAt).toISOString().split("T")[0];
@@ -81,7 +81,7 @@ const Dashboard = () => {
 
   const fetchVaccines = async () => {
     try {
-      const response = await api.get("https://localhost:7280/api/Vaccine/get-all-vaccines-admin");
+      const response = await api.get(`${url}/Vaccine/get-all-vaccines-admin`);
       if (response.status !== 200) throw new Error("Failed to fetch vaccines");
       const totalDoses = response.data.reduce((sum, vaccine) => sum + (vaccine.quantity || 0), 0);
       setVaccines(response.data);
@@ -98,7 +98,7 @@ const Dashboard = () => {
 
   const fetchFinancialData = async () => {
     try {
-      const bookingsResponse = await api.get("https://localhost:7280/api/Booking/get-all-booking");
+      const bookingsResponse = await api.get(`${url}/Booking/get-all-booking`);
       if (bookingsResponse.status !== 200) throw new Error("Failed to fetch bookings");
       const bookingsData = bookingsResponse.data;
       const bookingAmounts = bookingsData.map((booking) => Number(booking.amount) || 0);

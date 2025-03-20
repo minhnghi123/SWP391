@@ -76,7 +76,7 @@ export default function Header() {
                         ))}
                     </ul>
                 </nav>
-                {/* <div onClick={() => navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1">
+                <div onClick={() => navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full">
                         <ShoppingCartOutlinedIcon className="text-gray-600" />
                     </div>
@@ -85,8 +85,8 @@ export default function Header() {
                             {cart.length}
                         </p>
                     )}
-                </div> */}
-                <div className="relative" ref={notificationRef}>
+                </div>
+                {/* <div className="relative" ref={notificationRef}>
                     <div
                         className="w-10 h-10 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors relative"
                         onClick={() => setIsNotificationOpen(!isNotificationOpen)}
@@ -103,7 +103,7 @@ export default function Header() {
                         isOpen={isNotificationOpen}
                         onClose={() => setIsNotificationOpen(false)}
                     />
-                </div>
+                </div> */}
 
                 {user?.id ? (
                     <AvatarHomePage />

@@ -28,6 +28,8 @@ const getStatusBadge = (status) => {
       return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100" variant="outline">Waiting</Badge>;
     case "cancel":
       return <Badge className="bg-red-100 text-red-800 hover:bg-red-100" variant="outline">Cancel</Badge>;
+    case "in progress":
+      return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100" variant="outline">In Progress</Badge>;
     default:
       return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100" variant="outline">{status || "N/A"}</Badge>;
   }
@@ -62,6 +64,7 @@ const CartTable = ({
   handleExpand,
   isExpand,
   array,
+  linkList
 }) => {
   return (
     <Card className="border-blue-100 bg-white shadow-sm">
@@ -179,10 +182,23 @@ const CartTable = ({
                         if (!chain) return "N/A";
                         const totalDoses = chain.length;
                         const successDoses = chain.filter((item) => item.status?.toLowerCase() === "success").length;
-                        return successDoses === totalDoses ? getStatusBadge("Success") : `${successDoses}/${totalDoses}`;
+                        return `${successDoses}/${totalDoses}`;
                       })()}
                     </TableCell>
-                    <TableCell className="text-center">{getStatusBadge(record.status)}</TableCell>
+
+                    <TableCell className="text-center">
+                      {(() => {
+                        const findTrackingList = linkList(data);
+                        const findArry = findTrackingList.find(subArray => subArray[0]?.trackingID === record.trackingID);
+                        const checkSuccess = findArry && findArry.every(item => item.status.toLowerCase() === "success");
+                        const checkCancle = findArry && findArry.some(item => item.status.toLowerCase() === "cancel");
+                        // Nếu tìm thấy mảng con, kiểm tra xem tất cả phần tử trong đó đều có status "Success"
+                        return checkSuccess ? getStatusBadge("Success") : checkCancle ? getStatusBadge("Cancel") : getStatusBadge("In Progress");
+                      })()}
+                    </TableCell>
+
+
+
                     <TableCell className="text-center">{getReactionBadge(record.reaction)}</TableCell>
                     <TableCell className="text-center">
                       <DropdownMenu>

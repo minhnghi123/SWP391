@@ -12,7 +12,7 @@ const url = import.meta.env.VITE_BASE_URL_DB;
 const BodyFeedback = () => {
     const navigate = useNavigate();
     const {
-        
+
         feedback,
         setFeedback,
         inputData,
@@ -36,17 +36,17 @@ const BodyFeedback = () => {
             try {
                 // const response = await api.get(`${url}/Feedback/get-all-feedback`);
                 const resUser = await api.get(`${url}/User/get-all-user`)
-                if(resUser.status === 200){
+                if (resUser.status === 200) {
                     setUser(resUser.data);
                 }
-                
-                
+
+
 
             } catch (error) {
                 console.error("Failed to fetch feedback data:", error);
             }
         };
-        
+
         fetchFeedbackData();
     }, []);
     console.log(user);
@@ -62,28 +62,28 @@ const BodyFeedback = () => {
 
     const handleSortRating = (rating) => {
         setActiveFilter(rating);
-        
+
         if (!Array.isArray(feedback) || feedback.length === 0) {
             setSorted([]);
             return;
         }
-        
+
         let newSorted;
         if (rating === 0) {
             // "All Feedback" option - sort by newest (highest ID first)
             newSorted = [...feedback].sort((a, b) => (b.id - a.id));
         } else {
             // Filter by exact star rating match
-            newSorted = [...feedback].filter(item => Number(item.starRating) === rating);
+            newSorted = [...feedback].filter(item => Number(item.ratingScore) === rating);
         }
-        
+
         setSorted(newSorted);
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50">
-            <ToastContainer />
-            
+            {/* <ToastContainer /> */}
+
             {/* Header Banner */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -92,7 +92,7 @@ const BodyFeedback = () => {
                             <h1 className="text-3xl font-bold mb-2">Vaccine Tracking Feedback</h1>
                             <p className="text-blue-100">Help us improve your vaccination experience</p>
                         </div>
-                        <button 
+                        <button
                             onClick={() => navigate(-1)}
                             className="px-6 py-2 bg-white text-blue-800 rounded-lg hover:bg-blue-50 transition-colors duration-200 font-semibold"
                         >
@@ -147,25 +147,25 @@ const BodyFeedback = () => {
                 {/* Community Feedback Section */}
                 <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">Community Insights</h2>
-                    
+
                     {/* Rating Filters */}
                     <div className="flex gap-4 overflow-x-auto pb-4 mb-8">
                         <button
                             onClick={() => handleSortRating(0)}
                             className={`px-6 py-3 rounded-lg whitespace-nowrap transition-all duration-200
-                                ${activeFilter === 0 
-                                    ? 'bg-blue-600 text-white shadow-md' 
+                                ${activeFilter === 0
+                                    ? 'bg-blue-600 text-white shadow-md'
                                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
                         >
                             All Feedback
                         </button>
-                        {[1, 2, 3, 4, 5].map((rating) => (
+                        {[5, 4, 3, 3, 2].map((rating) => (
                             <button
                                 key={rating}
                                 onClick={() => handleSortRating(rating)}
                                 className={`px-6 py-3 rounded-lg flex items-center gap-2 whitespace-nowrap transition-all duration-200
-                                    ${activeFilter === rating 
-                                        ? 'bg-blue-600 text-white shadow-md' 
+                                    ${activeFilter === rating
+                                        ? 'bg-blue-600 text-white shadow-md'
                                         : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
                             >
                                 {rating} <FaStar className={activeFilter === rating ? 'text-white' : 'text-yellow-400'} />
@@ -199,7 +199,7 @@ const BodyFeedback = () => {
                         Your Privacy & Security
                     </h3>
                     <p className="text-blue-100 max-w-2xl mx-auto">
-                        Your feedback helps us maintain and improve our vaccine tracking system. 
+                        Your feedback helps us maintain and improve our vaccine tracking system.
                         All information shared is protected and used exclusively for enhancing our services.
                     </p>
                 </div>

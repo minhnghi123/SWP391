@@ -1,60 +1,90 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ArrowLeft, ShoppingCart, X, Plus, Check } from 'lucide-react';
 import Variants from '../home/Variants';
-import FormmatDeicimal from '../../utils/calculateMoney';
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { vaccineAction } from '../redux/reducers/selectVaccine';
-import useAxios from '../../utils/useAxios';
+import FormmatDeicimal from '../../utils/calculateMoney'
+import { useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import { vaccineAction } from '../redux/reducers/selectVaccine'
+import ModalDetailVaccine from '../home/modalDetailVaccine'
+import ModalDetailCombo from '../home/modalDetailCombo'
+import useAxios from '../../utils/useAxios'
+import  Infomation  from '../../../Infomation.json'
+const url = import.meta.env.VITE_BASE_URL_DB
 
-const url = import.meta.env.VITE_BASE_URL_DB;
 
-function BoydVaritants() {
-  const api = useAxios();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState('All');
 
-  const cart = useSelector((state) => [...state.vaccine.listVaccine, ...state.vaccine.listComboVaccine]);
-  const totalPrice = useSelector((state) => state.vaccine.totalPrice);
-  const user = useSelector((state) => state.account.user);
-  const [comboVaccine, setComboVaccines] = useState([]);
-  const [vaccines, setVaccines] = useState([]);
-  const [err, setErr] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const isBooking = useSelector((state) => state.vaccine.isBooking);
+function boydVaritants() {
+  const vc = Infomation.vaccine
+  const vcCombo = Infomation.vaccineCombo
+ 
+  const api = useAxios()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterType, setFilterType] = useState("All");
 
+
+  const cart = useSelector(state => [...state.vaccine.listVaccine, ...state.vaccine.listComboVaccine]);
+  const totalPrice = useSelector(state => state.vaccine.totalPrice)
+  const user = useSelector(state => state.account.user)
+  const [comboVaccine, setComboVaccines] = useState([])
+  const [vaccines, setVaccines] = useState([])
+  const [err, setErr] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const isBooking = useSelector(state => state.vaccine.isBooking)
+  const [selectedVaccine, setSelectedVaccine] = useState(null)
+  const [isOpen, setIsOpen] = useState(false) 
+  const [selectedCombo, setSelectedCombo] = useState(null)
+  const [isOpenCombo, setIsOpenCombo] = useState(false)
+  const handleSelectVaccine = (vaccine) => {
+    setSelectedVaccine(vaccine)
+    setIsOpen(true)
+  }
+  const handleSelectCombo = (combo) => {
+  
+    setSelectedCombo(combo)
+    setIsOpenCombo(true)
+  }
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
+  console.log(selectedCombo)
   useEffect(() => {
-   
+    let isMounted = true; // Cờ để kiểm tra component có bị unmount không
+
     const fetchDataVariants = async () => {
       try {
         const [vaccinesRes, comboVaccineRes] = await Promise.all([
           api.get(`${url}/Vaccine/get-all-vaccines`),
-          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`)
-        ])
-        if (vaccines.status === 200) setVaccines(vaccines.data)
-        if (comboVaccine.status === 200) setComboVaccines(comboVaccine.data)
+          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`),
+        ]);
+
+        if (isMounted) { // Chỉ cập nhật state nếu component vẫn còn mounted
+          if (vaccinesRes.status === 200 && vaccinesRes.data)
+            setVaccines(vaccinesRes.data);
+          if (comboVaccineRes.status === 200 && comboVaccineRes.data)
+            setComboVaccines(comboVaccineRes.data);
+        }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
-    }
-    fetchDataVariants()
-  }, [])
+    };
+
+    fetchDataVariants();
+
+    return () => {
+      isMounted = false; // Đánh dấu component đã bị unmount để tránh cập nhật state
+    };
+  }, [url]); // Thêm `url` vào dependency array nếu nó có thể thay đổi
 
 
-  const filteredVaccines = vaccines.filter((vaccine) =>
+  const filteredVaccines = vaccines.filter(vaccine =>
     vaccine.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredCombos = comboVaccine.filter((combo) =>
+  const filteredCombos = comboVaccine.filter(combo =>
     combo.comboName.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
   const handleAddToCart = (vaccine, type) => {
     const isCombo = Array.isArray(vaccine?.vaccines) && vaccine.vaccines.length > 0;
     const finalPrice = isCombo ? vaccine.finalPrice : vaccine.price;
@@ -62,14 +92,16 @@ function BoydVaritants() {
     const name = type === 'combo' ? vaccine.comboName : vaccine.name;
 
     // Kiểm tra xem item đã tồn tại trong giỏ hàng hay chưa
-    const isItemInCart = cart.some(item => 
-      (type === 'combo' && item.type === 'combo' && item.id === vaccine.id) || 
+    const isItemInCart = cart.some(item =>
+      (type === 'combo' && item.type === 'combo' && item.id === vaccine.id) ||
       (type === 'vaccine' && item.type === 'vaccine' && item.id === vaccine.id)
     );
 
     if (isItemInCart) {
+      // Nếu đã có, xóa khỏi giỏ
       removeFromCart(vaccine.id, type);
     } else {
+      // Nếu chưa có, thêm vào giỏ
       if (isCombo) {
         dispatch(vaccineAction.addComboVaccine({
           id: vaccine.id,
@@ -79,12 +111,12 @@ function BoydVaritants() {
           country: vaccine.fromCountry,
           vaccines: vaccine.vaccines,
           type: type,
-          vaccines: vaccine.vaccines.map(vaccine => ({
-            id: vaccine.id,
-            name: vaccine.name,
-            price: vaccine.price,
-            suggestAgeMax: vaccine.suggestAgeMax,
-            suggestAgeMin: vaccine.suggestAgeMin,
+          listVaccine: vaccine.vaccines.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            suggestAgeMax: item.suggestAgeMax,
+            suggestAgeMin: item.suggestAgeMin,
           }))
         }));
       } else {
@@ -99,53 +131,57 @@ function BoydVaritants() {
         }));
       }
     }
-  };
 
+
+    //click again , delete vaccine or combo id
+  };
   const removeFromCart = (itemId, type) => {
     if (type === 'vaccine') {
-      dispatch(vaccineAction.deleteVaccine(itemId));
+      dispatch(vaccineAction.deleteVaccine(itemId))
     } else {
-      dispatch(vaccineAction.deleteComboVaccine(itemId));
+      dispatch(vaccineAction.deleteComboVaccine(itemId))
     }
   };
 
+
+
+
+
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 font-sans">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/90 shadow-lg backdrop-blur-lg">
-        <div className="container max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center text-gray-700 hover:text-indigo-600 transition-all duration-300 group"
-          >
-            <ArrowLeft className="mr-2 transform group-hover:-translate-x-1 transition-transform duration-300" size={20} />
-            <span className="font-semibold text-lg">Back</span>
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <button onClick={() => navigate('/')} className="flex items-center text-gray-600 hover:text-blue-600 transition-all">
+            <ArrowLeft className="mr-2" size={18} />
+            <span className="font-medium">Back</span>
           </button>
-          <h1 className="text-3xl font-extrabold text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text">
+          <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text">
             Vaccine Booking
           </h1>
           <div>
-            
+
           </div>
 
         </div>
       </header>
 
-      <main className="container max-w-7xl mx-auto px-6 py-12">
+      <div className=" max-w-[1400px] mx-auto px-4 py-6">
         {/* Search and Filter */}
-        <div className="mb-12 flex flex-col sm:flex-row gap-4">
+        <div className="mb-8 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               type="text"
-              placeholder="Search vaccines or combos..."
-              className="w-full px-6 py-3 pl-12 rounded-xl border border-gray-200 shadow-md focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-300 bg-white/80 backdrop-blur-sm"
+              placeholder="Search vaccines..."
+              className="w-full px-6 py-3 pl-12 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
             />
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           </div>
           <select
-            className="px-4 py-3 bg-white/80 border border-gray-200 text-gray-700 rounded-xl shadow-md hover:border-indigo-500 focus:ring-2 focus:ring-indigo-300 transition-all duration-300 backdrop-blur-sm"
+            className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:border-blue-400 transition-all cursor-pointer"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
@@ -156,21 +192,21 @@ function BoydVaritants() {
         </div>
 
         {/* Main Content - 7:3 Layout */}
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Side - Vaccine List (70%) */}
-          <div className="lg:w-3/4 space-y-12">
-            {(filterType === 'All' || filterType === 'Single') && (
+          <div className="lg:w-[75%] space-y-8">
+            {(filterType === "All" || filterType === "Single") && (
               <section>
-                <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                  <span className="mr-3">Single Vaccines</span>
-                  <span className="text-sm font-medium text-gray-500">({filteredVaccines.length} available)</span>
+                <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                  <span className="mr-2">Single Vaccines</span>
+                  <span className="text-sm font-normal text-gray-500">({filteredVaccines.length} available)</span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {filteredVaccines.map((vaccine) => (
+                  {filteredVaccines.map((item) => (
                     <Variants
                       key={`vaccine-${item.id}`}
                       id={item.id}
-                      image={item.image}
+                      image={vc.find(v => v.id === item.id)?.img}
                       name={item.name}
                       description={item.description}
                       type="vaccine"
@@ -181,25 +217,25 @@ function BoydVaritants() {
                       minAge={item.suggestAgeMin}
                       onClick={() => handleAddToCart(item, 'vaccine')}
                       isBooking={isBooking}
-                      className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-white/90 backdrop-blur-sm"
+                      handleSelectVaccine={() => handleSelectVaccine(item)}
                     />
                   ))}
                 </div>
               </section>
             )}
 
-             {(filterType === "All" || filterType === "Combo") && (
+            {(filterType === "All" || filterType === "Combo") && (
               <section>
-                <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                  <span className="mr-3">Vaccine Combos</span>
-                  <span className="text-sm font-medium text-gray-500">({filteredCombos.length} available)</span>
+                <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                  <span className="mr-2">Vaccine Combos</span>
+                  <span className="text-sm font-normal text-gray-500">({filteredCombos.length} available)</span>
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                   {filteredCombos.map((combo) => (
                     <Variants
                       key={`combo-${combo.id}`}
                       id={combo.id}
-                      image={combo.image}
+                      image={vcCombo.find(v => v.id === combo.id)?.img}
                       name={combo.comboName}
                       description={combo.description}
                       type="combo"
@@ -207,20 +243,12 @@ function BoydVaritants() {
                       priceGoc={combo.discount ? combo.totalPrice : null}
                       priceSale={combo.discount ? combo.finalPrice : combo.price}
                       country={combo.fromCountry}
-                      maxAge={
-                        combo.vaccines && combo.vaccines.length > 0
-                          ? combo.vaccines.reduce((max, v) => Math.max(max, v.suggestAgeMax || 0), 0)
-                          : 0
-                      }
-                      minAge={
-                        combo.vaccines && combo.vaccines.length > 0
-                          ? combo.vaccines.reduce((min, v) => Math.min(min, v.suggestAgeMin || 100), 100)
-                          : 0
-                      }
+                      maxAge={combo.vaccines && combo.vaccines.length > 0 ? combo.vaccines.reduce((max, vaccine) => Math.max(max, vaccine.suggestAgeMax || 0), 0) : 0}
+                      minAge={combo.vaccines && combo.vaccines.length > 0 ? combo.vaccines.reduce((min, vaccine) => Math.min(min, vaccine.suggestAgeMin || 0), 100) : 0}
                       vaccines={combo.vaccines}
                       onClick={() => handleAddToCart(combo, 'combo')}
+                      handleSelectCombo={() => handleSelectCombo(combo)}
                       isBooking={isBooking}
-                      className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-white/90 backdrop-blur-sm"
                     />
                   ))}
                 </div>
@@ -229,95 +257,87 @@ function BoydVaritants() {
           </div>
 
           {/* Right Side - Cart Summary (30%) */}
-          <div className="lg:w-1/4">
-            <div className="bg-white/95 p-6 rounded-2xl shadow-xl static top-24 backdrop-blur-lg border border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b border-gray-200">
-                Booking Summary
-              </h2>
+          <div className="lg:w-[25%]">
+            <div className="bg-white p-6 rounded-xl shadow-md sticky top-[19rem] ">
+              <h2 className="text-xl font-bold mb-6 pb-2 border-b">Booking Summary</h2>
 
               {cart.length === 0 ? (
-                <div className="py-12 text-center">
-                  <ShoppingCart size={48} className="mx-auto text-gray-300 mb-4 animate-bounce" />
-                  <p className="text-gray-600 font-medium">Your cart is empty</p>
+                <div className="py-8 text-center">
+                  <ShoppingCart size={40} className="mx-auto text-gray-300 mb-3" />
+                  <p className="text-gray-500">Your cart is empty</p>
                   <p className="text-sm text-gray-400 mt-1">Add vaccines to proceed</p>
                 </div>
               ) : (
                 <>
                   {/* Cart Items */}
-                  <div className="max-h-[50vh] overflow-y-auto mb-6 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    {cart.filter((item) => item.type === 'vaccine').length > 0 && (
+                  <div className="max-h-[calc(100vh-300px)] overflow-y-auto mb-4 pr-2">
+                    {/* Vaccines Section */}
+                    {cart.filter(item => item.type === 'vaccine').length > 0 && (
                       <div className="mb-4">
-                        <h3 className="font-semibold text-gray-700 mb-3">Vaccines</h3>
-                        {cart
-                          .filter((item) => item.type === 'vaccine')
-                          .map((item) => (
-                            <div
-                              key={`cart-vaccine-${item.id}`}
-                              className="flex justify-between items-center py-3 group hover:bg-gray-50 rounded-lg transition-all duration-200"
-                            >
-                              <span className="truncate text-sm text-gray-600 flex-1">{item.name}</span>
-                              <div className="flex items-center ml-2">
-                                <span className="text-indigo-600 font-medium text-sm mr-3">
-                                  {FormmatDeicimal(item.price)} VND
-                                </span>
-                                <button
-                                  onClick={() => removeFromCart(item.id, 'vaccine')}
-                                  className="text-gray-400 hover:text-red-500 transition-colors duration-200 transform hover:scale-110"
-                                >
-                                  <X size={16} />
-                                </button>
-                              </div>
+                        <h3 className="font-medium text-gray-700 mb-2">Vaccines</h3>
+                        {cart.filter(item => item.type === 'vaccine').map(item => (
+                          <div key={`cart-vaccine-${item.id}`} className="flex justify-between items-center py-2 group">
+                            <div className="flex items-center flex-1 min-w-0">
+                              <span className="truncate text-sm">{item.name}</span>
                             </div>
-                          ))}
+                            <div className="flex items-center ml-2">
+                              <span className="text-blue-600 font-medium text-sm mr-2">
+                                {FormmatDeicimal(item.price)} {` `} VND
+                              </span>
+                              <button
+                                onClick={() => removeFromCart(item.id, 'vaccine')}
+                                className="text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
 
-                    {cart.filter((item) => item.type === 'combo').length > 0 && (
+                    {/* Combos Section */}
+                    {cart.filter(item => item.type === 'combo').length > 0 && (
                       <div className="mb-4">
-                        <h3 className="font-semibold text-gray-700 mb-3">Combos</h3>
-                        {cart
-                          .filter((item) => item.type === 'combo')
-                          .map((item) => (
-                            <div
-                              key={`cart-combo-${item.id}`}
-                              className="flex justify-between items-center py-3 group hover:bg-gray-50 rounded-lg transition-all duration-200"
-                            >
-                              <span className="truncate text-sm text-gray-600 flex-1">{item.name}</span>
-                              <div className="flex items-center ml-2">
-                                <span className="text-indigo-600 font-medium text-sm mr-3">
-                                  {FormmatDeicimal(item.price)} VND
-                                </span>
-                                <button
-                                  onClick={() => removeFromCart(item.id, 'combo')}
-                                  className="text-gray-400 hover:text-red-500 transition-colors duration-200 transform hover:scale-110"
-                                >
-                                  <X size={16} />
-                                </button>
-                              </div>
+                        <h3 className="font-medium text-gray-700 mb-2">Combos</h3>
+                        {cart.filter(item => item.type === 'combo').map(item => (
+                          <div key={`cart-combo-${item.id}`} className="flex justify-between items-center py-2 group">
+                            <div className="flex items-center flex-1 min-w-0">
+                              <span className="truncate text-sm">{item.name}</span>
                             </div>
-                          ))}
+                            <div className="flex items-center ml-2">
+                              <span className="text-blue-600 font-medium text-sm mr-2">
+                                {FormmatDeicimal(item.price)} {` `} VND
+                              </span>
+                              <button
+                                onClick={() => removeFromCart(item.id, 'combo')}
+                                className="text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
 
                   {/* Price Summary */}
-                  <div className="border-t border-gray-200 pt-4">
-                    <div className="flex justify-between items-center text-lg font-semibold text-gray-800">
+                  <div className="border-t pt-4 mt-2">
+                    <div className="flex justify-between items-center text-lg font-bold mt-4 pt-2 border-t">
                       <span>Total</span>
-                      <span className="text-indigo-600">{FormmatDeicimal(totalPrice)} VND</span>
+                      <span className="text-blue-600">{FormmatDeicimal(totalPrice)} {` `} VND</span>
                     </div>
                   </div>
                 </>
               )}
 
               {/* Checkout Button */}
-              <button
-                onClick={() => navigate(`/information/${user?.id}`)}
-                className={`w-full py-3 mt-6 rounded-xl text-white font-medium transition-all duration-300 shadow-lg flex items-center justify-center ${
-                  cart.length === 0
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 hover:shadow-xl transform hover:-translate-y-1'
-                }`}
+              <button onClick={() => navigate(`/information/${user?.id}`)}
+                className={`w-full py-3 rounded-lg mt-6 transition-colors flex items-center justify-center ${cart.length === 0
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
                 disabled={cart.length === 0}
               >
                 <ShoppingCart size={18} className="mr-2" />
@@ -326,9 +346,29 @@ function BoydVaritants() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
+      {
+        isOpen && (
+          <ModalDetailVaccine
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            vaccine={selectedVaccine}
+            onClick={() => handleAddToCart(selectedVaccine, 'vaccine')}
+          />
+        )
+      }
+      {
+        isOpenCombo && (
+          <ModalDetailCombo
+            isOpen={isOpenCombo}
+            onClose={() => setIsOpenCombo(false)}
+            combo={selectedCombo}
+            onClick={() => handleAddToCart(selectedCombo, 'combo')}
+          />
+        )
+      }
     </div>
   );
 }
 
-export default BoydVaritants;
+export default boydVaritants;

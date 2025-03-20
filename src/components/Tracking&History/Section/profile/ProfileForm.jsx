@@ -3,7 +3,7 @@ import { Save, X } from 'lucide-react';
 import ToUpperCase from '../../../../utils/upperCaseFirstLetter'
 import FormDate from '../../../../utils/FormDate'
 import formatDate from '../../../../utils/Date';
-const ProfileForm = ({ editProfile, profileData, handleEdit, handleSave, setEdit }) => {
+const ProfileForm = ({ editProfile, profileData, handleEdit, handleSave, setEdit, isLoading }) => {
     return (
         <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-5">
@@ -61,7 +61,7 @@ const ProfileForm = ({ editProfile, profileData, handleEdit, handleSave, setEdit
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Gender</label>
                     <select
                         name="gender"
-                        value={editProfile.gender} 
+                        value={editProfile.gender}
                         onChange={handleEdit}
                         className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     >
@@ -93,7 +93,7 @@ const ProfileForm = ({ editProfile, profileData, handleEdit, handleSave, setEdit
                     className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md"
                 >
                     <Save className="w-4 h-4" />
-                    <span>Save Changes</span>
+                    {isLoading ? 'Loading...' : <span>Save Changes</span>}
                 </button>
             </div>
         </form>

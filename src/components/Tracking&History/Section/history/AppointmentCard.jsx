@@ -12,10 +12,10 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
     const [isExpanded, setIsExpanded] = useState(false);
     const totalVaccines = bill.vaccineList.length + bill.comboList.length;
     const [isOpenModal, setIsOpenModal] = useState(false);
-
+    // console.log(bill);
     const api = useAxios()
     const handleRefundBooking = async (bookingId) => {
-        console.log(bookingId);
+        // console.log(bookingId);
         try {
             const res = await api.get(`${url}/VaccinesTracking/get-by-booking-id/${bookingId}`);
             if (res.status === 200) {
@@ -134,9 +134,10 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
 
                 )}
                 {
-                    bill?.status?.toLowerCase() === 'success' &&
-                    bill?.paymentMethod && (bill.paymentMethod.toLowerCase() === 'cash' || bill.paymentMethod.toLowerCase() === 'vnpay') &&
-                    new Date() - new Date(bill.arrivedAt) <= 48 * 60 * 60 * 1000 && (  // Không quá 2 ngày (48h)
+                    bill?.status?.toLowerCase() === "success" &&
+                    bill.paymentName.toLowerCase() === 'momo' &&
+                    new Date() - new Date(bill.createdAt) <= 48 * 60 * 60 * 1000 &&
+                    (
                         <button
                             onClick={() => handleRefundBooking(bill.id)}
                             className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
@@ -145,7 +146,20 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
                             Refund
                         </button>
                     )
+
+
                 }
+                {
+                     bill?.status?.toLowerCase() === "success" &&
+                     bill.paymentName.toLowerCase() === 'vnpay' &&
+                     new Date() - new Date(bill.createdAt) <= 48 * 60 * 60 * 1000 &&
+                     (
+                        <p className='text-red-500'>
+                            If you cancel the booking, please go to a Healthcare Blue location to make a cash refund
+                        </p>
+                     ) 
+                }
+
 
 
 

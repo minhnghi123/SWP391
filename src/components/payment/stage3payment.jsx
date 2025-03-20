@@ -32,7 +32,7 @@ export default function Stage3Payment() {
             const queryParams = new URLSearchParams(location.search);
             setData({
                 OrderId: queryParams.get("OrderId") || "N/A",
-                Amount: queryParams.get("Amount") || 0,
+                Amount: Number(queryParams.get("Amount")) || 0,
                 BookingID: queryParams.get("BookingID") || "N/A",
                 Message: queryParams.get("Message") || "N/A",
                 TrancasionID: queryParams.get("TrancasionID") || "N/A"

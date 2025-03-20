@@ -7,7 +7,6 @@ import ProfileHeader from './HeaderProfile'
 import ProfileForm from './ProfileForm'
 import ProfileInfo from './ProfileInFor'
 import Notification from './Notification'
-import { fetchData, addData, deleteData, updateData } from '../../../../Api/axios'
 import useAxios from '../../../../utils/useAxios'
 const url = import.meta.env.VITE_BASE_URL_DB
 const Profile = ({ id }) => {
@@ -18,7 +17,8 @@ const Profile = ({ id }) => {
     const [edit, setEdit] = useState(false);
     const [note, setNote] = useState('');
     const [avatar, setAvatar] = useState(null);
-    const [updateTrigger, setUpdateTrigger] = useState(false);
+    // const [updateTrigger, setUpdateTrigger] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     // Xóa preview khi component unmount
     useEffect(() => {
         return () => {
@@ -52,7 +52,7 @@ const Profile = ({ id }) => {
         };
 
         if (id) fetchProfile();
-    }, [id, updateTrigger]);
+    }, [id]);
     // Xử lý chỉnh sửa dữ liệu
     const handleEdit = (e) => {
         const { name, value } = e.target;
@@ -67,11 +67,11 @@ const Profile = ({ id }) => {
             setNote("Invalid user ID");
             return;
         }
-
+        setIsLoading(true);
         try {
             let imageUrl = profileData.avatar || '';
 
-            
+
             if (avatar) {
                 const formData = new FormData();
                 formData.append("file", avatar);
@@ -110,7 +110,7 @@ const Profile = ({ id }) => {
                 setTimeout(() => setNote(""), 3000);
 
                 //fetch 
-                setUpdateTrigger(prev => !prev);
+                setProfileData(updatedProfile);
 
                 // Cập nhật Redux store
 
@@ -126,6 +126,8 @@ const Profile = ({ id }) => {
             }
         } catch (err) {
             setNote(err.response?.data?.message || "Error updating profile");
+        } finally {
+            setIsLoading(false);
         }
     };
     return (
@@ -160,6 +162,7 @@ const Profile = ({ id }) => {
                         handleEdit={handleEdit}
                         handleSave={handleSave}
                         setEdit={setEdit}
+                        isLoading={isLoading}
                     />
                 ) : (
                     <ProfileInfo

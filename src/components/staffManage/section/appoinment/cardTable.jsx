@@ -15,7 +15,7 @@ const getStatusBadge = (status) => {
   return variants[status] || variants.default;
 };
 const CardTable = ({
-  paginatedData, handleOpenModal, handleOpenEditModal, handleConfirm, 
+  paginatedData, handleOpenModal, handleOpenEditModal, setIsModalConfirmOpen,
   loading, setModalRefund, setSelectedBooking, setRefundPercentage,
   currentPage, totalPages, startIndex, endIndex, totalItems, onPageChange
 
@@ -113,7 +113,10 @@ const CardTable = ({
                           variant="ghost"
                           size="icon"
                           className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                          onClick={() => handleConfirm(appointment)}
+                          onClick={() => {
+                            setIsModalConfirmOpen(true)
+                            setSelectedBooking(appointment)
+                          }}
                         >
                           <svg
                             className="h-4 w-4"
@@ -132,7 +135,7 @@ const CardTable = ({
                       </>
                     )}
                     {appointment?.status.toLowerCase() === "success" &&
-                      appointment?.paymentMethod.toLowerCase() === "momo" && (
+                      (appointment?.paymentMethod.toLowerCase() === "momo" || appointment?.paymentMethod.toLowerCase() === "vnpay") && (
                         <Button
                           variant="ghost"
                           size="icon"

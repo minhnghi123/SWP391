@@ -3,14 +3,12 @@ import { addData } from "../../Api/axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAxios from "@/utils/useAxios";
-
+import { useSelector } from "react-redux";
 export const FeedbackContext = createContext();
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 export const FeedbackProvider = ({ children }) => {
-  const [username, setUsername] = useState(() => {
-    return JSON.parse(localStorage.getItem("Account")) || {};
-  });
+ const username = useSelector(state => state.account.user)
   const [isOpenModal, setOpenModal] = useState(false);
   const [feedback, setFeedback] = useState([]);
   const [currentValue, setCurrentValue] = useState(0);

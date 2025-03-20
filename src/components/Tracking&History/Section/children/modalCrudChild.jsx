@@ -1,6 +1,7 @@
 import { X, Save, Sparkles, Edit } from "lucide-react";
-import formatDate from "../../../../utils/FormDate";
-const ModalCrudChild = ({ setIsModalOpen, currentChild, isEditing, handleInputChange, handleSaveChild, err }) => {
+
+
+const ModalCrudChild = ({ setIsModalOpen, currentChild, isEditing, handleInputChange, handleSaveChild, err, isLoading }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
             <div className="bg-white rounded-lg w-full max-w-md p-6 shadow-xl animate-slide-in">
@@ -99,7 +100,7 @@ const ModalCrudChild = ({ setIsModalOpen, currentChild, isEditing, handleInputCh
                             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all btn-hover"
                         >
                             <Save className="h-4 w-4 mr-1" />
-                            {isEditing ? 'Update' : 'Save'}
+                            {isLoading ? 'Loading...' : isEditing ? 'Update' : 'Save'}
                         </button>
                     </div>
                 </form>

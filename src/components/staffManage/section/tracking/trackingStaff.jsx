@@ -152,7 +152,7 @@ export function VaccinationTrackingDashboard() {
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -197,21 +197,68 @@ export function VaccinationTrackingDashboard() {
     setNewStatus(record.status);
     setIsStatusModalOpen(true);
   };
-
   const handleStatusUpdate = async () => {
+    let nextStatus;
+    const statusLower = newStatus?.toLowerCase() || "";
+    // Xác định nextStatus
+    switch (statusLower) {
+      case "success":
+        nextStatus = "schedule";
+        break;
+      case "schedule":
+        nextStatus = "waiting";
+        break;
+      case "cancel":
+        nextStatus = "cancel";
+        break;
+      default:
+        nextStatus = "unknown";
+        break;
+    }
     try {
       const value = { status: newStatus, reaction: "Nothing" };
-      const res = await api.put(`${url}/VaccinesTracking/update-vaccine-staff/${selectedRecord.trackingID}`, value);
+      const res = await api.put(
+        `${url}/VaccinesTracking/update-vaccine-staff/${selectedRecord.trackingID}`,
+        value
+      );
+
       if (res.status === 200) {
-        // Update both data and array states
+        // Cập nhật trạng thái cho tracking hiện tại trong data
         const updatedData = data.map((item) =>
-          item.trackingID === selectedRecord.trackingID ? { ...item, status: newStatus } : item
+          item.trackingID === selectedRecord.trackingID
+            ? { ...item, status: newStatus }
+            : item
         );
-        const updatedArray = array.map((item) =>
-          item.trackingID === selectedRecord.trackingID ? { ...item, status: newStatus } : item
+
+        // Cập nhật trạng thái cho tracking hiện tại trong array
+        let updatedArray = array.map((item) =>
+          item.trackingID === selectedRecord.trackingID
+            ? { ...item, status: newStatus }
+            : item
         );
+
+        // Cập nhật trạng thái cho tracking tiếp theo (nếu có)
+        if (statusLower !== "cancel") {
+          updatedArray = updatedArray.map((item) =>
+            item.trackingID === selectedRecord.trackingID + 1
+              ? {
+                ...item,
+                status: nextStatus,
+                vaccinationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+              }
+              : item
+          );
+        } else {
+          updatedArray = updatedArray.map((item) =>
+            item.trackingID > selectedRecord.trackingID
+              ? { ...item, status: nextStatus }
+              : item
+          );
+        }
+
+        // Cập nhật state
         setData(updatedData);
-        setArray(updatedArray);
+        setArray(updatedArray); // Chỉ dùng updatedArray đã được cập nhật
         setSelectedRecord(null);
         setNewStatus("");
         setIsStatusModalOpen(false);
@@ -222,7 +269,6 @@ export function VaccinationTrackingDashboard() {
       toast.error("Failed to update status");
     }
   };
-
   const handleReactionUpdate = async () => {
     try {
       const value = { reaction: reaction, status: "success" };
@@ -320,6 +366,7 @@ export function VaccinationTrackingDashboard() {
         handleExpand={handleExpand}
         isExpand={isExpand}
         array={array}
+        linkList={linkList}
         // Pagination
         currentPage={currentPage}
         totalPages={totalPages}

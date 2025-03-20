@@ -4,7 +4,8 @@ const ModalDelete = ({
   isOpen, 
   onClose, 
   onConfirm, 
-  message = "Are you sure you want to delete this child?"
+  message = "Are you sure you want to delete this child?",
+  isLoading
 }) => {
   const modalRef = useRef(null);
 
@@ -99,7 +100,7 @@ const ModalDelete = ({
             onClick={onConfirm}
             className="px-5 py-2.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
-            Confirm Delete
+            {isLoading ? 'Loading...' : "Confirm Delete"}
           </button>
         </div>
       </div>

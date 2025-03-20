@@ -3,7 +3,7 @@ import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useNavigate } from 'react-router-dom';
 
-const ComboCard = ({ id, image, name, description, priceSale, onClick, priceGoc, isBooking, vaccines,discount,maxAge,minAge }) => {
+const ComboCard = ({ id, image, name, description, priceSale, onClick, priceGoc, isBooking, vaccines,discount,handleSelectCombo }) => {
   const navigate = useNavigate();
   const isBooked = isBooking?.some(bookingId => bookingId === `combo-${id}`);
 
@@ -20,7 +20,7 @@ const ComboCard = ({ id, image, name, description, priceSale, onClick, priceGoc,
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
             <h2 className='text-xl font-semibold text-gray-800'>{name}</h2>
-            <InfoOutlinedIcon onClick={() => navigate(`/detailInformationVaccine/combo/${id}`)} className='text-blue-400 cursor-pointer' />
+            <InfoOutlinedIcon onClick={handleSelectCombo} className='text-blue-400 cursor-pointer' />
           </div>
 
           <p className="text-gray-600 text-sm mb-4 w-full truncate">{description}</p>

@@ -23,6 +23,7 @@ export default function ListChildren({ id }) {
     const [trigger, setTrigger] = useState(false);
     const [err, setErr] = useState("");
     const defaultChild = { parentId: id, name: "", dateOfBirth: "", gender: "" };
+    const [isLoading, setIsLoading] = useState(false);
     useEffect(() => {
         if (!id) return;
         const fetchChildren = async () => {
@@ -30,7 +31,8 @@ export default function ListChildren({ id }) {
                 const res = await api.get(`${url}/Child/get-child-by-parents-id/${id}`);
                 if (res.status === 200) setListChildren(res.data);
             } catch (error) {
-                setErr("Failed to fetch children data.");
+                // setErr("Failed to fetch children data.");
+                console.log(error);
             }
         };
         fetchChildren();
@@ -40,7 +42,7 @@ export default function ListChildren({ id }) {
         setFilteredChildren(listChildren);
     }, [listChildren]);
 
-   
+
     const handleOpenAddChildModal = () => {
         setCurrentChild(defaultChild);
         setIsEditing(false);
@@ -49,18 +51,24 @@ export default function ListChildren({ id }) {
 
 
     const handleCreateChild = async (e) => {
+        setIsLoading(true);
         e.preventDefault();
         if (![0, 1].includes(Number(currentChild.gender))) return setErr("Please choose a valid gender.");
 
         try {
             const res = await api.post(`${url}/Child/create-child`, currentChild);
             if (res.status === 200) {
-                setTrigger(prev => !prev);
+                setListChildren([...listChildren, {
+                    ...currentChild,
+                    status: "Active"
+                }]);
                 setIsModalOpen(false);
                 toast.success("Child added successfully!");
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to create child.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -73,18 +81,21 @@ export default function ListChildren({ id }) {
 
 
     const handleUpdateChild = async (e) => {
+        setIsLoading(true);
         e.preventDefault();
         if (![0, 1].includes(Number(currentChild.gender))) return setErr("Please choose a valid gender.");
 
         try {
             const res = await api.put(`${url}/Child/update-child/${currentChild.id}`, currentChild);
             if (res.status === 200) {
-                setTrigger(prev => !prev);
+                setListChildren(listChildren.map(child => child.id === currentChild.id ? currentChild : child));
                 setIsModalOpen(false);
                 toast.success("Child updated successfully!");
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to update child.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -96,17 +107,26 @@ export default function ListChildren({ id }) {
 
 
     const handleDeleteChild = async () => {
+        setIsLoading(true);
+        if (listChildren.find(child => child.id === deleteId && child.status.toLowerCase() === "tracking")) {
+            toast.error("You cannot delete your active child.");
+            setShowModalDelete(false);
+            return;
+        }
         try {
             const res = await api.patch(`${url}/Child/soft-delete-child/${deleteId}`);
             if (res.status === 200) {
-                setTrigger(prev => !prev);
+                setListChildren(listChildren.filter(child => child.id !== deleteId));
                 toast.success("Child deleted successfully!");
+                setShowModalDelete(false);
+                setDeleteId(null);
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to delete child.");
+        } finally {
+            setIsLoading(false);
         }
-        setShowModalDelete(false);
-        setDeleteId(null);
+
     };
 
 
@@ -121,13 +141,14 @@ export default function ListChildren({ id }) {
 
     return (
         <>
-            <ToastContainer />
+
 
 
             <ModalDelete
                 isOpen={showModalDelete}
                 onClose={() => setShowModalDelete(false)}
                 onConfirm={handleDeleteChild}
+                isLoading={isLoading}
             />
 
 
@@ -154,6 +175,7 @@ export default function ListChildren({ id }) {
                     handleSaveChild={isEditing ? handleUpdateChild : handleCreateChild}
                     handleInputChange={(e) => setCurrentChild(prev => ({ ...prev, [e.target.name]: e.target.name === "gender" ? Number(e.target.value) : e.target.value }))}
                     err={err}
+                    isLoading={isLoading}
                 />
             )}
         </>

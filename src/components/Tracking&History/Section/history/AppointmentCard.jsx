@@ -5,6 +5,7 @@ import formatCurrency from '../../../../utils/calculateMoney';
 import PaymentModal from './PaymentModal';
 import useAxios from '../../../../utils/useAxios';
 import { toast } from 'react-toastify';
+import formatdate from '../../../../utils/Date'
 const url = import.meta.env.VITE_BASE_URL_DB
 const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) => {
     const totalChild = bill.childrenList.map(child => child.id)
@@ -12,7 +13,7 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
     const [isExpanded, setIsExpanded] = useState(false);
     const totalVaccines = bill.vaccineList.length + bill.comboList.length;
     const [isOpenModal, setIsOpenModal] = useState(false);
-    // console.log(bill);
+
     const api = useAxios()
     const handleRefundBooking = async (bookingId) => {
         // console.log(bookingId);
@@ -150,14 +151,14 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
 
                 }
                 {
-                     bill?.status?.toLowerCase() === "success" &&
-                     bill.paymentName.toLowerCase() === 'vnpay' &&
-                     new Date() - new Date(bill.createdAt) <= 48 * 60 * 60 * 1000 &&
-                     (
-                        <p className='text-red-500'>
-                            If you cancel the booking, please go to a Healthcare Blue location to make a cash refund
+                    bill?.status?.toLowerCase() === "success" &&
+                    bill.paymentName.toLowerCase() === 'vnpay' &&
+                    new Date() - new Date(bill.createdAt) <= 48 * 60 * 60 * 1000 &&
+                    (
+                        <p className='text-red-500 text-sm text-center'>
+                            If you cancel the booking, please go to a Healthcare Blue location to make a cash refund ( before  {formatdate(new Date(bill.createdAt).getTime() + 48 * 60 * 60 * 1000)})
                         </p>
-                     ) 
+                    )
                 }
 
 

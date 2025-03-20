@@ -688,10 +688,10 @@ export default function BodyHomePage() {
                     {
                         feedback.map((item) => (
                             <motion.div
+                                key={item.id}
                                 variants={slideFromLeft}
                                 whileHover={{ scale: 1.05, y: -10 }}>
                                 <FeedbackParent
-                                    key={item.id}
                                     randomNumber={item.ratingScore}
                                     image={user.find(user => user.id === item.userId)?.avatar}
                                     description={item.description}

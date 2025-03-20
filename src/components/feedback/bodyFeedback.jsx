@@ -49,7 +49,7 @@ const BodyFeedback = () => {
 
         fetchFeedbackData();
     }, []);
-    console.log(user);
+  
 
     // Update sorted data whenever feedback changes
     useEffect(() => {
@@ -79,6 +79,9 @@ const BodyFeedback = () => {
 
         setSorted(newSorted);
     };
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50">
@@ -159,7 +162,7 @@ const BodyFeedback = () => {
                         >
                             All Feedback
                         </button>
-                        {[5, 4, 3, 3, 2].map((rating) => (
+                        {[5, 4, 3, 2, 1].map((rating) => (
                             <button
                                 key={rating}
                                 onClick={() => handleSortRating(rating)}

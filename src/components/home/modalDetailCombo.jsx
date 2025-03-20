@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import Infomation from '../../../Infomation.json'
 import formatCurrency from '../../utils/calculateMoney'
 import { useSelector } from 'react-redux'
+import ToUpperCaseFirst from '../../utils/upperCaseFirstLetter'
 const ModalDetailCombo = ({ isOpen, onClose, combo, onClick }) => {
     if (!combo) return null
 
@@ -89,7 +90,7 @@ const ModalDetailCombo = ({ isOpen, onClose, combo, onClick }) => {
                                                         <Percent className="h-4 w-4 text-green-600" />
                                                         <span className="text-sm font-medium text-green-700">Discount:</span>
                                                     </div>
-                                                    <Badge className="bg-green-100 text-green-700 border-green-200">{combo.discount}% OFF</Badge>
+                                                    <Badge className="bg-green-500 hover:bg-green-600">{combo.discount}% off</Badge>
                                                 </div>
                                             )}
                                         </div>
@@ -114,7 +115,7 @@ const ModalDetailCombo = ({ isOpen, onClose, combo, onClick }) => {
                                                             : "bg-amber-50 text-amber-700 border-amber-200"
                                                     }
                                                 >
-                                                    {combo.status}
+                                                    {ToUpperCaseFirst(combo.status)}
                                                 </Badge>
                                             </div>
 

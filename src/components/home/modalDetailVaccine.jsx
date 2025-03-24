@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import Infomation from '../../../Infomation.json'
 import formatCurrency from '../../utils/calculateMoney'
 import { useSelector } from 'react-redux'
+import ToUpperCaseFirst from '../../utils/upperCaseFirstLetter'
 
 const ModalDetailVaccine = ({ isOpen, onClose, vaccine, onClick }) => {
   if (!vaccine) return null;
@@ -70,7 +71,7 @@ const ModalDetailVaccine = ({ isOpen, onClose, vaccine, onClick }) => {
                         : "bg-amber-50 text-amber-700 border-amber-200"
                     )}
                   >
-                    {vaccine.status}
+                    {ToUpperCaseFirst(vaccine.status)}
                   </Badge>
                 </div>
 

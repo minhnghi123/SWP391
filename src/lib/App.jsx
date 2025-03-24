@@ -18,7 +18,7 @@ import { AuthProvider } from "../components/Context/AuthContext";
 import PrivateRoute from "../utils/PrivateRoute";
 import ModalReloadPage from "../components/modalReloadPage";
 import { ToastContainer } from "react-toastify";
-import Layout from "../pages/Layout";
+import Layout from "../pages/LayoutPayment";
 function App() {
   const [showModal, setShowModal] = useState(false);
   const timeoutIdRef = useRef(null);

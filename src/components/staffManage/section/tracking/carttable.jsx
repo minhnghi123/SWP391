@@ -147,7 +147,7 @@ const CartTable = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData.map((record) => (
+              {paginatedData.map((record,index) => (
                 <>
                   <TableRow key={record.trackingID} className="hover:bg-blue-50/30 border-b border-blue-50">
                     <TableCell onClick={() => handleExpand(record)} className="text-center cursor-pointer">
@@ -291,7 +291,8 @@ const CartTable = ({
                                             View details
                                           </DropdownMenuItem>
                                           {item.status?.toLowerCase() !== "cancel" &&
-                                            item.status?.toLowerCase() !== "success" && (
+                                            item.status?.toLowerCase() !== "success" &&
+                                            item.status?.toLowerCase() !== "waiting" && (
                                               <DropdownMenuItem
                                                 className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
                                                 onClick={() => handleUpdateStatus(item)}

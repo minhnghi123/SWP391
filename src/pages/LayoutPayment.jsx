@@ -1,17 +1,20 @@
-import React from "react";
+import React, { useMemo, memo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import HeaderPayment from "../components/payment/HeaderPayment";
 import FooterHomePage from "../components/home/footerHomPage";
-export default function Layout() {
+
+const Layout = memo(() => {
   const location = useLocation();
 
-  // Xác định currentStep dựa trên pathname
-  let currentStep = 1;
-  if (location.pathname.includes("/payment")) {
-    currentStep = 2;
-  } else if (location.pathname.includes("/confirm")) {
-    currentStep = 3;
-  }
+  // Determine currentStep based on pathname using useMemo to avoid recalculations
+  const currentStep = useMemo(() => {
+    if (location.pathname.includes("/payment")) {
+      return 2;
+    } else if (location.pathname.includes("/confirm")) {
+      return 3;
+    }
+    return 1;
+  }, [location.pathname]);
 
   return (
     <div>
@@ -22,4 +25,6 @@ export default function Layout() {
       <FooterHomePage />
     </div>
   );
-}
+});
+
+export default Layout;

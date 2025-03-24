@@ -9,16 +9,19 @@ import SummaryCard from "./summartCard";
 import ModalReaction from "./modalReaction";
 import ModalChangeSchedule from "./modalChangeSchedule";
 
+import { useDispatch,useSelector } from "react-redux";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 export function VaccinationTrackingDashboard() {
+  const dispatch = useDispatch();
   useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = datePickerStyles;
     document.head.appendChild(styleElement);
     return () => document.head.removeChild(styleElement);
   }, []);
-
+  // const triggerVaccine = useSelector(state => state.trigerReloadUser.triggerVaccine);
+  // console.log(triggerVaccine);
   const api = useAxios();
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -111,6 +114,9 @@ export function VaccinationTrackingDashboard() {
           item.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           childName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.vaccineName?.toLowerCase().includes(searchQuery.toLowerCase())
+          || item.bookingId?.toString().includes(searchQuery)
+          || item.trackingID?.toString().includes(searchQuery)
+          || item.childId?.toString().includes(searchQuery.toLowerCase())
         );
       });
     }
@@ -200,7 +206,8 @@ export function VaccinationTrackingDashboard() {
   const handleStatusUpdate = async () => {
     let nextStatus;
     const statusLower = newStatus?.toLowerCase() || "";
-    // Xác định nextStatus
+
+    // Determine nextStatus
     switch (statusLower) {
       case "success":
         nextStatus = "schedule";
@@ -215,6 +222,7 @@ export function VaccinationTrackingDashboard() {
         nextStatus = "unknown";
         break;
     }
+
     try {
       const value = { status: newStatus, reaction: "Nothing" };
       const res = await api.put(
@@ -223,46 +231,50 @@ export function VaccinationTrackingDashboard() {
       );
 
       if (res.status === 200) {
-        // Cập nhật trạng thái cho tracking hiện tại trong data
-        const updatedData = data.map((item) =>
-          item.trackingID === selectedRecord.trackingID
-            ? { ...item, status: newStatus }
-            : item
-        );
+        // Update statuses in data
+        const updatedData = data.map((item) => {
+          if (item.trackingID === selectedRecord.trackingID) {
+            return { ...item, status: newStatus }; // Update current record
+          } else if (statusLower !== "cancel" && item.trackingID === selectedRecord.trackingID + 1) {
+            // Only update the next record if not "cancel"
+            return {
+              ...item, status: nextStatus,
+              vaccinationDate: new Date(new Date().setMonth(new Date().getMonth() + 1))
+            };
+          } else if (statusLower === "cancel" && item.trackingID > selectedRecord.trackingID) {
+            // Update all subsequent records to "cancel" if status is "cancel"
+            return { ...item, status: "cancel" };
+          }
+          return item; // No change for other records
+        });
 
-        // Cập nhật trạng thái cho tracking hiện tại trong array
-        let updatedArray = array.map((item) =>
-          item.trackingID === selectedRecord.trackingID
-            ? { ...item, status: newStatus }
-            : item
-        );
-
-        // Cập nhật trạng thái cho tracking tiếp theo (nếu có)
-        if (statusLower !== "cancel") {
-          updatedArray = updatedArray.map((item) =>
-            item.trackingID === selectedRecord.trackingID + 1
-              ? {
+        // Update statuses in array (keeping your original logic for array)
+        let updatedArray = array.map((item) => {
+          if (item.trackingID === selectedRecord.trackingID) {
+            return { ...item, status: newStatus }; // Update current record
+          } else if (item.trackingID > selectedRecord.trackingID) {
+            // Update subsequent records
+            if (statusLower !== "cancel") {
+              return {
                 ...item,
                 status: nextStatus,
                 vaccinationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-              }
-              : item
-          );
-        } else {
-          updatedArray = updatedArray.map((item) =>
-            item.trackingID > selectedRecord.trackingID
-              ? { ...item, status: nextStatus }
-              : item
-          );
-        }
+              }; // Apply nextStatus and update vaccinationDate
+            } else {
+              return { ...item, status: "cancel" }; // Cancel all subsequent records
+            }
+          }
+          return item; // No change for previous records
+        });
 
-        // Cập nhật state
+        // Update state
         setData(updatedData);
-        setArray(updatedArray); // Chỉ dùng updatedArray đã được cập nhật
+        setArray(updatedArray);
         setSelectedRecord(null);
         setNewStatus("");
         setIsStatusModalOpen(false);
         toast.success("Status updated successfully");
+        // dispatch(trigerAction.setTriggerVaccine());
       }
     } catch (error) {
       console.error("Failed to update status:", error);

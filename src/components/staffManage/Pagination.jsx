@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const Pagination = memo(({ currentPage, totalPages, startIndex, endIndex, totalItems, onPageChange }) => {
     return (
-      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 ">
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 p-2 ">
         <div className="text-sm text-blue-600 mb-4 sm:mb-0">
           Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} records
         </div>

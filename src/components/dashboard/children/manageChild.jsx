@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, BabyIcon, SquarePen } from "lucide-react";
 import { ToastContainer } from "react-toastify";
-import DateFormatter from "../../../../utils/FormDate";
-import UpdateChild from "../children/updateChildren";
-import DeleteComponent from "../../delete";
-import useAxios from "../../../../utils/useAxios";
-import Pagination from "../../../../utils/pagination";
+import DateFormatter from "../../../utils/FormDate";
+import UpdateChild from "./updateChildren";
+import DeleteComponent from "../delete";
+import useAxios from "../../../utils/useAxios";
+import Pagination from "../../../utils/pagination";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 

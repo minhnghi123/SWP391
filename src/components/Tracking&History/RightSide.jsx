@@ -6,33 +6,26 @@ import History from './Section/history/hisotry'
 import Tracking from './Section/tracking/tracking'
 import ListChildren from '../Tracking&History/Section/children/listChidren';
 import AvatarHomePage from '../home/avatarHomePage'
+import formatDate from '../../utils/Date';
 const RightSide = ({ section, id }) => {
-
-    const searchRef = useRef(null)
-    const [search, setSearch] = useState('')
-    const [showUserMenu, setShowUserMenu] = useState(false)
-    const handleSearch = (e) => {
-        const value = e.target.value
-        setSearch(value)
-    }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        searchRef.current.focus();
-        setSearch('');
-    };
-
     const getHeaderIcon = () => {
-        switch(section) {
+        switch (section) {
             case 'profile': return '👤';
             case 'tracking': return '📅';
             case 'history': return '📋';
             default: return '🏥';
         }
     };
-    const user ={
-        name:'Shu',
-        email:'teei8191@gmail.com'
+    const renderContent = () => {
+        switch (section) {
+            case 'profile': return <Profile id={id} />;
+            case 'history': return <History id={id} />;
+            case 'tracking': return <Tracking id={id} />;
+            case 'children': return <ListChildren id={id} />;   
+            default: return <Profile id={id} />;
+        }
     }
+
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
             {/* Enhanced Header */}
@@ -49,60 +42,29 @@ const RightSide = ({ section, id }) => {
                                     </h1>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <span className="px-3 py-1 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-full">
-                                        Active
-                                    </span>
+                                    
                                     <span className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
-                                        {new Date().toLocaleDateString()}
+                                        {formatDate(new Date())}
                                     </span>
                                 </div>
                             </div>
-                            {/* <p className="text-sm text-gray-500 max-w-xl">
-                                {section === 'profile' && 'Customize your profile, manage personal information, and adjust your healthcare preferences all in one place.'}
-                                {section === 'tracking' && 'Stay on top of your healthcare journey with our comprehensive appointment tracking system.'}
-                                {section === 'history' && 'Access and review your complete medical history, including past treatments and consultations.'}
-                                {section === 'children' && 'Access and review your complete medical history, including past treatments and consultations.'}
-                            </p> */}
+
                         </div>
 
                         {/* Enhanced Right Side */}
-                        <div className="flex flex-col lg:flex-row items-center gap-4">
-                            {/* Improved Search */}
-                            <div className="relative group w-full lg:w-auto">
-                                <input
-                                    ref={searchRef}
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    type="text"
-                                    placeholder="Search in records..."
-                                    className="w-full lg:w-80 pl-12 pr-4 py-3 rounded-xl border border-gray-200 
-                                         text-sm placeholder-gray-400 bg-gray-50
-                                         group-hover:border-blue-300 group-hover:bg-white
-                                         focus:outline-none focus:ring-2 focus:ring-blue-100 
-                                         focus:border-blue-400 transition-all duration-300"
-                                />
-                                <button
-                                    onClick={handleSubmit}
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg
-                                         hover:bg-blue-50 transition-colors duration-200"
-                                >
-                                    <SearchOutlinedIcon className="w-5 h-5 text-gray-400 group-hover:text-blue-500" />
-                                </button>
-                            </div>
 
-                            {/* Actions Container */}
-                            <div className="flex items-center space-x-4">
-                                {/* Enhanced Notification Bell */}
-                                <button className="relative p-3 rounded-xl hover:bg-gray-100 transition-all duration-200
+                        <div className="flex items-center space-x-4">
+                            {/* Enhanced Notification Bell */}
+                            <button className="relative p-3 rounded-xl hover:bg-gray-100 transition-all duration-200
                                              group focus:outline-none focus:ring-2 focus:ring-blue-100">
-                                    <NotificationsNoneOutlinedIcon className="w-6 h-6 text-gray-600 group-hover:text-blue-500" />
-                                    <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full
+                                <NotificationsNoneOutlinedIcon className="w-6 h-6 text-gray-600 group-hover:text-blue-500" />
+                                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full
                                                group-hover:animate-pulse"></span>
-                                </button>
+                            </button>
 
-                                {/* Enhanced User Menu */}
-                                    <AvatarHomePage user={user}/>
-                            </div>
+                            {/* Enhanced User Menu */}
+                            <AvatarHomePage />
+
                         </div>
                     </div>
                 </div>
@@ -110,13 +72,12 @@ const RightSide = ({ section, id }) => {
 
             {/* Content Section */}
             <div className="mt-6 bg-white rounded-2xl shadow-sm p-6">
-                {section === 'profile' && <Profile id={id} />}
-                {section === 'history' && <History id={id} />}
-                {section === 'tracking' && <Tracking id={id} />}
-                {section === 'children' && <ListChildren id={id} />}
+              {renderContent()}
             </div>
         </div>
     )
 };
 
 export default RightSide;
+
+

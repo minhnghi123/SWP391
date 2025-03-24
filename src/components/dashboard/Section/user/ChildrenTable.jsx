@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import AddChildren from "../children/addChild";
+import AddChildren from "../../children/addChild";
 import Delete from "../../delete";
-import UpdateChild from "../children/updateChildren";
+import UpdateChild from "../../children/updateChildren";
 
 const UserChildren = ({ userId, children: initialChildren, onAddChildrenSuccess }) => {
   const [children, setChildren] = useState(initialChildren); // Local state to manage children

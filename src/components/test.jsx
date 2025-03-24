@@ -1,3 +1,4 @@
+import React, { useMemo, memo } from 'react';
 import {
   Table,
   TableBody,
@@ -9,52 +10,62 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-const invoices = [
+const invoicesData = [
   {
-    invoice: "INV001",
+    id: "INV001",
     paymentStatus: "Paid",
     totalAmount: "$250.00",
     paymentMethod: "Credit Card",
   },
   {
-    invoice: "INV002",
+    id: "INV002",
     paymentStatus: "Pending",
     totalAmount: "$150.00",
     paymentMethod: "PayPal",
   },
   {
-    invoice: "INV003",
+    id: "INV003",
     paymentStatus: "Unpaid",
     totalAmount: "$350.00",
     paymentMethod: "Bank Transfer",
   },
   {
-    invoice: "INV004",
+    id: "INV004",
     paymentStatus: "Paid",
     totalAmount: "$450.00",
     paymentMethod: "Credit Card",
   },
   {
-    invoice: "INV005",
+    id: "INV005",
     paymentStatus: "Paid",
     totalAmount: "$550.00",
     paymentMethod: "PayPal",
   },
   {
-    invoice: "INV006",
+    id: "INV006",
     paymentStatus: "Pending",
     totalAmount: "$200.00",
     paymentMethod: "Bank Transfer",
   },
   {
-    invoice: "INV007",
+    id: "INV007",
     paymentStatus: "Unpaid",
     totalAmount: "$300.00",
     paymentMethod: "Credit Card",
   },
 ]
 
-export function TableDemo() {
+const TableDemo = memo(() => {
+  // Memoize calculated values
+  const invoices = useMemo(() => invoicesData, []);
+  
+  const totalAmount = useMemo(() => {
+    return invoices.reduce((total, invoice) => {
+      const amount = parseFloat(invoice.totalAmount.replace('$', ''));
+      return total + amount;
+    }, 0).toFixed(2);
+  }, [invoices]);
+
   return (
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
@@ -68,8 +79,8 @@ export function TableDemo() {
       </TableHeader>
       <TableBody>
         {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
+          <TableRow key={invoice.id}>
+            <TableCell className="font-medium">{invoice.id}</TableCell>
             <TableCell>{invoice.paymentStatus}</TableCell>
             <TableCell>{invoice.paymentMethod}</TableCell>
             <TableCell className="text-right">{invoice.totalAmount}</TableCell>
@@ -79,10 +90,11 @@ export function TableDemo() {
       <TableFooter>
         <TableRow>
           <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
+          <TableCell className="text-right">${totalAmount}</TableCell>
         </TableRow>
       </TableFooter>
     </Table>
   )
-}
-export default TableDemo
+});
+
+export default TableDemo;

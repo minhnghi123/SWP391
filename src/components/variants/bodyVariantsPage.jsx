@@ -48,7 +48,7 @@ function boydVaritants() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  console.log(selectedCombo)
+
   useEffect(() => {
     let isMounted = true; // Cờ để kiểm tra component có bị unmount không
 

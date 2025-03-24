@@ -3,12 +3,12 @@ import {
     MonetizationOnOutlined, CheckCircleOutline, AppsOutlined, CancelOutlined, PendingOutlined, VaccinesOutlined
 } from '@mui/icons-material';
 import formatCurrency from '../../../../utils/calculateMoney';
-import { fetchData } from '../../../../Api/axios';
 import AppointmentCard from './AppointmentCard';
 import useAxios from '../../../../utils/useAxios';
+import { useSelector } from 'react-redux';
 const url = import.meta.env.VITE_BASE_URL_DB
 const History = ({ id }) => {
-
+    // const triggerHistory = useSelector(state => state.trigerReloadUser.triggerHistory);
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [activeFilter, setActiveFilter] = useState('All');
@@ -16,6 +16,7 @@ const History = ({ id }) => {
     const [error, setError] = useState('');
     const [isTrigger, setIsTrigger] = useState(false);
     const api = useAxios()
+  
     //fetch data history
     useEffect(() => {
         const fetchDataHistory = async () => {
@@ -33,7 +34,9 @@ const History = ({ id }) => {
             }
         };
         fetchDataHistory();
-    }, [id,isTrigger]);
+    }, [id,  isTrigger
+        //  triggerHistory
+        ]);
 
 
     //sort data

@@ -10,11 +10,12 @@ import Summary from "./summary";
 import SelectAppoinment from "./selectAppointment";
 import DetailAppoinment from "./detailAppoinment";
 import PaginationComponent from "../../Pagination";
-
+import { useDispatch, useSelector } from "react-redux";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const BookingManagementPage = () => {
   const api = useAxios();
+  const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,9 +31,9 @@ const BookingManagementPage = () => {
   const [modalRefund, setModalRefund] = useState(false);
   const [refundPercentage, setRefundPercentage] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusSuccess, setStatusSuccess] = useState([]);
   const itemsPerPage = 20;
-
+  // const triggerHistory = useSelector(state => state.trigerReloadUser.triggerHistory);
+  // console.log(triggerHistory);
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -57,6 +58,8 @@ const BookingManagementPage = () => {
       const filtered = appointments.filter((appointment) =>
         appointment.phoneNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         appointment.parentName.toLowerCase().includes(searchTerm.toLowerCase())
+        || appointment.id.toString().includes(searchTerm)
+        || appointment.childrenList.some(child => child.name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
       setFilteredAppointments(filtered);
     }
@@ -95,7 +98,15 @@ const BookingManagementPage = () => {
       if (res.status === 200) {
         toast.success("Update booking successfully!");
         setIsEditModalOpen(false);
-        setTrigger((prev) => !prev); // Toggle trigger để fetch lại dữ liệu
+        setAppointments((prevAppointments) =>
+          prevAppointments.map((appointment) =>
+            appointment.id === updatedBooking.id
+              ? { ...appointment, ...updatedBooking }
+              : appointment
+          )
+        );
+        // setTrigger((prev) => !prev); // Toggle trigger để fetch lại dữ liệu
+        // dispatch(trigerAction.setTriggerHistory());
       }
     } catch (error) {
       console.error("Error updating booking:", error);
@@ -135,6 +146,7 @@ const BookingManagementPage = () => {
         setIsModalOpen(false);
         setIsModalConfirmOpen(false);
         toast.success("Booking marked as completed!");
+        // dispatch(trigerAction.setTriggerHistory());
       }
     } catch (error) {
       console.error("Error completing booking:", error);
@@ -143,12 +155,6 @@ const BookingManagementPage = () => {
       setLoading(false);
     }
   };
-
-  // const handleConfirmBooking = (booking) => {
-  //   setSelectedBooking(booking);
-   
-  // };
-
   const handleRefundBooking = async (bookingId) => {
     if (!bookingId) {
       toast.error("No booking selected!");
@@ -156,38 +162,62 @@ const BookingManagementPage = () => {
     }
     setLoading(true);
     try {
-      const checkFirstDose = tracking.find(
-        (item) => item.bookingId === bookingId && item.previousVaccination === 0 && item.status.toLowerCase() === "success"
+      // Check if booking had successful first dose
+      const isFirstDoseSuccess = tracking.some(
+        (item) => item.bookingId === bookingId &&
+          item.previousVaccination === 0 &&
+          item.status.toLowerCase() === "success"
       );
-      const refundPercentageValue = checkFirstDose ? 0 : 1;
-      if (refundPercentageValue) {
-        const response = await api.post(`${url}/Payment/refund`, {
-          bookingID: bookingId,
-          paymentStatusEnum: refundPercentageValue,
-        });
-        if (response.status === 200) {
-          setAppointments((prevAppointments) =>
-            prevAppointments.map((appointment) =>
-              appointment.id === bookingId ? { ...appointment, status: "Refunded" } : appointment
-            )
-          );
-          toast.success("Refunded successfully!");
-          setModalRefund(false);
-        } else {
-          toast.error("Refund failed. Please try again.");
-        }
-      } else {
-        toast.info("Refund not applicable for this booking.");
-        setModalRefund(false);
+      const refundPercentageValue = isFirstDoseSuccess ? 0 : 1;
+
+      // if (!refundPercentageValue) {
+      //   toast.info("Refund not applicable for this booking.");
+      //   setModalRefund(false);
+      //   return;
+      // }
+
+      // Get booking details
+      const booking = appointments.find((item) => item.id === bookingId);
+      if (!booking) {
+        throw new Error("Booking not found");
       }
+
+      // Determine refund endpoint based on payment method
+      const paymentMethod = booking.paymentMethod.toLowerCase();
+      const isCashOrVNPay = paymentMethod === 'vnpay' || paymentMethod === 'cash';
+      const refundEndpoint = isCashOrVNPay
+        ? `${url}/Payment/refund-by-staff`
+        : `${url}/Payment/refund`;
+
+      // Execute refund
+      const value ={
+        bookingID: bookingId,
+        paymentStatusEnum: refundPercentageValue,
+      }
+      const response = await api.post(refundEndpoint,value);
+
+      if (response.status === 200) {
+        setAppointments((prevAppointments) =>
+          prevAppointments.map((appointment) =>
+            appointment.id === bookingId
+              ? { ...appointment, status: "Refund" }
+              : appointment
+          )
+        );
+        toast.success("Refunded successfully!");
+        setModalRefund(false);
+      } else {
+        throw new Error("Refund request failed");
+      }
+
     } catch (error) {
       console.error("Refund error:", error);
-      toast.error("Refund failed. Please try again.");
+      toast.error(error.message || "Refund failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
+  console.log(appointments);
   // Pagination logic
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -225,6 +255,7 @@ const BookingManagementPage = () => {
         endIndex={endIndex}
         totalItems={filteredAppointments.length}
         onPageChange={handlePageChange}
+        tracking={tracking}
       />
       {isModalOpen && (
         <DetailAppoinment
@@ -245,6 +276,8 @@ const BookingManagementPage = () => {
       {isCreateBookingModalOpen && (
         <CreateBookingByStaff
           isModalOpen={isCreateBookingModalOpen}
+          // setAppointments={setAppointments}
+          // appointments={appointments}
           setIsModalOpen={setIsCreateBookingModalOpen}
           setTrigger={setTrigger}
         />
@@ -253,7 +286,7 @@ const BookingManagementPage = () => {
         <ModalConfirm
           title="Confirm Complete Booking"
           message="Are you sure you want to complete this booking?"
-          handleConfirm={()=>handleCompleteBooking(selectedBooking)}
+          handleConfirm={() => handleCompleteBooking(selectedBooking)}
           handleCancel={() => setIsModalConfirmOpen(false)}
           loading={loading}
         />
@@ -262,7 +295,7 @@ const BookingManagementPage = () => {
         <ModalRefund
           title="Confirm Refund Booking"
           message="Are you sure you want to refund this booking?"
-          handleConfirm={async () => await handleRefundBooking(selectedBooking?.id)}
+          handleConfirm={handleRefundBooking}
           handleCancel={() => setModalRefund(false)}
           loading={loading}
           bookingId={selectedBooking?.id}

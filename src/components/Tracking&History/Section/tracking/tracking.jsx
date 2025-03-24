@@ -8,11 +8,14 @@ import ModalFeedback from '../../../feedback/formFeedback'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { FeedbackContext } from '../../../Context/FeedbackContext';
+// import { trigerAction } from '../../../../components/redux/reducers/trigerReloadUser';
+import { useDispatch } from 'react-redux';
 import useAxios from '../../../../utils/useAxios'
 
 const url = import.meta.env.VITE_BASE_URL_DB
 const TrackingChildbyUser = ({ id }) => {
-
+  // const dispatch = useDispatch();
+  // const triggerVaccine = useSelector(state => state.trigerReloadUser.triggerVaccine);
   // const { inputData,
   //   handleSubmit,
   //   handleOnChange,

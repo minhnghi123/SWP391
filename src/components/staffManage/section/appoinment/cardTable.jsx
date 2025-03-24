@@ -17,8 +17,8 @@ const getStatusBadge = (status) => {
 const CardTable = ({
   paginatedData, handleOpenModal, handleOpenEditModal, setIsModalConfirmOpen,
   loading, setModalRefund, setSelectedBooking, setRefundPercentage,
-  currentPage, totalPages, startIndex, endIndex, totalItems, onPageChange
-
+  currentPage, totalPages, startIndex, endIndex, totalItems, onPageChange,
+  tracking
 }) => {
   return (
     <Card>
@@ -135,7 +135,7 @@ const CardTable = ({
                       </>
                     )}
                     {appointment?.status.toLowerCase() === "success" &&
-                      (appointment?.paymentMethod.toLowerCase() === "momo" || appointment?.paymentMethod.toLowerCase() === "vnpay") && (
+                      (new Date() - new Date(appointment.createdAt) <= 48 * 60 * 60 * 1000 && (
                         <Button
                           variant="ghost"
                           size="icon"
@@ -150,7 +150,7 @@ const CardTable = ({
                         >
                           <RefreshCcw className="h-4 w-4" />
                         </Button>
-                      )}
+                      ))}
                   </div>
                 </TableCell>
               </TableRow>

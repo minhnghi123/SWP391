@@ -77,6 +77,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case 'success': return 'text-emerald-500 bg-emerald-50 ring-1 ring-emerald-100';
+      case 'overdue': return 'text-red-500 bg-red-50 ring-1 ring-red-100';
       case 'schedule': return 'text-violet-500 bg-violet-50 ring-1 ring-violet-100';
       case 'waiting': return 'text-amber-500 bg-amber-50 ring-1 ring-amber-100';
       default: return 'text-slate-500 bg-slate-50 ring-1 ring-slate-100';
@@ -86,6 +87,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
   const getStatusIcon = (status) => {
     switch (status.toLowerCase()) {
       case 'success': return <CheckCircle className="w-5 h-5" />;
+      case 'overdue': return <AlertCircle className="w-5 h-5" />;
       case 'schedule': return <Calendar className="w-5 h-5" />;
       case 'waiting': return <Clock className="w-5 h-5" />;
       default: return <AlertCircle className="w-5 h-5" />;
@@ -155,7 +157,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
               It looks like there are no vaccination records available for tracking at the moment. Check back later or schedule a new appointment.
             </p>
             <button
-              onClick={() => navigate("/variantsPage")} 
+              onClick={() => navigate("/variantsPage")}
               className="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md"
             >
               Booking Now
@@ -164,12 +166,25 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
         ) : (
           <div className="space-y-6">
             {sortLinkList.map((chain, index) => {
+              const percentageandType = {
+                percentage: 0,
+                type: '',
+              }
               const vaccineName = chain[0]?.vaccineName || 'Unknown Vaccine';
               const completed = chain.filter(item =>
                 item.status.toLowerCase() === 'success'
               ).length;
               const total = chain.length;
               const percentage = Math.round((completed / total) * 100) || 0;
+              const overdue = chain.some(item => item.vaccinationDate < new Date() && item.status.toLowerCase() !== 'success');
+              if (overdue) {
+                percentageandType.percentage = 100;
+                percentageandType.type = 'overdue'; // Màu đỏ cho cả thanh
+              } else {
+                percentageandType.percentage = percentage;
+                percentageandType.type = 'success'; // Màu xanh theo tiến trình
+              }
+
               return (
                 <div
                   key={index}
@@ -192,7 +207,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                     <div className="flex-1 bg-white p-5 rounded-xl border border-gray-100 hover:border-indigo-200 transition-all duration-300 hover:shadow-md">
                       <ProgressBar
                         vaccineName={vaccineName}
-                        percentage={percentage}
+                        percentage={percentageandType}
                         current={completed}
                         total={total}
                       />
@@ -262,7 +277,7 @@ export default function VaccineSchedules({ sortLinkList, ProgressBar, setTrigger
                                     <User className="w-5 h-5 text-indigo-500" />
                                     <div>
                                       <span className="font-medium block text-gray-700">Parent</span>
-                                      <span className="text-gray-600 text-sm">{ToUpperCase(dose.administeredByDoctorName)}</span>
+                                      <span className="text-gray-600 text-sm">{ToUpperCase(dose.userName)}</span>
                                     </div>
                                   </div>
                                 </div>

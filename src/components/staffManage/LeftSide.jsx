@@ -22,7 +22,6 @@ const LeftSide = ({ section }) => {
     { id: "appointments", icon: FiCalendar, label: "Appointments" },
     { id: "trackingVaccine", icon: FiClock, label: "Tracking Vaccine" },
   ];
-  console.log(menuItems)
 
 
   return (

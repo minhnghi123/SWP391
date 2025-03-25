@@ -180,7 +180,7 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
                 vaccineIds: selectedVaccines.map((vaccine) => vaccine.id),
                 vaccineComboIds: selectedCombos.map((combo) => combo.id),
                 arrivedAt: appointmentDate,
-                advisoryDetail: advisory || "",
+                advisoryDetail: advisory || "no",
                 totalPrice: finalTotalPrice,
                 paymentId: 1,
             };

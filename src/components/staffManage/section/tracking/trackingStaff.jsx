@@ -9,7 +9,7 @@ import SummaryCard from "./summartCard";
 import ModalReaction from "./modalReaction";
 import ModalChangeSchedule from "./modalChangeSchedule";
 
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 export function VaccinationTrackingDashboard() {
@@ -231,15 +231,23 @@ export function VaccinationTrackingDashboard() {
       );
 
       if (res.status === 200) {
+        // Find the current record's vaccinationDate
+        const currentRecord = data.find(item => item.trackingID === selectedRecord.trackingID);
+        const currentVaccinationDate = currentRecord?.vaccinationDate
+          ? new Date(currentRecord.vaccinationDate)
+          : new Date(); // Fallback to current date if not available
+
+        const newVaccinationDate = new Date(currentVaccinationDate.setMonth(currentVaccinationDate.getMonth() + 1));
         // Update statuses in data
         const updatedData = data.map((item) => {
           if (item.trackingID === selectedRecord.trackingID) {
             return { ...item, status: newStatus }; // Update current record
           } else if (statusLower !== "cancel" && item.trackingID === selectedRecord.trackingID + 1) {
-            // Only update the next record if not "cancel"
+            // Update the next record with current record's vaccinationDate + 1 month
             return {
-              ...item, status: nextStatus,
-              vaccinationDate: new Date(new Date().setMonth(new Date().getMonth() + 1))
+              ...item,
+              status: nextStatus,
+              vaccinationDate: newVaccinationDate
             };
           } else if (statusLower === "cancel" && item.trackingID > selectedRecord.trackingID) {
             // Update all subsequent records to "cancel" if status is "cancel"
@@ -248,23 +256,22 @@ export function VaccinationTrackingDashboard() {
           return item; // No change for other records
         });
 
-        // Update statuses in array (keeping your original logic for array)
+        // Update statuses in array (matching the logic of updatedData)
         let updatedArray = array.map((item) => {
           if (item.trackingID === selectedRecord.trackingID) {
             return { ...item, status: newStatus }; // Update current record
-          } else if (item.trackingID > selectedRecord.trackingID) {
-            // Update subsequent records
-            if (statusLower !== "cancel") {
-              return {
-                ...item,
-                status: nextStatus,
-                vaccinationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-              }; // Apply nextStatus and update vaccinationDate
-            } else {
-              return { ...item, status: "cancel" }; // Cancel all subsequent records
-            }
+          } else if (statusLower !== "cancel" && item.trackingID === selectedRecord.trackingID + 1) {
+            // Update the next record with current record's vaccinationDate + 1 month
+            return {
+              ...item,
+              status: nextStatus,
+              vaccinationDate: newVaccinationDate
+            };
+          } else if (statusLower === "cancel" && item.trackingID > selectedRecord.trackingID) {
+            // Update all subsequent records to "cancel" if status is "cancel"
+            return { ...item, status: "cancel" };
           }
-          return item; // No change for previous records
+          return item; // No change for other records
         });
 
         // Update state

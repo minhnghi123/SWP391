@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { SquarePen } from "lucide-react";
 import { toast } from "react-toastify";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "../../../../utils/useAxios";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -167,7 +167,7 @@ const UpdateChild = ({ child, userId, onUpdateSuccess, onCancel }) => {
                   className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
                 />
                 <label className="text-gray-700">
-                  {updatedChild.status} {/* Display "Active" or "Inactive" */}
+                  Active{/* Display "Active" or "Inactive" */}
                 </label>
               </div>
             </div>

@@ -188,7 +188,7 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-[600px] max-w-[90%] text-center relative">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Add User</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Add Staff</h2>
 
         {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
 

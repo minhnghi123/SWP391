@@ -8,7 +8,7 @@ import {
   SquarePen,
 } from "lucide-react";
 import AddVaccineComboComponent from "./addComboVaccine";
-import DeleteVaccine from "../../../staffManage/deleteVaccine";
+import DeleteVaccine from "../vaccine/deleteVaccine";
 import Pagination from "../../../../utils/pagination";
 import DetailCombo from "./detailsCombo";
 import UpdateVaccineCombo from "./updateCombo";
@@ -182,10 +182,10 @@ const ManageCombo = () => {
                     Discount
                   </th>
                   <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 hidden md:table-cell">
-                    Total Price (VND)
+                    Total Price
                   </th>
                   <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600 hidden lg:table-cell">
-                    Final Price (VND)
+                    Final Price
                   </th>
                   <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-600">
                     Status
@@ -211,7 +211,7 @@ const ManageCombo = () => {
                       <td className="px-2 sm:px-4 py-3">
                         <div className="flex items-center gap-2 sm:gap-3">
                           <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                            <Refrigerator className="w-4 sm:w-5 h-4 sm:h-5 text-teal-600" />
+                            <Refrigerator className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" />
                           </div>
                           <p className="font-medium text-gray-900 text-xs sm:text-sm">
                             {item.comboName}
@@ -222,10 +222,10 @@ const ManageCombo = () => {
                         {item.discount}%
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 hidden md:table-cell">
-                        {item.totalPrice?.toLocaleString()}
+                        {item.totalPrice?.toLocaleString()} VND
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 hidden lg:table-cell">
-                        {(item.totalPrice * (1 - item.discount / 100))?.toLocaleString()}
+                        {(item.totalPrice * (1 - item.discount / 100))?.toLocaleString()} VND
                       </td>
                       <td className="px-2 sm:px-4 py-3">
                         <span

@@ -1,16 +1,21 @@
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import Header from '../components/home/headerHomePage';
 import BodyHomePage from '../components/home/bodyHomePage';
 import FooterHomePage from '../components/home/footerHomPage';
 
+export default function Home() {
+  return (
+    <div >
+      {/* Header */}
+      <Header />
 
-export default  function Home(){
+      {/* Body */}
+      <main className="flex-1">
+        <BodyHomePage />
+      </main>
 
-    return (
-        <>
-        <Header/> 
-        <BodyHomePage/> 
-        <FooterHomePage/>
-        </>
-    )
+      {/* Footer */}
+      <FooterHomePage />
+    </div>
+  );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "react-toastify";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "../../../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const AddChild = ({ onAddSuccess, parentId }) => {
@@ -120,7 +120,7 @@ const AddChild = ({ onAddSuccess, parentId }) => {
     <>
       <button
         onClick={() => setShowForm(!showForm)}
-        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
+        className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/20"
       >
         <Plus className="w-5 h-5" />
         Add Child

@@ -14,7 +14,7 @@ const VaccineInventory = ({ displayedVaccines, loading, error }) => {
         </p>
       </CardHeader>
       <CardContent className="p-6">
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {loading ? (
             <p className="text-center text-blue-600">Loading vaccines...</p>
           ) : error ? (
@@ -26,25 +26,20 @@ const VaccineInventory = ({ displayedVaccines, loading, error }) => {
                 100
               );
               return (
-                <div key={vaccine.id} className="space-y-3">
-                  <div className="flex justify-between items-center">
+                <div key={vaccine.id} className="space-y-2 sm:space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                     <p className="text-sm font-medium text-gray-800">
                       {vaccine.name}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-600">
                       {vaccine.quantity} doses remaining
                     </p>
                   </div>
                   <Progress
                     value={usedPercentage}
                     className="h-2 bg-gray-200"
-                  >
-                    <div
-                      className="h-full bg-blue-600 rounded-full"
-                      style={{ width: `${usedPercentage}%` }}
-                    />
-                  </Progress>
-                  <div className="flex justify-between items-center text-xs text-gray-500">
+                  />
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs text-gray-500">
                     <p>
                       Expires:{" "}
                       {new Date(vaccine.timeExpired).toLocaleDateString()}

@@ -1,13 +1,13 @@
 import { useState } from "react";
-import ViewAllVaccine from "../section/vaccine/viewAllVaccine";
-import ViewAllCombo from "../section/combo/viewAllCombo";
+import ViewAllVaccine from "./viewAllVaccine";
+import ViewAllCombo from "../combo/viewAllCombo";
 import { Pill, Package } from "lucide-react";
 
 const ManageVaccine = () => {
   const [view, setView] = useState("vaccine");
 
   return (
-    <div className="space-y-6">
+    <div>
       {/* Header */}
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-100">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

@@ -232,7 +232,7 @@ const BookingManagementPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6 animate-fade-in">
+    <div className="container mx-auto p-6 ">
       <SelectAppoinment
         setSearchTerm={setSearchTerm}
         fillterbyStatus={filterByStatus}

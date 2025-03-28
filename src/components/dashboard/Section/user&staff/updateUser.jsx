@@ -26,6 +26,28 @@ const UpdateUser = ({ user, setShowForm, onAddSuccess }) => {
   const [avatarPreview, setAvatarPreview] = useState(user.avatar || null);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hasTrackingChild, setHasTrackingChild] = useState(false);
+
+  // Gọi API để lấy thông tin children của user khi component mount
+  useEffect(() => {
+    const fetchUserChildren = async () => {
+      try {
+        const response = await api.get(`${url}/User/get-user-child/${user.id}`);
+        const children = response.data.children || [];
+        const trackingExists = children.some(
+          (child) => (child.status || "").toLowerCase() === "tracking"
+        );
+        setHasTrackingChild(trackingExists);
+      } catch (error) {
+        console.error("Error fetching user children:", error);
+        toast.error("Failed to fetch user children data.");
+      }
+    };
+
+    if (user.id) {
+      fetchUserChildren();
+    }
+  }, [user.id, api]);
 
   // Xử lý thay đổi input trong form
   const handleChange = (e) => {
@@ -74,6 +96,12 @@ const UpdateUser = ({ user, setShowForm, onAddSuccess }) => {
   // Xử lý submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (hasTrackingChild) {
+      toast.error("Cannot update user with children in 'Tracking' status.");
+      return;
+    }
+
     setLoading(true);
     setErrorMessage(null);
 
@@ -174,9 +202,20 @@ const UpdateUser = ({ user, setShowForm, onAddSuccess }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-[600px] max-w-[90%] text-center relative max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Update User</h2>
-
         {errorMessage && (
           <div className="mb-4 text-red-500 text-sm">{errorMessage}</div>
+        )}
+        {hasTrackingChild && (
+          <div className="mb-4 text-red-500 text-sm">
+            Cannot update user because they have children in "Tracking" status.
+          </div>
+        )}
+        {avatarPreview && (
+          <img
+            src={avatarPreview}
+            alt="Avatar preview"
+            className="mt-2 w-20 h-20 object-cover rounded-full mx-auto"
+          />
         )}
 
         <form onSubmit={handleSubmit}>
@@ -217,13 +256,6 @@ const UpdateUser = ({ user, setShowForm, onAddSuccess }) => {
                 onChange={handleFileChange}
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
-              {avatarPreview && (
-                <img
-                  src={avatarPreview}
-                  alt="Avatar preview"
-                  className="mt-2 w-20 h-20 object-cover rounded-full mx-auto"
-                />
-              )}
             </div>
             <select
               name="gender"
@@ -265,8 +297,12 @@ const UpdateUser = ({ user, setShowForm, onAddSuccess }) => {
             </button>
             <button
               type="submit"
-              disabled={loading}
-              className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
+              disabled={loading || hasTrackingChild}
+              className={`bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg ${
+                loading || hasTrackingChild
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:from-blue-600 hover:to-blue-600"
+              }`}
             >
               {loading ? "Updating..." : "Update"}
             </button>

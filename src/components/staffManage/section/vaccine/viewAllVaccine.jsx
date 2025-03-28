@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Pagination from "../../../../utils/pagination";
+import Pagination from "../../Pagination"; // Imported Pagination component
 import VaccineDetails from "../../../dashboard/Section/vaccine/detailVaccine";
 import { ToastContainer } from "react-toastify";
-import { Search, Filter, MoreHorizontal, Refrigerator, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Filter, MoreHorizontal, Syringe, Eye } from "lucide-react";
 import useAxios from "../../../../utils/useAxios";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -79,7 +79,9 @@ const VaccineList = () => {
 
   const sortedItems = sortData(filteredItems);
   const totalPages = Math.ceil(sortedItems.length / rowsPerPage);
-  const paginatedData = sortedItems.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedData = sortedItems.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -190,12 +192,14 @@ const VaccineList = () => {
                       <TableCell className="font-medium text-blue-800 text-center">#{item.id}</TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <Refrigerator className="h-4 w-4 text-blue-500" />
+                          <Syringe className="h-4 w-4 text-blue-500" />
                           <span>{item.name || "N/A"}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{item.quantity ?? 0}</TableCell>
                       <TableCell className="text-center">${item.price?.toFixed(2) ?? "0.00"}</TableCell>
+                      
+   
                       <TableCell className="text-center">{item.fromCountry || "N/A"}</TableCell>
                       <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
                       <TableCell className="text-center">
@@ -229,49 +233,15 @@ const VaccineList = () => {
               </TableBody>
             </Table>
           </div>
-          {!loading && !error && (
-            <div className="p-4 flex justify-between items-center border-t border-blue-50 bg-blue-50/30">
-              <div className="text-sm text-blue-700">
-                Showing <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> to{" "}
-                <span className="font-medium">{Math.min(currentPage * rowsPerPage, sortedItems.length)}</span>{" "}
-                of <span className="font-medium">{sortedItems.length}</span> records
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                {[...Array(totalPages)].map((_, index) => (
-                  <Button
-                    key={index + 1}
-                    variant="outline"
-                    size="sm"
-                    className={`border-blue-200 ${
-                      currentPage === index + 1
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "text-blue-700 hover:bg-blue-50"
-                    }`}
-                    onClick={() => handlePageChange(index + 1)}
-                  >
-                    {index + 1}
-                  </Button>
-                ))}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+          {!loading && !error && sortedItems.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              totalItems={sortedItems.length}
+              onPageChange={handlePageChange}
+            />
           )}
         </CardContent>
       </Card>

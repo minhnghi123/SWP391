@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import AddUser from "../user/addUser";
-import DeleteComponent from "../../delete";
+import AddUser from "./addUser";
+import DeleteComponent from "./delete";
 import Pagination from "../../../../utils/pagination";
 import {
   Search,
@@ -11,15 +11,15 @@ import {
   ChevronUp,
   ArrowUpDown,
 } from "lucide-react";
-import AddStaff from "../user/addStaff";
-import UpdateUser from "../user/updateUser";
+import AddStaff from "./addStaff";
+import UpdateUser from "./updateUser";
 import { ToastContainer } from "react-toastify";
 import useAxios from "../../../../utils/useAxios";
 import ExpandedUser from "./ExpandedChild"; // Import component mới
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
-const UserManagement = () => {
+const StaffManagement = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("name");
@@ -64,7 +64,7 @@ const UserManagement = () => {
   };
 
   const filteredUsers = users
-    .filter((user) => user.role?.toLowerCase() !== "admin")
+    .filter((user) => user.role?.toLowerCase() !== "admin" && user.role?.toLowerCase() !== "user")
     .filter((user) => user.name.toLowerCase().includes(search.toLowerCase()));
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
@@ -115,15 +115,6 @@ const UserManagement = () => {
     }
   };
 
-  const handleExpandUser = (user) => {
-    if (expandedUserId === user.id) {
-      setExpandedUserId(null);
-    } else {
-      setExpandedUserId(user.id);
-      setSelectedUser(user);
-    }
-  };
-
   const handleAddChildrenSuccess = () => {
     if (selectedUser) {
       handleExpandUser(selectedUser);
@@ -139,15 +130,8 @@ const UserManagement = () => {
       <ToastContainer position="bottom-right" />
       <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
           <div className="flex gap-4">
-            <button
-              onClick={() => setShowAddUserForm(true)}
-              className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="font-medium">Add User</span>
-            </button>
             <button
               onClick={() => setShowAddStaffForm(true)}
               className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
@@ -171,23 +155,6 @@ const UserManagement = () => {
               onChange={handleSearch}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
             />
-          </div>
-          <div className="flex items-center gap-2">
-            <ArrowUpDown size={18} className="text-gray-500" />
-            <select
-              value={`${sortBy}-${sortOrder}`}
-              onChange={(e) => {
-                const [field, order] = e.target.value.split("-");
-                setSortBy(field);
-                setSortOrder(order);
-              }}
-              className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
-            >
-              <option value="name-asc">Name (A-Z)</option>
-              <option value="name-desc">Name (Z-A)</option>
-              <option value="role-asc">Role (User to Staff)</option>
-              <option value="role-desc">Role (Staff to User)</option>
-            </select>
           </div>
         </div>
 
@@ -220,7 +187,7 @@ const UserManagement = () => {
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                            <User className="w-5 h-5 text-teal-600" />
+                            <User className="w-5 h-5 text-blue-600" />
                           </div>
                           <div className="max-w-[200px] overflow-hidden whitespace-nowrap text-ellipsis">
                             <p className="font-medium text-gray-900">{user.name}</p>
@@ -255,13 +222,6 @@ const UserManagement = () => {
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => handleExpandUser(user)}
-                            className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
-                            title="View Children"
-                          >
-                            {expandedUserId === user.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                          </button>
-                          <button
                             onClick={() => handleUpdateClick(user)}
                             className="p-1.5 bg-teal-50 text-teal-600 rounded-md hover:bg-teal-100 transition-colors"
                           >
@@ -275,17 +235,6 @@ const UserManagement = () => {
                         </div>
                       </td>
                     </tr>
-                    {expandedUserId === user.id && (
-                      <tr>
-                        <td colSpan="10">
-                          <ExpandedUser
-                            userId={user.id}
-                            onClose={() => setExpandedUserId(null)}
-                            onAddChildrenSuccess={handleAddChildrenSuccess}
-                          />
-                        </td>
-                      </tr>
-                    )}
                   </React.Fragment>
                 ))}
               </tbody>
@@ -304,14 +253,9 @@ const UserManagement = () => {
           totalItems={sortedUsers.length}
         />
 
-        {showAddUserForm && (
-          <AddUser onAddSuccess={handleAddSuccess} setShowForm={setShowAddUserForm} />
-        )}
-
         {showAddStaffForm && (
           <AddStaff onAddSuccess={handleAddSuccess} setShowForm={setShowAddStaffForm} />
         )}
-
         {showUpdateForm && selectedUser && (
           <UpdateUser
             user={selectedUser}
@@ -324,4 +268,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default StaffManagement;

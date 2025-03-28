@@ -1,68 +1,46 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  BellIcon, CalendarDays, Search, Menu, X,
-  Clock, PhoneCall, ChevronRight, Users, FileText,
-  Syringe, Home
-} from 'lucide-react';
-
-import AvatarHomePage from '../home/avatarHomePage';
+import { Clock, PhoneCall } from 'lucide-react';
+import AvatarHeader from '../home/avatarHomePage';
 import { useSelector } from 'react-redux';
-import AvatarHeader from '../home/avatarHomePage'
-const ModernHeader = () => {
-  const user = useSelector((state) => state.account.user)
-  return (
-    <div className="w-full">
-      {/* Full Width Navigation Bar */}
-      <div className="block top-0 left-0 w-full " >
-        <div className="bg-white/90 backdrop-blur-lg shadow-lg border-b border-gray-100 w-full">
-          <div className="flex items-center justify-between px-10 lg:px-20 h-24">
 
+const ModernHeader = () => {
+  const user = useSelector((state) => state.account.user);
+  
+  return (
+    <div className="w-full relative z-10"> {/* Thêm relative và z-10 */}
+      {/* Full Width Navigation Bar */}
+      <div className="block top-0 left-0 w-full">
+        <div className="bg-white/90 backdrop-blur-lg shadow-lg border-b border-gray-100 w-full">
+          <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 md:h-20"> {/* Giảm chiều cao header */}
             {/* Logo */}
-            <div className="flex flex-row items-center gap-8 p-4">
-              <Link to="/" className="flex items-center space-x-4">
-                <div className="cursor-pointer flex flex-row gap-4 items-center text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center">
-                      <span className="text-3xl font-bold text-white">H</span>
-                    </div>
-                  </div>
+            <div className="flex items-center gap-4">
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center">
+                  <span className="text-xl font-bold text-white">H</span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold text-gray-800">
-                    Health<span className="text-blue-500">Blue</span>
-                  </span>
-                </div>
+                <span className="text-xl font-bold text-gray-800">
+                  Health<span className="text-blue-500">Blue</span>
+                </span>
               </Link>
             </div>
 
-            {/* Center Navigation */}
-            <div className="hidden xl:flex items-center space-x-10 text-lg">
-              <div className="flex items-center space-x-3 text-gray-700">
-                <Clock size={24} className="text-[#2F3A8F]" />
-                <span>07:30 - 17:00</span>
+            {/* Center Navigation - Ẩn trên mobile */}
+            <div className="hidden md:flex items-center space-x-6">
+              <div className="flex items-center space-x-2 text-gray-700">
+                <Clock size={20} className="text-blue-600" />
+                <span className="text-sm">07:30 - 17:00</span>
               </div>
-              <div className="flex items-center space-x-3 text-gray-700">
-                <PhoneCall size={24} className="text-[#2F3A8F]" />
-                <span>028 7102 6595</span>
+              <div className="flex items-center space-x-2 text-gray-700">
+                <PhoneCall size={20} className="text-blue-600" />
+                <span className="text-sm">028 7102 6595</span>
               </div>
             </div>
 
             {/* Right Section */}
-            <div className="flex items-center space-x-8">
-              {/* Notification */}
-              <button className="relative group">
-                <div className="p-3 rounded-xl hover:bg-gray-200 transition-colors">
-                  <BellIcon className="w-6 h-6 text-gray-700 group-hover:text-[#2F3A8F]" />
-                  <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full group-hover:animate-ping" />
-                </div>
-              </button>
-
-              {/* Profile */}
-              <div className="hidden lg:flex items-center space-x-4 cursor-pointer group">
-                <AvatarHeader/>
-
-
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center">
+                <AvatarHeader />
               </div>
             </div>
           </div>

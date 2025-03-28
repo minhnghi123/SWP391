@@ -1,100 +1,84 @@
-
-import TrackingAdmin from "./Section/TrackingAdmin";
-import BookingAdmin from "./Section/BookingAdmin";
+import TrackingAdmin from "./Section/tracking/manageTracking";
+import BookingAdmin from "./Section/booking/manageBooking";
 import DashboardAdmin from "./Section/dashboard/dashboard";
-import User from "./Section/user/manageUser";
-import ChildCare from "./Section/user/ChildrenTable";
+import User from "./Section/user&staff/manageUserandStaff";
 import Vaccine from "./Section/vaccine/manageVaccine";
 import ComboVaccines from "./Section/combo/manageCombo";
-import Feedback from "./Section/manageFeedback";
-import AvatarHomePage from '../home/avatarHomePage'
-import formatDate from '../../utils/Date';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import { Baby } from "lucide-react";
+import Feedback from "./Section/feedback/manageFeedback";
+import AvatarHomePage from "../home/avatarHomePage";
+import formatDate from "../../utils/Date";
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import { FaUser } from "react-icons/fa";
-import { MdOutlineChildCare } from "react-icons/md";
-import { MdOutlineVaccines } from "react-icons/md";
+import { MdOutlineVaccines, MdDashboard } from "react-icons/md";
 import { MdOutlinePayment } from "react-icons/md";
 import { FaCalendarAlt } from "react-icons/fa";
 import { FaRegStar } from "react-icons/fa";
 
-const RightSide = ({ section }) => {
-  const getHeaderIcon = () => {
-    switch (section) {
-      case 'dashboard': return <Baby />;
-      case 'user': return <FaUser />;
-      case 'childCare': return <MdOutlineChildCare />;
-      case 'vaccine': return <MdOutlineVaccines />;
-      case 'combo': return <MdOutlineVaccines />;
-      case 'booking': return <MdOutlinePayment />;
-      case 'tracking': return <FaCalendarAlt />;
-      case 'feedback': return <FaRegStar />;
-    }
+const RightSide = ({ section, isSidebarOpen }) => {
+  const icons = {
+    dashboard: <MdDashboard />,
+    user: <FaUser />,
+    vaccine: <MdOutlineVaccines />,
+    combo: <MdOutlineVaccines />,
+    booking: <MdOutlinePayment />,
+    tracking: <FaCalendarAlt />,
+    feedback: <FaRegStar />,
   };
-  const renderContent = () => {
-    switch (section) {
-      case 'dashboard': return <DashboardAdmin />;
-      case 'user': return <User />;
-      case 'childCare': return <ChildCare />;
-      case 'vaccine': return <Vaccine />;
-      case 'combo': return <ComboVaccines />;
-      case 'booking': return <BookingAdmin />;
-      case 'tracking': return <TrackingAdmin />;
-      case 'feedback': return <Feedback />;
-    }
-  }
+
+  const components = {
+    dashboard: <DashboardAdmin />,
+    user: <User />,
+    vaccine: <Vaccine />,
+    combo: <ComboVaccines />,
+    booking: <BookingAdmin />,
+    tracking: <TrackingAdmin />,
+    feedback: <Feedback />,
+  };
+
   return (
-    <div className="p-4 bg-gray-50 min-h-screen">
-      {/* Enhanced Header */}
-      <div className="sticky top-0 bg-white backdrop-blur-md z-10 rounded-2xl shadow-md">
-        <div className="px-8 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            {/* Enhanced Left Side */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{getHeaderIcon()}</span>
-                  <h1 className="text-2xl font-bold text-gray-800 capitalize">
-                    {section || 'Profile'}
-                  </h1>
-                </div>
-                <div className="flex items-center space-x-2">
-                  {/* <span className="px-3 py-1 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-full">
-                    Active
-                  </span> */}
-                  <span className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
-                    {formatDate(new Date())}
-                  </span>
-                </div>
-              </div>
+    <div
+      className={`flex flex-col min-h-screen duration-300 ${
+        isSidebarOpen ? "md:ml-64 ml-0" : "ml-0 md:ml-64"
+      }`}
+    >
+      {/* AvatarHomePage - Appears at the top on mobile */}
+      <div className="md:hidden flex justify-end p-2">
+        <AvatarHomePage />
+      </div>
 
-            </div>
+      {/* Header - Sticky at the top on larger screens */}
+      <div
+        className={`bg-white backdrop-blur-md z-10 rounded-2xl shadow-md md:sticky md:top-0 w-full ${
+          isSidebarOpen ? "md:w-[calc(100%-256px)]" : "w-full"
+        }`}
+      >
+        <div className="px-4 py-4 md:px-8 md:py-6 flex justify-between items-center">
+          {/* Title - Hidden on mobile */}
+          <div className="hidden md:flex items-center space-x-3">
+            <span className="text-xl md:text-2xl">{icons[section] || <FaUser />}</span>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-800 capitalize">
+              {section || "Profile"}
+            </h1>
+            <span className="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
+              {formatDate(new Date())}
+            </span>
+          </div>
 
-            {/* Enhanced Right Side */}
-
-            <div className="flex items-center space-x-4">
-              {/* Enhanced Notification Bell */}
-              <button className="relative p-3 rounded-xl hover:bg-gray-100 transition-all duration-200
-                                             group focus:outline-none focus:ring-2 focus:ring-blue-100">
-                <NotificationsNoneOutlinedIcon className="w-6 h-6 text-gray-600 group-hover:text-blue-500" />
-                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full
-                                               group-hover:animate-pulse"></span>
-              </button>
-
-              {/* Enhanced User Menu */}
-              <AvatarHomePage />
-
-            </div>
+          {/* Notification & User - Only visible on desktop */}
+          <div className="hidden md:flex items-center space-x-4">
+            <AvatarHomePage />
           </div>
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="mt-6 bg-white rounded-2xl shadow-sm p-6">
-        {renderContent()}
+      {/* Content - Takes up remaining space */}
+      <div className="flex-1 p-2 md:p-4 mt-0 md:mt-6">
+        <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-full">
+          {components[section] || <DashboardAdmin />}
+        </div>
       </div>
     </div>
-  )
+  );
 };
 
 export default RightSide;

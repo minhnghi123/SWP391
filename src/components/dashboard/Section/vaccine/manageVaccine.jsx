@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import AddVaccineComponent from "./addVaccine";
-import DeleteVaccine from "../../../staffManage/deleteVaccine";
+import DeleteVaccine from "./deleteVaccine";
 import Pagination from "../../../../utils/pagination";
 import VaccineDetails from "./detailVaccine";
 import { ToastContainer } from "react-toastify";
 import {
   Search,
   ArrowUpDown,
-  Refrigerator,
+  Syringe,
   Eye,
   SquarePen,
 } from "lucide-react";
@@ -223,7 +223,7 @@ const VaccineList = () => {
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                            <Refrigerator className="w-5 h-5 text-teal-600" />
+                            <Syringe className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">
@@ -236,7 +236,7 @@ const VaccineList = () => {
                         {item.quantity}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
-                        ${item.price}
+                      {item.price.toLocaleString()} VND
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
                         {item.fromCountry}

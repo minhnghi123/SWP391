@@ -11,7 +11,6 @@ import AboutPage from "../pages/aboutPage";
 import PageProfile from "../pages/PageProfile";
 import DashboardPage from "../pages/dashboardPage";
 import FeedbackPage from "../pages/feedbackPage";
-import Detail from "../components/variants/DetailInformationVaccine";
 import StaffPage from "../pages/staffPage";
 import { FeedbackProvider } from "../components/Context/FeedbackContext";
 import { AuthProvider } from "../components/Context/AuthContext";
@@ -19,6 +18,7 @@ import PrivateRoute from "../utils/PrivateRoute";
 import ModalReloadPage from "../components/modalReloadPage";
 import { ToastContainer } from "react-toastify";
 import Layout from "../pages/LayoutPayment";
+import NotFound from '../pages/notFound'
 function App() {
   const [showModal, setShowModal] = useState(false);
   const timeoutIdRef = useRef(null);
@@ -80,20 +80,19 @@ function App() {
         <Route path="/variantsPage" element={<VariantsPage />} />
 
         {/* Private Route */}
-        {/* <Route element={<PrivateRoute />}> */}
+        <Route element={<PrivateRoute />}>
           <Route path="/dashboardPage/:section" element={<DashboardPage />} />
           <Route path="/staffPage/:section" element={<StaffPage />} />
           <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
           <Route path="/feedbackPage" element={<FeedbackProvider><FeedbackPage /></FeedbackProvider>} />
 
-
-
+          {/* Nested Layout Routes */}
           <Route element={<Layout />}>
             <Route path="/information/:id" element={<Stage1Payment />} />
             <Route path="/payment/:id" element={<Stage2Payment />} />
             <Route path="/confirm/:status" element={<Stage3Payment />} />
           </Route>
-        {/* </Route> */}
+        </Route>
       </Routes>
     </AuthProvider>
   );

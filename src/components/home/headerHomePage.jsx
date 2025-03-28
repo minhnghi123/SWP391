@@ -60,129 +60,60 @@ export default function Header() {
                     </div>
                 </Link>
 
-                {/* Nút hamburger cho mobile */}
-                <button
-                    className="md:hidden text-2xl text-gray-600"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                    {isMenuOpen ? <FaTimes /> : <FaBars />}
-                </button>
-
-                {/* Menu và các nút (desktop) */}
-                <div className="hidden md:flex flex-row justify-between items-center gap-3">
-                    <nav className="bg-gray-50/80 px-6 py-2 rounded-full shadow-sm backdrop-blur-sm">
-                        <ul className="flex flex-row gap-6 items-center">
-                            {navItems.map((item, index) => (
-                                <li
-                                    key={index}
-                                    onClick={() => handleScroll(item.id)}
-                                    className="px-3 py-1.5 rounded-full text-gray-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-400 font-medium cursor-pointer transition-all duration-300 text-sm md:text-base"
-                                >
-                                    {item.label}
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
-                    <div onClick={() => navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full">
-                            <ShoppingCartOutlinedIcon className="text-gray-600" />
-                        </div>
-                        {cart && cart.length > 0 && (
-                            <p className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
-                                {cart.length}
-                            </p>
-                        )}
-                    </div>
-                    {/* <div className="relative" ref={notificationRef}>
-                        <div
-                            className="w-10 h-10 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors relative"
-                            onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                        >
-                            <NotificationsOutlinedIcon
-                                className="text-gray-600 hover:text-blue-500 transition-colors"
-                                fontSize="medium"
-                            />
-                            <span className="absolute top-1 left-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                2
-                            </span>
-                        </div>
-                        <ModalNotification
-                            isOpen={isNotificationOpen}
-                            onClose={() => setIsNotificationOpen(false)}
-                        />
-                    </div> */}
-                    {user?.id ? (
-                        <AvatarHomePage />
-                    ) : (
-                        <button
-                            onClick={() => navigate("/loginPage")}
-                            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full font-medium hover:shadow-md transition-all duration-300 text-sm md:text-base"
-                        >
-                            Login
-                        </button>
-                    )}
-                </div>
-            </div>
-
-            {/* Menu mobile */}
-            {isMenuOpen && (
-                <div className="md:hidden bg-white border-t border-gray-200 px-4 py-4">
-                    <nav className="flex flex-col space-y-3">
+            <div className="flex flex-row justify-between items-center gap-3">
+                <nav className="bg-gray-50/80 px-8 py-3 rounded-full shadow-sm backdrop-blur-sm w-full">
+                    <ul className="flex flex-row gap-8 items-center">
                         {navItems.map((item, index) => (
-                            <div
+                            <li
                                 key={index}
                                 onClick={() => handleScroll(item.id)}
-                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md font-medium cursor-pointer transition-all duration-300"
+                                className="px-4 py-1.5 rounded-full text-gray-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-400 font-medium cursor-pointer transition-all duration-300"
                             >
                                 {item.label}
-                            </div>
+                            </li>
                         ))}
-                        <div
-                            onClick={() => {
-                                navigate('/variantsPage');
-                                setIsMenuOpen(false);
-                            }}
-                            className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md cursor-pointer"
-                        >
-                            <ShoppingCartOutlinedIcon className="mr-2" />
-                            Cart {cart && cart.length > 0 && `(${cart.length})`}
-                        </div>
-                        {/* <div
-                            onClick={() => {
-                                setIsNotificationOpen(!isNotificationOpen);
-                                setIsMenuOpen(false);
-                            }}
-                            className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md cursor-pointer relative"
-                            ref={notificationRef}
-                        >
-                            <NotificationsOutlinedIcon className="mr-2" />
-                            Notifications
-                            <span className="absolute top-2 left-12 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                2
-                            </span>
-                        </div> */}
-                        {user?.id ? (
-                            <div className="px-4 py-2">
-                                <AvatarHomePage />
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => {
-                                    navigate("/loginPage");
-                                    setIsMenuOpen(false);
-                                }}
-                                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-md font-medium hover:shadow-md transition-all duration-300"
-                            >
-                                Login
-                            </button>
-                        )}
-                    </nav>
-                    {/* <ModalNotification
+                    </ul>
+                </nav>
+                <div onClick={() => navigate('/variantsPage')} className="relative hover:bg-slate-100 shadow-sm rounded-[50%] p-1">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full">
+                        <ShoppingCartOutlinedIcon className="text-gray-600" />
+                    </div>
+                    {cart && cart.length > 0 && (
+                        <p className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                            {cart.length}
+                        </p>
+                    )}
+                </div>
+                {/* <div className="relative" ref={notificationRef}>
+                    <div
+                        className="w-10 h-10 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors relative"
+                        onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                    >
+                        <NotificationsOutlinedIcon
+                            className="text-gray-600 hover:text-blue-500 transition-colors"
+                            fontSize="medium"
+                        />
+                        <span className="absolute top-1 left-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                            2
+                        </span>
+                    </div>
+                    <ModalNotification
                         isOpen={isNotificationOpen}
                         onClose={() => setIsNotificationOpen(false)}
-                    /> */}
-                </div>
-            )}
+                    />
+                </div> */}
+
+                {user?.id ? (
+                    <AvatarHomePage />
+                ) : (
+                    <button
+                        onClick={() => navigate("/loginPage")}
+                        className="px-5 py-2 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full font-medium hover:shadow-md transition-all duration-300"
+                    >
+                        Login
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

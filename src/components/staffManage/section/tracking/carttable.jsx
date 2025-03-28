@@ -18,7 +18,12 @@ const getReactionBadge = (reaction) => {
   }
 };
 
-const getStatusBadge = (status) => {
+const getStatusBadge = (status, isOverdue) => {
+  // Nếu mũi tiêm bị "Overdue", hiển thị trạng thái "Overdue"
+  if (isOverdue) {
+    return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100" variant="outline">Overdue</Badge>;
+  }
+
   switch (status?.toLowerCase()) {
     case "success":
       return <Badge className="bg-green-100 text-green-800 hover:bg-green-100" variant="outline">Success</Badge>;
@@ -33,6 +38,13 @@ const getStatusBadge = (status) => {
     default:
       return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100" variant="outline">{status || "N/A"}</Badge>;
   }
+};
+
+// Hàm kiểm tra trạng thái "Overdue"
+const isOverdue = (maximumIntervalDate, status) => {
+  if (!maximumIntervalDate) return false;
+  if (status?.toLowerCase() !== "schedule" && status?.toLowerCase() !== "waiting") return false;
+  return new Date() > new Date(maximumIntervalDate);
 };
 
 const CartTable = ({
@@ -147,197 +159,195 @@ const CartTable = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData.map((record,index) => (
-                <>
-                  <TableRow key={record.trackingID} className="hover:bg-blue-50/30 border-b border-blue-50">
-                    <TableCell onClick={() => handleExpand(record)} className="text-center cursor-pointer">
-                      {isExpand?.trackingID === record.trackingID ? (
-                        <ChevronUp className="h-4 w-4 text-blue-500" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-blue-500" />
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium text-blue-800 text-center">#{record.trackingID}</TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center">
-                        <Syringe className="h-4 w-4 text-blue-500 mr-2" />
-                        <span>{record.vaccineName}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">{record.userName}</TableCell>
-                    <TableCell className="text-center">
-                      {childData.find((item) => item.id === record.childId)?.name || "N/A"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center">
-                        <Calendar className="h-4 w-4 text-blue-500 mr-2" />
-                        {record.vaccinationDate ? FormatDate(record.vaccinationDate) : "N/A"}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {(() => {
-                        const chain = statusSuccess.find((chain) =>
-                          chain.some((item) => item.trackingID === record.trackingID)
-                        );
-                        if (!chain) return "N/A";
-                        const totalDoses = chain.length;
-                        const successDoses = chain.filter((item) => item.status?.toLowerCase() === "success").length;
-                        return `${successDoses}/${totalDoses}`;
-                      })()}
-                    </TableCell>
+              {paginatedData.map((record, index) => {
+                // Kiểm tra trạng thái "Overdue" cho từng record
+                const overdue = isOverdue(record.maximumIntervalDate, record.status);
 
-                    <TableCell className="text-center">
-                      {(() => {
-                        const findTrackingList = linkList(data);
-                        const findArry = findTrackingList.find(subArray => subArray[0]?.trackingID === record.trackingID);
-                        const checkSuccess = findArry && findArry.every(item => item.status.toLowerCase() === "success");
-                        const checkCancle = findArry && findArry.some(item => item.status.toLowerCase() === "cancel");
-                        // Nếu tìm thấy mảng con, kiểm tra xem tất cả phần tử trong đó đều có status "Success"
-                        return checkSuccess ? getStatusBadge("Success") : checkCancle ? getStatusBadge("Cancel") : getStatusBadge("In Progress");
-                      })()}
-                    </TableCell>
-
-
-
-                    <TableCell className="text-center">{getReactionBadge(record.reaction)}</TableCell>
-                    <TableCell className="text-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="border-blue-100">
-                          <DropdownMenuItem
-                            className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                            onClick={() => handleViewDetails(record)}
-                          >
-                            View details
-                          </DropdownMenuItem>
-                          {record.status?.toLowerCase() !== "cancel" && record.status?.toLowerCase() !== "success" && (
-                            <DropdownMenuItem
-                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                              onClick={() => handleUpdateStatus(record)}
-                            >
-                              Update status
-                            </DropdownMenuItem>
-                          )}
-                          {record.status?.toLowerCase() === "success" && (
-                            <DropdownMenuItem
-                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                              onClick={() => {
-                                setSelectedRecord(record);
-                                setIsReactionModalOpen(true);
-                              }}
-                            >
-                              Record reaction
-                            </DropdownMenuItem>
-                          )}
-                          {record.status?.toLowerCase() === "schedule" && (
-                            <DropdownMenuItem
-                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                              onClick={() => {
-                                setSelectedRecord(record);
-                                setIsChangeScheduleModalOpen(true);
-                              }}
-                            >
-                              Change Schedule
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                  {/* Expanded Section */}
-                  {isExpand?.trackingID === record.trackingID && (
-                    <TableRow className="bg-blue-50/20">
-                      <TableCell colSpan={10}>
-                        <div className="p-4">
-                          <h4 className="text-blue-700 font-medium mb-2">All Doses</h4>
-                          {array.length > 0 ? (
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead className="text-blue-700 text-center">ID</TableHead>
-                                  <TableHead className="text-blue-700 text-center">Vaccination Date</TableHead>
-                                  <TableHead className="text-blue-700 text-center">Status</TableHead>
-                                  <TableHead className="text-blue-700 text-center">Reaction</TableHead>
-                                  <TableHead className="text-blue-700 text-center">Action</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {array.map((item) => (
-                                  <TableRow key={item.trackingID}>
-                                    <TableCell className="text-center">#{item.trackingID}</TableCell>
-                                    <TableCell className="text-center">
-                                      {item.vaccinationDate ? FormatDate(item.vaccinationDate) : "N/A"}
-                                    </TableCell>
-                                    <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
-                                    <TableCell className="text-center">{getReactionBadge(item.reaction)}</TableCell>
-                                    <TableCell className="text-center">
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
-                                            <MoreHorizontal className="h-4 w-4" />
-                                            <span className="sr-only">Open menu</span>
-                                          </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="border-blue-100">
-                                          <DropdownMenuItem
-                                            className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                                            onClick={() => handleViewDetails(item)}
-                                          >
-                                            View details
-                                          </DropdownMenuItem>
-                                          {item.status?.toLowerCase() !== "cancel" &&
-                                            item.status?.toLowerCase() !== "success" &&
-                                            item.status?.toLowerCase() !== "waiting" && (
-                                              <DropdownMenuItem
-                                                className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                                                onClick={() => handleUpdateStatus(item)}
-                                              >
-                                                Update status
-                                              </DropdownMenuItem>
-                                            )}
-                                          {item.status?.toLowerCase() === "success" && (
-                                            <DropdownMenuItem
-                                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                                              onClick={() => {
-                                                setSelectedRecord(item);
-                                                setIsReactionModalOpen(true);
-                                              }}
-                                            >
-                                              Record reaction
-                                            </DropdownMenuItem>
-                                          )}
-                                          {item.status?.toLowerCase() === "schedule" && (
-                                            <DropdownMenuItem
-                                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
-                                              onClick={() => {
-                                                setSelectedRecord(item);
-                                                setIsChangeScheduleModalOpen(true);
-                                              }}
-                                            >
-                                              Change Schedule
-                                            </DropdownMenuItem>
-                                          )}
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          ) : (
-                            <p className="text-blue-600">No related records found.</p>
-                          )}
+                return (
+                  <>
+                    <TableRow key={record.trackingID} className="hover:bg-blue-50/30 border-b border-blue-50">
+                      <TableCell onClick={() => handleExpand(record)} className="text-center cursor-pointer">
+                        {isExpand?.trackingID === record.trackingID ? (
+                          <ChevronUp className="h-4 w-4 text-blue-500" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-blue-500" />
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium text-blue-800 text-center">#{record.trackingID}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center">
+                          <Syringe className="h-4 w-4 text-blue-500 mr-2" />
+                          <span>{record.vaccineName}</span>
                         </div>
                       </TableCell>
+                      <TableCell className="text-center">{record.userName}</TableCell>
+                      <TableCell className="text-center">
+                        {childData.find((item) => item.id === record.childId)?.name || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center">
+                          <Calendar className="h-4 w-4 text-blue-500 mr-2" />
+                          {record.vaccinationDate ? FormatDate(record.vaccinationDate) : "N/A"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {(() => {
+                          const chain = statusSuccess.find((chain) =>
+                            chain.some((item) => item.trackingID === record.trackingID)
+                          );
+                          if (!chain) return "N/A";
+                          const totalDoses = chain.length;
+                          const successDoses = chain.filter((item) => item.status?.toLowerCase() === "success").length;
+                          return `${successDoses}/${totalDoses}`;
+                        })()}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {(() => {
+                          const findTrackingList = linkList(data);
+                          const findArry = findTrackingList.find(subArray => subArray[0]?.trackingID === record.trackingID);
+                          const checkSuccess = findArry && findArry.every(item => item.status.toLowerCase() === "success");
+                          const checkCancel = findArry && findArry.some(item => item.status.toLowerCase() === "cancel");
+                          const checkOverdue = findArry && findArry.some(item => isOverdue(item.maximumIntervalDate, item.status));
+
+                          // Nếu tất cả các mũi đều "Success"
+                          if (checkSuccess) return getStatusBadge("Success");
+                          // Nếu có bất kỳ mũi nào "Cancel"
+                          if (checkCancel) return getStatusBadge("Cancel");
+                          // Nếu có bất kỳ mũi nào "Overdue"
+                          if (checkOverdue) return getStatusBadge("Overdue");
+                          // Mặc định là "In Progress"
+                          return getStatusBadge("In Progress");
+                        })()}
+                      </TableCell>
+                      <TableCell className="text-center">{getReactionBadge(record.reaction)}</TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="border-blue-100">
+                            <DropdownMenuItem
+                              className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                              onClick={() => handleViewDetails(record, 'all')}
+                            >
+                              View details
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
-                  )}
-                </>
-              ))}
+                    {/* Expanded Section */}
+                    {isExpand?.trackingID === record.trackingID && (
+                      <TableRow className="bg-blue-50/20">
+                        <TableCell colSpan={10}>
+                          <div className="p-4">
+                            <h4 className="text-blue-700 font-medium mb-2">All Doses</h4>
+                            {array.length > 0 ? (
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead className="text-blue-700 text-center">ID</TableHead>
+                                    <TableHead className="text-blue-700 text-center">Vaccination Date</TableHead>
+                                    <TableHead className="text-blue-700 text-center">Status</TableHead>
+                                    <TableHead className="text-blue-700 text-center">Reaction</TableHead>
+                                    <TableHead className="text-blue-700 text-center">Action</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {array.map((item) => {
+                                    // Kiểm tra trạng thái "Overdue" cho từng mũi trong expanded section
+                                    const itemOverdue = isOverdue(item.maximumIntervalDate, item.status);
+
+                                    return (
+                                      <TableRow key={item.trackingID}>
+                                        <TableCell className="text-center">#{item.trackingID}</TableCell>
+                                        <TableCell className="text-center">
+                                          {item.vaccinationDate ? FormatDate(item.vaccinationDate) : "N/A"}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                          {getStatusBadge(item.status, itemOverdue)}
+                                        </TableCell>
+                                        <TableCell className="text-center">{getReactionBadge(item.reaction)}</TableCell>
+                                        <TableCell className="text-center">
+                                          <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                              <Button variant="ghost" size="icon" className="text-blue-700 hover:bg-blue-50">
+                                                <MoreHorizontal className="h-4 w-4" />
+                                                <span className="sr-only">Open menu</span>
+                                              </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="border-blue-100">
+                                              <DropdownMenuItem
+                                                className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                                onClick={() => handleViewDetails(item, 'each')}
+                                              >
+                                                View details
+                                              </DropdownMenuItem>
+                                              {/* Nếu mũi tiêm bị "Overdue", chỉ cho phép "Update status" để chuyển thành "Cancel" */}
+                                              {itemOverdue ? (
+                                                <DropdownMenuItem
+                                                  className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                                  onClick={() => handleUpdateStatus(item)}
+                                                >
+                                                  Update status
+                                                </DropdownMenuItem>
+                                              ) : (
+                                                <>
+                                                  {item.status?.toLowerCase() !== "cancel" &&
+                                                    item.status?.toLowerCase() !== "success" &&
+                                                    item.status?.toLowerCase() !== "waiting" && (
+                                                      <DropdownMenuItem
+                                                        className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                                        onClick={() => handleUpdateStatus(item)}
+                                                      >
+                                                        Update status
+                                                      </DropdownMenuItem>
+                                                    )}
+                                                  {item.status?.toLowerCase() === "success" && (
+                                                    <DropdownMenuItem
+                                                      className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                                      onClick={() => {
+                                                        setSelectedRecord(item);
+                                                        setIsReactionModalOpen(true);
+                                                      }}
+                                                    >
+                                                      Record reaction
+                                                    </DropdownMenuItem>
+                                                  )}
+                                                  {item.status?.toLowerCase() === "schedule" && item.previousVaccination === 0 && (
+                                                    <DropdownMenuItem
+                                                      className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
+                                                      onClick={() => {
+                                                        setSelectedRecord(item);
+                                                        setIsChangeScheduleModalOpen(true);
+                                                      }}
+                                                    >
+                                                      Change Schedule
+                                                    </DropdownMenuItem>
+                                                  )}
+                                                </>
+                                              )}
+                                            </DropdownMenuContent>
+                                          </DropdownMenu>
+                                        </TableCell>
+                                      </TableRow>
+                                    );
+                                  })}
+                                </TableBody>
+                              </Table>
+                            ) : (
+                              <p className="text-blue-600">No related records found.</p>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

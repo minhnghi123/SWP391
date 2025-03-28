@@ -33,11 +33,14 @@ const ModalDetail = ({ isDetailModalOpen, setIsDetailModalOpen, selectedRecord, 
 
   return (
     <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-      <DialogContent className="sm:max-w-[700px] border-gray-200 bg-white rounded-lg shadow-lg p-6">
+      <DialogContent className="sm:max-w-[700px] border-gray-200 bg-white rounded-xl shadow-xl p-6">
         <DialogHeader className="border-b border-gray-200 pb-4">
-          <DialogTitle className="text-blue-800 text-2xl font-semibold">Vaccination Record</DialogTitle>
-          <DialogDescription className="text-gray-600">
-            Complete details and timeline of the vaccination appointment
+          <div className="flex items-center space-x-3">
+            <Syringe className="h-6 w-6 text-blue-600" />
+            <DialogTitle className="text-blue-800 text-2xl font-semibold">Vaccination Record Details</DialogTitle>
+          </div>
+          <DialogDescription className="text-gray-600 mt-1">
+            Detailed information about the vaccination appointment.
           </DialogDescription>
           <div className="text-sm text-gray-500 mt-1">Last updated: {currentDate}</div>
         </DialogHeader>
@@ -45,58 +48,71 @@ const ModalDetail = ({ isDetailModalOpen, setIsDetailModalOpen, selectedRecord, 
         {selectedRecord && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
             {/* Patient Information */}
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="flex items-center mb-3">
+            <div className="bg-blue-50/50 p-5 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md">
+              <div className="flex items-center mb-4">
                 <User className="h-5 w-5 text-blue-600 mr-2" />
                 <h3 className="text-lg font-semibold text-blue-800">Patient Information</h3>
               </div>
-              <div className="space-y-2 text-sm text-gray-700">
-                <p><span className="font-medium">Name:</span> {selectedRecord?.userName || "N/A"}</p>
-                <p><span className="font-medium">Child:</span> {childData?.find((item) => item.id === selectedRecord.childId)?.name || "N/A"}</p>
-                <p><span className="font-medium">Vaccine:</span> {selectedRecord?.vaccineName || "N/A"}</p>
+              <div className="space-y-3 text-sm text-gray-700">
+                <div className="flex items-center">
+                  <span className="font-medium text-blue-700 w-24">Name:</span>
+                  <span>{selectedRecord?.userName || "N/A"}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-medium text-blue-700 w-24">Child:</span>
+                  <span>{childData?.find((item) => item.id === selectedRecord.childId)?.name || "N/A"}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-medium text-blue-700 w-24">Vaccine:</span>
+                  <span>{selectedRecord?.vaccineName || "N/A"}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-medium text-blue-700 w-24">Status:</span>
+                  {getStatusBadge(selectedRecord?.status)}
+                </div>
               </div>
               {selectedRecord?.reaction && (
-                <div className="mt-4">
-                  <div className="flex items-center mb-1">
+                <div className="mt-4 pt-4 border-t border-blue-100">
+                  <div className="flex items-center mb-2">
                     <AlertTriangle className="h-4 w-4 text-blue-600 mr-2" />
                     <span className="text-sm font-medium text-blue-800">Reaction Notes</span>
                   </div>
-                  {/* <div className="text-sm text-gray-700">{(selectedRecord?.reaction)}</div> */}
-                  {
-                    selectedRecord.status.toLowerCase() !== 'nothing' ? (
-                      <p>{getReactionBadge(selectedRecord.reaction)}</p>
-                    ) : (
-                      <p>No Reaction</p>
-                    )
-                  }
+                  {selectedRecord.reaction.toLowerCase() !== "nothing" ? (
+                    <p>{getReactionBadge(selectedRecord.reaction)}</p>
+                  ) : (
+                    <p className="text-sm text-gray-600">No Reaction</p>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Vaccination Timeline */}
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="flex items-center mb-3">
+            <div className="bg-blue-50/50 p-5 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md">
+              <div className="flex items-center mb-4">
                 <Calendar className="h-5 w-5 text-blue-600 mr-2" />
                 <h3 className="text-lg font-semibold text-blue-800">Vaccination Timeline</h3>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center bg-green-100 p-2 rounded-md">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-800">
-                    Vaccination Date: {FormatDate(selectedRecord?.vaccinationDate) || "Not scheduled"}
-                  </span>
+              <div className="space-y-4">
+                <div className="flex items-center bg-green-50 p-3 rounded-md shadow-sm transition-all duration-200 hover:bg-green-100">
+                  <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
+                  <div>
+                    <span className="text-sm font-medium text-gray-800 block">Vaccination Date</span>
+                    <span className="text-sm text-gray-600">{FormatDate(selectedRecord?.vaccinationDate) || "Not scheduled"}</span>
+                  </div>
                 </div>
-                <div className="flex items-center bg-yellow-100 p-2 rounded-md">
-                  <Clock className="h-4 w-4 text-yellow-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-800">
-                    Min Interval: {FormatDate(selectedRecord?.minimumIntervalDate) || "N/A"}
-                  </span>
+                <div className="flex items-center bg-yellow-50 p-3 rounded-md shadow-sm transition-all duration-200 hover:bg-yellow-100">
+                  <Clock className="h-5 w-5 text-yellow-600 mr-3" />
+                  <div>
+                    <span className="text-sm font-medium text-gray-800 block">Min Interval</span>
+                    <span className="text-sm text-gray-600">{FormatDate(selectedRecord?.minimumIntervalDate) || "N/A"}</span>
+                  </div>
                 </div>
-                <div className="flex items-center bg-red-100 p-2 rounded-md">
-                  <AlertTriangle className="h-4 w-4 text-red-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-800">
-                    Max Interval: {FormatDate(selectedRecord?.maximumIntervalDate) || "N/A"}
-                  </span>
+                <div className="flex items-center bg-red-50 p-3 rounded-md shadow-sm transition-all duration-200 hover:bg-red-100">
+                  <AlertTriangle className="h-5 w-5 text-red-600 mr-3" />
+                  <div>
+                    <span className="text-sm font-medium text-gray-800 block">Max Interval</span>
+                    <span className="text-sm text-gray-600">{FormatDate(selectedRecord?.maximumIntervalDate) || "N/A"}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -106,7 +122,7 @@ const ModalDetail = ({ isDetailModalOpen, setIsDetailModalOpen, selectedRecord, 
         <DialogFooter className="border-t border-gray-200 pt-4 mt-6">
           <Button
             variant="outline"
-            className="w-full sm:w-auto border-gray-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
+            className="w-full sm:w-auto border-gray-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800 transition-all duration-200"
             onClick={() => setIsDetailModalOpen(false)}
           >
             Close Details

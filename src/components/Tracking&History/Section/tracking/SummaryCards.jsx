@@ -1,7 +1,8 @@
 import { Calendar, Clock, CheckCircle, Shield, ChartBar } from 'lucide-react';
-import formatDate from '../../../../utils/Date';
+import ProgressBar from './processBar';
 
-export default function SummaryCards({progressData,ProgressBar}) {
+export default function SummaryCards({ progressData}) {
+
   return (
     <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
       <div className="flex items-center gap-3 mb-8">
@@ -17,7 +18,7 @@ export default function SummaryCards({progressData,ProgressBar}) {
           percentage={progressData.percentage}
           vaccineName="All Vaccines"
           current={progressData.completed}
-          total={progressData.total}
+          total={progressData.total - progressData.totalCancel}
         />
       </div>
 
@@ -32,7 +33,7 @@ export default function SummaryCards({progressData,ProgressBar}) {
           <div className="ml-8">
             <div className="flex items-baseline gap-2">
               <p className="text-4xl font-bold text-indigo-600">{progressData.completed}</p>
-              <p className="text-indigo-600 opacity-75 font-medium">/ {progressData.total}</p>
+              <p className="text-indigo-600 opacity-75 font-medium">/ {progressData.total - progressData.totalCancel}</p>
             </div>
             <p className="text-sm text-indigo-600 opacity-75 mt-1">vaccines completed</p>
           </div>
@@ -47,7 +48,7 @@ export default function SummaryCards({progressData,ProgressBar}) {
           </div>
           <div className="ml-8">
             <div className="flex items-baseline gap-2">
-              <p className="text-4xl font-bold text-gray-700">{progressData.total - progressData.completed}</p>
+              <p className="text-4xl font-bold text-gray-700">{progressData.total - progressData.completed - progressData.totalCancel}</p>
               <p className="text-gray-600 opacity-75 font-medium">remaining</p>
             </div>
             <p className="text-sm text-gray-500 mt-1">vaccines to complete</p>

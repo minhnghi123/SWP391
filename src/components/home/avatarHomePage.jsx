@@ -10,6 +10,7 @@ import { accountAction } from '../redux/reducers/accountSlice';
 import { vaccineAction } from '../redux/reducers/selectVaccine';
 import { childAction } from '../redux/reducers/selectChildren';
 import { arriveActions } from '../redux/reducers/arriveDate';
+import { use } from 'react';
 export default function AvatarHomePage() {
     const dispatch = useDispatch()
     const navigate = useNavigate();
@@ -17,6 +18,8 @@ export default function AvatarHomePage() {
     const dropdownRef = useRef(null);
     const user = useSelector((state) => state.account.user);
     // Click outside handler
+    const roleAccount = user?.role?.toLowerCase() || '';
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -71,7 +74,7 @@ export default function AvatarHomePage() {
                                 />
                             </div>
                             <div>
-                                <h4 className="text-sm font-semibold text-gray-800">{user?.name }</h4>
+                                <h4 className="text-sm font-semibold text-gray-800">{user?.name}</h4>
                                 {/* <p className="text-xs text-gray-500">{user.email || ''}</p> */}
                             </div>
                         </div>
@@ -79,7 +82,7 @@ export default function AvatarHomePage() {
 
                     {/* Menu Items */}
                     {
-                        user?.role === 'admin' ?
+                        roleAccount === 'staff' || roleAccount === 'admin' ?
                             (<div className=' p-2 space-y-1'>
                                 <button onClick={handleLogout}
                                     className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-200"

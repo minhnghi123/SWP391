@@ -8,20 +8,15 @@ import CartTable from "./carttable";
 import SummaryCard from "./summartCard";
 import ModalReaction from "./modalReaction";
 import ModalChangeSchedule from "./modalChangeSchedule";
-
-import { useDispatch, useSelector } from "react-redux";
+import ModalDetailAllDoes from './modaAllDoes'
 const url = import.meta.env.VITE_BASE_URL_DB;
-
 export function VaccinationTrackingDashboard() {
-  const dispatch = useDispatch();
   useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = datePickerStyles;
     document.head.appendChild(styleElement);
     return () => document.head.removeChild(styleElement);
-  }, []);
-  // const triggerVaccine = useSelector(state => state.trigerReloadUser.triggerVaccine);
-  // console.log(triggerVaccine);
+  }, [])
   const api = useAxios();
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -40,10 +35,10 @@ export function VaccinationTrackingDashboard() {
   const [reaction, setReaction] = useState("");
   const [isReactionModalOpen, setIsReactionModalOpen] = useState(false);
   const [isChangeScheduleModalOpen, setIsChangeScheduleModalOpen] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
   const [loading, setLoading] = useState(false);
   const [statusSuccess, setStatusSuccess] = useState([]);
-
+  const [modalAllDoes, setModalAllDoes] = useState(false)
+  const [selectAllDoes, setSelectAllDoes] = useState([])
   // Memoize the linkList function to avoid recalculating on every render
   const linkList = useMemo(() => {
     return (data) => {
@@ -88,8 +83,12 @@ export function VaccinationTrackingDashboard() {
         setLoading(false);
       }
     };
-    fetchData();
+  
+    if (data.length === 0 || childData.length === 0) {
+      fetchData();
+    }
   }, []);
+  
 
   useEffect(() => {
     setStatusSuccess(linkList(data));
@@ -105,7 +104,6 @@ export function VaccinationTrackingDashboard() {
         (item) => item.status.toLowerCase() === status
       );
     }
-
     // Apply search filter
     if (searchQuery) {
       newFilteredData = newFilteredData.filter((item) => {
@@ -193,11 +191,33 @@ export function VaccinationTrackingDashboard() {
     }
   };
 
-  const handleViewDetails = (record) => {
-    setSelectedRecord(record);
-    setIsDetailModalOpen(true);
+  const handleViewDetails = (record, type) => {
+    console.log(record)
+    if (type === 'each') {
+      setSelectedRecord(record);
+      setIsDetailModalOpen(true);
+    }
+    else {
+      const detailAll = data.filter((item) => item.bookingId === record.bookingId);
+      let trackingChain = [];
+      let currentRecord = record;
+      while (currentRecord) {
+        trackingChain.push(currentRecord);
+        currentRecord = detailAll.find(
+          (item) =>
+            item.previousVaccination === currentRecord.trackingID &&
+            item.vaccineID === record.vaccineID &&
+            item.bookingId === record.bookingId &&
+            item.childId === record.childId &&
+            item.vaccineName === record.vaccineName
+        );
+      }
+      setModalAllDoes(true)
+      setSelectAllDoes(trackingChain)
+    }
   };
 
+  
   const handleUpdateStatus = (record) => {
     setSelectedRecord(record);
     setNewStatus(record.status);
@@ -403,6 +423,14 @@ export function VaccinationTrackingDashboard() {
         selectedRecord={selectedRecord}
         childData={childData}
       />
+      <ModalDetailAllDoes
+        isDetailModalOpen={modalAllDoes}
+        setIsDetailModalOpen={setModalAllDoes}
+        selectedRecords={selectAllDoes}
+        childData={childData}
+
+      />
+
 
       {/* Modal Reaction */}
       <ModalReaction
@@ -432,7 +460,6 @@ export function VaccinationTrackingDashboard() {
         childData={childData}
         date={date}
         handleScheduleChange={handleScheduleChange}
-        showCalendar={showCalendar}
         isChangeScheduleModalOpen={isChangeScheduleModalOpen}
         setIsChangeScheduleModalOpen={setIsChangeScheduleModalOpen}
       />

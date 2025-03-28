@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import Refund from "./modalRefund";
+import formatDate from "@/utils/Date";
+import DeleteBooking from "./deleteBooking";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -39,17 +41,19 @@ const Booking = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [refundLoading, setRefundLoading] = useState(false);
 
+  const [availableVaccines, setAvailableVaccines] = useState([]);
+  const [availableVaccineCombos, setAvailableVaccineCombos] = useState([]);
+
   useEffect(() => {
     const fetchBookings = async () => {
       setLoading(true);
       try {
-        const response = await api.get(`${url}/Booking/get-all-booking`);
+        const response = await api.get(`${url}/Booking/get-all-booking-admin`);
         console.log(
           "Fetched Bookings:",
           JSON.stringify(response.data, null, 2)
         );
         setBookings(response.data || []);
-        console.log("Bookings state:", response.data);
         setError(null);
       } catch (error) {
         setError(error.message);
@@ -61,10 +65,25 @@ const Booking = () => {
     fetchBookings();
   }, [trigger]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [vaccinesRes, combosRes] = await Promise.all([
+          api.get(`${url}/Vaccine/get-all-vaccines`),
+          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`),
+        ]);
+        setAvailableVaccines(vaccinesRes.data || []);
+        setAvailableVaccineCombos(combosRes.data || []);
+      } catch (error) {
+        console.error("Failed to fetch vaccines or combos:", error);
+      }
+    };
+    fetchData();
+  }, [api]);
+
   const filteredBookings = bookings.filter((booking) =>
     (booking.parentName?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
-  console.log("Filtered Bookings:", filteredBookings);
 
   const sortedBookings = [...filteredBookings].sort((a, b) => {
     const valueA = a[sortBy] || "";
@@ -77,7 +96,6 @@ const Booking = () => {
       ? 1
       : -1;
   });
-  console.log("Sorted Bookings:", sortedBookings);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -85,7 +103,6 @@ const Booking = () => {
     indexOfFirstItem,
     indexOfLastItem
   );
-  console.log("Current Bookings:", currentBookings);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -154,11 +171,6 @@ const Booking = () => {
         bookingID: bookingComplete.id,
       };
 
-      console.log(
-        "Completing Booking with Payload:",
-        JSON.stringify(payload, null, 2)
-      );
-
       const response = await api.post(
         `${url}/Booking/add-booking-by-staff`,
         payload
@@ -180,10 +192,6 @@ const Booking = () => {
         toast.error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
-      console.error(
-        "Error completing booking:",
-        error.response?.data || error.message
-      );
       toast.error(
         error.response?.data?.message || "Failed to complete booking!"
       );
@@ -192,14 +200,16 @@ const Booking = () => {
     }
   };
 
+  // Sửa hàm handleSaveBookingChanges để giống BookingManagementPage
   const handleSaveBookingChanges = async (updatedBooking) => {
+    if (!updatedBooking) return;
+
     setUpdateLoading(true);
     try {
       const payload = {
         bookingId: updatedBooking.bookingId,
         vaccinesList: updatedBooking.vaccinesList,
         vaccinesCombo: updatedBooking.vaccinesCombo,
-        amount: updatedBooking.amount,
       };
       console.log("Sending update payload:", JSON.stringify(payload, null, 2));
 
@@ -207,21 +217,35 @@ const Booking = () => {
         `${url}/Booking/update-booking-details`,
         payload
       );
-      console.log("Update response:", JSON.stringify(res.data, null, 2));
 
       if (res.status === 200) {
-        toast.success("Booking updated successfully!");
+        // Cập nhật tạm thời danh sách bookings trước khi fetch lại
+        setBookings((prevBookings) =>
+          prevBookings.map((booking) =>
+            booking.id === parseInt(updatedBooking.bookingId)
+              ? {
+                  ...booking,
+                  vaccineList: availableVaccines.filter((v) =>
+                    updatedBooking.vaccinesList.includes(v.id)
+                  ),
+                  comboList: availableVaccineCombos.filter((c) =>
+                    updatedBooking.vaccinesCombo.includes(c.id)
+                  ),
+                }
+              : booking
+          )
+        );
+        // Đóng modal và reset selectedBooking
         setIsUpdateModalOpen(false);
+        setSelectedBooking(null);
+        // Toggle trigger để fetch lại dữ liệu từ server
         setTrigger((prev) => !prev);
       } else {
         toast.error(`Failed to update booking: Status ${res.status}`);
       }
     } catch (error) {
-      console.error(
-        "Error updating booking:",
-        error.response?.data || error.message
-      );
-      toast.error(error.response?.data?.message || "Failed to update booking.");
+      console.error("Error updating booking:", error);
+      toast.error(error.response?.data?.message || "Failed to update booking!");
     } finally {
       setUpdateLoading(false);
     }
@@ -248,9 +272,7 @@ const Booking = () => {
     }
 
     if (!canRefundBooking(booking)) {
-      toast.error(
-        "This booking cannot be refunded. It must be in 'Pending' status and created within the last 2 days."
-      );
+      toast.error("This booking cannot be refunded.");
       setIsRefundModalOpen(false);
       return;
     }
@@ -258,9 +280,8 @@ const Booking = () => {
     setRefundLoading(true);
     try {
       const paymentMethod = booking.paymentMethod?.toLowerCase();
-      const isCashOrVNPay =
-        paymentMethod === "vnpay" || paymentMethod === "cash";
-      const refundEndpoint = isCashOrVNPay
+      const isCashOrMoMo = paymentMethod === "momo" || paymentMethod === "cash";
+      const refundEndpoint = isCashOrMoMo
         ? `${url}/Payment/refund-by-staff`
         : `${url}/Payment/refund`;
 
@@ -272,10 +293,8 @@ const Booking = () => {
       const payload = {
         bookingID: bookingId,
         paymentStatusEnum: 1,
-        refundPercentage: refundPercentage, // Thêm trường này nếu API hỗ trợ
+        refundPercentage,
       };
-
-      console.log("Refund Payload:", JSON.stringify(payload, null, 2));
 
       const response = await api.post(refundEndpoint, payload);
 
@@ -294,10 +313,7 @@ const Booking = () => {
         throw new Error("Refund request failed");
       }
     } catch (error) {
-      console.error("Refund error:", error.response?.data || error.message);
-      toast.error(
-        error.response?.data?.message || "Refund failed. Please try again."
-      );
+      toast.error(error.response?.data?.message || "Refund failed.");
     } finally {
       setRefundLoading(false);
     }
@@ -305,9 +321,7 @@ const Booking = () => {
 
   const handleOpenRefundModal = (booking) => {
     if (!canRefundBooking(booking)) {
-      toast.error(
-        "This booking cannot be refunded. It must be in 'Pending' status and created within the last 2 days."
-      );
+      toast.error("This booking cannot be refunded.");
       return;
     }
     const hasFirstInjection =
@@ -357,10 +371,6 @@ const Booking = () => {
               }}
               className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
             >
-              <option value="id-asc">ID (Low to High)</option>
-              <option value="id-desc">ID (High to Low)</option>
-              <option value="parentName-asc">Parent Name (A-Z)</option>
-              <option value="parentName-desc">Parent Name (Z-A)</option>
               <option value="amount-asc">Amount (Low to High)</option>
               <option value="amount-desc">Amount (High to Low)</option>
               <option value="createdAt-asc">Created At (Old to New)</option>
@@ -370,14 +380,6 @@ const Booking = () => {
         </div>
 
         <div className="overflow-x-auto">
-          {console.log(
-            "Loading:",
-            loading,
-            "Error:",
-            error,
-            "Bookings:",
-            bookings
-          )}
           {loading ? (
             <p>Loading bookings...</p>
           ) : error ? (
@@ -405,103 +407,115 @@ const Booking = () => {
                     Status
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Created At
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                    Delete
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                     Action
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {currentBookings.length > 0 ? (
-                  currentBookings.map(
-                    (booking) => (
-                      console.log("Rendering Booking:", booking),
-                      (
-                        <tr
-                          key={booking.id}
-                          className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  currentBookings.map((booking) => (
+                    <tr
+                      key={booking.id}
+                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {booking.id}
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
+                            <Calendar className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {booking.parentName}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              ID: {booking.parentId}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {booking.phoneNumber}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {booking.amount.toLocaleString()} VND
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <CreditCard className="w-4 h-4" />{" "}
+                          {booking.paymentMethod}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
+                            booking.status?.toLowerCase() === "success"
+                              ? "bg-green-100 text-green-800"
+                              : booking.status?.toLowerCase() === "scheduled"
+                              ? "bg-yellow-500 text-yellow-800"
+                              : booking.status?.toLowerCase() === "refund"
+                              ? "bg-red-100 text-red-800"
+                              : booking.status?.toLowerCase() === "pending"
+                              ? "bg-orange-100 text-yellow-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
                         >
-                          <td className="px-4 py-4 text-sm text-gray-600">
-                            {booking.id}
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-                                <Calendar className="w-5 h-5 text-blue-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900">
-                                  {booking.parentName}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  ID: {booking.parentId}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-sm text-gray-600">
-                            {booking.phoneNumber}
-                          </td>
-                          <td className="px-4 py-4 text-sm text-gray-600">
-                            {booking.amount.toLocaleString()} VND
-                          </td>
-                          <td className="px-4 py-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-1">
-                              <CreditCard className="w-4 h-4" />{" "}
-                              {booking.paymentMethod}
-                            </div>
-                          </td>
-                          <td className="px-4 py-4">
-                            <span
-                              className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                                booking.status?.toLowerCase() === "success"
-                                  ? "bg-green-100 text-green-800"
-                                  : booking.status?.toLowerCase() ===
-                                    "scheduled"
-                                  ? "bg-yellow-500 text-yellow-800"
-                                  : booking.status?.toLowerCase() === "refund"
-                                  ? "bg-red-100 text-red-800"
-                                  : booking.status?.toLowerCase() === "pending"
-                                  ? "bg-orange-100 text-yellow-800"
-                                  : "bg-gray-100 text-gray-800"
-                              }`}
+                          {formatStatus(booking.status)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {formatDate(booking.createdAt)}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {booking.isDeleted ? "Deleted" : "Not Deleted"}
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleViewDetails(booking)}
+                            className="flex items-center gap-1 text-teal-600 hover:text-teal-800 transition-colors"
+                            title="View Details"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          {booking.status?.toLowerCase() !== "refund" && booking.status?.toLowerCase() !== "success" && (
+                            <button
+                              onClick={() => handleEditBooking(booking)}
+                              className="flex items-center gap-1 text-teal-600 hover:text-teal-800 transition-colors"
+                              title="Edit Booking"
                             >
-                              {formatStatus(booking.status)}
-                            </span>
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleViewDetails(booking)}
-                                className="flex items-center gap-1 text-teal-600 hover:text-teal-800 transition-colors"
-                                title="View Details"
-                              >
-                                <Eye size={16} />
-                              </button>
-                              <button
-                                onClick={() => handleEditBooking(booking)}
-                                className="flex items-center gap-1 text-teal-600 hover:text-teal-800 transition-colors"
-                                title="Edit Booking"
-                              >
-                                <SquarePen size={16} />
-                              </button>
-                              {canRefundBooking(booking) && (
-                                <button
-                                  onClick={() => handleOpenRefundModal(booking)}
-                                  className="flex items-center gap-1 text-orange-600 hover:text-orange-800 transition-colors"
-                                  title="Refund Booking"
-                                >
-                                  <DollarSign size={16} />
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    )
-                  )
+                              <SquarePen size={16} />
+                            </button>
+                          )}
+                          {canRefundBooking(booking) && (
+                            <button
+                              onClick={() => handleOpenRefundModal(booking)}
+                              className="flex items-center gap-1 text-orange-600 hover:text-orange-800 transition-colors"
+                              title="Refund Booking"
+                            >
+                              <DollarSign size={16} />
+                            </button>
+                          )}
+                          <DeleteBooking
+                            bookingId={booking.id}
+                            onDeleteSuccess={() => setTrigger((prev) => !prev)}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 ) : (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={9}
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       No bookings found matching your search criteria.

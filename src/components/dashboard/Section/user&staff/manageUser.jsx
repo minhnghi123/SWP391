@@ -201,8 +201,6 @@ const UserManagement = () => {
             >
               <option value="name-asc">Name (A-Z)</option>
               <option value="name-desc">Name (Z-A)</option>
-              <option value="role-asc">Role (User to Staff)</option>
-              <option value="role-desc">Role (Staff to User)</option>
             </select>
           </div>
         </div>

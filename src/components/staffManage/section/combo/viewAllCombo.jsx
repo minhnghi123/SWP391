@@ -159,8 +159,8 @@ const VaccineCombo = () => {
                   <TableHead className="text-blue-700 text-center">ID</TableHead>
                   <TableHead className="text-blue-700 text-center">Combo Name</TableHead>
                   <TableHead className="text-blue-700 text-center">Discount</TableHead>
-                  <TableHead className="text-blue-700 text-center">Total Price (VND)</TableHead>
-                  <TableHead className="text-blue-700 text-center">Final Price (VND)</TableHead>
+                  <TableHead className="text-blue-700 text-center">Total Price</TableHead>
+                  <TableHead className="text-blue-700 text-center">Final Price</TableHead>
                   <TableHead className="text-blue-700 text-center">Status</TableHead>
                   <TableHead className="text-blue-700 text-center">Actions</TableHead>
                 </TableRow>
@@ -199,9 +199,9 @@ const VaccineCombo = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{item.discount}%</TableCell>
-                      <TableCell className="text-center">{item.totalPrice?.toLocaleString() || "0"}</TableCell>
+                      <TableCell className="text-center">{item.totalPrice?.toLocaleString() || "0"} VNĐ</TableCell>
                       <TableCell className="text-center">
-                        {(item.totalPrice * (1 - item.discount / 100))?.toLocaleString() || "0"}
+                        {(item.totalPrice * (1 - item.discount / 100))?.toLocaleString() || "0"} VNĐ
                       </TableCell>
                       <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
                       <TableCell className="text-center">

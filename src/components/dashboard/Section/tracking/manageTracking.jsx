@@ -126,14 +126,14 @@ const VaccinesTracking = () => {
 
   const formatStatus = (status) => {
     switch (status?.toLowerCase()) {
-      case "completed":
-        return "Completed";
+      case "success":
+        return "Success";
       case "schedule":
         return "Scheduled";
       case "waiting":
         return "Waiting";
-      case "missed":
-        return "Missed";
+      case "cancel":
+        return "Cancel";
       default:
         return status || "Unknown";
     }
@@ -199,10 +199,9 @@ const VaccinesTracking = () => {
             className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
           >
             <option value="all">All Statuses</option>
-            <option value="completed">Completed</option>
+            <option value="success">Success</option>
             <option value="schedule">Scheduled</option>
             <option value="waiting">Waiting</option>
-            <option value="missed">Missed</option>
           </select>
         </div>
       </div>
@@ -271,7 +270,7 @@ const VaccinesTracking = () => {
                       <td className="px-4 py-4">
                         <span
                           className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                            record.status?.toLowerCase() === "completed"
+                            record.status?.toLowerCase() === "success"
                               ? "bg-green-100 text-green-800"
                               : record.status?.toLowerCase() === "schedule"
                               ? "bg-yellow-100 text-yellow-800"
@@ -330,7 +329,7 @@ const VaccinesTracking = () => {
                                       <td className="px-4 py-4">
                                         <span
                                           className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                                            item.status?.toLowerCase() === "completed"
+                                            item.status?.toLowerCase() === "success"
                                               ? "bg-green-100 text-green-800"
                                               : item.status?.toLowerCase() === "schedule"
                                               ? "bg-yellow-100 text-yellow-800"

@@ -3,36 +3,31 @@ import ChildSelection from './ChildSelection';
 import SummaryCards from './SummaryCards';
 import VaccineSchedules from './VaccineSchedule';
 import { addData, fetchData } from '../../../../Api/axios';
-import { Calendar } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, XCircle } from 'lucide-react';
 import ModalFeedback from '../../../feedback/formFeedback'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { FeedbackContext } from '../../../Context/FeedbackContext';
-// import { trigerAction } from '../../../../components/redux/reducers/trigerReloadUser';
+
 import { useDispatch } from 'react-redux';
 import useAxios from '../../../../utils/useAxios'
 
 const url = import.meta.env.VITE_BASE_URL_DB
 const TrackingChildbyUser = ({ id }) => {
-  // const dispatch = useDispatch();
-  // const triggerVaccine = useSelector(state => state.trigerReloadUser.triggerVaccine);
-  // const { inputData,
-  //   handleSubmit,
-  //   handleOnChange,
-  //   handleClick,
-  //   handleMouseLeave,
-  //   handleMouseOver,
-  //   currentValue,
-  //   hoverValue } = useContext(FeedbackContext)
+
   const [trackingData, setTrackingData] = useState([]);
   const [selectedChild, setSelectedChild] = useState(null);
   const [children, setChildren] = useState([]);
   const [sortLinkList, setSortLinkList] = useState([]);
-  const [err, setErr] = useState(null);
   const [trigger, setTrigger] = useState(false);
   const api = useAxios()
-  const [showModal, setShowModal] = useState(false);
-  const [historyData, setHistoryData] = useState([])
+  const [progressData, setProgressData] = useState({
+    total: 0,
+    totalCancel: 0,
+    completed: 0,
+    percentage: 0
+  });
+
 
 
   const createVaccineChains = (data) => {
@@ -64,45 +59,41 @@ const TrackingChildbyUser = ({ id }) => {
 
 
   // Fetch initial data
-  useEffect(() => {
-    const fetchTrackingData = async () => {
-      try {
-        // Gọi API lấy thông tin tracking và lịch sử booking đồng thời
-        const [trackingRes, historyRes] = await Promise.all([
-          api.get(`${url}/VaccinesTracking/get-by-parent-id/${id}`),
-          api.get(`${url}/Booking/booking-history/${id}`)
-        ]);
+  const fetchTrackingData = async () => {
+    try {
+      // Gọi API lấy thông tin tracking và lịch sử booking đồng thời
+      const [trackingRes, historyRes] = await Promise.all([
+        api.get(`${url}/VaccinesTracking/get-by-parent-id/${id}`),
+        api.get(`${url}/Booking/booking-history/${id}`)
+      ]);
 
-        if (trackingRes.status === 200 && historyRes.status === 200) {
-          setHistoryData(historyRes.data);
-          setTrackingData(trackingRes.data);
+      if (trackingRes.status === 200 && historyRes.status === 200) {
 
-          // Lấy danh sách ID của các child từ trackingRes
-          const childrenIds = [...new Set(trackingRes.data.map(item => item.childId).filter(Boolean))];
+        setTrackingData(trackingRes.data);
 
-          // Gọi API lấy thông tin tất cả children song song
-          const childrenResults = await Promise.allSettled(
-            childrenIds.map(childId => api.get(`${url}/Child/get-child-by-id/${childId}`))
-          );
+        // Lấy danh sách ID của các child từ trackingRes
+        const childrenIds = [...new Set(trackingRes.data.map(item => item.childId).filter(Boolean))];
 
-          // Lọc kết quả thành công và cập nhật state
-          const childrenData = childrenResults
-            .filter(result => result.status === "fulfilled" && result.value.status === 200)
-            .map(result => result.value.data);
+        // Gọi API lấy thông tin tất cả children song song
+        const childrenResults = await Promise.allSettled(
+          childrenIds.map(childId => api.get(`${url}/Child/get-child-by-id/${childId}`))
+        );
 
-          setChildren(childrenData);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+        // Lọc kết quả thành công và cập nhật state
+        const childrenData = childrenResults
+          .filter(result => result.status === "fulfilled" && result.value.status === 200)
+          .map(result => result.value.data);
+
+        setChildren(childrenData);
       }
-    };
-
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  useEffect(() => {
     fetchTrackingData();
+    
   }, [id, trigger]);
-
-
-  // console.log(sortLinkList)
-  // Set initial selected child
   useEffect(() => {
     if (children.length > 0 && !selectedChild) {
       setSelectedChild(children[0].id);
@@ -117,26 +108,39 @@ const TrackingChildbyUser = ({ id }) => {
     } else {
       setSortLinkList([]);
     }
+    const progressData = calculateProgress();
+    setProgressData(progressData);
   }, [selectedChild, trackingData]);
 
 
   const calculateProgress = () => {
     if (!selectedChild || sortLinkList.length === 0) {
-      return { total: 0, completed: 0, percentage: 0 };
+      return { total: 0, totalCancel: 0, completed: 0, percentage: 0 };
     }
 
-    // fillter each emlement in sortLinkList
+    // Lọc danh sách các chuỗi đã bị hủy hoàn toàn
+    const canceledVaccines = sortLinkList.filter(chain =>
+      chain.every(dose => dose.status.toLowerCase() === "cancel")
+    ).length;
+
+    // Lọc danh sách các chuỗi đã hoàn thành hoàn toàn
     const completedVaccines = sortLinkList.filter(chain =>
       chain.every(dose => dose.status.toLowerCase() === "success")
     ).length;
+
+
     const totalVaccines = sortLinkList.length;
+    const validVaccines = totalVaccines - canceledVaccines;
+
     return {
       total: totalVaccines,
+      totalCancel: canceledVaccines,
       completed: completedVaccines,
-      percentage: totalVaccines > 0 ? Math.round((completedVaccines / totalVaccines) * 100) : 0
+      percentage: validVaccines > 0 ? Math.round((completedVaccines / validVaccines) * 100) : 0
     };
   };
-  const progressData = calculateProgress();
+
+
 
   const handleSortChange = (status) => {
     const vaccineChains = createVaccineChains(trackingData);
@@ -175,10 +179,10 @@ const TrackingChildbyUser = ({ id }) => {
       {/* Total Progress Card */}
       <ChildSelection children={children} setSelectedChild={setSelectedChild} selectedChild={selectedChild} />
       {/* summary */}
-      <SummaryCards progressData={progressData} ProgressBar={ProgressBar} />
+      <SummaryCards progressData={progressData} />
 
       {/* Individual Vaccine Progress */}
-      <VaccineSchedules sortLinkList={sortLinkList} ProgressBar={ProgressBar} setTrigger={setTrigger} handleSortChange={handleSortChange} />
+      <VaccineSchedules sortLinkList={sortLinkList} setTrigger={setTrigger} handleSortChange={handleSortChange} />
 
     </div>
   );
@@ -187,37 +191,6 @@ export default TrackingChildbyUser;
 
 
 
-
-
-const ProgressBar = ({ percentage, vaccineName, current, total }) => {
-  let percentageColor = "bg-blue-500";
-
-  if (percentage.type === "overdue") {
-    percentageColor = "bg-red-500";
-  } else if (percentage.type === "success") {
-    percentageColor = "bg-blue-500";
-  }
-
-  return (
-    <div className="mb-6">
-      <div className="flex justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700">
-          {vaccineName} ({current}/{total})
-        </span>
-        <span className="text-sm text-gray-500">{percentage.percentage}%</span>
-      </div>
-
-      {/* Progress Bar Container */}
-      <div className="relative h-4 bg-gray-200 rounded-full">
-        {/* Filled Progress Bar */}
-        <div
-          className={`h-full ${percentageColor} rounded-full transition-all duration-300`}
-          style={{ width: `${percentage.percentage}%` }}
-        />
-      </div>
-    </div>
-  );
-};
 
 
 

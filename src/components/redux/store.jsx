@@ -4,6 +4,7 @@ import selectVaccineSlice from "./reducers/SelectVaccine";
 import accountSlice from "./reducers/accountSlice";
 import menthodPaymentSlice from "./reducers/methodPaymentlice";
 import dataUserSlice from "./reducers/dataUser";
+import feedbackTrackingSlice from "./reducers/feedbackTracking";
 const store = configureStore({
     reducer: {
         account: accountSlice.reducer,
@@ -16,7 +17,8 @@ const store = configureStore({
 
 
         // api
-        dataUser:dataUserSlice.reducer
+        // dataUser:dataUserSlice.reducer
+        feedbackTracking: feedbackTrackingSlice.reducer
 
 
     },

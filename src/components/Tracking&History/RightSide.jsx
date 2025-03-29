@@ -29,7 +29,7 @@ const RightSide = ({ section, id }) => {
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
             {/* Enhanced Header */}
-            <div className="sticky top-0 bg-white backdrop-blur-md z-10 rounded-2xl shadow-md">
+            <div className="sticky top-0 bg-white backdrop-blur-md z-20 rounded-2xl shadow-md">
                 <div className="px-8 py-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         {/* Enhanced Left Side */}

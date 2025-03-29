@@ -58,12 +58,13 @@ export default function ListChildren({ id }) {
         try {
             const res = await api.post(`${url}/Child/create-child`, currentChild);
             if (res.status === 200) {
-                setListChildren([...listChildren, {
-                    ...currentChild,
-                    status: "Active"
-                }]);
+                // setListChildren([...listChildren, {
+                //     ...currentChild,
+                //     status: "Active"
+                // }]);
                 setIsModalOpen(false);
                 toast.success("Child added successfully!");
+                setTrigger(prev => !prev)
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to create child.");
@@ -84,13 +85,19 @@ export default function ListChildren({ id }) {
         setIsLoading(true);
         e.preventDefault();
         if (![0, 1].includes(Number(currentChild.gender))) return setErr("Please choose a valid gender.");
-
+        if (listChildren.find(child => child.id === currentChild.id && child.status.toLowerCase() === "tracking")) {
+            toast.error("This child is currently being tracked. Please complete the tracking process before updating.");
+            setIsLoading(false);
+            setIsModalOpen(false);
+            return;
+        }
         try {
             const res = await api.put(`${url}/Child/update-child/${currentChild.id}`, currentChild);
             if (res.status === 200) {
-                setListChildren(listChildren.map(child => child.id === currentChild.id ? currentChild : child));
+                // setListChildren(listChildren.map(child => child.id === currentChild.id ? currentChild : child));
                 setIsModalOpen(false);
                 toast.success("Child updated successfully!");
+                setTrigger(prev => !prev)
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to update child.");
@@ -109,8 +116,9 @@ export default function ListChildren({ id }) {
     const handleDeleteChild = async () => {
         setIsLoading(true);
         if (listChildren.find(child => child.id === deleteId && child.status.toLowerCase() === "tracking")) {
-            toast.error("You cannot delete your active child.");
+            toast.error("This child is currently being tracked. Please complete the tracking process before deleting.");
             setShowModalDelete(false);
+            setIsLoading(false);
             return;
         }
         try {
@@ -120,6 +128,7 @@ export default function ListChildren({ id }) {
                 toast.success("Child deleted successfully!");
                 setShowModalDelete(false);
                 setDeleteId(null);
+                // setTrigger(prev => !prev)
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to delete child.");

@@ -3,7 +3,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { RefreshCcw } from "lucide-react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { arriveActions } from "../../../redux/reducers/arriveDate";
+import { childAction } from "../../../redux/reducers/selectChildren";
 import formatDate from "../../../../utils/Date";
 
 const ChooseDateVaccination = ({ arriveDate }) => {
@@ -36,7 +36,7 @@ const ChooseDateVaccination = ({ arriveDate }) => {
                         <DatePicker
                             selected={arriveDate ? new Date(arriveDate) : null}
                             onChange={(date) => {
-                                dispatch(arriveActions.setArriveDate(date.toISOString()));
+                                dispatch(childAction.setArriveDate(date.toISOString()));
                                 setShowCalendar(false);
                             }}
                             inline
@@ -65,7 +65,7 @@ const ChooseDateVaccination = ({ arriveDate }) => {
                         </p>
                         <button
                             aria-label="Reset selected date"
-                            onClick={() => dispatch(arriveActions.resetArriveDate())}
+                            onClick={() => dispatch(childAction.resetArriveDate())}
                             className="p-2 bg-gray-200 text-gray-700 rounded-full transition duration-300 hover:bg-gray-300"
                         >
                             <RefreshCcw className="w-5 h-5" />

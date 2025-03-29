@@ -2,7 +2,6 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import useAxios from "../../../../utils/useAxios";
 import CalculateAge from "../../../../utils/calculateYearOld";
 import { toast } from "react-toastify";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -180,7 +179,7 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
                 vaccineIds: selectedVaccines.map((vaccine) => vaccine.id),
                 vaccineComboIds: selectedCombos.map((combo) => combo.id),
                 arrivedAt: appointmentDate,
-                advisoryDetail: advisory || "no",
+                advisoryDetail: advisory || "",
                 totalPrice: finalTotalPrice,
                 paymentId: 1,
             };
@@ -189,7 +188,8 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
 
             const response = await api.post(`${url}/Booking/add-booking-by-staff`, bookingData);
             if (response.status === 200 && response.data.toLowerCase() === 'success') {
-                toasttruengointments((prevAppointments) => [...prevAppointments, response.data]);
+                toast.success("Booking created successfully");
+                setTrigger(true);
                 handleClose();
             } else {
                 console.warn("API response error:", response.data);
@@ -295,7 +295,7 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
                                     <div className="animate-spin rounded-full h-12 w-12 border-t-3 border-indigo-600" />
                                 </div>
                             ) : (
-                                <div className="space-y-4">
+                                <div className="space-y-4 max-h-[60vh] overflow-y-auto">
                                     {filteredUsers.length > 0 ? (
                                         filteredUsers.map((user) => (
                                             <div
@@ -356,6 +356,26 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
                                             </label>
                                         ))}
                                     </div>
+                                </div>
+                                <div className="mb-6">
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-3">Appointment Date</h4>
+                                    <input
+                                        type="date"
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        value={appointmentDate.split("T")[0] || ""}
+                                        onChange={(e) => setAppointmentDate(new Date(e.target.value).toISOString())}
+                                        min={new Date().toISOString().split("T")[0]}
+                                    />
+                                </div>
+                                <div>
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-3">Advisory Notes</h4>
+                                    <textarea
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        placeholder="Add notes..."
+                                        value={advisory}
+                                        onChange={(e) => setAdvisory(e.target.value)}
+                                        rows={4}
+                                    />
                                 </div>
                             </div>
 
@@ -475,8 +495,8 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
                             onClick={handleSubmit}
                             disabled={isLoading || selectedChildren.length === 0 || (selectedVaccines.length === 0 && selectedCombos.length === 0) || !appointmentDate}
                             className={`px-6 py-2 rounded-lg text-white transition-all ${isLoading || selectedChildren.length === 0 || (selectedVaccines.length === 0 && selectedCombos.length === 0) || !appointmentDate
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-indigo-600 hover:bg-indigo-700"
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-indigo-600 hover:bg-indigo-700"
                                 }`}
                         >
                             {isLoading ? "Processing..." : "Create Booking"}

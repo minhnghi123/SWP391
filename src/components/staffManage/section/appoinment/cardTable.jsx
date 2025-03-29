@@ -5,6 +5,7 @@ import { Eye, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import formatCurrency from "../../../../utils/calculateMoney";
 import { Badge } from "@/components/ui/badge";
 import Pagination from "../../Pagination";
+import formatDate from "@/utils/Date";
 const getStatusBadge = (status) => {
   const variants = {
     Pending: <Badge variant="warning" className="bg-yellow-100 text-yellow-800">Pending</Badge>,
@@ -30,22 +31,23 @@ const CardTable = ({
               <TableHead className=" text-blue-700">Parent Name</TableHead>
               <TableHead className=" text-blue-700">Phone Number</TableHead>
               <TableHead className=" text-blue-700 p-4">Amount</TableHead>
-              <TableHead className=" text-blue-700">Payment Method</TableHead>
+              <TableHead className=" text-blue-700 text-center">Payment Method</TableHead>
               <TableHead className=" text-blue-700 text-center">Status</TableHead>
+              <TableHead className=" text-blue-700 text-center">Create At</TableHead>
               <TableHead className=" text-blue-700 text-c">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.map((appointment) => (
-              <TableRow key={appointment.id} className="hover:bg-blue-50/30 border-b border-blue-50">
+            {paginatedData.map((appointment,index) => (
+              <TableRow key={index} className="hover:bg-blue-50/30 border-b border-blue-50">
                 <TableCell className="font-medium ">#{appointment.id}</TableCell>
                 <TableCell className="">{appointment.parentName}</TableCell>
                 <TableCell className="">{appointment.phoneNumber}</TableCell>
                 <TableCell className=" font-medium">
                   {formatCurrency(appointment.amount)} VND
                 </TableCell>
-                <TableCell className="">
-                  <div className="flex items-center gap-2 ">
+                <TableCell className="text-center">
+                  <div className="flex items-center gap-2 justify-center ">
                     {appointment.paymentMethod === "Cash" ? (
                       <svg
                         className="h-4 w-4 text-green-600"
@@ -79,6 +81,7 @@ const CardTable = ({
                   </div>
                 </TableCell>
                 <TableCell className="text-center">{getStatusBadge(appointment.status)}</TableCell>
+                <TableCell className="text-center">{formatDate(appointment.createdAt)}</TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-2">
                     <Button

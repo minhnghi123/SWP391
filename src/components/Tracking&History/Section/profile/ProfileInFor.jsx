@@ -3,36 +3,36 @@ import { User, Mail, Cake, Phone, UserCircle2, Calendar } from 'lucide-react';
 import ToUpperCase from '../../../../utils/upperCaseFirstLetter'
 import FormDate from '../../../../utils/Date'
 
-const ProfileInfo = ({ profileData}) => {
+const ProfileInfo = ({ profileData }) => {
   const profileItems = [
-    { 
-      icon: <User className="w-5 h-5" />, 
-      label: 'Full Name', 
+    {
+      icon: <User className="w-5 h-5" />,
+      label: 'Full Name',
       value: ToUpperCase(profileData?.name) || 'Not specified'
     },
-    { 
-      icon: <Mail className="w-5 h-5" />, 
-      label: 'Email', 
+    {
+      icon: <Mail className="w-5 h-5" />,
+      label: 'Email',
       value: profileData?.gmail || 'Not specified'
     },
-    { 
-      icon: <Cake className="w-5 h-5" />, 
-      label: 'Date of Birth', 
+    {
+      icon: <Cake className="w-5 h-5" />,
+      label: 'Date of Birth',
       value: FormDate(profileData?.dateOfBirth) || 'Not specified'
     },
-    { 
-      icon: <Phone className="w-5 h-5" />, 
-      label: 'Phone', 
-      value: profileData?.phoneNumber || 'XXXXXXXXXX'
+    {
+      icon: <Phone className="w-5 h-5" />,
+      label: 'Phone',
+      value:  profileData?.phoneNumber || 'XXXXXXXXXX'
     },
-    { 
-      icon: <UserCircle2 className="w-5 h-5" />, 
-      label: 'Gender', 
+    {
+      icon: <UserCircle2 className="w-5 h-5" />,
+      label: 'Gender',
       value: profileData?.gender === 0 ? 'Male' : 'Female' || 'Not specified'
     },
-    { 
-      icon: <Calendar className="w-5 h-5" />, 
-      label: 'Account Created', 
+    {
+      icon: <Calendar className="w-5 h-5" />,
+      label: 'Account Created',
       value: FormDate(profileData?.createdAt) || 'Not specified'
     }
   ];

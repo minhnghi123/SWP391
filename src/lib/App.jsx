@@ -5,7 +5,6 @@ import LoginPage from "../pages/loginPage";
 import Stage1Payment from "../pages/stage1PaymentPage";
 import Stage2Payment from "../pages/stage2PaymentPage";
 import Stage3Payment from "../pages/stage3PaymentPage";
-import Test from "../components/test";
 import VariantsPage from "../pages/variantsPage";
 import AboutPage from "../pages/aboutPage";
 import PageProfile from "../pages/PageProfile";
@@ -76,7 +75,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/loginPage" element={<LoginPage />} />
         <Route path="/aboutPage" element={<AboutPage />} />
-        <Route path="/test" element={<Test />} />
+        {/* <Route path="/test" element={<Test />} /> */}
         <Route path="/variantsPage" element={<VariantsPage />} />
 
         {/* Private Route */}
@@ -93,6 +92,7 @@ function App() {
             <Route path="/confirm/:status" element={<Stage3Payment />} />
           </Route>
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   );

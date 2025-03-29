@@ -9,6 +9,8 @@ import SummaryCard from "./summartCard";
 import ModalReaction from "./modalReaction";
 import ModalChangeSchedule from "./modalChangeSchedule";
 import ModalDetailAllDoes from './modaAllDoes'
+import HeaderTracking from "./headerTracking";
+
 const url = import.meta.env.VITE_BASE_URL_DB;
 export function VaccinationTrackingDashboard() {
   useEffect(() => {
@@ -83,12 +85,12 @@ export function VaccinationTrackingDashboard() {
         setLoading(false);
       }
     };
-  
+
     if (data.length === 0 || childData.length === 0) {
       fetchData();
     }
   }, []);
-  
+
 
   useEffect(() => {
     setStatusSuccess(linkList(data));
@@ -106,6 +108,7 @@ export function VaccinationTrackingDashboard() {
     }
     // Apply search filter
     if (searchQuery) {
+      setCurrentPage(1)
       newFilteredData = newFilteredData.filter((item) => {
         const childName = childData.find((child) => child.id === item.childId)?.name || "";
         return (
@@ -217,7 +220,7 @@ export function VaccinationTrackingDashboard() {
     }
   };
 
-  
+
   const handleUpdateStatus = (record) => {
     setSelectedRecord(record);
     setNewStatus(record.status);
@@ -364,57 +367,50 @@ export function VaccinationTrackingDashboard() {
   const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
   const paginatedData = filteredData.filter((item) => item.previousVaccination === 0).slice(startIndex, endIndex);
 
-  const uniqueParents = new Set(data.map((item) => item.userName)).size;
-  const totalVaccinations = data.length;
-  const uniqueChildren = new Set(data.map((item) => item.childId)).size;
+
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-blue-700">Vaccination Tracking Dashboard</h1>
-      </div>
-
-      {/* Summary */}
-      <SummaryCard
-        uniqueParents={uniqueParents}
-        totalVaccinations={totalVaccinations}
-        uniqueChildren={uniqueChildren}
-      />
-
-      {/* Table */}
-      <CartTable
-        setSelectedRecord={setSelectedRecord}
-        setIsReactionModalOpen={setIsReactionModalOpen}
-        setIsChangeScheduleModalOpen={setIsChangeScheduleModalOpen}
-        filteredData={filteredData}
-        setFilteredData={setFilteredData}
+      <HeaderTracking
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleFilter={handleFilter}
         sortData={sortData}
         sortOrder={sortOrder}
         setSortOrder={setSortOrder}
         sortField={sortField}
         setSortField={setSortField}
-        handleFilter={handleFilter}
+        filteredData={filteredData}
+        setFilteredData={setFilteredData}
+      />
+
+      {/* Summary */}
+      <SummaryCard
+        data={data}
+      />
+
+      {/* Table */}
+      <CartTable
+        data={data}
+        setSelectedRecord={setSelectedRecord}
+        setIsReactionModalOpen={setIsReactionModalOpen}
+        setIsChangeScheduleModalOpen={setIsChangeScheduleModalOpen}
         handleViewDetails={handleViewDetails}
         handleUpdateStatus={handleUpdateStatus}
-        handlePageChange={handlePageChange}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        data={data}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginatedData={paginatedData}
         childData={childData}
+        startIndex={startIndex}
+        endIndex={endIndex}
+        totalItems={totalItems}
+        onPageChange={handlePageChange}
         statusSuccess={statusSuccess}
         handleExpand={handleExpand}
         isExpand={isExpand}
         array={array}
         linkList={linkList}
-        // Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        paginatedData={paginatedData}
-        startIndex={startIndex}
-        endIndex={endIndex}
-        totalItems={totalItems}
-        onPageChange={handlePageChange}
-      />
+        />
 
       {/* Modal Detail */}
       <ModalDetail

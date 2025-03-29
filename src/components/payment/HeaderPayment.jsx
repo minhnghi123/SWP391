@@ -1,8 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Stethoscope, CreditCard, CheckCircle, ChevronLeft } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { currenStepAction } from "../redux/reducers/currentStepSlice";
+
 
 const steps = [
     { id: 1, title: "Patient Info", description: "Child's medical details", icon: Stethoscope },

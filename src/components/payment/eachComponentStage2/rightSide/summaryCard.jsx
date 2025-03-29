@@ -1,10 +1,9 @@
-
+import { useSelector } from 'react-redux';
 import formatDecimal from '../../../../utils/calculateMoney';
+import formatDate from '../../../../utils/Date';
 const SummaryCard = ({ CalculateTotal }) => {
-
-    
-    // Calculate the total advisory fee
-
+    const advitory_detail = useSelector((state) => state.children.advitory_detail);
+    const arriveDate = useSelector((state) => state.children.arriveDate);
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between mb-8">
@@ -16,7 +15,7 @@ const SummaryCard = ({ CalculateTotal }) => {
 
             <div className="space-y-4">
                 {/* Consultation Fee */}
-                <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:shadow-sm transition-all">
+                <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:shadow-md transition-all">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,17 +23,17 @@ const SummaryCard = ({ CalculateTotal }) => {
                             </svg>
                         </div>
                         <div>
-                            <p className="font-medium text-gray-900">Consultation Fee</p>
-                            <p className="text-sm text-gray-500">General checkup</p>
+                            <p className="font-medium text-gray-900">Arrive Date</p>
+                            <p className="text-sm text-gray-500">Notice to arrive at the hospital</p>
                         </div>
                     </div>
                     <span className="text-lg font-semibold text-gray-900">
-                        {/* {formatDecimal(totalPriceAdvitory)} VNĐ */}
+                        {formatDate(arriveDate)}
                     </span>
                 </div>
 
                 {/* Service Fee */}
-                <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:shadow-sm transition-all">
+                <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:shadow-md transition-all" >
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
                             <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,12 +41,12 @@ const SummaryCard = ({ CalculateTotal }) => {
                             </svg>
                         </div>
                         <div>
-                            <p className="font-medium text-gray-900">Service Fee</p>
-                            <p className="text-sm text-gray-500">Processing fee</p>
+                            <p className="font-medium text-gray-900">Advitory Detail</p>
+                            <p className="text-sm text-gray-500">Your advitory detail</p>
                         </div>
                     </div>
                     <span className="text-lg font-semibold text-gray-900">
-                        {/* {formatDecimal(CalculateTotal * 0.05)} VNĐ */}
+                        {advitory_detail ? advitory_detail : 'No advitory detail'}
                     </span>
                 </div>
 

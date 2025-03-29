@@ -79,20 +79,20 @@ const BodyFeedback = () => {
         setSorted(newSorted);
     };
 
-   
+
 
     // Filter feedback by search query
     const filteredFeedbacks = currentFeedbacks.filter(item => {
         const userName = user?.find(u => u.id === item.userId)?.name || 'Unknown User';
         return userName.toLowerCase().includes(searchQuery.toLowerCase());
     });
-    const handleFindUser = (userName) => {
-        const findUsername = user?.find(u => u.id === 6) || 'Unknown User';
+    const handleFindUser = (userId) => {
+        const findUsername = user?.find(u => u.id === userId) || 'Unknown User';
         console.log(findUsername)
         return findUsername;
     }
-    
-    
+
+
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -286,12 +286,12 @@ const BodyFeedback = () => {
                                                 <div className="flex items-center gap-4 mb-4">
                                                     <Avatar
                                                         alt="User"
-                                                        src={handleFindUser(eachFeedback.userName)?.avatar}
+                                                        src={handleFindUser(eachFeedback.userId)?.avatar}
                                                         className="w-14 h-14 border-2 border-blue-200"
                                                     />
                                                     <div>
                                                         <p className="font-semibold text-gray-800 text-lg">
-                                                            {handleFindUser(eachFeedback.userName)?.name || 'Unknown User'}
+                                                            {handleFindUser(eachFeedback.userId)?.name || 'Unknown User'}
 
                                                         </p>
                                                         <p className="text-sm text-gray-500">{eachFeedback.vaccineName || 'Unknown Vaccine'}</p>

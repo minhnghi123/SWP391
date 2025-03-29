@@ -504,10 +504,12 @@ const Booking = () => {
                               <DollarSign size={16} />
                             </button>
                           )}
+                          {booking.isDeleted !== true && booking.status.toLowerCase() !== "success" && (
                           <DeleteBooking
                             bookingId={booking.id}
                             onDeleteSuccess={() => setTrigger((prev) => !prev)}
                           />
+                          )}
                         </div>
                       </td>
                     </tr>

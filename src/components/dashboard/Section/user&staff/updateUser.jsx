@@ -39,8 +39,6 @@ const UpdateUser = ({ user, setShowForm, onAddSuccess }) => {
         );
         setHasTrackingChild(trackingExists);
       } catch (error) {
-        console.error("Error fetching user children:", error);
-        toast.error("Failed to fetch user children data.");
       }
     };
 

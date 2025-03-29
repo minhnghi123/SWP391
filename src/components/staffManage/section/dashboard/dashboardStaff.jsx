@@ -213,7 +213,7 @@ const StaffDashboard = () => {
                 loading={loading.main}
               />
               <StatCard
-                title="Completed"
+                title="Completed Booking"
                 value={stats.completedBookings}
                 icon={<CheckCircle2 className="w-5 h-5 text-white" />}
                 trend="Successful"

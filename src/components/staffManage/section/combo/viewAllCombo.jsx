@@ -138,16 +138,6 @@ const VaccineCombo = () => {
                   <SelectItem value="finalPrice">Final Price</SelectItem>
                 </SelectContent>
               </Select>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                  setCurrentPage(1);
-                }}
-                className="border-blue-200 text-blue-700 hover:bg-blue-50"
-              >
-                {sortOrder === "asc" ? "↑" : "↓"}
-              </Button>
             </div>
           </div>
         </CardHeader>

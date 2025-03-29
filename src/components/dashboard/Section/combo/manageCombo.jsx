@@ -23,7 +23,8 @@ const ManageCombo = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selectedVaccine, setSelectedVaccine] = useState(null);
-  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] = useState(null);
+  const [selectedVaccineForUpdate, setSelectedVaccineForUpdate] =
+    useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,9 @@ const ManageCombo = () => {
   const fetchVaccineCombos = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${url}/VaccineCombo/get-all-vaccine-combo-admin`);
+      const response = await api.get(
+        `${url}/VaccineCombo/get-all-vaccine-combo-admin`
+      );
       setVaccineCombos(response.data);
       setError(null);
     } catch (error) {
@@ -57,7 +60,13 @@ const ManageCombo = () => {
   const sortedItems = [...filteredItems].sort((a, b) => {
     const valueA = a[sortBy] || "";
     const valueB = b[sortBy] || "";
-    return sortOrder === "asc" ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
+    return sortOrder === "asc"
+      ? valueA > valueB
+        ? 1
+        : -1
+      : valueA < valueB
+      ? 1
+      : -1;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -103,10 +112,14 @@ const ManageCombo = () => {
 
   const formatStatus = (status) => {
     switch (status) {
-      case "Instock": return "In Stock";
-      case "Nearlyoutstock": return "Nearly Out of Stock";
-      case "Outstock": return "Out of Stock";
-      default: return "Unknown";
+      case "Instock":
+        return "In Stock";
+      case "Nearlyoutstock":
+        return "Nearly Out of Stock";
+      case "Outstock":
+        return "Out of Stock";
+      default:
+        return "Unknown";
     }
   };
 
@@ -127,21 +140,21 @@ const ManageCombo = () => {
         </div>
 
         {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 sm:mb-6">
-          <div className="relative w-full sm:w-auto flex-1">
+        <div className="flex grid-cols-1 md:grid-cols-3 gap-4 mb-6 justify-between">
+          <div className="relative">
             <Search
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               size={18}
             />
             <input
               type="text"
-              placeholder="Search combos..."
+              placeholder="Search vaccines..."
               value={searchTerm}
               onChange={handleSearch}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50 text-sm sm:text-base"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
             />
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2">
             <ArrowUpDown size={18} className="text-gray-500" />
             <select
               value={`${sortBy}-${sortOrder}`}
@@ -150,7 +163,7 @@ const ManageCombo = () => {
                 setSortBy(field);
                 setSortOrder(order);
               }}
-              className="w-full sm:flex-1 p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50 text-sm sm:text-base"
+              className="flex-1 p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-gray-50"
             >
               <option value="comboName-asc">Name (A-Z)</option>
               <option value="comboName-desc">Name (Z-A)</option>
@@ -225,7 +238,11 @@ const ManageCombo = () => {
                         {item.totalPrice?.toLocaleString()} VND
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 hidden lg:table-cell">
-                        {(item.totalPrice * (1 - item.discount / 100))?.toLocaleString()} VND
+                        {(
+                          item.totalPrice *
+                          (1 - item.discount / 100)
+                        )?.toLocaleString()}{" "}
+                        VND
                       </td>
                       <td className="px-2 sm:px-4 py-3">
                         <span
@@ -274,7 +291,10 @@ const ManageCombo = () => {
                             isCombo={true}
                             onDeleteSuccess={handleSuccess}
                           />
-                          <RestoreCombo comboId={item.id} onRestoreSuccess={handleSuccess} />
+                          <RestoreCombo
+                            comboId={item.id}
+                            onRestoreSuccess={handleSuccess}
+                          />
                         </div>
                       </td>
                     </tr>

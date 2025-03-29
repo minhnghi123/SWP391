@@ -9,8 +9,7 @@ import CardTable from "./cardTable";
 import Summary from "./summary";
 import SelectAppoinment from "./selectAppointment";
 import DetailAppoinment from "./detailAppoinment";
-import PaginationComponent from "../../Pagination";
-import { useDispatch, useSelector } from "react-redux";
+
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const BookingManagementPage = () => {
@@ -54,6 +53,7 @@ const BookingManagementPage = () => {
     if (!searchTerm) {
       setFilteredAppointments(appointments);
     } else {
+      setCurrentPage(1);
       const filtered = appointments.filter((appointment) =>
         appointment.phoneNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         appointment.parentName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -70,6 +70,7 @@ const BookingManagementPage = () => {
   };
 
   const filterByStatus = (status) => {
+    setCurrentPage(1);
     if (status.toLowerCase() === "all") {
       setFilteredAppointments(appointments);
     } else {
@@ -189,11 +190,11 @@ const BookingManagementPage = () => {
         : `${url}/Payment/refund`;
 
       // Execute refund
-      const value ={
+      const value = {
         bookingID: bookingId,
         paymentStatusEnum: refundPercentageValue,
       }
-      const response = await api.post(refundEndpoint,value);
+      const response = await api.post(refundEndpoint, value);
 
       if (response.status === 200) {
         setAppointments((prevAppointments) =>
@@ -216,7 +217,7 @@ const BookingManagementPage = () => {
       setLoading(false);
     }
   };
- 
+
   // Pagination logic
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

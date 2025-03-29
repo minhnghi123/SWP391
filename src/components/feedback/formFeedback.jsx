@@ -1,18 +1,63 @@
 import { FaStar, FaUserCircle } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
-
-const FormFeedback = ({
-    username,
-    inputData,
-    handleSubmit,
-    handleOnChange,
-    handleClick,
-    handleMouseLeave,
-    handleMouseOver,
-    currentValue,
-    hoverValue,
-}) => {
+import { useSelector, useDispatch } from 'react-redux';
+import { useState } from 'react';
+import useAxios from '@/utils/useAxios';
+import { postFeedback } from '../redux/actions/feedbackApi';
+import { toast } from 'react-toastify';
+import { feedbackTrackingActions } from '../redux/reducers/feedbackTracking';
+const FormFeedback = () => {
     const user = useSelector((state) => state.account.user);
+    const [inputData, setInputData] = useState({
+        userId: user.id,
+        ratingScore: 0,
+        description: '',
+    });
+    const [currentValue, setCurrentValue] = useState(0);
+    const [hoverValue, setHoverValue] = useState(undefined);
+
+    const handleClick = (value) => {
+        let newValue = value === currentValue ? Math.max(value - 1, 0) : value;
+        setCurrentValue(newValue);
+        setInputData((prev) => ({ ...prev, ratingScore: newValue }));
+    };
+
+    const handleMouseOver = (value) => setHoverValue(value);
+    const handleMouseLeave = () => setHoverValue(undefined);
+    const api = useAxios();
+    const dispatch = useDispatch();
+
+    const handleOnChange = (e) => {
+        const { name, value } = e.target;
+        setInputData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (inputData.ratingScore === 0) {
+            toast.error('Please select a rating score');
+            return;
+        }
+        if (inputData.description.trim() === '') {
+            toast.error('Please enter a description');
+            return;
+        }
+
+        // Chỉ dispatch API call nếu ratingScore > 3
+        if (inputData.ratingScore > 3) {
+            dispatch(postFeedback(api, inputData));
+        } else {
+            // Nếu rating <= 3, chỉ dispatch action để thêm vào tempFeedback
+            dispatch(feedbackTrackingActions.setPostFeedback(inputData));
+        }
+
+        toast.success('Thank you for your feedback!');
+        setInputData({
+            userId: user.id,
+            ratingScore: 0,
+            description: '',
+        });
+        setCurrentValue(0);
+    }
 
     return (
         <form
@@ -21,9 +66,9 @@ const FormFeedback = ({
         >
             {/* User Info */}
             <div className="flex items-center gap-4 mb-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm">
-               <div className='w-12 h-12 rounded-full'>
-                <img src={user?.avatar} alt="" className='w-12 h-12 rounded-full' />
-               </div>
+                <div className='w-12 h-12 rounded-full'>
+                    <img src={user?.avatar} alt="" className='w-12 h-12 rounded-full' />
+                </div>
                 <input
                     type="text"
                     value={user?.name || 'Guest User'}
@@ -39,11 +84,10 @@ const FormFeedback = ({
                         <FaStar
                             key={index}
                             size={36}
-                            className={`cursor-pointer transition-all duration-200 transform hover:scale-110 ${
-                                (hoverValue || currentValue) > index
-                                    ? 'text-yellow-400 drop-shadow-md'
-                                    : 'text-gray-300'
-                            }`}
+                            className={`cursor-pointer transition-all duration-200 transform hover:scale-110 ${(hoverValue || currentValue) > index
+                                ? 'text-yellow-400 drop-shadow-md'
+                                : 'text-gray-300'
+                                }`}
                             onClick={() => handleClick(index + 1)}
                             onMouseOver={() => handleMouseOver(index + 1)}
                             onMouseLeave={handleMouseLeave}
@@ -72,11 +116,10 @@ const FormFeedback = ({
             <button
                 type="submit"
                 disabled={!inputData.description || currentValue === 0}
-                className={`w-full py-3 rounded-xl font-semibold text-lg transition-all duration-300 shadow-md ${
-                    !inputData.description || currentValue === 0
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg transform hover:-translate-y-1'
-                }`}
+                className={`w-full py-3 rounded-xl font-semibold text-lg transition-all duration-300 shadow-md ${!inputData.description || currentValue === 0
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg transform hover:-translate-y-1'
+                    }`}
             >
                 Submit Feedback
             </button>

@@ -1,117 +1,105 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSyringe, FaShieldVirus, FaChartLine, FaStar, FaLock, FaInfoCircle, FaSearch, FaArrowLeft } from 'react-icons/fa';
-
 import FormFeedback from './formFeedback';
 import FeedbackParent from '../home/FeedbackParent';
-import { FeedbackContext } from '../Context/FeedbackContext';
 import useAxios from '@/utils/useAxios';
-import Pagination from '../../utils/pagination';
+import Pagination from '../../components/staffManage/Pagination'; // Đảm bảo đường dẫn đúng
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchDataFeedback, fetchDataUser } from '../redux/actions/feedbackApi';
+import { fetchDataFeedback, fetchDataUser, fetchFeedback } from '../redux/actions/feedbackApi';
 import Avatar from '@mui/material/Avatar';
 
 const BodyFeedback = () => {
     const navigate = useNavigate();
-    const {
-        feedback,
-        setFeedback,
-        inputData,
-        currentValue,
-        hoverValue,
-        handleSubmit,
-        handleOnChange,
-        handleClick,
-        handleMouseLeave,
-        handleMouseOver
-    } = useContext(FeedbackContext);
-
     const [activeFeedbackTab, setActiveFeedbackTab] = useState('tracking');
     const [sorted, setSorted] = useState([]);
     const [activeFilter, setActiveFilter] = useState(0);
-    const [searchQuery, setSearchQuery] = useState(''); // State for search input
-    const account = useSelector(state => state.account.user);
+    const [searchQuery, setSearchQuery] = useState('');
+
     const api = useAxios();
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(5);
+    const itemsPerPage = 6;
     const dispatch = useDispatch();
+
     const feedbackTracking = useSelector((state) => state.feedbackTracking.feedbackTracking);
     const loading = useSelector((state) => state.feedbackTracking.loading);
     const error = useSelector((state) => state.feedbackTracking.error);
     const user = useSelector((state) => state.feedbackTracking.user);
+    const feedback = useSelector((state) => state.feedbackTracking.feedback);
+    const tempFeedback = useSelector((state) => state.feedbackTracking.tempFeedback);
     const findFeedback = feedbackTracking.filter(item => item.status.toLowerCase() === "success" && item.reaction.toLowerCase() !== 'nothing');
 
+    // Kết hợp feedback thực và tạm thời
+    const allFeedback = [...feedback, ...tempFeedback];
+
+    // Tính toán phân trang dựa trên sorted (danh sách đã lọc/sắp xếp)
     const totalItems = sorted.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentFeedbacks = sorted.slice(indexOfFirstItem, indexOfLastItem);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = sorted.slice(startIndex, endIndex);
 
     useEffect(() => {
-        dispatch(fetchDataFeedback(api, account.id));
+        dispatch(fetchDataFeedback(api));
         dispatch(fetchDataUser(api));
-    }, [dispatch, account.id]);
+        dispatch(fetchFeedback(api));
+    }, [dispatch]);
 
     useEffect(() => {
-        if (Array.isArray(feedback) && feedback.length > 0) {
-            const sortedByDate = [...feedback].sort((a, b) => (b.id - a.id));
+        if (Array.isArray(allFeedback) && allFeedback.length > 0) {
+         
+            const sortedByDate = [...allFeedback].sort((a, b) => (b.id - a.id));
             setSorted(sortedByDate);
             setCurrentPage(1);
         }
-    }, [feedback]);
+    }, [feedback, tempFeedback]);
 
     const handleSortRating = (rating) => {
         setActiveFilter(rating);
         setCurrentPage(1);
 
-        if (!Array.isArray(feedback) || feedback.length === 0) {
+        if (!Array.isArray(allFeedback) || allFeedback.length === 0) {
             setSorted([]);
             return;
         }
 
         let newSorted;
         if (rating === 0) {
-            newSorted = [...feedback].sort((a, b) => (b.id - a.id));
+            newSorted = [...allFeedback].sort((a, b) => (b.id - a.id));
         } else {
-            newSorted = [...feedback].filter(item => Number(item.ratingScore) === rating);
+            newSorted = [...allFeedback].filter(item => Number(item.ratingScore) === rating);
         }
-
         setSorted(newSorted);
     };
 
-
-
-    // Filter feedback by search query
-    const filteredFeedbacks = currentFeedbacks.filter(item => {
+    const filteredFeedbacks = paginatedData.filter(item => {
         const userName = user?.find(u => u.id === item.userId)?.name || 'Unknown User';
         return userName.toLowerCase().includes(searchQuery.toLowerCase());
     });
+
     const handleFindUser = (userId) => {
-        const findUsername = user?.find(u => u.id === userId) || 'Unknown User';
-        console.log(findUsername)
-        return findUsername;
-    }
-
-
+        return user?.find(u => u.id === userId) || { name: 'Unknown User', avatar: null };
+    };
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
 
     const handleTabChange = (tab) => {
         setActiveFeedbackTab(tab);
         setCurrentPage(1);
         setActiveFilter(0);
-        setSearchQuery(''); // Reset search when changing tabs
+        setSearchQuery('');
         if (tab === 'tracking') {
-            const sortedByDate = [...feedback].sort((a, b) => (b.id - a.id));
+            const sortedByDate = [...allFeedback].sort((a, b) => (b.id - a.id));
             setSorted(sortedByDate);
         } else if (tab === 'vaccine') {
             setSorted(findFeedback);
         }
     };
-
-
 
     const safetyPolicy = {
         title: "Our Commitment to Safety",
@@ -176,16 +164,7 @@ const BodyFeedback = () => {
                             </span>
                             Share Your Feedback
                         </h2>
-                        <FormFeedback
-                            inputData={inputData}
-                            handleClick={handleClick}
-                            handleMouseLeave={handleMouseLeave}
-                            handleMouseOver={handleMouseOver}
-                            handleOnChange={handleOnChange}
-                            handleSubmit={handleSubmit}
-                            currentValue={currentValue}
-                            hoverValue={hoverValue}
-                        />
+                        <FormFeedback />
                     </div>
                 )}
 
@@ -275,70 +254,68 @@ const BodyFeedback = () => {
                                         <p className="text-lg font-medium">Error loading feedback: {error}</p>
                                     </div>
                                 </div>
-                            ) : filteredFeedbacks.length > 0 ? (
-                                filteredFeedbacks.map((eachFeedback) => (
-                                    <div
-                                        key={eachFeedback.id || eachFeedback.trackingID}
-                                        className=""
-                                    >
-                                        {activeFeedbackTab === 'vaccine' ? (
-                                            <div className='bg-gray-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1'>
-                                                <div className="flex items-center gap-4 mb-4">
-                                                    <Avatar
-                                                        alt="User"
-                                                        src={handleFindUser(eachFeedback.userId)?.avatar}
-                                                        className="w-14 h-14 border-2 border-blue-200"
-                                                    />
-                                                    <div>
-                                                        <p className="font-semibold text-gray-800 text-lg">
-                                                            {handleFindUser(eachFeedback.userId)?.name || 'Unknown User'}
+                            ) :
 
-                                                        </p>
-                                                        <p className="text-sm text-gray-500">{eachFeedback.vaccineName || 'Unknown Vaccine'}</p>
+                                filteredFeedbacks.length > 0 ? (
+                                    filteredFeedbacks.map((eachFeedback) => (
+                                        <div
+                                            key={eachFeedback.id}
+                                            className=""
+                                        >
+                                            {activeFeedbackTab === 'vaccine' ? (
+                                                <div className='bg-gray-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1'>
+                                                    <div className="flex items-center gap-4 mb-4">
+                                                        <Avatar
+                                                            alt="User"
+                                                            src={handleFindUser(eachFeedback.userId)?.avatar}
+                                                            className="w-14 h-14 border-2 border-blue-200"
+                                                        />
+                                                        <div>
+                                                            <p className="font-semibold text-gray-800 text-lg">
+                                                                {handleFindUser(eachFeedback.userId)?.name || 'Unknown User'}
+                                                            </p>
+                                                            <p className="text-sm text-gray-500">{eachFeedback.vaccineName || 'Unknown Vaccine'}</p>
+                                                        </div>
                                                     </div>
+                                                    <p className="text-gray-700 text-base">
+                                                        <span className="font-medium text-blue-600">Reaction: </span>
+                                                        <span>{eachFeedback.reaction || 'No reaction recorded'}</span>
+                                                    </p>
                                                 </div>
-                                                <p className="text-gray-700 text-base">
-                                                    <span className="font-medium text-blue-600">Reaction: </span>
-                                                    <span
-
-                                                    >
-                                                        {eachFeedback.reaction || 'No reaction recorded'}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            <FeedbackParent
-                                                image={user?.find(u => u.id === eachFeedback.userId)?.avatar}
-                                                randomNumber={eachFeedback.ratingScore}
-                                                description={eachFeedback.description}
-                                                username={user?.find(u => u.id === eachFeedback.userId)?.name || 'Unknown User'}
-                                            />
-                                        )}
+                                            ) : (
+                                                <FeedbackParent
+                                                    image={user?.find(u => u.id === eachFeedback.userId)?.avatar}
+                                                    randomNumber={eachFeedback.ratingScore}
+                                                    description={eachFeedback.description}
+                                                    username={user?.find(u => u.id === eachFeedback.userId)?.name || 'Unknown User'}
+                                                    isTemp={eachFeedback.isTemp}
+                                                />
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full py-12 text-center">
+                                        <div className="bg-gray-50 p-8 rounded-2xl">
+                                            <p className="text-gray-600 text-lg">
+                                                {searchQuery ? 'No feedback matches your search.' :
+                                                    (activeFeedbackTab === 'vaccine' ? 'No reactions available yet.' : 'No feedback available yet.')}
+                                            </p>
+                                        </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="col-span-full py-12 text-center">
-                                    <div className="bg-gray-50 p-8 rounded-2xl">
-                                        <p className="text-gray-600 text-lg">
-                                            {searchQuery ? 'No feedback matches your search.' :
-                                                (activeFeedbackTab === 'vaccine' ? 'No reactions available yet.' : 'No feedback available yet.')}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
+                                )}
                         </div>
                     )}
 
                     {/* Pagination */}
-                    {activeFeedbackTab !== 'safety' && Array.isArray(sorted) && sorted.length > 0 && (
+                    {activeFeedbackTab !== 'safety' && totalItems > 0 && (
                         <div className="mt-12">
                             <Pagination
                                 currentPage={currentPage}
                                 totalPages={totalPages}
-                                itemsPerPage={itemsPerPage}
-                                setCurrentPage={setCurrentPage}
-                                setItemsPerPage={() => { }}
+                                startIndex={startIndex}
+                                endIndex={endIndex}
                                 totalItems={totalItems}
+                                onPageChange={setCurrentPage}
                             />
                         </div>
                     )}

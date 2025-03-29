@@ -1,65 +1,27 @@
 import React, { createContext, useState, useEffect } from "react";
-import { addData } from "../../Api/axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAxios from "@/utils/useAxios";
 import { useSelector } from "react-redux";
-import { Item } from "@radix-ui/react-dropdown-menu";
+
 export const FeedbackContext = createContext();
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 export const FeedbackProvider = ({ children }) => {
-  const username = useSelector(state => state.account.user)
-  const [isOpenModal, setOpenModal] = useState(false);
+  const username = useSelector((state) => state.account.user);
+
   const [feedback, setFeedback] = useState([]);
+
+  
   const [currentValue, setCurrentValue] = useState(0);
   const [hoverValue, setHoverValue] = useState(undefined);
-  const [isSubmit, setSubmit] = useState(false);
-  const [hasNewFeedback, setHasNewFeedback] = useState(false);
-  const [inputData, setData] = useState({
-    // username: username.name || username.user || 'Unknown',
-    userId: username.id,
-    description: "",
-    // image: username.picture,
-    ratingScore: 0,
-  });
 
-  const api = useAxios();
 
-  // Fetch feedback data when component mounts or after submission
-  useEffect(() => {
-    const fetchFeedback = async () => {
-      try {
-        const response = await api.get(`${url}/Feedback/get-all-feedback`);
-        if (response.status === 200) {
-          setFeedback(response.data.filter(item => item.ratingScore >= 4));
 
-        }
-      } catch (error) {
-        console.error("Failed to fetch feedback data:", error);
-      }
-    };
-
-    fetchFeedback();
-    setSubmit(false);
-    setHasNewFeedback(false);
-  }, [isSubmit]);
-
-  const handleOpenFeedback = () => {
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
+ 
 
   const handleClick = (value) => {
-    let newValue = value;
-
-    if (value === currentValue) {
-      newValue = value === 1 ? 0 : value - 1;
-    }
-
+    let newValue = value === currentValue ? Math.max(value - 1, 0) : value;
     setCurrentValue(newValue);
     setData((prev) => ({ ...prev, ratingScore: newValue }));
   };
@@ -74,19 +36,36 @@ export const FeedbackProvider = ({ children }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!inputData?.ratingScore) {
+      toast.error("Invalid feedback data.");
+      return;
+    }
+
+    if (inputData.ratingScore <= 3) {
+      toast.success("Thank you for your feedback!");
+      setFeedback((prevFeedback) => [
+        ...prevFeedback,
+        {
+          id: username?.id || "unknown",
+          description: inputData.description,
+          ratingScore: inputData.ratingScore,
+        },
+      ]);
+      setCurrentValue(0);
+      setSubmit(true);
+      setHasNewFeedback(true);
+      setOpenModal(false);
+      return;
+    }
+
     try {
-      // Changed from 'patients' to 'Feedback' to match endpoint structure
       await api.post(`${url}/Feedback/create-feedback`, inputData);
       toast.success("Successfully posted!");
+
       setData({
-        // username: username.name || username.user || 'Unknown',
-        // description: '',
-        // image: username.picture,
-        // starRating: 0,
-        // username: username.name || username.user || 'Unknown',
-        userId: username.id,
+        userId: username?.id || "",
         description: "",
-        // image: username.picture,
         ratingScore: 0,
       });
       setCurrentValue(0);
@@ -99,31 +78,34 @@ export const FeedbackProvider = ({ children }) => {
     }
   };
 
-  const value = {
-    username,
-    isOpenModal,
-    setOpenModal,
-    feedback,
-    setFeedback,
-    inputData,
-    setData,
-    currentValue,
-    setCurrentValue,
-    hoverValue,
-    setHoverValue,
-    isSubmit,
-    setSubmit,
-    hasNewFeedback,
-    setHasNewFeedback,
-
-    handleSubmit,
-    handleOnChange,
-    handleClick,
-    handleMouseLeave,
-    handleMouseOver,
-    handleOpenFeedback,
-    handleCloseModal,
-  };
-
-  return <FeedbackContext.Provider value={value}>{children}</FeedbackContext.Provider>;
+  return (
+    <FeedbackContext.Provider
+      value={{
+        username,
+        isOpenModal,
+        setOpenModal,
+        feedback,
+        setFeedback,
+        inputData,
+        setData,
+        currentValue,
+        setCurrentValue,
+        hoverValue,
+        setHoverValue,
+        isSubmit,
+        setSubmit,
+        hasNewFeedback,
+        setHasNewFeedback,
+        handleSubmit,
+        handleOnChange,
+        handleClick,
+        handleMouseLeave,
+        handleMouseOver,
+        handleOpenFeedback,
+        handleCloseModal,
+      }}
+    >
+      {children}
+    </FeedbackContext.Provider>
+  );
 };

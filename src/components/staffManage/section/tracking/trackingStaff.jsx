@@ -154,6 +154,7 @@ export function VaccinationTrackingDashboard() {
 
   const handleFilter = (newStatus) => {
     setStatus(newStatus);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (pageNumber) => {
@@ -195,7 +196,6 @@ export function VaccinationTrackingDashboard() {
   };
 
   const handleViewDetails = (record, type) => {
-    console.log(record)
     if (type === 'each') {
       setSelectedRecord(record);
       setIsDetailModalOpen(true);

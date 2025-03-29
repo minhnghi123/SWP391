@@ -4,11 +4,12 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAxios from "@/utils/useAxios";
 import { useSelector } from "react-redux";
+import { Item } from "@radix-ui/react-dropdown-menu";
 export const FeedbackContext = createContext();
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 export const FeedbackProvider = ({ children }) => {
- const username = useSelector(state => state.account.user)
+  const username = useSelector(state => state.account.user)
   const [isOpenModal, setOpenModal] = useState(false);
   const [feedback, setFeedback] = useState([]);
   const [currentValue, setCurrentValue] = useState(0);
@@ -31,7 +32,8 @@ export const FeedbackProvider = ({ children }) => {
       try {
         const response = await api.get(`${url}/Feedback/get-all-feedback`);
         if (response.status === 200) {
-          setFeedback(response.data);
+          setFeedback(response.data.filter(item => item.ratingScore >= 4));
+
         }
       } catch (error) {
         console.error("Failed to fetch feedback data:", error);

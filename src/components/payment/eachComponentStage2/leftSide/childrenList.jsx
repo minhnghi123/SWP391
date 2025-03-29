@@ -2,12 +2,10 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import ToUpperCaseWords from '../../../../utils/upperCaseFirstLetter'
 import CalculateAge from "../../../../utils/calculateYearOld"
 import formatDecimal from '../../../../utils/calculateMoney';
-import HeadsetMicOutlinedIcon from '@mui/icons-material/HeadsetMicOutlined';
-import HeadsetOffOutlinedIcon from '@mui/icons-material/HeadsetOffOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import { useState } from 'react';
-const ChildrenList = ({ child, handleRemmoveChildren, listVaccine, advitory_detail }) => {
+
+const ChildrenList = ({ child, handleRemmoveChildren, listVaccine}) => {
     const [expandedIndex, setExpandedIndex] = useState(-1);
     const toggleDetail = (idx) => {
         setExpandedIndex(prev => prev === idx ? -1 : idx);
@@ -28,7 +26,7 @@ const ChildrenList = ({ child, handleRemmoveChildren, listVaccine, advitory_deta
                             {ToUpperCaseWords(child.name)}
                         </h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            {CalculateAge(child.dateOfBirth)} years old
+                            {CalculateAge(child.dateOfBirth)}
                         </p>
                     </div>
                 </div>
@@ -47,7 +45,7 @@ const ChildrenList = ({ child, handleRemmoveChildren, listVaccine, advitory_deta
                 {listVaccine.map((item, idx) => (
                     <div
                         key={idx}
-                        className="group relative p-4 bg-white rounded-lg border border-gray-200 transition-all
+                        className="group relative p-4 bg-white rounded-2xl border border-gray-200 transition-all
                  hover:border-blue-100 hover:ring-2 hover:ring-blue-50 hover:shadow-sm"
                     >
                         <div className="flex justify-between items-start">
@@ -124,33 +122,9 @@ const ChildrenList = ({ child, handleRemmoveChildren, listVaccine, advitory_deta
                     </div>
                 ))}
             </div>
-
-
-
             <br />
-            {/* Child Total */}
-            {/* Service price */}
-            {/* <div className="flex justify-between items-center p-4 mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center">
-                        {
-                            advitory_detail && Object.keys(advitory_detail).length > 0
-                                ? <HeadsetMicOutlinedIcon />
-                                : <HeadsetOffOutlinedIcon />
-                        }
-                    </div>
-                    <div>
-                        <p className="font-bold text-gray-900">Advitory</p>
-                        <p className="text-sm text-gray-500">For {child.name}</p>
-                    </div>
-                </div>
-                <span className="text-xl font-bold text-blue-600">
-                    {formatDecimal(advitory_detail && Object.keys(advitory_detail).length > 0 ? 50000 : 0)} VNĐ
-                </span>
-            </div> */}
-
             {/* total */}
-            <div className="flex justify-between items-center p-4 mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 shadow-sm">
+            <div className="flex justify-between items-center p-4 mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm">
 
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">

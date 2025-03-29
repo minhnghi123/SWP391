@@ -5,53 +5,74 @@ import formatCurrency from '../../../../utils/calculateMoney';
 import PaymentModal from './PaymentModal';
 import useAxios from '../../../../utils/useAxios';
 import { toast } from 'react-toastify';
+import ModalRefund from '../../../staffManage/section/appoinment/modalRefund';
 
-const url = import.meta.env.VITE_BASE_URL_DB
+const url = import.meta.env.VITE_BASE_URL_DB;
+
 const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) => {
-    const totalChild = bill.childrenList.map(child => child.id)
-    const appointmentDate = formatDateTime(bill.arrivedAt)
+    const totalChild = bill.childrenList.map(child => child.id);
+    const appointmentDate = formatDateTime(bill.arrivedAt);
     const [isExpanded, setIsExpanded] = useState(false);
-    const totalVaccines = bill.vaccineList.length + bill.comboList.length;
     const [isOpenModal, setIsOpenModal] = useState(false);
+    const [modalRefund, setModalRefund] = useState(false);
+    const [refundPercentage, setRefundPercentage] = useState(0);
+    const [loading, setLoading] = useState(false);
 
-    // console.log(bill);
-    const api = useAxios()
+    const totalVaccines = bill.vaccineList.length + bill.comboList.length;
+    const api = useAxios();
+
     const handleRefundBooking = async (bookingId) => {
-        // console.log(bookingId);
+        if (!bookingId) return;
+
+        try {
+            setLoading(true);
+            const response = await api.post(`${url}/Payment/refund`, {
+                bookingID: bookingId,
+                paymentStatusEnum: refundPercentage === 50 ? 0 : 1
+            });
+
+            if (response.status === 200) {
+                toast.success("Refunded successfully!");
+                setTrigger(true);
+                setModalRefund(false);
+            } else {
+                toast.error("Refund failed.");
+            }
+        } catch (error) {
+            toast.error("Refund failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const initiateRefund = async (bookingId) => {
+        if (!bookingId) return;
+        setLoading(true);
         try {
             const res = await api.get(`${url}/VaccinesTracking/get-by-booking-id/${bookingId}`);
             if (res.status === 200) {
                 const trackingData = res.data;
-                const refundPercentage = trackingData.find(item => item.previousVaccination === 0 && item.status.toLowerCase() === "success");
-                const percentage = refundPercentage ? 0 : 1
-                if (percentage) {
-                    const response = await api.post(`${url}/Payment/refund`, {
-                        bookingID: bookingId,
-                        paymentStatusEnum: percentage
-                    });
-                    if (response.status === 200) {
-                        toast.success("Refunded successfully!");
-                        setTrigger(true);
-                    }
-                    else {
-                        toast.info("No refundable vaccines found.");
-                    }
+                const hasFirstDoseSuccess = trackingData.some(item =>
+                    item.previousVaccination === 0 && item.status.toLowerCase() === "success"
+                );
 
-                }
+                setRefundPercentage(hasFirstDoseSuccess ? 50 : 100);
+                setModalRefund(true);
             }
         } catch (error) {
-            console.error("Refund error:", error);
-            toast.error("Refund failed. Please try again.");
+            toast.error("Failed to check refund eligibility.");
+        } finally {
+            setLoading(false);
         }
     };
 
-
     return (
         <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100">
-            {/* Header Section */}
             <div className="flex justify-between items-start mb-5">
                 <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">{bill.childrenList.map(child => child.name).join(', ')}</h3>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                        {bill.childrenList.map(child => child.name).join(', ')}
+                    </h3>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <ChildCareOutlined className="w-4 h-4 text-blue-500" />
                         <span>Vaccination Schedule</span>
@@ -66,7 +87,6 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
                 </span>
             </div>
 
-            {/* Time Section */}
             <div className="space-y-4 mb-6">
                 <div className="flex items-center text-gray-700 bg-gray-50 p-3 rounded-lg">
                     <AccessTimeOutlined className="w-5 h-5 mr-3 text-blue-500" />
@@ -75,7 +95,6 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
                     </div>
                 </div>
 
-                {/* Vaccine List Section */}
                 <div className="bg-gray-50 rounded-lg overflow-hidden">
                     <button
                         className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
@@ -95,11 +114,9 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
                             <KeyboardArrowRight className="text-gray-500 transition-transform duration-200" />
                         )}
                     </button>
-
                     <div
                         id="vaccine-list"
-                        className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                            }`}
+                        className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
                     >
                         <div className="p-4 pt-0 space-y-2">
                             {bill.vaccineList.map((vaccine, index) => (
@@ -113,7 +130,6 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
                 </div>
             </div>
 
-            {/* Payment Section */}
             <div className="border-t border-gray-100 pt-4">
                 <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
                     <div className="text-sm text-gray-600">
@@ -121,60 +137,58 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
                         {bill.paymentName === 'Does not purchase yet' ? 'Not yet' : bill.paymentName}
                     </div>
                     <div className="text-lg font-bold text-blue-600">
-                        {formatCurrency(bill.amount)}{` `} VND
+                        {formatCurrency(bill.amount)} VND
                     </div>
                 </div>
 
                 {bill.status.toLowerCase() === 'pending' && (
-                    <button onClick={() => setIsOpenModal(true)}
+                    <button
+                        onClick={() => setIsOpenModal(true)}
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
                         aria-label="Proceed to payment"
                     >
                         Proceed to Payment
                     </button>
-
-
                 )}
-                {
-                    bill?.status?.toLowerCase() === "success" &&
+
+                {bill?.status?.toLowerCase() === "success" &&
                     bill.paymentName.toLowerCase() === 'momo' &&
-                    new Date() - new Date(bill.createdAt) <= 48 * 60 * 60 * 1000 &&
-                    (
+                    (new Date() - new Date(bill.createdAt)) <= 48 * 60 * 60 * 1000 && (
                         <button
-                            onClick={() => handleRefundBooking(bill.id)}
+                            onClick={() => initiateRefund(bill.id)}
                             className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
-                            aria-label="View Payment History"
+                            aria-label="Request Refund"
                         >
                             Refund
                         </button>
-                    )
+                    )}
 
-
-                }
-                {
-                     bill?.status?.toLowerCase() === "success" &&
-                     bill.paymentName.toLowerCase() === 'vnpay' &&
-                     new Date() - new Date(bill.createdAt) <= 48 * 60 * 60 * 1000 &&
-                     (
-                        <p className='text-red-500 text-sm text-center'>
-                            If you cancel the booking, please go to a Healthcare Blue location to make a cash refund
+                {bill?.status?.toLowerCase() === "success" &&
+                    bill.paymentName.toLowerCase() === 'vnpay' &&
+                    (new Date() - new Date(bill.createdAt)) <= 48 * 60 * 60 * 1000 && (
+                        <p className="text-red-500 text-sm text-center">
+                            If you cancel the booking, please visit a Healthcare Blue location for a cash refund
                         </p>
-                     ) 
-                }
-
-
-
-
-
-
+                    )}
             </div>
+
             {isOpenModal && (
                 <PaymentModal onClose={() => setIsOpenModal(false)} bill={bill} id={id} />
+            )}
+
+            {modalRefund && (
+                <ModalRefund
+                    title="Confirm Refund Booking"
+                    message="Are you sure you want to refund this booking?"
+                    handleConfirm={handleRefundBooking}
+                    handleCancel={() => setModalRefund(false)}
+                    loading={loading}
+                    bookingId={bill?.id}
+                    refundPercentage={refundPercentage}
+                />
             )}
         </div>
     );
 };
 
-export default AppointmentCard;
-
-
+export default AppointmentCard; 

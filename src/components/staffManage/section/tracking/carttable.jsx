@@ -52,22 +52,12 @@ const CartTable = ({
   setSelectedRecord,
   setIsReactionModalOpen,
   setIsChangeScheduleModalOpen,
-  filteredData,
-  setFilteredData,
-  sortData,
-  sortOrder,
-  setSortOrder,
-  sortField,
-  setSortField,
-  handleFilter,
   handleViewDetails,
   handleUpdateStatus,
   currentPage,
   totalPages,
   paginatedData,
   childData,
-  searchQuery,
-  setSearchQuery,
   startIndex,
   endIndex,
   totalItems,
@@ -80,7 +70,7 @@ const CartTable = ({
 }) => {
   return (
     <Card className="border-blue-100 bg-white shadow-sm">
-      <CardHeader className="border-b border-blue-50">
+      {/* <CardHeader className="border-b border-blue-50">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <CardTitle className="text-blue-700">Vaccination Tracking Records</CardTitle>
           <div className="flex flex-wrap gap-2">
@@ -140,7 +130,7 @@ const CartTable = ({
             </Button>
           </div>
         </div>
-      </CardHeader>
+      </CardHeader> */}
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>

@@ -55,12 +55,12 @@ const RightSide = ({ section, id }) => {
 
                         <div className="flex items-center space-x-4">
                             {/* Enhanced Notification Bell */}
-                            <button className="relative p-3 rounded-xl hover:bg-gray-100 transition-all duration-200
+                            {/* <button className="relative p-3 rounded-xl hover:bg-gray-100 transition-all duration-200
                                              group focus:outline-none focus:ring-2 focus:ring-blue-100">
                                 <NotificationsNoneOutlinedIcon className="w-6 h-6 text-gray-600 group-hover:text-blue-500" />
                                 <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full
                                                group-hover:animate-pulse"></span>
-                            </button>
+                            </button> */}
 
                             {/* Enhanced User Menu */}
                             <AvatarHomePage />

@@ -15,7 +15,6 @@ const url = import.meta.env.VITE_BASE_URL_DB;
 
 const BookingManagementPage = () => {
   const api = useAxios();
-  const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -217,7 +216,7 @@ const BookingManagementPage = () => {
       setLoading(false);
     }
   };
-  console.log(appointments);
+ 
   // Pagination logic
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -232,7 +231,7 @@ const BookingManagementPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 ">
+    <div className="container mx-auto p-2 ">
       <SelectAppoinment
         setSearchTerm={setSearchTerm}
         fillterbyStatus={filterByStatus}

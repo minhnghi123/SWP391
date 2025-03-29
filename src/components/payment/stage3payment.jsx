@@ -7,7 +7,6 @@ import formatDecimal from "../../utils/calculateMoney";
 import { useDispatch } from "react-redux";
 import { childAction } from "../redux/reducers/selectChildren";
 import { vaccineAction } from "../../components/redux/reducers/selectVaccine";
-import { arriveActions } from "../../components/redux/reducers/arriveDate";
 import { methodPaymentAction } from "../../components/redux/reducers/methodPaymentlice";
 
 export default function Stage3Payment() {
@@ -18,7 +17,7 @@ export default function Stage3Payment() {
     const user = useSelector((state) => state.account.user);
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);
-    const orderData = useSelector((state) => state.order.orderData);
+    // const orderData = useSelector((state) => state.order.orderData);
     const [data, setData] = useState({
         OrderId: "",
         Amount: 0,
@@ -28,7 +27,7 @@ export default function Stage3Payment() {
     });
 
     useEffect(() => {
-        if (!orderData) {
+     
             const queryParams = new URLSearchParams(location.search);
             setData({
                 OrderId: queryParams.get("OrderId") || "N/A",
@@ -38,13 +37,13 @@ export default function Stage3Payment() {
                 TrancasionID: queryParams.get("TrancasionID") || "N/A"
             });
        
-        }
-    }, [location.search, orderData]);
+        
+    }, [location.search]);
 
     const removeDataStage2 = () => {
         dispatch(childAction.completePayment())
         dispatch(vaccineAction.completePayment())
-        dispatch(arriveActions.resetArriveDate())
+        dispatch(childAction.resetArriveDate())
         dispatch(methodPaymentAction.resetMethodPayment())
         dispatch(childAction.resetForm())
     }
@@ -122,19 +121,19 @@ export default function Stage3Payment() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                     <p className="text-sm text-gray-500 mb-1">Order ID</p>
-                                    <p className="font-medium text-gray-800">{orderData?.orderId || data.OrderId}</p>
+                                    <p className="font-medium text-gray-800">{data.OrderId}</p>
                                 </div>
                                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                     <p className="text-sm text-gray-500 mb-1">Amount</p>
-                                    <p className="font-bold text-blue-600">{formatDecimal(orderData?.totalPrice || data.Amount)} VND</p>
+                                    <p className="font-bold text-blue-600">{formatDecimal( data.Amount)} VND</p>
                                 </div>
                                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                     <p className="text-sm text-gray-500 mb-1">Booking ID</p>
-                                    <p className="font-medium text-gray-800">{orderData?.bookingId || data.BookingID}</p>
+                                    <p className="font-medium text-gray-800">{ data.BookingID}</p>
                                 </div>
                                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                     <p className="text-sm text-gray-500 mb-1">Transaction ID</p>
-                                    <p className="font-medium text-gray-800">{orderData?.transactionId || data.TrancasionID}</p>
+                                    <p className="font-medium text-gray-800">{data.TrancasionID}</p>
                                 </div>
                             </div>
                         </div>
@@ -164,7 +163,7 @@ export default function Stage3Payment() {
                         )}
 
                         {/* Success Message */}
-                        {status?.toLowerCase() === "success" && (
+                        {/* {status?.toLowerCase() === "success" && (
                             <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-8 border border-blue-200 flex items-start shadow-md">
                                 <Baby className="mr-4 text-2xl text-blue-500 flex-shrink-0" />
                                 <div>
@@ -172,7 +171,7 @@ export default function Stage3Payment() {
                                     <p className="text-blue-600">Please arrive <span className="font-bold">15 minutes</span> before your appointment time. Don't forget to bring your child's vaccination record and any required identification documents.</p>
                                 </div>
                             </div>
-                        )}
+                        )} */}
 
                         {/* Failed Message */}
                         {status?.toLowerCase() === "failed" && (

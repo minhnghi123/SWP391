@@ -27,7 +27,7 @@ const Dashboard = () => {
     try {
       const response = await api.get(`${url}/VaccinesTracking/get-all-admin`);
       const completedVaccinations = response.data.filter(
-        (v) => v.status.toLowerCase() === "completed"
+        (v) => v.status.toLowerCase() === "success"
       ).length;
       setSummaryData((prev) => ({
         ...prev,

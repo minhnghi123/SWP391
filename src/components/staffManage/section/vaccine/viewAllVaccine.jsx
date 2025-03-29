@@ -197,9 +197,7 @@ const VaccineList = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{item.quantity ?? 0}</TableCell>
-                      <TableCell className="text-center">${item.price?.toFixed(2) ?? "0.00"}</TableCell>
-                      
-   
+                      <TableCell className="text-center">{item.price.toLocaleString()} VNĐ</TableCell>
                       <TableCell className="text-center">{item.fromCountry || "N/A"}</TableCell>
                       <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
                       <TableCell className="text-center">

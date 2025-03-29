@@ -6,7 +6,7 @@ import { memo } from "react";
 
 const SelectAppointment = ({setSearchTerm, fillterbyStatus, setIsCreateBookingModalOpen}) => {
     return (
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between my-4">
         <h2 className="text-3xl text-blue-500 font-bold tracking-tight">Booking Management</h2>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex gap-2">

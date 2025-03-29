@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 const FormAddChildren = ({handleSubmit, handleOnchange, err}) => {
-    const [isOpen, setIsOpen] = useState(false);
+
     
     // Animation variants
     const fadeInUp = {
@@ -64,7 +64,7 @@ const FormAddChildren = ({handleSubmit, handleOnchange, err}) => {
                 </div>
 
                 {/* Date Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="w-full">
                     <div>
                         <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-2">
                             Date of Birth

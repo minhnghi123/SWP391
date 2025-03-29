@@ -5,24 +5,19 @@ import ChildrenListSection from "./eachComponentStage2/leftSide/childrenListSect
 import SummaryHeaderCard from "./eachComponentStage2/rightSide/headerSummary";
 import PaymentSummaryCard from "./eachComponentStage2/rightSide/paymentSummaryCard";
 import PaymentMethodCard from "./eachComponentStage2/rightSide/PaymentMethodCard";
-import { ToastContainer, toast } from "react-toastify";
-
+import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { childAction } from "../redux/reducers/selectChildren";
-import { arriveActions } from "../redux/reducers/arriveDate";
 import { vaccineAction } from "../redux/reducers/selectVaccine";
 import { methodPaymentAction } from "../redux/reducers/methodPaymentlice";
-import { useNavigate } from "react-router-dom";
-import { orderAction } from "../redux/reducers/orderSlice";
 import useAxios from "../../utils/useAxios";
 const url = import.meta.env.VITE_BASE_URL_DB
 export default function Stage2Payment() {
     const api = useAxios()
-    const navigate = useNavigate()
     const { id } = useParams()
     const [isLoading, setLoading] = useState(false);
     const dispatch = useDispatch()
-    const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
+    const arriveDate = useSelector((state) => state.children.arriveDate);
     const paymentMenthod = useSelector((state) => state.methodPayment.methodPayment);
     const listChildren = useSelector((state) => state.children.listChildren);
     const totalPrice = useSelector((state) => state.vaccine.totalPrice);
@@ -63,7 +58,7 @@ export default function Stage2Payment() {
                     // dispatch(orderAction.savePaymentData(res.data))
                     dispatch(childAction.completePayment())
                     dispatch(vaccineAction.completePayment())
-                    dispatch(arriveActions.resetArriveDate())
+                    dispatch(childAction.resetArriveDate())
                     dispatch(methodPaymentAction.resetMethodPayment())
                     dispatch(childAction.resetForm())
 
@@ -100,6 +95,10 @@ export default function Stage2Payment() {
                             childrenVaccines={listChildren}
                             listVaccine={cart}
                             advitory_detail={advitory_detail}
+                            id={id}
+                           
+
+
                         />
                     </div>
 

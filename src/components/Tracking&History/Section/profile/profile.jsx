@@ -70,8 +70,6 @@ const Profile = ({ id }) => {
         setIsLoading(true);
         try {
             let imageUrl = profileData.avatar || '';
-
-
             if (avatar) {
                 const formData = new FormData();
                 formData.append("file", avatar);

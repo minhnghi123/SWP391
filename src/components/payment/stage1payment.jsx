@@ -26,10 +26,10 @@ export default function Stage1Payment({ id }) {
 
   const dispatch = useDispatch();
   const listChildren = useSelector((state) => state.children.listChildren);
-  const arriveDate = useSelector((state) => state.arriveDate.arriveDate);
+  const arriveDate = useSelector((state) => state.children.arriveDate);
   const advitory = useSelector((state) => state.children.advitory_detail);
   const [user, setUser] = useState(null)
-  const [child, setChild] = useState(null);
+  const [child, setChild] = useState([]);
   const [isOpenFirst, setIsOpenFirst] = useState(false);
   const [inputAdvisory, setInputAdvisory] = useState("");
   const listVaccine = useSelector((state) => state.vaccine.listVaccine);
@@ -53,30 +53,42 @@ export default function Stage1Payment({ id }) {
     const getUserData = async () => {
       setLoading(true);
       setErr(null);
+      setUser(null);
+      setChild([]);
       try {
-        // Fetch user data
-        const [user, child] = await Promise.all([
-          api.get(`${url}/User/get-user-by-id/${id}`),
-          api.get(`${url}/Child/get-child-by-parents-id/${id}`)
-        ])
-        if (user.status === 200) {
-          setUser(user.data.user)
+        // Gọi API lấy thông tin user
+        const userResponse = await api.get(`${url}/User/get-user-by-id/${id}`);
+        if (userResponse.status === 200) {
+          setUser(userResponse.data.user);
+        } else {
+          setErr("Failed to fetch user data");
         }
-        if (child.status === 200) {
-          setChild(child.data)
-        }
-
       } catch (error) {
-
-        setErr("Fetch failed");
+        console.error("Error fetching user:", error);
+        setErr("Failed to fetch user data");
+      }
+      try {
+        // Gọi API lấy danh sách child
+        const childResponse = await api.get(`${url}/Child/get-child-by-parents-id/${id}`);
+        if (childResponse.status === 200 && Array.isArray(childResponse.data)) {
+          setChild(childResponse.data);
+        } else {
+          setChild([]);
+          setErr("Failed to fetch child data");
+        }
+      } catch (error) {
+        console.error("Error fetching child:", error);
+        setErr("Failed to fetch child data");
+        setChild([]);
       } finally {
         setLoading(false);
       }
-
     };
 
     getUserData();
   }, [id, trigger]);
+
+  // console.log(listChildren)
   //create child
   const handleOnchange = (e) => {
     const { name, value } = e.target
@@ -140,11 +152,19 @@ export default function Stage1Payment({ id }) {
     dispatch(childAction.resetForm());
     setSent(false);
   };
-
+ 
+  useEffect(() => {
+    if (listChildren.length === 0) {
+      dispatch(childAction.resetArriveDate());
+      dispatch(childAction.resetForm());
+      setSent(false);
+    }
+  }, [listChildren]); 
   //remove child on list vaccination
   const handleRemove = (id) => {
     dispatch(childAction.deleteChild(id));
   };
+  
   // add child on list vaccination
   const handleAddChildren = (child) => {
     dispatch(
@@ -159,10 +179,10 @@ export default function Stage1Payment({ id }) {
 
   //check vaccine suitable for any child
   const isVaccineSuitableForAnyChild = (childToCheck) => {
-    if (!childToCheck || !childToCheck.dateOfBirth) return false; 
+    if (!childToCheck || !childToCheck.dateOfBirth) return false;
 
     const ageString = CalculateAge(childToCheck.dateOfBirth);
-    const age = parseInt(ageString.split(" ")[0], 10); 
+    const age = parseInt(ageString.split(" ")[0], 10);
 
     if (isNaN(age)) return false; // Nếu age không hợp lệ, trả về false
 
@@ -249,9 +269,9 @@ export default function Stage1Payment({ id }) {
           </div>
         </div>
       </div>
-     
+
     </div>
-    
+
 
   );
 }

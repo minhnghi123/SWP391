@@ -9,8 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { accountAction } from '../redux/reducers/accountSlice';
 import { vaccineAction } from '../redux/reducers/selectVaccine';
 import { childAction } from '../redux/reducers/selectChildren';
-import { arriveActions } from '../redux/reducers/arriveDate';
-import { use } from 'react';
+
 export default function AvatarHomePage() {
     const dispatch = useDispatch()
     const navigate = useNavigate();
@@ -35,7 +34,7 @@ export default function AvatarHomePage() {
         dispatch(accountAction.clearUser())
         dispatch(vaccineAction.completePayment())
         dispatch(childAction.completePayment())
-        dispatch(arriveActions.resetArriveDate());
+        dispatch(childAction.resetArriveDate());
         localStorage.removeItem('authTokens');
         navigate('/loginPage');
     };
@@ -54,7 +53,7 @@ export default function AvatarHomePage() {
                 <div className="w-full h-full rounded-full overflow-hidden">
                     <img
                         className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
-                        src={user?.avatar}
+                        src={user?.avatar || imgAvatar}
                         alt="User avatar"
                     />
                 </div>
@@ -69,7 +68,7 @@ export default function AvatarHomePage() {
                             <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-blue-500">
                                 <img
                                     className="w-full h-full object-cover"
-                                    src={user.avatar}
+                                    src={user?.avatar || imgAvatar}
                                     alt="User profile"
                                 />
                             </div>

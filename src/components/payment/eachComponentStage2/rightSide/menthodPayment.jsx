@@ -33,9 +33,8 @@ const MenthodPayment = ({ listChildren, handleSubmit, isLoading }) => {
                     <label
                         key={method.id}
                         className={`relative flex flex-col p-4 rounded-2xl border-2 cursor-pointer transition-all
-                            ${paymentMethod === method.id
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-blue-200'}`}
+                            ${paymentMethod === method.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                            ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-200'}`}
                     >
                         <input
                             type="radio"
@@ -63,12 +62,16 @@ const MenthodPayment = ({ listChildren, handleSubmit, isLoading }) => {
 
 
 
-            <button onClick={handleSubmit}
-                className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-medium shadow-lg hover:from-blue-600
-          hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={listChildren.length === 0} >
+            <button
+                onClick={handleSubmit}
+                className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-medium shadow-lg 
+        hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 
+        disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={listChildren.length === 0 || isLoading} // Thêm kiểm tra isLoading
+            >
                 {isLoading ? 'Loading....' : 'Payment'}
             </button>
+
 
 
 

@@ -29,7 +29,7 @@ const RightSide = ({ section, id }) => {
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
             {/* Enhanced Header */}
-            <div className="sticky top-0 bg-white backdrop-blur-md z-10 rounded-2xl shadow-md">
+            <div className="sticky top-0 bg-white backdrop-blur-md z-20 rounded-2xl shadow-md">
                 <div className="px-8 py-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         {/* Enhanced Left Side */}
@@ -55,12 +55,12 @@ const RightSide = ({ section, id }) => {
 
                         <div className="flex items-center space-x-4">
                             {/* Enhanced Notification Bell */}
-                            <button className="relative p-3 rounded-xl hover:bg-gray-100 transition-all duration-200
+                            {/* <button className="relative p-3 rounded-xl hover:bg-gray-100 transition-all duration-200
                                              group focus:outline-none focus:ring-2 focus:ring-blue-100">
                                 <NotificationsNoneOutlinedIcon className="w-6 h-6 text-gray-600 group-hover:text-blue-500" />
                                 <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full
                                                group-hover:animate-pulse"></span>
-                            </button>
+                            </button> */}
 
                             {/* Enhanced User Menu */}
                             <AvatarHomePage />

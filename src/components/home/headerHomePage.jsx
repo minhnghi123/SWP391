@@ -1,14 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import AvatarHomePage from "./avatarHomePage";
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import { useDispatch, useSelector } from 'react-redux';
-import ModalNotification from './modalNotification';
-import { useState, useRef, useEffect } from 'react';
-import { FaBars, FaTimes } from "react-icons/fa";
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
 
 export default function Header() {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     const cart = useSelector(state => [...state.vaccine.listVaccine, ...state.vaccine.listComboVaccine]);
     const user = useSelector((state) => state.account.user);
@@ -20,45 +16,29 @@ export default function Header() {
         { label: "Contact", id: "contact" },
     ];
 
-    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // Thêm trạng thái cho menu mobile
-    const notificationRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-                setIsNotificationOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
     const handleScroll = (id) => {
         document.getElementById(id)?.scrollIntoView({
-            behavior: "smooth",
+            behavior: "smooth", // Cuộn mượt
             block: "start",
         });
-        setIsMenuOpen(false); // Đóng menu mobile khi chọn mục
     };
-
     return (
-        <div className="sticky top-0 z-40 bg-white shadow-lg mx-4 md:mx-auto max-w-[1400px] rounded-3xl mt-4 animate-slideDown opacity-0 animation-delay-200 animate-fill-forwards">
-            <div className="flex flex-row justify-between items-center px-4 py-4 md:px-8 md:py-6">
-                {/* Logo */}
-                <Link to="/">
-                    <div className="cursor-pointer flex flex-row gap-2 items-center">
-                        <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center">
-                                <span className="text-xl md:text-2xl font-bold text-white">H</span>
-                            </div>
-                            <span className="text-lg md:text-xl font-bold text-gray-800">
-                                Health<span className="text-blue-500">Blue</span>
-                            </span>
+        <div className="flex flex-row justify-between items-center px-8 py-6 mx-auto max-w-[1400px]
+          border border-gray-200 rounded-3xl sticky top-0 left-0 right-0  bg-white z-40 shadow-lg mt-4
+          animate-slideDown opacity-0 animation-delay-200 animate-fill-forwards">
+            <Link to="/">
+                <div className="cursor-pointer flex flex-row gap-2 items-center text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                    <div className="flex items-center space-x-2">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center">
+                            <span className="text-2xl font-bold text-white">H</span>
                         </div>
+                        <span className="text-xl font-bold text-gray-800">
+                            Health<span className="text-blue-500">Blue</span>
+                        </span>
                     </div>
-                </Link>
+
+                </div>
+            </Link>
 
             <div className="flex flex-row justify-between items-center gap-3">
                 <nav className="bg-gray-50/80 px-8 py-3 rounded-full shadow-sm backdrop-blur-sm w-full">
@@ -84,24 +64,7 @@ export default function Header() {
                         </p>
                     )}
                 </div>
-                {/* <div className="relative" ref={notificationRef}>
-                    <div
-                        className="w-10 h-10 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors relative"
-                        onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                    >
-                        <NotificationsOutlinedIcon
-                            className="text-gray-600 hover:text-blue-500 transition-colors"
-                            fontSize="medium"
-                        />
-                        <span className="absolute top-1 left-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                            2
-                        </span>
-                    </div>
-                    <ModalNotification
-                        isOpen={isNotificationOpen}
-                        onClose={() => setIsNotificationOpen(false)}
-                    />
-                </div> */}
+
 
                 {user?.id ? (
                     <AvatarHomePage />
@@ -115,6 +78,6 @@ export default function Header() {
                 )}
             </div>
             </div>
-        </div>
+      
     );
 }

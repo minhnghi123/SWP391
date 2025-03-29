@@ -10,7 +10,7 @@ const Summary = ({appointments}) => {
       : 0;
       
     return (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3 my-4">
           <Card className="border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-blue-700">Total Bookings</CardTitle>

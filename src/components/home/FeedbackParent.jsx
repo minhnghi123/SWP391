@@ -1,9 +1,9 @@
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandsHoldingChild } from '@fortawesome/free-solid-svg-icons';
-
+import Avatar from '../../assets/p15.jpg';
 const FeedbackParent = ({  image, description,  username, randomNumber }) => {
-    
+   
     return (
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div className="flex flex-col h-full">
@@ -28,7 +28,7 @@ const FeedbackParent = ({  image, description,  username, randomNumber }) => {
                 <div className="flex flex-col items-center">
                     <div className="flex items-center gap-4 mb-4 md:mb-0">
                         <img
-                            src={image}
+                            src={image ? image : Avatar}
                             alt="Parent"
                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-blue-600 shadow-sm"
                         />

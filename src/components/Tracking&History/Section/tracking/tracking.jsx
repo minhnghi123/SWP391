@@ -126,14 +126,7 @@ const TrackingChildbyUser = ({ id }) => {
     // Valid vaccines: exclude fully canceled chains (overdue and mixed are still "in progress")
     const validVaccines = totalVaccines - canceledVaccines - overDueVaccines - checkTwoStatus;
 
-    // console.log({
-    //   totalVaccines,
-    //   canceledVaccines,
-    //   overDueVaccines,
-    //   checkTwoStatus,
-    //   validVaccines,
-    //   completedVaccines,
-    // });
+
 
     return {
       total: totalVaccines,

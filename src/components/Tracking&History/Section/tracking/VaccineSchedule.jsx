@@ -32,11 +32,8 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
     .filter((dose) => dose.status?.toLowerCase() === 'schedule' && dose.previousVaccination === 0);
 
   const findCompleted = sortLinkList.flat().filter((dose) => dose.status.toLowerCase() === 'success');
-  const checkReaction = findCompleted.filter((item) => item.reaction === 'Nothing');
+  const checkReaction = findCompleted.flat().filter((item) => item.reaction.toLowerCase() === 'nothing');
 
-  const filteredList = (sortLinkList || []).filter((chain) =>
-    chain.some((item) => item.status.toLowerCase() !== 'success' && item.status.toLowerCase() !== 'cancel')
-  );
 
   const handleOpenModalReSchedule = (trackingID, vaccinationDate, vaccineName) => {
     setShowModalReSchedule(true);
@@ -46,59 +43,71 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
       vaccinationDate,
     });
   };
+  const filteredList = (sortLinkList || []).filter((chain) =>
+    chain.some((item) => item.status.toLowerCase() !== 'success' && item.status.toLowerCase() !== 'cancel')
+  );
 
   useEffect(() => {
     handleSortChange(activeSortOption);
   }, [sortLinkList]);
 
+
   const handleSortChange = (option) => {
     let sortedList = [...filteredList];
-  
+
+    // Hàm chuyển đổi ngày an toàn
+    const safeDate = (date) => {
+      const parsedDate = date ? new Date(date) : new Date(0); // Mặc định là 1970-01-01 nếu không có ngày
+      return isNaN(parsedDate) ? new Date(0) : parsedDate;
+    };
+
+    // Hàm so sánh ngày tiêm
+    const compareDates = (a, b, order = 'asc') => {
+      const aDate = safeDate(a?.[0]?.vaccinationDate);
+      const bDate = safeDate(b?.[0]?.vaccinationDate);
+      return order === 'asc' ? aDate - bDate : bDate - aDate;
+    };
+
+    // Hàm so sánh tên vaccine
+    const compareNames = (a, b, order = 'asc') => {
+      const aName = a?.[0]?.vaccineName || 'Unknown'; // Mặc định là 'Unknown' nếu không có tên
+      const bName = b?.[0]?.vaccineName || 'Unknown';
+      return order === 'asc' ? aName.localeCompare(bName) : bName.localeCompare(aName);
+    };
+
+    // Xử lý sắp xếp theo tùy chọn
     switch (option) {
-      case 'asc':
-      case 'date':  // Merged with 'asc' since both do the same
-        sortedList.sort((a, b) => {
-          const aDate = new Date(a?.[0]?.vaccinationDate || '1970-01-01');
-          const bDate = new Date(b?.[0]?.vaccinationDate || '1970-01-01');
-          return aDate - bDate;
-        });
+      case 'date_asc':
+      case 'date': // Hợp nhất với date_asc
+        sortedList.sort((a, b) => compareDates(a, b, 'asc'));
         break;
-  
-      case 'desc':
-        sortedList.sort((a, b) => {
-          const aDate = new Date(a?.[0]?.vaccinationDate || '1970-01-01');
-          const bDate = new Date(b?.[0]?.vaccinationDate || '1970-01-01');
-          return bDate - aDate;
-        });
+
+      case 'date_desc':
+        sortedList.sort((a, b) => compareDates(a, b, 'desc'));
         break;
-  
+
       case 'name_asc':
-        sortedList.sort((a, b) => {
-          const aName = a?.[0]?.vaccineName || '';
-          const bName = b?.[0]?.vaccineName || '';
-          return aName.localeCompare(bName);
-        });
+        sortedList.sort((a, b) => compareNames(a, b, 'asc'));
         break;
-  
+
       case 'name_desc':
-        sortedList.sort((a, b) => {
-          const aName = a?.[0]?.vaccineName || '';
-          const bName = b?.[0]?.vaccineName || '';
-          return bName.localeCompare(aName);
-        });
+        sortedList.sort((a, b) => compareNames(a, b, 'desc'));
         break;
-  
-      case 'all': // Reset list to original order
-        sortedList = [...filteredList];
+
+      case 'all':
+        sortedList = [...filteredList]; // Giữ nguyên danh sách đã lọc
         break;
-  
+
       default:
         break;
     }
-  
+
+    // Log để kiểm tra kết quả
+    console.log('Sorted List:', sortedList);
     setSortedLinkList(sortedList);
   };
-  
+
+
 
   const handleSort = (option) => {
     setActiveSortOption(option);
@@ -165,6 +174,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
     return new Date() > new Date(maximumIntervalDate);
   };
 
+
   const sortOptions = [
     { id: 'all', label: 'All Tracking', icon: <Shield className="w-4 h-4" /> },
     { id: 'date_asc', label: 'Date (Oldest First)', icon: <ArrowUp className="w-4 h-4" /> },
@@ -174,6 +184,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
 
 
   ];
+
 
 
   if (historyTracking) {
@@ -362,26 +373,25 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
                                       </div>
                                     </div>
                                   )}
-                                  {dose.status.toLowerCase() === 'success' && (
-                                    <div
-                                      className={`flex items-center gap-3 p-4 ${dose.reaction === 'Nothing' ? 'bg-amber-50' : 'bg-green-50'
-                                        } rounded-xl transition-all duration-300`}
-                                    >
+                                  {dose.reaction && (
+                                    <div className={`flex items-center gap-3 p-4 ${dose.reaction === 'Nothing' ? 'bg-amber-50' : 'bg-green-50'
+                                      } rounded-xl transition-all duration-300`}>
+
                                       {dose.reaction === 'Nothing' ? (
                                         <AlertCircle className="w-5 h-5 text-amber-500" />
                                       ) : (
                                         <CheckCircle className="w-5 h-5 text-green-500" />
                                       )}
+
                                       <div className="flex-1">
-                                        <span
-                                          className={`font-medium block ${dose.reaction === 'Nothing' ? 'text-amber-700' : 'text-green-700'
-                                            }`}
-                                        >
+                                        <span className={`font-medium block ${dose.reaction === 'Nothing' ? 'text-amber-700' : 'text-green-700'
+                                          }`}>
                                           Reaction
                                         </span>
-                                        {checkReaction.some((item) => item.trackingID === dose.trackingID) ? (
+
+                                        {checkReaction.some(item => item.trackingID === dose.trackingID) ? (
                                           <button
-                                            onClick={() => setIsInput((prev) => ({ ...prev, [dose.trackingID]: true }))}
+                                            onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: true }))}
                                             className={`mt-2 flex items-center gap-2 ${dose.reaction === 'Nothing'
                                               ? 'text-amber-600 hover:text-amber-700'
                                               : 'text-green-600 hover:text-green-700'
@@ -391,20 +401,20 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
                                             Add Reaction
                                           </button>
                                         ) : (
-                                          <span
-                                            className={dose.reaction === 'Nothing' ? 'text-amber-600' : 'text-green-600'}
-                                          >
-                                            {dose.reaction || 'No reaction recorded'}
+                                          <span className={dose.reaction === 'Nothing' ? 'text-amber-600' : 'text-green-600'}>
+                                            {(dose.status).toLowerCase() !== 'success'
+                                              ? 'After completed vaccination, you can add your reaction'
+                                              : dose.reaction}
                                           </span>
                                         )}
+
                                         {isInput[dose.trackingID] && (
                                           <div className="mt-2 space-y-2">
                                             <textarea
+                                              type="text"
                                               placeholder="Describe any reactions..."
-                                              value={reaction[dose.trackingID] || ''}
-                                              onChange={(e) =>
-                                                setReaction((prev) => ({ ...prev, [dose.trackingID]: e.target.value }))
-                                              }
+                                              value={reaction[dose.trackingID] || ""}
+                                              onChange={(e) => setReaction(prev => ({ ...prev, [dose.trackingID]: e.target.value }))}
                                               className={`w-full p-2 text-sm border ${dose.reaction === 'Nothing'
                                                 ? 'border-amber-200 focus:ring-amber-300 focus:border-amber-300'
                                                 : 'border-green-200 focus:ring-green-300 focus:border-green-300'
@@ -413,9 +423,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
                                             />
                                             <div className="flex justify-end gap-2">
                                               <button
-                                                onClick={() =>
-                                                  setIsInput((prev) => ({ ...prev, [dose.trackingID]: false }))
-                                                }
+                                                onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: false }))}
                                                 className={`px-3 py-1 text-sm ${dose.reaction === 'Nothing'
                                                   ? 'text-amber-700 bg-amber-50 hover:bg-amber-100'
                                                   : 'text-green-700 bg-green-50 hover:bg-green-100'

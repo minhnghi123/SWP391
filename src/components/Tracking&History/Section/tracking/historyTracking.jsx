@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { Syringe } from 'lucide-react';
 import ProgressBar from './processBarVaccineSchedule';
 import { AudioLines, History } from 'lucide-react';
-export default function VaccineSchedules({ sortLinkList, setTrigger,setHistoryTracking,historyTracking }) {
+export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryTracking, historyTracking }) {
   const [isInput, setIsInput] = useState({});
   const [reaction, setReaction] = useState({});
   const [expandedVaccines, setExpandedVaccines] = useState({});
@@ -30,7 +30,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger,setHistoryTr
     .filter((dose) => dose.status?.toLowerCase() === 'schedule' && dose.previousVaccination === 0);
 
   const findCompleted = sortLinkList.flat().filter((dose) => dose.status.toLowerCase() === 'success');
-  const checkReaction = findCompleted.filter((item) => item.reaction === 'Nothing');
+  const checkReaction = findCompleted.filter((item) => item.reaction.toLowerCase() === 'nothing');
 
   const handleOpenModalReSchedule = (trackingID, vaccinationDate, vaccineName) => {
     setShowModalReSchedule(true);
@@ -144,48 +144,46 @@ export default function VaccineSchedules({ sortLinkList, setTrigger,setHistoryTr
             <p className="text-gray-500 text-sm mt-1">Track and manage your vaccination progress</p>
           </div>
         </div>
-      <div className="flex items-center gap-4">
-      <div className="relative">
-          <button
-            onClick={() => setShowSortOptions(!showSortOptions)}
-            className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-xl transition-all duration-300 font-medium"
-          >
-            <Filter className="w-4 h-4" />
-            {sortOptions.find((option) => option.id === activeSortOption)?.label || 'Filter'}
-            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showSortOptions ? 'rotate-180' : ''}`} />
-          </button>
-          {showSortOptions && (
-            <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-100 z-10 w-56 overflow-hidden">
-              <div className="py-1">
-                {sortOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => handleSort(option.id)}
-                    className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-indigo-50 transition-colors duration-200 ${
-                      activeSortOption === option.id ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700'
-                    }`}
-                  >
-                    <span
-                      className={`p-1.5 rounded-lg ${
-                        activeSortOption === option.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'
-                      }`}
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <button
+              onClick={() => setShowSortOptions(!showSortOptions)}
+              className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-xl transition-all duration-300 font-medium"
+            >
+              <Filter className="w-4 h-4" />
+              {sortOptions.find((option) => option.id === activeSortOption)?.label || 'Filter'}
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showSortOptions ? 'rotate-180' : ''}`} />
+            </button>
+            {showSortOptions && (
+              <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-100 z-10 w-56 overflow-hidden">
+                <div className="py-1">
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      onClick={() => handleSort(option.id)}
+                      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-indigo-50 transition-colors duration-200 ${activeSortOption === option.id ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700'
+                        }`}
                     >
-                      {option.icon}
-                    </span>
-                    {option.label}
-                  </button>
-                ))}
+                      <span
+                        className={`p-1.5 rounded-lg ${activeSortOption === option.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'
+                          }`}
+                      >
+                        {option.icon}
+                      </span>
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-        <button
+            )}
+          </div>
+          <button
             onClick={() => setHistoryTracking(!historyTracking)}
             className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-3 rounded-xl transition-all duration-300 font-medium"
           >
             {historyTracking ? <AudioLines className="w-4 h-4" /> : <History className="w-4 h-4" />}
           </button>
-      </div>
+        </div>
       </div>
 
       {sortedLinkList.length === 0 ? (
@@ -222,9 +220,8 @@ export default function VaccineSchedules({ sortLinkList, setTrigger,setHistoryTr
                 <div className="flex flex-row-reverse items-center gap-4 mb-2">
                   <button
                     onClick={() => toggleVaccine(index)}
-                    className={`p-3 rounded-xl transition-all duration-300 ${
-                      hoveredCard === index ? 'bg-indigo-100 text-indigo-600' : 'hover:bg-indigo-50 text-gray-400'
-                    }`}
+                    className={`p-3 rounded-xl transition-all duration-300 ${hoveredCard === index ? 'bg-indigo-100 text-indigo-600' : 'hover:bg-indigo-50 text-gray-400'
+                      }`}
                   >
                     {expandedVaccines[index] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                   </button>
@@ -247,13 +244,12 @@ export default function VaccineSchedules({ sortLinkList, setTrigger,setHistoryTr
                             <div className="absolute w-4 h-4 bg-indigo-500 rounded-full animate-ping opacity-20" />
                           </div>
                           <div
-                            className={`bg-white p-6 rounded-2xl shadow-sm border transition-all duration-300 ${
-                              dose.status.toLowerCase() === 'cancel'
+                            className={`bg-white p-6 rounded-2xl shadow-sm border transition-all duration-300 ${dose.status.toLowerCase() === 'cancel'
                                 ? 'border-red-200 hover:border-red-300'
                                 : isOverdueVaccine
-                                ? 'border-amber-200 hover:border-amber-300'
-                                : 'border-gray-100 hover:border-indigo-200'
-                            }`}
+                                  ? 'border-amber-200 hover:border-amber-300'
+                                  : 'border-gray-100 hover:border-indigo-200'
+                              }`}
                           >
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex items-center gap-4">
@@ -275,9 +271,8 @@ export default function VaccineSchedules({ sortLinkList, setTrigger,setHistoryTr
                                   </button>
                                 )}
                                 <span
-                                  className={`${
-                                    isOverdueVaccine ? getStatusColor('overdue') : getStatusColor(dose.status)
-                                  } px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300`}
+                                  className={`${isOverdueVaccine ? getStatusColor('overdue') : getStatusColor(dose.status)
+                                    } px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300`}
                                 >
                                   {isOverdueVaccine ? 'Overdue' : ToUpperCase(dose.status)}
                                 </span>
@@ -315,79 +310,70 @@ export default function VaccineSchedules({ sortLinkList, setTrigger,setHistoryTr
                                     </div>
                                   </div>
                                 )}
-                                {dose.status.toLowerCase() === 'success' && (
-                                  <div
-                                    className={`flex items-center gap-3 p-4 ${
-                                      dose.reaction === 'Nothing' ? 'bg-amber-50' : 'bg-green-50'
-                                    } rounded-xl transition-all duration-300`}
-                                  >
+                                {dose.reaction && (
+                                  <div className={`flex items-center gap-3 p-4 ${dose.reaction === 'Nothing' ? 'bg-amber-50' : 'bg-green-50'
+                                    } rounded-xl transition-all duration-300`}>
+
                                     {dose.reaction === 'Nothing' ? (
                                       <AlertCircle className="w-5 h-5 text-amber-500" />
                                     ) : (
                                       <CheckCircle className="w-5 h-5 text-green-500" />
                                     )}
+
                                     <div className="flex-1">
-                                      <span
-                                        className={`font-medium block ${
-                                          dose.reaction === 'Nothing' ? 'text-amber-700' : 'text-green-700'
-                                        }`}
-                                      >
+                                      <span className={`font-medium block ${dose.reaction === 'Nothing' ? 'text-amber-700' : 'text-green-700'
+                                        }`}>
                                         Reaction
                                       </span>
-                                      {checkReaction.some((item) => item.trackingID === dose.trackingID) ? (
+
+                                      {checkReaction.some(item => item.trackingID === dose.trackingID) ? (
                                         <button
-                                          onClick={() => setIsInput((prev) => ({ ...prev, [dose.trackingID]: true }))}
-                                          className={`mt-2 flex items-center gap-2 ${
-                                            dose.reaction === 'Nothing'
-                                              ? 'text-amber-600 hover:text-amber-700'
-                                              : 'text-green-600 hover:text-green-700'
-                                          } transition-colors text-sm`}
+                                          onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: true }))}
+                                          className={`mt-2 flex items-center gap-2 ${dose.reaction === 'Nothing'
+                                            ? 'text-amber-600 hover:text-amber-700'
+                                            : 'text-green-600 hover:text-green-700'
+                                            } transition-colors text-sm`}
                                         >
                                           <PlusCircle className="w-4 h-4" />
                                           Add Reaction
                                         </button>
                                       ) : (
-                                        <span
-                                          className={dose.reaction === 'Nothing' ? 'text-amber-600' : 'text-green-600'}
-                                        >
-                                          {dose.reaction || 'No reaction recorded'}
+                                        <span className={dose.reaction === 'Nothing' ? 'text-amber-600' : 'text-green-600'}>
+                                          {(dose.status).toLowerCase() !== 'success'
+                                            ? 'After completed vaccination, you can add your reaction'
+                                            : dose.reaction}
                                         </span>
                                       )}
+
                                       {isInput[dose.trackingID] && (
                                         <div className="mt-2 space-y-2">
                                           <textarea
+                                            type="text"
                                             placeholder="Describe any reactions..."
-                                            value={reaction[dose.trackingID] || ''}
-                                            onChange={(e) =>
-                                              setReaction((prev) => ({ ...prev, [dose.trackingID]: e.target.value }))
-                                            }
-                                            className={`w-full p-2 text-sm border ${
-                                              dose.reaction === 'Nothing'
-                                                ? 'border-amber-200 focus:ring-amber-300 focus:border-amber-300'
-                                                : 'border-green-200 focus:ring-green-300 focus:border-green-300'
-                                            } rounded-lg focus:ring-2 outline-none resize-none`}
+                                            value={reaction[dose.trackingID] || ""}
+                                            onChange={(e) => setReaction(prev => ({ ...prev, [dose.trackingID]: e.target.value }))}
+                                            className={`w-full p-2 text-sm border ${dose.reaction === 'Nothing'
+                                              ? 'border-amber-200 focus:ring-amber-300 focus:border-amber-300'
+                                              : 'border-green-200 focus:ring-green-300 focus:border-green-300'
+                                              } rounded-lg focus:ring-2 outline-none resize-none`}
                                             rows="2"
                                           />
                                           <div className="flex justify-end gap-2">
                                             <button
-                                              onClick={() =>
-                                                setIsInput((prev) => ({ ...prev, [dose.trackingID]: false }))
-                                              }
-                                              className={`px-3 py-1 text-sm ${
-                                                dose.reaction === 'Nothing'
-                                                  ? 'text-amber-700 bg-amber-50 hover:bg-amber-100'
-                                                  : 'text-green-700 bg-green-50 hover:bg-green-100'
-                                              } rounded-lg transition-colors`}
+                                              onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: false }))}
+                                              className={`px-3 py-1 text-sm ${dose.reaction === 'Nothing'
+                                                ? 'text-amber-700 bg-amber-50 hover:bg-amber-100'
+                                                : 'text-green-700 bg-green-50 hover:bg-green-100'
+                                                } rounded-lg transition-colors`}
                                             >
                                               Cancel
                                             </button>
                                             <button
                                               onClick={() => handleSubmit(dose.trackingID)}
-                                              className={`px-3 py-1 text-sm text-white ${
-                                                dose.reaction === 'Nothing'
-                                                  ? 'bg-amber-500 hover:bg-amber-600'
-                                                  : 'bg-green-500 hover:bg-green-600'
-                                              } rounded-lg transition-colors`}
+                                              className={`px-3 py-1 text-sm text-white ${dose.reaction === 'Nothing'
+                                                ? 'bg-amber-500 hover:bg-amber-600'
+                                                : 'bg-green-500 hover:bg-green-600'
+                                                } rounded-lg transition-colors`}
                                             >
                                               Save
                                             </button>

@@ -557,23 +557,29 @@ export default function BodyHomePage() {
                     </motion.button>
                 </div>
                 {/* Feedback Cards Container */}
-                <motion.div
-                    variants={staggerContainer}
-                    className="grid grid-cols-1  lg:grid-cols-3 gap-4 sm:gap-6">
-                    {feedback.map((item) => (
+                {
+                    feedback.length > 0 ? (
                         <motion.div
-                            key={item.id}
-                            variants={slideFromLeft}
-                            whileHover={{ scale: 1.05, y: -10 }}>
-                            <FeedbackParent
-                                randomNumber={item.ratingScore}
-                                image={user.find(user => user.id === item.userId)?.avatar}
-                                description={item.description}
-                                username={user.find(user => user.id === item.userId)?.username}
-                            />
+                            variants={staggerContainer}
+                            className="grid grid-cols-1  lg:grid-cols-3 gap-4 sm:gap-6">
+                            {feedback.map((item) => (
+                                <motion.div
+                                    key={item.id}
+                                    variants={slideFromLeft}
+                                    whileHover={{ scale: 1.05, y: -10 }}>
+                                    <FeedbackParent
+                                        randomNumber={item.ratingScore}
+                                        image={user.find(user => user.id === item.userId)?.avatar}
+                                        description={item.description}
+                                        username={user.find(user => user.id === item.userId)?.username}
+                                    />
+                                </motion.div>
+                            ))}
                         </motion.div>
-                    ))}
-                </motion.div>
+                    ) : (
+                        <div className="loader absolute right-[50%] left-[45%]"></div>
+                    )
+                }
             </motion.div>
 
             {/* Modal */}

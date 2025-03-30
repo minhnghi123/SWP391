@@ -203,9 +203,13 @@ const Feedback = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600 max-w-[300px] overflow-hidden whitespace-nowrap text-ellipsis">
+                      <td
+                        className="px-4 py-4 text-sm text-gray-600 max-w-[300px] overflow-hidden whitespace-nowrap text-ellipsis"
+                        title={feedback.description}
+                      >
                         {feedback.description}
                       </td>
+
                       <td className="px-4 py-4">
                         <span
                           className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${

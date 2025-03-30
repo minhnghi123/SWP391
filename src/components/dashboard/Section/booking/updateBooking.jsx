@@ -41,8 +41,8 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
     const fetchData = async () => {
       try {
         const [vaccinesRes, combosRes] = await Promise.all([
-          api.get(`${url}/Vaccine/get-all-vaccines`),
-          api.get(`${url}/VaccineCombo/get-all-vaccine-combo`),
+          api.get(`${url}/Vaccine/get-all-vaccines-admin`),
+          api.get(`${url}/VaccineCombo/get-all-vaccine-combo-admin`),
         ]);
         setAvailableVaccines(vaccinesRes.data || []);
         setAvailableVaccineCombos(combosRes.data || []);

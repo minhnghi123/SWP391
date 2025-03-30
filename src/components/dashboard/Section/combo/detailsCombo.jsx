@@ -70,7 +70,7 @@ const DetailCombo = ({ vaccineId, isOpen, onClose }) => {
               {/* Header Section */}
               <div className="col-span-12 flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center">
-                  <Refrigerator className="w-6 h-6 text-teal-600" />
+                  <Refrigerator className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">{comboName}</h3>

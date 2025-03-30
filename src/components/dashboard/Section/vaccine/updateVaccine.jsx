@@ -180,7 +180,7 @@ const UpdateVaccine = ({ vaccine, onSave, onCancel }) => {
                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   >
                     <option value="Instock">In Stock</option>
-                    <option value="Nearly Outstock">Nearly Out of Stock</option>
+                    <option value="Nearlyoutstock">Nearly Out of Stock</option>
                     <option value="Outstock">Out of Stock</option>
                   </select>
                 ) : (

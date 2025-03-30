@@ -193,7 +193,7 @@ const AddChild = ({ onAddSuccess, parentId }) => {
               <button
                 onClick={handleAddChild}
                 disabled={loading}
-                className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-lg hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 shadow-lg shadow-teal-500/20 disabled:from-teal-300 disabled:to-emerald-300"
+                className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-lg hover:from-blue-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-teal-500/20 disabled:from-blue-300 disabled:to-blue-300"
               >
                 {loading ? "Adding..." : "Add Child"}
               </button>

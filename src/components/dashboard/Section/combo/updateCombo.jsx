@@ -106,7 +106,7 @@ const UpdateVaccineCombo = ({ combo, onSave, onCancel }) => {
   const fetchAllVaccines = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${url}/Vaccine/get-all-vaccines`);
+      const response = await api.get(`${url}/Vaccine/get-all-vaccines-admin`);
       setVaccines(response.data);
       setError(null);
     } catch (error) {

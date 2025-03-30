@@ -26,7 +26,7 @@ const StaffDashboard = () => {
   const [stats, setStats] = useState({
     newUsers: 0,
     vaccineStock: 0,
-    expiringVaccines: 0,
+    refundedBookings: 0,
     latestBookings: 0,
     pendingBookings: 0,
     completedBookings: 0,
@@ -64,12 +64,6 @@ const StaffDashboard = () => {
         const vaccinesResponse = await api.get(`${url}/Vaccine/get-all-vaccines`);
         const allVaccines = vaccinesResponse.data;
         const uniqueVaccineNames = [...new Set(allVaccines.map((vaccine) => vaccine.name))].length;
-        const expiringVaccines = allVaccines.filter((vaccine) => {
-          const expiryDate = new Date(vaccine.timeExpired);
-          const daysUntilExpiry = (expiryDate - new Date()) / (1000 * 60 * 60 * 24);
-          return daysUntilExpiry <= 30 && daysUntilExpiry >= 0;
-        }).length;
-
         // Fetch bookings
         const bookingsResponse = await api.get(`${url}/Booking/get-all-booking`);
         const allBookings = bookingsResponse.data;
@@ -83,6 +77,9 @@ const StaffDashboard = () => {
         const completedBookings = allBookings.filter((booking) =>
           booking.status?.toLowerCase() === "success"
         ).length;
+        const refundedBookings = allBookings.filter((booking) =>
+          booking.status?.toLowerCase() === "refund"
+        ).length;
 
         setUsers(allUsers);
         setVaccines(allVaccines);
@@ -90,10 +87,10 @@ const StaffDashboard = () => {
         setStats({
           newUsers: newUsers.length,
           vaccineStock: uniqueVaccineNames,
-          expiringVaccines: expiringVaccines,
           latestBookings: latestBookings.length,
           pendingBookings,
           completedBookings,
+          refundedBookings
         });
         setError(null);
       } catch (error) {
@@ -189,8 +186,8 @@ const StaffDashboard = () => {
                 loading={loading.main}
               />
               <StatCard
-                title="Expiring Soon"
-                value={stats.expiringVaccines}
+                title="Refunded Appointments"
+                value={stats.refundedBookings}
                 icon={<Calendar className="w-5 h-5 text-white" />}
                 trend="Within 30 days"
                 color="bg-amber-500"

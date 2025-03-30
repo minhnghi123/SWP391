@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { X, Refrigerator, Pill, Calendar } from "lucide-react";
+import { X, Syringe, Pill, Calendar } from "lucide-react";
 import useAxios from "../../../../utils/useAxios";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
+
+// Mapping addressId với tên địa chỉ
+const addressMapping = {
+  1: "Hanoi Medical Center",
+  2: "Ho Chi Minh City Vaccination Clinic",
+  3: "Da Nang Health Facility",
+  4: "Hue Central Hospital",
+  5: "Nha Trang Medical Station",
+};
+
 const VaccineDetails = ({ id, isOpen, onClose }) => {
   const [vaccine, setVaccine] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -77,7 +87,7 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
           {/* Header Section */}
           <div className="col-span-12 flex items-center gap-3 mb-2">
             <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center">
-              <Refrigerator className="w-6 h-6 text-teal-600" />
+              <Syringe className="w-6 h-6 text-blue-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900">{vaccine.name}</h3>
           </div>
@@ -189,9 +199,11 @@ const VaccineDetails = ({ id, isOpen, onClose }) => {
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Address ID:</span>
+                  <span className="text-gray-500">Address:</span>
                   <p className="font-medium text-gray-900">
-                    {vaccine.addressId || "N/A"}
+                    {vaccine.addressId
+                      ? addressMapping[vaccine.addressId] || "Unknown Address"
+                      : "N/A"}
                   </p>
                 </div>
                 <div>

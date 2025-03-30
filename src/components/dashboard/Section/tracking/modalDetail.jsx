@@ -90,7 +90,7 @@ const ModalDetail = ({
             {/* Header Section */}
             <div className="col-span-12 flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center">
-                <Syringe className="w-6 h-6 text-teal-600" />
+                <Syringe className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900">
                 Record ID: {selectedRecord.trackingID}

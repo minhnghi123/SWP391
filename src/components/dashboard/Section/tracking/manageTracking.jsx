@@ -73,12 +73,12 @@ const VaccinesTracking = () => {
         );
 
         const vaccineResults = await Promise.all(vaccinePromises);
-        setVaccineData(
-          vaccineResults.reduce((acc, { vaccineID, doesTimes }) => {
-            acc[vaccineID] = doesTimes;
-            return acc;
-          }, {})
-        );
+        const newVaccineData = vaccineResults.reduce((acc, { vaccineID, doesTimes }) => {
+          acc[vaccineID] = doesTimes;
+          return acc;
+        }, {});
+        setVaccineData(newVaccineData);
+        console.log("Vaccine Data with doesTimes:", newVaccineData); // Log để kiểm tra
         setHasFetched(true);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -107,8 +107,8 @@ const VaccinesTracking = () => {
     const valueB = b[sortBy] || "";
     return sortOrder === "asc"
       ? valueA > valueB
-      ? 1
-      : -1
+        ? 1
+        : -1
       : valueA < valueB
       ? 1
       : -1;
@@ -144,9 +144,11 @@ const VaccinesTracking = () => {
       chain.some((item) => item.trackingID === record.trackingID)
     );
     if (!chain) return "N/A";
-    const totalDoses = chain.length;
-    const completedDoses = chain.filter((item) => item.status?.toLowerCase() === "completed").length;
-    return completedDoses === totalDoses ? "Completed" : `${completedDoses}/${totalDoses}`;
+
+    const totalDoses = vaccineData[record.vaccineID] || 1; // Lấy doesTimes từ vaccineData
+    const completedDoses = chain.filter((item) => item.status?.toLowerCase() === "success").length;
+
+    return completedDoses >= totalDoses ? "Completed" : `${completedDoses}/${totalDoses}`;
   };
 
   const handleExpand = (record) => {

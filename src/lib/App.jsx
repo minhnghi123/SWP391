@@ -80,7 +80,7 @@ function App() {
         <Route path="/variantsPage" element={<VariantsPage />} />
 
         {/* Private Routes */}
-        {/* <Route element={<PrivateRoute />}> */}
+        <Route element={<PrivateRoute />}>
           <Route path="/dashboardPage/:section" element={<DashboardPage />} />
           <Route path="/staffPage/:section" element={<StaffPage />} />
           <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
@@ -92,7 +92,7 @@ function App() {
             <Route path="/payment/:id" element={<Stage2Payment />} />
             <Route path="/confirm/:status" element={<Stage3Payment />} />
           </Route>
-        {/* </Route> */}
+        </Route>
 
         {/* Catch-all Route */}
         <Route path="*" element={<NotFound />} />

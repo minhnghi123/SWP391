@@ -2,7 +2,7 @@ import axios from 'axios'
 import { jwtDecode } from "jwt-decode";
 import dayjs from 'dayjs'
 import { useContext } from 'react'
-import {AuthContext} from '../components/Context/AuthContext'
+import { AuthContext } from '../components/Context/AuthContext'
 import { useDispatch } from 'react-redux'
 import { accountAction } from '../components/redux/reducers/accountSlice'
 const url = import.meta.env.VITE_BASE_URL_DB
@@ -11,23 +11,23 @@ const url = import.meta.env.VITE_BASE_URL_DB
 const useAxios = () => {
     const { authTokens, setAuthTokens } = useContext(AuthContext)
     const dispatch = useDispatch()
-    
+
     const axiosInstance = axios.create({
         baseURL: url,
         headers: { Authorization: `Bearer ${authTokens?.accessToken}` }
     });
 
-    if(!authTokens){
-       return axiosInstance
+    if (!authTokens) {
+        return axiosInstance
 
     }
     axiosInstance.interceptors.request.use(async req => {
 
         const user = jwtDecode(authTokens.accessToken)
-        const expTimeVN = user.exp; 
-        const currentTimeVN = dayjs().unix() 
+        const expTimeVN = user.exp;
+        const currentTimeVN = dayjs().unix()
         const isExpired = expTimeVN < currentTimeVN;
-       
+
 
         if (!isExpired) return req
 
@@ -36,7 +36,7 @@ const useAxios = () => {
             refreshToken: authTokens.refreshToken
         });
         const newTokens = response.data.loginResponse
-      
+
         localStorage.setItem('authTokens', JSON.stringify(newTokens))
 
         setAuthTokens(newTokens)
@@ -48,7 +48,7 @@ const useAxios = () => {
             avatar: decoded.Avatar,
         }));
 
-        req.headers.Authorization = `Bearer ${response.data.accessToken}`
+        req.headers.Authorization = `Bearer ${newTokens.accessToken}`
         return req
     })
 

@@ -357,7 +357,7 @@ export default function BodyHomePage() {
                 <motion.div
                     variants={staggerContainer}
                     className='container mx-auto px-4 py-6 md:py-8'>
-                    <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative'>
+                    <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 relative'>
                         {bestVaccine?.length > 0 ? (
                             bestVaccine.map((vaccine) => (
                                 <motion.div
@@ -559,7 +559,7 @@ export default function BodyHomePage() {
                 {/* Feedback Cards Container */}
                 <motion.div
                     variants={staggerContainer}
-                    className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    className="grid grid-cols-1  lg:grid-cols-3 gap-4 sm:gap-6">
                     {feedback.map((item) => (
                         <motion.div
                             key={item.id}

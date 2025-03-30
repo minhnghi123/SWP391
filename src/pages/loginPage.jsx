@@ -24,9 +24,9 @@ const LoginPage = () => {
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50"
+            className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-2 sm:p-4 md:p-6"
         >
-            <div className="w-full max-w-4xl flex items-center justify-center p-4">
+            <div className="w-full max-w-[95%] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl flex items-center justify-center">
                 {renderAuthComponent()}
             </div>
         </motion.div>

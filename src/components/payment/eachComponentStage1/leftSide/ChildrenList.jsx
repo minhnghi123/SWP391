@@ -1,5 +1,8 @@
 import ListChild from "./ListChild";
-const ChildrenList = ({ listChildren, child, handleAddChildren, isOpenFirst, setIsOpenFirst, isVaccineSuitableForAnyChild, isComboSuitableForAnyChild }) => {
+const ChildrenList = ({ loading, listChildren, child, handleAddChildren, isOpenFirst, setIsOpenFirst, isVaccineSuitableForAnyChild, isComboSuitableForAnyChild }) => {
+    if (loading) {
+        return <div className="text-center py-6 text-gray-500">Loading...</div>
+    }
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
             <div className="flex items-center justify-between mb-8">

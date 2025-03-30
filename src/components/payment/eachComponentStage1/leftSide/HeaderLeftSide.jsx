@@ -1,5 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import ProfileUser from './profileUser';
+import ToUperCaseFirstLetter from '../../../../utils/upperCaseFirstLetter'
 const HeaderLeftSide = ({ user }) => {
     return (
         <>
@@ -8,7 +9,7 @@ const HeaderLeftSide = ({ user }) => {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold mb-2">
-                            Welcome Back, {user?.name}!
+                            Welcome Back, {ToUperCaseFirstLetter(user?.name)}!
                         </h1>
                         <p className="text-white/90 text-lg">
                             Complete your payment information below

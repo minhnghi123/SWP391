@@ -5,7 +5,7 @@ import Avatar from '../../assets/p15.jpg';
 const FeedbackParent = ({  image, description,  username, randomNumber }) => {
    
     return (
-        <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+        <div className="bg-white rounded-2xl p-10 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div className="flex flex-col h-full">
                 {/* Icon */}
                 <div className="mb-4 md:mb-6 flex justify-center">

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const FormAddChildren = ({handleSubmit, handleOnchange, err}) => {
+const FormAddChildren = ({ handleSubmit, handleOnchange, err, loading }) => {
 
-    
+
+
     // Animation variants
     const fadeInUp = {
         initial: {
@@ -21,7 +22,7 @@ const FormAddChildren = ({handleSubmit, handleOnchange, err}) => {
     };
 
     return (
-        <motion.div 
+        <motion.div
             initial="initial"
             animate="animate"
             variants={fadeInUp}
@@ -76,6 +77,7 @@ const FormAddChildren = ({handleSubmit, handleOnchange, err}) => {
                             onChange={handleOnchange}
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 
                                     focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            max={new Date().toISOString().split('T')[0]}
                         />
                     </div>
                 </div>
@@ -108,19 +110,20 @@ const FormAddChildren = ({handleSubmit, handleOnchange, err}) => {
                 </div>
 
                 {/* Error message */}
-                {err && (
+                {/* {err && (
                     <div className="bg-red-50 text-red-500 p-3 rounded-xl text-sm">
                         {err}
                     </div>
-                )}
+                )} */}
 
                 {/* Submit Button */}
                 <button
                     type="submit"
                     className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-xl 
                             font-medium shadow-md hover:from-blue-600 hover:to-blue-500 transition-all duration-300"
+                    disabled={loading}
                 >
-                    Save Information
+                    {loading ? "Saving..." : "Save Information"}
                 </button>
             </form>
         </motion.div>

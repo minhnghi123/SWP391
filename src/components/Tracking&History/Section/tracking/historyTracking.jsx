@@ -1,4 +1,4 @@
-import { Calendar, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle, Shield, User, PlusCircle, Filter, XCircle } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle, Shield, User, PlusCircle, Filter, XCircle, Ban } from 'lucide-react';
 import formatDate from '../../../../utils/Date';
 import { useState, useEffect } from 'react';
 import ToUpperCase from '../../../../utils/upperCaseFirstLetter';
@@ -24,7 +24,16 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
     vaccineName: '',
     vaccinationDate: '',
   });
-
+  const isOverdue = (maximumIntervalDate, status) => {
+    if (!maximumIntervalDate) return false;
+    if (status.toLowerCase() === 'success' || status.toLowerCase() === 'cancel') return false;
+    return new Date() > new Date(maximumIntervalDate);
+  };
+  const filteredList = (sortLinkList || []).filter((chain) => {
+    const checkOverdue = chain.some((item) => isOverdue(item.maximumIntervalDate, item.status));
+    return chain.every((item) => item.status.toLowerCase() !== 'schedule' && item.status.toLowerCase() !== 'waiting' || checkOverdue)
+  }
+  );
   const findSchedule = (sortLinkList || [])
     .flat()
     .filter((dose) => dose.status?.toLowerCase() === 'schedule' && dose.previousVaccination === 0);
@@ -46,7 +55,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
   }, [sortLinkList]);
 
   const handleSortChange = (status) => {
-    let sortedList = [...(sortLinkList || [])];
+    let sortedList = [...(filteredList || [])];
     switch (status) {
       case 'success':
         sortedList = sortedList.filter((chain) => chain.every((item) => item.status.toLowerCase() === 'success'));
@@ -120,11 +129,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
     }
   };
 
-  const isOverdue = (maximumIntervalDate, status) => {
-    if (!maximumIntervalDate) return false;
-    if (status.toLowerCase() === 'success' || status.toLowerCase() === 'cancel') return false;
-    return new Date() > new Date(maximumIntervalDate);
-  };
+
 
   const sortOptions = [
     { id: 'all', label: 'All Vaccines', icon: <Shield className="w-4 h-4" /> },
@@ -191,9 +196,9 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
           <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-md">
             <Syringe className="text-blue-600 w-12 h-12" />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">No Vaccination Records</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">No History Vaccination</h2>
           <p className="text-gray-500 text-base max-w-md mb-4">
-            It looks like there are no vaccination records available for tracking at the moment. Check back later or schedule a new appointment.
+            You have not completed any vaccination yet.
           </p>
           <button
             onClick={() => navigate('/variantsPage')}
@@ -245,10 +250,10 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
                           </div>
                           <div
                             className={`bg-white p-6 rounded-2xl shadow-sm border transition-all duration-300 ${dose.status.toLowerCase() === 'cancel'
-                                ? 'border-red-200 hover:border-red-300'
-                                : isOverdueVaccine
-                                  ? 'border-amber-200 hover:border-amber-300'
-                                  : 'border-gray-100 hover:border-indigo-200'
+                              ? 'border-red-200 hover:border-red-300'
+                              : isOverdueVaccine
+                                ? 'border-amber-200 hover:border-amber-300'
+                                : 'border-gray-100 hover:border-indigo-200'
                               }`}
                           >
                             <div className="flex items-start justify-between gap-4">
@@ -311,17 +316,18 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
                                   </div>
                                 )}
                                 {dose.reaction && (
-                                  <div className={`flex items-center gap-3 p-4 ${dose.reaction === 'Nothing' ? 'bg-amber-50' : 'bg-green-50'
+                                  <div className={`flex items-center gap-3 p-4 ${dose.status.toLowerCase() === 'cancel' ? 'bg-gray-50' : dose.reaction.toLowerCase() === 'nothing' ? 'bg-amber-50' : 'bg-green-50'
                                     } rounded-xl transition-all duration-300`}>
-
-                                    {dose.reaction === 'Nothing' ? (
+                                    {dose.status.toLowerCase() === 'cancel' ? (
+                                      <Ban className="w-5 h-5 text-red-500" />
+                                    ) : dose.reaction.toLowerCase() === 'nothing' ? (
                                       <AlertCircle className="w-5 h-5 text-amber-500" />
                                     ) : (
                                       <CheckCircle className="w-5 h-5 text-green-500" />
                                     )}
 
                                     <div className="flex-1">
-                                      <span className={`font-medium block ${dose.reaction === 'Nothing' ? 'text-amber-700' : 'text-green-700'
+                                      <span className={`font-medium block ${dose.reaction.toLowerCase() === 'nothing' ? 'text-amber-700' : 'text-green-700'
                                         }`}>
                                         Reaction
                                       </span>
@@ -329,7 +335,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
                                       {checkReaction.some(item => item.trackingID === dose.trackingID) ? (
                                         <button
                                           onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: true }))}
-                                          className={`mt-2 flex items-center gap-2 ${dose.reaction === 'Nothing'
+                                          className={`mt-2 flex items-center gap-2 ${dose.reaction.toLowerCase() === 'nothing'
                                             ? 'text-amber-600 hover:text-amber-700'
                                             : 'text-green-600 hover:text-green-700'
                                             } transition-colors text-sm`}
@@ -338,10 +344,15 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
                                           Add Reaction
                                         </button>
                                       ) : (
-                                        <span className={dose.reaction === 'Nothing' ? 'text-amber-600' : 'text-green-600'}>
-                                          {(dose.status).toLowerCase() !== 'success'
-                                            ? 'After completed vaccination, you can add your reaction'
-                                            : dose.reaction}
+                                        <span className={dose.status.toLowerCase() === 'cancel' ? 'text-red-600' : dose.reaction.toLowerCase() === 'nothing' ? 'text-amber-600' : 'text-green-600'}>
+                                          {dose.status.toLowerCase() === 'cancel'
+                                            ? 'You cannot add a reaction '
+                                            :
+                                            dose.status.toLowerCase() !== 'success'
+                                              ? 'After completed vaccination, you can add your reaction'
+                                              : dose.reaction
+                                          }
+
                                         </span>
                                       )}
 
@@ -352,7 +363,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
                                             placeholder="Describe any reactions..."
                                             value={reaction[dose.trackingID] || ""}
                                             onChange={(e) => setReaction(prev => ({ ...prev, [dose.trackingID]: e.target.value }))}
-                                            className={`w-full p-2 text-sm border ${dose.reaction === 'Nothing'
+                                            className={`w-full p-2 text-sm border ${dose.reaction.toLowerCase() === 'nothing'
                                               ? 'border-amber-200 focus:ring-amber-300 focus:border-amber-300'
                                               : 'border-green-200 focus:ring-green-300 focus:border-green-300'
                                               } rounded-lg focus:ring-2 outline-none resize-none`}
@@ -361,7 +372,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
                                           <div className="flex justify-end gap-2">
                                             <button
                                               onClick={() => setIsInput(prev => ({ ...prev, [dose.trackingID]: false }))}
-                                              className={`px-3 py-1 text-sm ${dose.reaction === 'Nothing'
+                                              className={`px-3 py-1 text-sm ${dose.reaction.toLowerCase() === 'nothing'
                                                 ? 'text-amber-700 bg-amber-50 hover:bg-amber-100'
                                                 : 'text-green-700 bg-green-50 hover:bg-green-100'
                                                 } rounded-lg transition-colors`}
@@ -370,7 +381,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
                                             </button>
                                             <button
                                               onClick={() => handleSubmit(dose.trackingID)}
-                                              className={`px-3 py-1 text-sm text-white ${dose.reaction === 'Nothing'
+                                              className={`px-3 py-1 text-sm text-white ${dose.reaction.toLowerCase() === 'nothing'
                                                 ? 'bg-amber-500 hover:bg-amber-600'
                                                 : 'bg-green-500 hover:bg-green-600'
                                                 } rounded-lg transition-colors`}

@@ -11,7 +11,6 @@ import PageProfile from "../pages/PageProfile";
 import DashboardPage from "../pages/dashboardPage";
 import FeedbackPage from "../pages/feedbackPage";
 import StaffPage from "../pages/staffPage";
-import { FeedbackProvider } from "../components/Context/FeedbackContext";
 import { AuthProvider } from "../components/Context/AuthContext";
 import PrivateRoute from "../utils/PrivateRoute";
 import ModalReloadPage from "../components/modalReloadPage";
@@ -85,14 +84,7 @@ function App() {
           <Route path="/dashboardPage/:section" element={<DashboardPage />} />
           <Route path="/staffPage/:section" element={<StaffPage />} />
           <Route path="/pageProfile/:section/:id" element={<PageProfile />} />
-          <Route
-            path="/feedbackPage"
-            element={
-              <FeedbackProvider>
-                <FeedbackPage />
-              </FeedbackProvider>
-            }
-          />
+          <Route path="/feedbackPage" element={<FeedbackPage />} />
 
           {/* Nested Layout Routes */}
           <Route element={<Layout />}>

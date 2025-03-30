@@ -7,6 +7,7 @@ import Tracking from './Section/tracking/tracking'
 import ListChildren from '../Tracking&History/Section/children/listChidren';
 import AvatarHomePage from '../home/avatarHomePage'
 import formatDate from '../../utils/Date';
+
 const RightSide = ({ section, id }) => {
     const getHeaderIcon = () => {
         switch (section) {
@@ -16,6 +17,7 @@ const RightSide = ({ section, id }) => {
             default: return '🏥';
         }
     };
+
     const renderContent = () => {
         switch (section) {
             case 'profile': return <Profile id={id} />;
@@ -27,52 +29,40 @@ const RightSide = ({ section, id }) => {
     }
 
     return (
-        <div className="p-4 bg-gray-50 min-h-screen">
-            {/* Enhanced Header */}
-            <div className="sticky top-0 bg-white backdrop-blur-md z-20 rounded-2xl shadow-md">
-                <div className="px-8 py-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="p-2 sm:p-4 bg-gray-50 min-h-screen">
+            {/* Enhanced Header - Hidden on mobile */}
+            <div className="hidden lg:block sticky top-0 bg-white backdrop-blur-md z-20 rounded-xl sm:rounded-2xl shadow-md">
+                <div className="p-4 sm:px-6 md:px-8 py-4 sm:py-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
                         {/* Enhanced Left Side */}
-                        <div className="space-y-3">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex items-center space-x-3">
-                                    <span className="text-2xl">{getHeaderIcon()}</span>
-                                    <h1 className="text-2xl font-bold text-gray-800 capitalize">
+                        <div className="space-y-2 sm:space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <div className="flex items-center space-x-2 sm:space-x-3">
+                                    <span className="text-xl sm:text-2xl">{getHeaderIcon()}</span>
+                                    <h1 className="text-xl sm:text-2xl font-bold text-gray-800 capitalize">
                                         {section || 'Profile'}
                                     </h1>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    
-                                    <span className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
+                                    <span className="px-2 sm:px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full">
                                         {formatDate(new Date())}
                                     </span>
                                 </div>
                             </div>
-
                         </div>
 
                         {/* Enhanced Right Side */}
-
-                        <div className="flex items-center space-x-4">
-                            {/* Enhanced Notification Bell */}
-                            {/* <button className="relative p-3 rounded-xl hover:bg-gray-100 transition-all duration-200
-                                             group focus:outline-none focus:ring-2 focus:ring-blue-100">
-                                <NotificationsNoneOutlinedIcon className="w-6 h-6 text-gray-600 group-hover:text-blue-500" />
-                                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full
-                                               group-hover:animate-pulse"></span>
-                            </button> */}
-
+                        <div className="flex items-center space-x-3 sm:space-x-4">
                             {/* Enhanced User Menu */}
                             <AvatarHomePage />
-
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Content Section */}
-            <div className="mt-6 bg-white rounded-2xl shadow-sm p-6">
-              {renderContent()}
+            <div className="mt-4 sm:mt-6 bg-white rounded-xl sm:rounded-2xl shadow-sm p-3 sm:p-4 md:p-6">
+                {renderContent()}
             </div>
         </div>
     )

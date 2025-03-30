@@ -5,6 +5,8 @@ import { FiCalendar, FiClock } from "react-icons/fi";
 import { Syringe, LayoutDashboard } from "lucide-react";
 import Sidebar from "../ui/SideBar";
 import { FaBars } from "react-icons/fa";
+import { vaccineAction } from "../redux/reducers/selectVaccine";
+import { childAction } from "../redux/reducers/selectChildren";
 
 const LeftSide = ({ section, isSidebarOpen, setIsSidebarOpen }) => {
   const navigate = useNavigate();
@@ -18,10 +20,14 @@ const LeftSide = ({ section, isSidebarOpen, setIsSidebarOpen }) => {
   ];
 
   const handleLogout = () => {
-    dispatch(accountAction.clearUser());
-    navigate("/loginPage");
+    dispatch(accountAction.clearUser())
+    dispatch(vaccineAction.completePayment())
+    dispatch(childAction.completePayment())
+    dispatch(childAction.resetArriveDate());
+    localStorage.removeItem('authTokens');
+    navigate('/loginPage');
     setIsSidebarOpen(false);
-  };
+};
 
   return (
     <div>

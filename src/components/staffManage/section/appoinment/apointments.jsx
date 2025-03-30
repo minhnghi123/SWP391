@@ -162,19 +162,7 @@ const BookingManagementPage = () => {
     }
     setLoading(true);
     try {
-      // Check if booking had successful first dose
-      const isFirstDoseSuccess = tracking.some(
-        (item) => item.bookingId === bookingId &&
-          item.previousVaccination === 0 &&
-          item.status.toLowerCase() === "success"
-      );
-      const refundPercentageValue = isFirstDoseSuccess ? 0 : 1;
-
-      // if (!refundPercentageValue) {
-      //   toast.info("Refund not applicable for this booking.");
-      //   setModalRefund(false);
-      //   return;
-      // }
+     
 
       // Get booking details
       const booking = appointments.find((item) => item.id === bookingId);
@@ -192,8 +180,9 @@ const BookingManagementPage = () => {
       // Execute refund
       const value = {
         bookingID: bookingId,
-        paymentStatusEnum: refundPercentageValue,
+        paymentStatusEnum: refundPercentage === 50 ? 0 : 1,
       }
+     
       const response = await api.post(refundEndpoint, value);
 
       if (response.status === 200) {
@@ -206,7 +195,8 @@ const BookingManagementPage = () => {
         );
         toast.success("Refunded successfully!");
         setModalRefund(false);
-      } else {
+      } 
+      else {
         throw new Error("Refund request failed");
       }
 
@@ -217,7 +207,7 @@ const BookingManagementPage = () => {
       setLoading(false);
     }
   };
-
+  console.log(refundPercentage);
   // Pagination logic
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

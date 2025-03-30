@@ -35,6 +35,7 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
                 toast.success("Refunded successfully!");
                 setTrigger(true);
                 setModalRefund(false);
+                setRefundPercentage(0);
             } else {
                 toast.error("Refund failed.");
             }
@@ -52,11 +53,8 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
             const res = await api.get(`${url}/VaccinesTracking/get-by-booking-id/${bookingId}`);
             if (res.status === 200) {
                 const trackingData = res.data;
-                const hasFirstDoseSuccess = trackingData.some(item =>
-                    item.previousVaccination === 0 && item.status.toLowerCase() === "success"
-                );
-
-                setRefundPercentage(hasFirstDoseSuccess ? 50 : 100);
+                const checkFirstDose = trackingData.some(item => item.bookingId == bookingId && item.previousVaccination === 0 && item.status.toLowerCase() === "success")
+                setRefundPercentage(checkFirstDose ? 50 : 100);
                 setModalRefund(true);
             }
         } catch (error) {

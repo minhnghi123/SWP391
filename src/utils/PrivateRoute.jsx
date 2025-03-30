@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import Unauthorized from '../pages/unauthorizedPage'; // Assuming you have this component
+import Unauthorized from '../pages/unauthorizedPage'; 
 
 const PrivateRoute = () => {
     const user = useSelector(state => state.account.user);

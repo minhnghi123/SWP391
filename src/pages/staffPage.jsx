@@ -5,23 +5,16 @@ import { useState } from "react";
 
 const StaffPage = () => {
   const { section } = useParams();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
 
   return (
-    <div className="flex min-h-screen bg-white">
-      {/* LeftSide (Sidebar) */}
-      <LeftSide
-        section={section}
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+    <div className="flex flex-col lg:flex-row min-h-screen bg-white">
+      <div className="w-full lg:w-[210px] lg:min-w-[210px]">
+        <LeftSide section={section} />
+      </div>
 
-      {/* RightSide (Main Content) */}
-      <div className="flex-1">
-        <RightSide
-          section={section || "dashboardStaff"}
-          isSidebarOpen={isSidebarOpen}
-        />
+      <div className="flex-1 w-full">
+        <RightSide section={section || 'dashboardStaff'} />
       </div>
     </div>
   );

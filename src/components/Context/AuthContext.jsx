@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     };
     const loginByGoogle = async (data) => {
         const value = { googleToken: data.googleToken, clientID: data.clientID };
-       
+
         try {
             const res = await addData('User/login-by-google', value);
             if (res.status === 200 && res.data?.res) {
@@ -88,10 +88,19 @@ export const AuthProvider = ({ children }) => {
                     role: decoded.Role,
                     avatar: decoded.Avatar,
                 }));
-                
+
                 setTimeout(() => {
-                    toast.success("Login successfully")
-                    navigate('/')
+                    if (decoded.Role.toLowerCase() === 'admin') {
+                        toast.success("Welcome back Admin")
+                        navigate('/dashboardPage/dashboard')
+                    } else if (decoded.Role.toLowerCase() === 'user') {
+                        toast.success("Login successfully")
+                        navigate('/')
+                    }
+                    else {
+                        toast.success("Welcome comeback Staff")
+                        navigate('/staffPage/dashboardStaff')
+                    }
                 }, 1000)
             }
         } catch (error) {

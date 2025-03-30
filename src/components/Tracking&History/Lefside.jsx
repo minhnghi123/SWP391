@@ -7,17 +7,10 @@ import { accountAction } from "../redux/reducers/accountSlice";
 import { vaccineAction } from "../redux/reducers/selectVaccine";
 import { childAction } from "../redux/reducers/selectChildren";
 
-const LeftSide = ({ section , id }) => {
+const LeftSide = ({ section, id }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const handleLogout = () => {
-    dispatch(accountAction.clearUser())
-    dispatch(vaccineAction.completePayment())
-    dispatch(childAction.completePayment())
-    dispatch(childAction.resetArriveDate());
-    localStorage.removeItem('authTokens');
-    navigate('/loginPage');
-};
+
 
   const menuItems = [
     { id: "profile", icon: FiUser, label: "Your Profile" },
@@ -26,6 +19,15 @@ const LeftSide = ({ section , id }) => {
     { id: "history", icon: FiClock, label: "History" },
   ];
 
+  const handleLogout = () => {
+    dispatch(accountAction.clearUser())
+    dispatch(vaccineAction.completePayment())
+    dispatch(childAction.completePayment())
+    dispatch(childAction.resetArriveDate());
+    dispatch(childAction.replaceAdvitory())
+    localStorage.removeItem('authTokens');
+    navigate('/loginPage');
+  };
   return (
     <Sidebar
       title="Health"

@@ -189,7 +189,7 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
             const response = await api.post(`${url}/Booking/add-booking-by-staff`, bookingData);
             if (response.status === 200 && response.data.toLowerCase() === 'success') {
                 toast.success("Booking created successfully");
-                setTrigger(true);
+                setTrigger(prev => !prev);
                 handleClose();
             } else {
                 console.warn("API response error:", response.data);

@@ -146,7 +146,7 @@ const CardTable = ({
                           onClick={() => {
                             setModalRefund(true)
                             setSelectedBooking(appointment)
-                            const checkFirstDose = tracking.find(item => item.bookingId === appointment.id && item.previousVaccination === 0 && item.status.toLowerCase() === "success")
+                            const checkFirstDose = tracking.some(item=>item.bookingId == appointment.id && item.previousVaccination === 0 && item.status.toLowerCase() === "success")
                             setRefundPercentage(checkFirstDose ? 50 : 100)
                           }}
                           disabled={loading}

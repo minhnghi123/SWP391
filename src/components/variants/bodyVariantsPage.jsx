@@ -9,7 +9,7 @@ import ModalDetailVaccine from "../home/modalDetailVaccine";
 import ModalDetailCombo from "../home/modalDetailCombo";
 import useAxios from "../../utils/useAxios";
 import Infomation from "../../../Infomation.json";
-import Pagination from "../../utils/pagination"; // Import the external Pagination component
+import Pagination from "../../utils/pagination";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -39,17 +39,15 @@ function BodyVariants() {
   const [selectedCombo, setSelectedCombo] = useState(null);
   const [isOpenCombo, setIsOpenCombo] = useState(false);
 
-  // Pagination states for Single Vaccines
   const [vaccinePage, setVaccinePage] = useState(1);
   const [vaccineItemsPerPage, setVaccineItemsPerPage] = useState(6);
-  const [vaccineSortField, setVaccineSortField] = useState("name"); // Sorting field for vaccines
-  const [vaccineSortOrder, setVaccineSortOrder] = useState("asc"); // Sorting order for vaccines
+  const [vaccineSortField, setVaccineSortField] = useState("name");
+  const [vaccineSortOrder, setVaccineSortOrder] = useState("asc");
 
-  // Pagination states for Combo Vaccines
   const [comboPage, setComboPage] = useState(1);
   const [comboItemsPerPage, setComboItemsPerPage] = useState(6);
-  const [comboSortField, setComboSortField] = useState("comboName"); // Sorting field for combos
-  const [comboSortOrder, setComboSortOrder] = useState("asc"); // Sorting order for combos
+  const [comboSortField, setComboSortField] = useState("comboName");
+  const [comboSortOrder, setComboSortOrder] = useState("asc");
 
   const handleSelectVaccine = (vaccine) => {
     setSelectedVaccine(vaccine);
@@ -93,7 +91,6 @@ function BodyVariants() {
     };
   }, [url]);
 
-  // Filtering and Sorting for Single Vaccines
   const filteredVaccines = vaccines.filter((vaccine) =>
     vaccine.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -117,7 +114,6 @@ function BodyVariants() {
     vaccineEndIndex
   );
 
-  // Filtering and Sorting for Combo Vaccines
   const filteredCombos = comboVaccine.filter((combo) =>
     combo.comboName.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -214,14 +210,14 @@ function BodyVariants() {
           <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text">
             Vaccine Booking
           </h1>
-          <div></div>
+          <div className="w-10"></div> {/* Placeholder để cân đối */}
         </div>
       </header>
 
       <div className="max-w-[1400px] mx-auto px-4 py-6">
         {/* Search and Filter */}
         <div className="mb-8 flex flex-col sm:flex-row gap-4 items-center">
-          <div className="relative flex-1">
+          <div className="relative w-full sm:flex-1">
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -235,7 +231,7 @@ function BodyVariants() {
             />
           </div>
           <select
-            className="px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:border-blue-400 transition-all cursor-pointer"
+            className="w-full sm:w-auto px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:border-blue-400 transition-all cursor-pointer"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
@@ -245,10 +241,10 @@ function BodyVariants() {
           </select>
         </div>
 
-        {/* Main Content - 7:3 Layout */}
+        {/* Main Content */}
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left Side - Vaccine List (70%) */}
-          <div className="lg:w-[75%] space-y-8">
+          {/* Vaccine List */}
+          <div className="w-full lg:w-[75%] space-y-8">
             {(filterType === "All" || filterType === "Single") && (
               <section>
                 <div className="flex justify-between items-center mb-4">
@@ -262,7 +258,7 @@ function BodyVariants() {
                 {filteredVaccines.length === 0 ? (
                   <p className="text-gray-500">No vaccines found.</p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {paginatedVaccines.map((item) => (
                       <Variants
                         key={`vaccine-${item.id}`}
@@ -309,7 +305,7 @@ function BodyVariants() {
                 {filteredCombos.length === 0 ? (
                   <p className="text-gray-500">No combos found.</p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {paginatedCombos.map((combo) => (
                       <Variants
                         key={`combo-${combo.id}`}
@@ -364,9 +360,9 @@ function BodyVariants() {
             )}
           </div>
 
-          {/* Right Side - Cart Summary (30%) */}
-          <div className="lg:w-[25%]">
-            <div className="bg-white p-6 rounded-xl shadow-md static top-[19rem]">
+          {/* Cart Summary */}
+          <div className="w-full lg:w-[25%] mt-6 lg:mt-0">
+            <div className="bg-white p-6 rounded-xl shadow-md">
               <h2 className="text-xl font-bold mb-6 pb-2 border-b">
                 Booking Summary
               </h2>
@@ -384,9 +380,7 @@ function BodyVariants() {
                 </div>
               ) : (
                 <>
-                  {/* Cart Items */}
                   <div className="max-h-[calc(100vh-300px)] overflow-y-auto mb-4 pr-2">
-                    {/* Vaccines Section */}
                     {cart.filter((item) => item.type === "vaccine").length >
                       0 && (
                       <div className="mb-4">
@@ -423,9 +417,7 @@ function BodyVariants() {
                       </div>
                     )}
 
-                    {/* Combos Section */}
-                    {cart.filter((item) => item.type === "combo").length >
-                      0 && (
+                    {cart.filter((item) => item.type === "combo").length > 0 && (
                       <div className="mb-4">
                         <h3 className="font-medium text-gray-700 mb-2">
                           Combos
@@ -461,7 +453,6 @@ function BodyVariants() {
                     )}
                   </div>
 
-                  {/* Price Summary */}
                   <div className="border-t pt-4 mt-2">
                     <div className="flex justify-between items-center text-lg font-bold mt-4 pt-2 border-t">
                       <span>Total</span>
@@ -473,7 +464,6 @@ function BodyVariants() {
                 </>
               )}
 
-              {/* Checkout Button */}
               <button
                 onClick={() => navigate(`/information/${user?.id}`)}
                 className={`w-full py-3 rounded-lg mt-6 transition-colors flex items-center justify-center ${
@@ -490,6 +480,7 @@ function BodyVariants() {
           </div>
         </div>
       </div>
+
       {isOpen && (
         <ModalDetailVaccine
           isOpen={isOpen}

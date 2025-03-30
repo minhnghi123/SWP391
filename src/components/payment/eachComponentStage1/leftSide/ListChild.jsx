@@ -1,4 +1,5 @@
 import CalculateAge from "../../../../utils/calculateYearOld"
+import ToUperCaseFirstLetter from '../../../../utils/upperCaseFirstLetter'
 const ListChild = ({ child, index, isSelected, handleChoose, isVaccineSuitableForAnyChild, isComboSuitableForAnyChild }) => {
     // Check if the child is suitable for any vaccine or combo
     const isVaccineSuitable = isVaccineSuitableForAnyChild ? isVaccineSuitableForAnyChild(child) : true;
@@ -46,7 +47,7 @@ const ListChild = ({ child, index, isSelected, handleChoose, isVaccineSuitableFo
                     {/* Child Details */}
                     <div className="space-y-1">
                         <h4 className="text-lg font-semibold text-gray-900">
-                            {child.name}
+                            {ToUperCaseFirstLetter(child.name)}
                         </h4>
                         <div className="flex items-center gap-4 text-sm">
                             <span className="text-gray-600">

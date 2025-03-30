@@ -131,6 +131,16 @@ export default function BodyHomePage() {
     const isBooking = useSelector((state) => state.vaccine.isBooking);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedVaccine, setSelectedVaccine] = useState(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleSelectVaccine = (vaccine) => {
         setSelectedVaccine(vaccine);
@@ -147,12 +157,15 @@ export default function BodyHomePage() {
                 ]);
 
                 if (vaccineRes.status === 200 && feedbackRes.status === 200 && userRes.status === 200) {
-                    const sortedTop3 = [...vaccineRes.data]
-                        .sort((a, b) => b.price - a.price)
-                        .slice(0, 3);
-                    const top3Feedback = feedbackRes.data.sort((a, b) => b.rating - a.rating).slice(0, 3);
-                    setBestVaccine(sortedTop3);
-                    setFeedback(top3Feedback);
+                    const sortedVaccines = [...vaccineRes.data].sort((a, b) => b.price - a.price);
+                    const sortedFeedback = feedbackRes.data.sort((a, b) => b.rating - a.rating);
+
+                    // Set number of items based on screen size
+                    const vaccineCount = isMobile ? 4 : 3;
+                    const feedbackCount = isMobile ? 4 : 3;
+
+                    setBestVaccine(sortedVaccines.slice(0, vaccineCount));
+                    setFeedback(sortedFeedback.slice(0, feedbackCount));
                     setUser(userRes.data);
                 }
             } catch (error) {
@@ -160,7 +173,7 @@ export default function BodyHomePage() {
             }
         };
         fetchData();
-    }, []);
+    }, [isMobile]); // Re-fetch when screen size changes
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -344,7 +357,7 @@ export default function BodyHomePage() {
                 <motion.div
                     variants={staggerContainer}
                     className='container mx-auto px-4 py-6 md:py-8'>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative'>
+                    <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative'>
                         {bestVaccine?.length > 0 ? (
                             bestVaccine.map((vaccine) => (
                                 <motion.div
@@ -484,15 +497,20 @@ export default function BodyHomePage() {
                             description={"Access and manage your child's complete health records anytime, anywhere with secure digital storage."}
                         />
                     </motion.div>
-                    <motion.div
-                        variants={slideFromRight}
-                        whileHover={{ scale: 1.05, y: -10 }}>
-                        <BenefitforParents
-                            image={img7}
-                            title={"Expert Support"}
-                            description={"Get instant access to healthcare professionals and expert advice for your child's health needs."}
-                        />
-                    </motion.div>
+                    {
+                        !isMobile && (
+                            <motion.div
+                                variants={slideFromRight}
+                                whileHover={{ scale: 1.05, y: -10 }}>
+                                <BenefitforParents
+                                    image={img7}
+                                    title={"Expert Support"}
+                                    description={"Get instant access to healthcare professionals and expert advice for your child's health needs."}
+                                />
+                            </motion.div>
+
+                        )
+                    }
                 </motion.div>
             </motion.div>
 
@@ -541,7 +559,7 @@ export default function BodyHomePage() {
                 {/* Feedback Cards Container */}
                 <motion.div
                     variants={staggerContainer}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {feedback.map((item) => (
                         <motion.div
                             key={item.id}

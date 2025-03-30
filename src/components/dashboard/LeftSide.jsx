@@ -5,7 +5,8 @@ import { CiUser } from "react-icons/ci";
 import { FaCalendarAlt, FaRegStar, FaBars } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { accountAction } from "../redux/reducers/accountSlice";
-
+import { vaccineAction } from "../redux/reducers/selectVaccine";
+import { childAction } from "../redux/reducers/selectChildren";
 const LeftSide = ({ section, isSidebarOpen, setIsSidebarOpen }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -21,9 +22,13 @@ const LeftSide = ({ section, isSidebarOpen, setIsSidebarOpen }) => {
   ];
 
   const handleLogout = () => {
-    dispatch(accountAction.clearUser());
-    navigate("/loginPage");
-  };
+    dispatch(accountAction.clearUser())
+    dispatch(vaccineAction.completePayment())
+    dispatch(childAction.completePayment())
+    dispatch(childAction.resetArriveDate());
+    localStorage.removeItem('authTokens');
+    navigate('/loginPage');
+};
 
   return (
     <div>

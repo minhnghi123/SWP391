@@ -8,11 +8,11 @@ import ChildCard from "./eachComponentStage1/rightSide/ChildCard";
 import ChooseDateVaccination from "./eachComponentStage1/rightSide/ChooseDateVaccination";
 import FormAdvitory_detail from "./eachComponentStage1/rightSide/FormAdvitory_detail";
 import NoSelectChildren from "./eachComponentStage1/rightSide/NoSelectChildren";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../../utils/useAxios";
 import CalculateAge from "../../utils/calculateYearOld";
 import { toast } from "react-toastify";
+import { fetchHistoryTracking,fetchBooking } from "../redux/actions/historyTracking";
 const url = import.meta.env.VITE_BASE_URL_DB
 export default function Stage1Payment({ id }) {
   const api = useAxios()
@@ -45,49 +45,50 @@ export default function Stage1Payment({ id }) {
 
 
 
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
   useEffect(() => {
     if (!id) return;
-    const getUserData = async () => {
-      setLoading(true);
-      setErr(null);
-      setUser(null);
-      setChild([]);
-      try {
-        // Gọi API lấy thông tin user
-        const userResponse = await api.get(`${url}/User/get-user-by-id/${id}`);
-        if (userResponse.status === 200) {
-          setUser(userResponse.data.user);
-        } else {
-          setErr("Failed to fetch user data");
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
+    getUserData();
+    dispatch(fetchHistoryTracking(api,id))
+    dispatch(fetchBooking(api,id))
+  }, [id, trigger]);
+  const getUserData = async () => {
+    setLoading(true);
+    setErr(null);
+    setUser(null);
+    setChild([]);
+    try {
+      // Gọi API lấy thông tin user
+      const userResponse = await api.get(`${url}/User/get-user-by-id/${id}`);
+      if (userResponse.status === 200) {
+        setUser(userResponse.data.user);
+      } else {
         setErr("Failed to fetch user data");
       }
-      try {
-        // Gọi API lấy danh sách child
-        const childResponse = await api.get(`${url}/Child/get-child-by-parents-id/${id}`);
-        if (childResponse.status === 200 && Array.isArray(childResponse.data)) {
-          setChild(childResponse.data);
-        } else {
-          setChild([]);
-          setErr("Failed to fetch child data");
-        }
-      } catch (error) {
-        console.error("Error fetching child:", error);
-        setErr("Failed to fetch child data");
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setErr("Failed to fetch user data");
+    }
+    try {
+      // Gọi API lấy danh sách child
+      const childResponse = await api.get(`${url}/Child/get-child-by-parents-id/${id}`);
+      if (childResponse.status === 200 && Array.isArray(childResponse.data)) {
+        setChild(childResponse.data);
+      } else {
         setChild([]);
-      } finally {
-        setLoading(false);
+        setErr("Failed to fetch child data");
       }
-    };
-
-    getUserData();
-  }, [id, trigger]);
-
+    } catch (error) {
+      console.error("Error fetching child:", error);
+      setErr("Failed to fetch child data");
+      setChild([]);
+    } finally {
+      setLoading(false);
+    }
+  };
   // console.log(listChildren)
   //create child
   const handleOnchange = (e) => {
@@ -219,8 +220,9 @@ export default function Stage1Payment({ id }) {
             setIsOpenFirst={setIsOpenFirst}
             isVaccineSuitableForAnyChild={isVaccineSuitableForAnyChild}
             isComboSuitableForAnyChild={isComboSuitableForAnyChild}
+            loading={loading}
           />
-          {isOpenFirst && <FormAddChildren handleOnchange={handleOnchange} handleSubmit={handleSubmit} err={err} />}
+          {isOpenFirst && <FormAddChildren handleOnchange={handleOnchange} handleSubmit={handleSubmit} err={err} loading={loading} />}
         </div>
 
 

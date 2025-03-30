@@ -1,8 +1,10 @@
 import ListChild from "./ListChild";
+
 const ChildrenList = ({ loading, listChildren, child, handleAddChildren, isOpenFirst, setIsOpenFirst, isVaccineSuitableForAnyChild, isComboSuitableForAnyChild }) => {
     if (loading) {
-        return <div className="text-center py-6 text-gray-500">Loading...</div>
+        return <div className="text-center py-6 text-gray-500">Loading...</div>;
     }
+
     return (
         <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
             <div className="flex items-center justify-between mb-8">
@@ -40,22 +42,46 @@ const ChildrenList = ({ loading, listChildren, child, handleAddChildren, isOpenF
                         />
                     ))
                 ) : (
-                    <div className="text-center py-6 text-gray-500">Not Found</div>
+                    <div className="mt-6 flex flex-col items-center justify-center text-center">
+                        {/* Optional Illustration/Icon */}
+                        <svg
+                            className="w-24 h-24 text-gray-300 mb-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
+                        </svg>
+
+                        {/* Message */}
+                        <h4 className="text-lg font-semibold text-gray-700 mb-2">
+                            No Children Added Yet
+                        </h4>
+                        <p className="text-sm text-gray-500 mb-6 max-w-md">
+                            Get started by adding your first child to manage their vaccination schedule easily and efficiently.
+                        </p>
+
+                        {/* Enhanced Button */}
+                        {/* <button
+                            onClick={() => setIsOpenFirst(!isOpenFirst)}
+                            className="px-8 py-3 bg-gradient-to-r from-[#00a0aa] to-[#3AC5C9] text-white rounded-xl font-medium shadow-lg hover:shadow-xl hover:opacity-95 transition-all transform hover:scale-105"
+                        >
+                            Add Your First Child
+                        </button> */}
+                    </div>
                 )}
             </div>
 
-            {/* If no children */}
-            {child?.length === 0 && (
-                <div className="mt-6 text-center">
-                    <button
-                        onClick={() => setIsOpenFirst(!isOpenFirst)}
-                        className="px-6 py-3 bg-gradient-to-r from-[#00a0aa] to-[#3AC5C9] text-white rounded-xl font-medium shadow-md hover:opacity-90 transition-all"
-                    >
-                        Add Your First Child
-                    </button>
-                </div>
-            )}
+
+
         </div>
     );
 };
+
 export default ChildrenList;

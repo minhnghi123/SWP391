@@ -7,7 +7,7 @@ export const fetchFeedback = (api) => {
         try {
             const res = await api.get(`${url}/Feedback/get-all-feedback`);
             if (res.status === 200 && res.data) {
-                dispatch(feedbackTrackingActions.setFeedback(res.data.filter(item => item.ratingScore > 3)));
+                dispatch(feedbackTrackingActions.setFeedback(res.data));
             }
         } catch (err) {
             dispatch(feedbackTrackingActions.setError(err.message));
@@ -55,7 +55,7 @@ export const postFeedback = (api, data) => {
         try {
             const res = await api.post(`${url}/Feedback/create-feedback`, data);
             if (res.status === 200 && res.data) {
-                dispatch(feedbackTrackingActions.setPostFeedback(res.data));
+                dispatch(feedbackTrackingActions.setPostFeedback(data));
                 return true;
             }
         } catch (err) {

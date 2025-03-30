@@ -1,4 +1,4 @@
-
+import ToUperCaseFirstLetter from '../../../../utils/upperCaseFirstLetter'
 const ProfileUser = ({id,name,img,status,email}) => {
     return (
 
@@ -16,7 +16,7 @@ const ProfileUser = ({id,name,img,status,email}) => {
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-xl font-bold text-gray-900">{name}</h2>
+                        <h2 className="text-xl font-bold text-gray-900">{ToUperCaseFirstLetter(name)}</h2>
                         <span className="px-4 py-1.5 bg-teal-50 text-teal-600 rounded-full text-sm font-medium">
                            {status}
                         </span>

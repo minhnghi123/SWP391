@@ -3,13 +3,21 @@ import { FiUser, FiCalendar, FiClock } from "react-icons/fi";
 import { Baby } from "lucide-react";
 import Sidebar from "../ui/SideBar";
 import { useDispatch } from "react-redux";
+import { accountAction } from "../redux/reducers/accountSlice";
+import { vaccineAction } from "../redux/reducers/selectVaccine";
+import { childAction } from "../redux/reducers/selectChildren";
+
 const LeftSide = ({ section , id }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleLogout = () => {
-    dispatch(clearUser());
-    navigate("/loginPage");
-  };
+    dispatch(accountAction.clearUser())
+    dispatch(vaccineAction.completePayment())
+    dispatch(childAction.completePayment())
+    dispatch(childAction.resetArriveDate());
+    localStorage.removeItem('authTokens');
+    navigate('/loginPage');
+};
 
   const menuItems = [
     { id: "profile", icon: FiUser, label: "Your Profile" },

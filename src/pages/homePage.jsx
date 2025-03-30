@@ -7,7 +7,9 @@ export default function Home() {
   return (
     <div >
       {/* Header */}
-      <Header />
+      
+        <Header />
+      
 
       {/* Body */}
       <main className="flex-1">

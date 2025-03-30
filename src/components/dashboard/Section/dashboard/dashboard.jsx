@@ -22,7 +22,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch data functions (unchanged)
+  // Fetch data functions
   const fetchTotalVaccinations = async () => {
     try {
       const response = await api.get(`${url}/VaccinesTracking/get-all-admin`);
@@ -102,7 +102,7 @@ const Dashboard = () => {
       setSummaryData((prev) => ({
         ...prev,
         totalIncome: {
-          value: bookingAmounts.reduce((sum, amount) => sum + amount, 0),
+          value: bookingAmounts.reduce((sum, amount) => sum + amount, 0).toLocaleString('vi-VN'), // Định dạng VNĐ
           description: "Total Revenue",
         },
       }));
@@ -137,7 +137,7 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Transform data for charts (unchanged)
+  // Transform data for charts
   const bookingStatusData = [
     {
       name: "Success",
@@ -160,7 +160,7 @@ const Dashboard = () => {
     return {
       date: date.toISOString().split("T")[0],
       weekday: weekday,
-      revenue: Number(booking.amount) || 0,
+      revenue: Number(booking.amount || 0).toLocaleString('vi-VN'), // Định dạng VNĐ
     };
   });
 
@@ -172,20 +172,22 @@ const Dashboard = () => {
   }));
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">
+    <div className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100 min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           Dashboard Management
         </h1>
       </div>
+
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-        <div className="max-w-7xl mx-auto h-full">
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-full mx-auto">
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-3 sm:mb-6">
             <SummaryCard
               title="Total Vaccinations"
-              value={summaryData.totalVaccinations.value.toLocaleString()}
+              value={summaryData.totalVaccinations.value.toLocaleString('vi-VN')}
               description={summaryData.totalVaccinations.change}
               icon={Syringe}
             />
@@ -197,52 +199,56 @@ const Dashboard = () => {
             />
             <SummaryCard
               title="Available Vaccines"
-              value={summaryData.availableVaccines.value.toLocaleString()}
+              value={summaryData.availableVaccines.value.toLocaleString('vi-VN')}
               description={summaryData.availableVaccines.description}
               icon={Syringe}
             />
             <SummaryCard
               title="Total Income"
-              value={`$${summaryData.totalIncome.value.toLocaleString()}`}
+              value={`${summaryData.totalIncome.value} VNĐ`} // Thêm ký hiệu ₫
               description={summaryData.totalIncome.description}
               icon={CircleDollarSign}
             />
           </div>
 
           {/* Charts and Vaccine Inventory */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 flex-1 min-h-0">
+          <div className="space-y-4 sm:space-y-6">
             {/* Charts */}
-            {["bookingStatus", "revenueTrend"].map((type, index) => (
-              <div
-                key={index}
-                className="bg-white shadow-lg rounded-lg p-4 flex flex-col h-full"
-              >
-                <DashboardChart
-                  chartType={type}
-                  data={
-                    type === "bookingStatus"
-                      ? bookingStatusData
-                      : type === "revenueTrend"
-                      ? revenueData
-                      : vaccineStockData
-                  }
-                  title={
-                    type === "bookingStatus"
-                      ? "Booking Status"
-                      : type === "revenueTrend"
-                      ? "Revenue Trend"
-                      : "Vaccine Stock Levels"
-                  }
-                />
-              </div>
-            ))}
-          </div>
-          <div className="p-4 h-full flex-grow">
-            <VaccineInventory
-              displayedVaccines={displayedVaccines}
-              loading={loading}
-              error={error}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+              {["bookingStatus", "revenueTrend"].map((type, index) => (
+                <div
+                  key={index}
+                  className="bg-white shadow-lg rounded-lg p-3 sm:p-4 flex flex-col"
+                >
+                  <DashboardChart
+                    chartType={type}
+                    data={
+                      type === "bookingStatus"
+                        ? bookingStatusData
+                        : type === "revenueTrend"
+                        ? revenueData
+                        : vaccineStockData
+                    }
+                    title={
+                      type === "bookingStatus"
+                        ? "Booking Status"
+                        : type === "revenueTrend"
+                        ? "Revenue Trend"
+                        : "Vaccine Stock Levels"
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Vaccine Inventory */}
+            <div className="bg-white shadow-lg rounded-lg p-3 sm:p-4 flex flex-col">
+              <VaccineInventory
+                displayedVaccines={displayedVaccines}
+                loading={loading}
+                error={error}
+              />
+            </div>
           </div>
         </div>
       </main>

@@ -17,7 +17,8 @@ const url = import.meta.env.VITE_BASE_URL_DB;
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
-const formatCurrency = (value) => `$${value.toLocaleString()}`;
+// Định dạng tiền tệ sang VNĐ
+const formatCurrency = (value) => `${Number(value).toLocaleString('vi-VN')} ₫`;
 
 const formatDateWithDay = (dateStr, weekday) => {
   const date = new Date(dateStr);
@@ -30,7 +31,10 @@ const formatDateWithDay = (dateStr, weekday) => {
 };
 
 const DashboardChart = ({ chartType, title }) => {
-  const [selectedDate, setSelectedDate] = useState("");
+  const [filterType, setFilterType] = useState("all"); // "all", "month", "year", "day"
+  const [selectedMonth, setSelectedMonth] = useState("03"); // Mặc định tháng 3
+  const [selectedYear, setSelectedYear] = useState("2025"); // Mặc định năm 2025
+  const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split("T")[0]); // Mặc định ngày hiện tại
   const [bookingData, setBookingData] = useState([]); // Initialized as empty array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,25 +57,35 @@ const DashboardChart = ({ chartType, title }) => {
     fetchBookings();
   }, []);
 
-  // Process and filter data based on selected date
+  // Process and filter data based on filter type
   const processData = () => {
     if (!Array.isArray(bookingData) || bookingData.length === 0) return [];
 
-    const today = new Date();
-    const past30Days = new Date();
-    past30Days.setDate(today.getDate() - 30);
-
     const filteredBookings = bookingData.filter((booking) => {
       const bookingDate = new Date(booking.createdAt);
-      return selectedDate
-        ? bookingDate.toISOString().split("T")[0] === selectedDate
-        : bookingDate >= past30Days && bookingDate <= today;
+      const bookingMonth = (bookingDate.getMonth() + 1).toString().padStart(2, "0");
+      const bookingYear = bookingDate.getFullYear().toString();
+      const bookingDay = bookingDate.toISOString().split("T")[0];
+
+      if (filterType === "day") {
+        return bookingDay === selectedDay;
+      } else if (filterType === "month") {
+        return bookingMonth === selectedMonth && bookingYear === selectedYear;
+      } else if (filterType === "year") {
+        return bookingYear === selectedYear;
+      }
+      // Mặc định: 30 ngày gần nhất nếu filterType là "all"
+      const today = new Date();
+      const past30Days = new Date();
+      past30Days.setDate(today.getDate() - 30);
+      return bookingDate >= past30Days && bookingDate <= today;
     });
 
     return chartType === "bookingStatus"
       ? processBookingStatusData(filteredBookings)
       : processRevenueTrendData(filteredBookings);
   };
+
   // Process data for booking status pie chart
   const processBookingStatusData = (bookings) => {
     const statusCount = bookings.reduce((acc, booking) => {
@@ -87,19 +101,60 @@ const DashboardChart = ({ chartType, title }) => {
 
   // Process data for revenue trend
   const processRevenueTrendData = (bookings) => {
-    const revenueByDate = bookings.reduce((acc, booking) => {
-      const date = new Date(booking.createdAt).toISOString().split("T")[0];
-      const weekday = new Date(booking.createdAt).toLocaleDateString("en-US", {
-        weekday: "short",
+    if (filterType === "day") {
+      // Lọc theo ngày cụ thể
+      const revenue = bookings.reduce((sum, booking) => sum + (booking.amount || 0), 0);
+      const weekday = new Date(selectedDay).toLocaleDateString("en-US", { weekday: "short" });
+      return [{ date: selectedDay, weekday, revenue }];
+    } else if (filterType === "month") {
+      // Lọc theo ngày trong tháng
+      const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+      const revenueByDate = Array.from({ length: daysInMonth }, (_, i) => {
+        const day = (i + 1).toString().padStart(2, "0");
+        const dateStr = `${selectedYear}-${selectedMonth}-${day}`;
+        const weekday = new Date(dateStr).toLocaleDateString("en-US", { weekday: "short" });
+        const revenue = bookings
+          .filter((booking) => new Date(booking.createdAt).toISOString().split("T")[0] === dateStr)
+          .reduce((sum, booking) => sum + (booking.amount || 0), 0);
+        return { date: dateStr, weekday, revenue };
       });
-      if (!acc[date]) {
-        acc[date] = { date, revenue: 0, weekday };
-      }
-      acc[date].revenue += booking.amount || 0; // Assuming booking has an amount field
-      return acc;
-    }, {});
-
-    return Object.values(revenueByDate);
+      return revenueByDate.filter((item) => item.revenue > 0); // Chỉ hiển thị ngày có doanh thu
+    } else if (filterType === "year") {
+      // Lọc theo tháng trong năm
+      const revenueByMonth = Array.from({ length: 12 }, (_, i) => {
+        const month = (i + 1).toString().padStart(2, "0");
+        const dateStr = `${selectedYear}-${month}`;
+        const revenue = bookings
+          .filter((booking) => {
+            const date = new Date(booking.createdAt);
+            return (
+              date.getFullYear().toString() === selectedYear &&
+              (date.getMonth() + 1).toString().padStart(2, "0") === month
+            );
+          })
+          .reduce((sum, booking) => sum + (booking.amount || 0), 0);
+        return {
+          date: dateStr,
+          weekday: new Date(selectedYear, i, 1).toLocaleString("en-US", { month: "short" }),
+          revenue,
+        };
+      });
+      return revenueByMonth.filter((item) => item.revenue > 0); // Chỉ hiển thị tháng có doanh thu
+    } else {
+      // Mặc định: 30 ngày gần nhất
+      const revenueByDate = bookings.reduce((acc, booking) => {
+        const date = new Date(booking.createdAt).toISOString().split("T")[0];
+        const weekday = new Date(booking.createdAt).toLocaleDateString("en-US", {
+          weekday: "short",
+        });
+        if (!acc[date]) {
+          acc[date] = { date, revenue: 0, weekday };
+        }
+        acc[date].revenue += booking.amount || 0;
+        return acc;
+      }, {});
+      return Object.values(revenueByDate);
+    }
   };
 
   const filteredData = processData() || []; // Fallback to empty array if undefined
@@ -143,7 +198,9 @@ const DashboardChart = ({ chartType, title }) => {
               dataKey="date"
               tickFormatter={(date) => {
                 const item = filteredData.find((d) => d.date === date);
-                return formatDateWithDay(date, item?.weekday || "Unknown");
+                return filterType === "year"
+                  ? item?.weekday || "Unknown" // Hiển thị tháng nếu lọc theo năm
+                  : formatDateWithDay(date, item?.weekday || "Unknown");
               }}
               angle={-45}
               textAnchor="end"
@@ -156,16 +213,15 @@ const DashboardChart = ({ chartType, title }) => {
               formatter={(value) => formatCurrency(value)}
               labelFormatter={(label) => {
                 const item = filteredData.find((d) => d.date === label);
-                return `Date: ${formatDateWithDay(
-                  label,
-                  item?.weekday || "Unknown"
-                )}`;
+                return filterType === "year"
+                  ? `Month: ${item?.weekday || "Unknown"}`
+                  : `Date: ${formatDateWithDay(label, item?.weekday || "Unknown")}`;
               }}
             />
             <Area
               type="monotone"
               dataKey="revenue"
-              stroke="#3b82f6"
+              stroke="#3b82f6" // Sửa lỗi màu từ "#3b82 Plane6" thành "#3b82f6"
               fill="#93c5fd"
               strokeWidth={2}
               activeDot={{ r: 8 }}
@@ -180,20 +236,59 @@ const DashboardChart = ({ chartType, title }) => {
     <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
       <h2 className="text-xl font-semibold mb-4">{title}</h2>
 
-      {/* Date selection and clear button */}
-      <div className="mb-4 flex gap-2">
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="border p-2 rounded flex-1"
-        />
-        <button
-          onClick={() => setSelectedDate("")}
-          className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+      {/* Filter controls */}
+      <div className="mb-4 flex gap-2 items-center flex-wrap">
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="border p-2 rounded flex-1 min-w-[150px]"
         >
-          Clear Date
-        </button>
+          <option value="all">Last 30 Days</option>
+          <option value="day">By Day</option>
+          <option value="month">By Month</option>
+          <option value="year">By Year</option>
+        </select>
+        {filterType === "day" && (
+          <input
+            type="date"
+            value={selectedDay}
+            onChange={(e) => setSelectedDay(e.target.value)}
+            className="border p-2 rounded flex-1 min-w-[150px]"
+          />
+        )}
+        {filterType === "month" && (
+          <>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="border p-2 rounded flex-1 min-w-[150px]"
+            >
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i} value={(i + 1).toString().padStart(2, "0")}>
+                  {new Date(0, i).toLocaleString("en-US", { month: "long" })}
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="border p-2 rounded w-20"
+              min="2000"
+              max="2099"
+            />
+          </>
+        )}
+        {filterType === "year" && (
+          <input
+            type="number"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="border p-2 rounded w-20"
+            min="2000"
+            max="2099"
+          />
+        )}
       </div>
 
       <div className="h-auto w-full overflow-x-auto">{renderChart()}</div>

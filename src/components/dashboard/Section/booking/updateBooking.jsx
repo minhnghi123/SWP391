@@ -150,7 +150,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-gradient-to-r from-teal-500 to-teal-600 p-6 rounded-t-2xl flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-t-2xl flex items-center justify-between z-10">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <SquarePen className="w-6 h-6" /> Update Booking
           </h2>
@@ -162,7 +162,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
           <div className="flex flex-col md:flex-row gap-6">
             <div className="w-full md:w-1/3 space-y-6">
               <div className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md">
-                <h3 className="text-lg font-semibold flex items-center gap-2 text-teal-600 mb-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600 mb-3">
                   <User className="w-5 h-5" /> Appointment Information
                 </h3>
                 <div className="space-y-3">
@@ -201,7 +201,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
                 </div>
               </div>
               <div className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md">
-                <h3 className="text-lg font-semibold flex items-center gap-2 text-teal-600 mb-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600 mb-3">
                   <Users className="w-5 h-5" /> Children
                 </h3>
                 {formData.childrenList?.map((child) => (
@@ -209,7 +209,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
                     <div className="flex justify-between">
                       <span>{child.name}</span>
                       <div>
-                        <span className="px-2 py-1 text-xs rounded-full bg-teal-100">
+                        <span className="px-2 py-1 text-xs rounded-full bg-blue-100">
                           {child.gender === 0 ? "Male" : "Female"}
                         </span>
                         <span className="px-2 py-1 text-xs rounded-full border">
@@ -224,7 +224,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
             <div className="w-full md:w-2/3 max-h-[60vh] overflow-y-auto pr-4">
               <div className="space-y-6">
                 <div className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md">
-                  <h3 className="text-lg font-semibold flex items-center gap-2 text-teal-600 mb-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600 mb-3">
                     <Syringe className="w-5 h-5" /> Vaccines
                   </h3>
                   {availableVaccines.map((vaccine) => {
@@ -233,7 +233,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
                       <div
                         key={vaccine.id}
                         className={`flex items-center justify-between p-3 rounded-lg border ${
-                          isSuitable ? "hover:bg-teal-50" : "opacity-50"
+                          isSuitable ? "hover:bg-blue-50" : "opacity-50"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -243,7 +243,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
                             checked={formData.vaccineList.some((v) => v.id === vaccine.id)}
                             onChange={() => handleCheckboxChange("vaccineList", vaccine.id, availableVaccines)}
                             disabled={!isSuitable}
-                            className="w-4 h-4 text-teal-600"
+                            className="w-4 h-4 text-blue-600"
                           />
                           <label htmlFor={`vaccine-${vaccine.id}`} className="text-sm">
                             <p>{vaccine.name}</p>
@@ -258,7 +258,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
                   })}
                 </div>
                 <div className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md">
-                  <h3 className="text-lg font-semibold flex items-center gap-2 text-teal-600 mb-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600 mb-3">
                     <Package className="w-5 h-5" /> Vaccine Combos
                   </h3>
                   {availableVaccineCombos.map((combo) => {
@@ -267,7 +267,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
                       <div
                         key={combo.id}
                         className={`flex items-center justify-between p-3 rounded-lg border ${
-                          isSuitable ? "hover:bg-teal-50" : "opacity-50"
+                          isSuitable ? "hover:bg-blue-50" : "opacity-50"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -277,7 +277,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
                             checked={formData.comboList.some((c) => c.id === combo.id)}
                             onChange={() => handleCheckboxChange("comboList", combo.id, availableVaccineCombos)}
                             disabled={!isSuitable}
-                            className="w-4 h-4 text-teal-600"
+                            className="w-4 h-4 text-blue-600"
                           />
                           <label htmlFor={`combo-${combo.id}`} className="text-sm">
                             <p>{combo.comboName}</p>
@@ -304,7 +304,7 @@ const UpdateBooking = ({ isModalOpen, setIsModalOpen, onSave, selectedBooking, o
             </button>
             <button
               onClick={handleSaveChanges}
-              className="px-6 py-2.5 bg-teal-500 text-white rounded-lg disabled:bg-gray-400"
+              className="px-6 py-2.5 bg-blue-500 text-white rounded-lg disabled:bg-gray-400"
               disabled={!hasChanges || loading}
             >
               {loading ? "Saving..." : hasChanges ? "Save Changes" : "No Changes"}

@@ -144,6 +144,11 @@ const STATUS_CONFIG = {
         color: 'bg-amber-100 text-amber-800',
         icon: <PendingOutlined className="w-4 h-4" />,
         text: 'Pending'
+    },
+    "Partial Refund": {
+        color: 'bg-red-100 text-red-800',
+        icon: <CancelOutlined className="w-4 h-4" />,
+        text: 'Partial Refund'
     }
 };
 const VaccineItem = ({ vaccine, totalChild }) => {

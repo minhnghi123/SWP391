@@ -160,9 +160,13 @@ const BookingManagementPage = () => {
       toast.error("No booking selected!");
       return;
     }
+    if (refundPercentage === 0) {
+      toast.error("No refund");
+      return;
+    }
     setLoading(true);
     try {
-     
+
 
       // Get booking details
       const booking = appointments.find((item) => item.id === bookingId);
@@ -182,20 +186,20 @@ const BookingManagementPage = () => {
         bookingID: bookingId,
         paymentStatusEnum: refundPercentage === 50 ? 0 : 1,
       }
-     
+
       const response = await api.post(refundEndpoint, value);
 
       if (response.status === 200) {
         setAppointments((prevAppointments) =>
           prevAppointments.map((appointment) =>
             appointment.id === bookingId
-              ? { ...appointment, status: "Refund" }
+              ? { ...appointment, status: refundPercentage === 50 ? "Partial Refund" : "Refund" }
               : appointment
           )
         );
         toast.success("Refunded successfully!");
         setModalRefund(false);
-      } 
+      }
       else {
         throw new Error("Refund request failed");
       }
@@ -207,7 +211,7 @@ const BookingManagementPage = () => {
       setLoading(false);
     }
   };
-  console.log(refundPercentage);
+  // console.log(refundPercentage);
   // Pagination logic
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

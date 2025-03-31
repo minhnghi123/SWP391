@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
 import useAxios from "../../utils/useAxios";
-const InputForgotPassword = ({ type, placeholder, onChange, name, value, label }) => {
+
+const InputForgotPassword = ({ type, placeholder, onChange, name, value, label, error }) => {
   return (
     <div className="space-y-2 w-full">
       {label && <label className="text-sm font-medium text-gray-700 ml-1">{label}</label>}
@@ -19,6 +19,7 @@ const InputForgotPassword = ({ type, placeholder, onChange, name, value, label }
         name={name}
         required
       />
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };
@@ -32,61 +33,82 @@ export default function ForgotPassword({ setRegister }) {
     password: "",
     confirmPassword: "",
   });
+  const [passwordError, setPasswordError] = useState(""); // Thêm trạng thái lỗi cho mật khẩu
   const api = useAxios();
   const url = import.meta.env.VITE_BASE_URL_DB;
   const [email, setEmail] = useState("");
   const inputRefs = useRef([]);
   const [canResend, setCanResend] = useState(true);
-  const [countdown, setCountdown] = useState(30);
+  const [countdown, setCountdown] = useState(60);
   const [notification, setNotification] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
+  const maxRetries = 3;
 
+  // Countdown timer for resend code
   useEffect(() => {
+    let timer;
     if (emailSent && !canResend) {
-      const timer = setInterval(() => {
+      timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             setCanResend(true);
+            clearInterval(timer);
             return 60;
           }
           return prev - 1;
         });
       }, 1000);
-      return () => clearInterval(timer);
     }
-  }, [canResend, emailSent]);
+    return () => clearInterval(timer);
+  }, [emailSent, canResend]);
 
-  const handleSendCode = async () => {
-    if (!validateEmail(email)) return;
-    setCanResend(false); // after 60s can resend
-    setEmailSent(false); // no show code
-    setCountdown(60); // countdown
-    try {
-      const value = {
-        gmail: email,
-      };
-
-      const res = await api.post(`${url}/User/forgot-password`, value);
-      if (res.status === 200) {
-        setEmailSent(true);
-        setTimeout(() => inputRefs.current[0]?.focus(), 100);
-        
-      } else {
-        console.log(error.message);
-        setError("Failed to send code. Please try again.");
-        setCanResend(true);
-      }
-    } catch (error) {
-     
-      setError("Failed to send code. Try again.");
-      setCanResend(true);
-    }
-  };
-
+  // Validate email format
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
 
+  // Handle sending verification code with retry mechanism
+  const handleSendCode = async () => {
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setCanResend(false);
+    setEmailSent(false);
+    setCountdown(60);
+    setError("");
+
+    const sendRequest = async (attempt = 1) => {
+      try {
+        const value = { gmail: email };
+        const res = await api.post(`${url}/User/forgot-password`, value);
+        if (res.status === 200) {
+          setEmailSent(true);
+          setRetryCount(0);
+          setTimeout(() => inputRefs.current[0]?.focus(), 100);
+        } else {
+          throw new Error(`Unexpected response status: ${res.status}`);
+        }
+      } catch (err) {
+        const message = err.response?.data?.message || err.message || "Failed to send code.";
+        if (attempt < maxRetries) {
+          setError(`Attempt ${attempt} failed: ${message}. Retrying...`);
+          setRetryCount(attempt);
+          setTimeout(() => sendRequest(attempt + 1), 2000);
+        } else {
+          setError(`All ${maxRetries} attempts failed: ${message}. Please try again later.`);
+          setCanResend(true);
+          setRetryCount(0);
+        }
+      }
+    };
+
+    await sendRequest();
+  };
+
+  // Handle code input change
   const handleChange = (index, value) => {
     if (!/^[0-9]*$/.test(value)) return;
     const newCode = [...code];
@@ -97,62 +119,84 @@ export default function ForgotPassword({ setRegister }) {
     }
   };
 
+  // Handle backspace for code input
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
+  // Handle password input change with length validation
   const handleChangeAccount = (e) => {
-    setInput({ ...input, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setInput((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "password") {
+      if (value.length < 8 && value.length > 0) {
+        setPasswordError("Password must be at least 8 characters long.");
+      } else {
+        setPasswordError(""); // Xóa lỗi nếu mật khẩu hợp lệ
+      }
+    }
+
+    if (name === "confirmPassword" && value !== input.password) {
+      setNotification("Passwords do not match.");
+    } else if (name === "confirmPassword" && value === input.password) {
+      setNotification("");
+    }
   };
 
+  // Handle form submission for both steps
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const codeString = code.join("");
+    setError("");
+    setNotification("");
+
     if (step === 1) {
+      const codeString = code.join("");
       try {
-        const value = {
-          verifyCode: codeString,
-        };
-        console.log(value);
+        const value = { verifyCode: codeString };
         const res = await api.post(`${url}/User/verify-forgot-password`, value);
-        if (res?.status === 200) {
+        if (res.status === 200) {
           setStep(2);
         } else {
-          setError("Incorrect code. Please try again.");
+          throw new Error(res.data?.message || "Incorrect code.");
         }
-      } catch (error) {
-        setError("Server error. Please try again later.");
+      } catch (err) {
+        setError(err.response?.data?.message || err.message || "Incorrect code. Please try again.");
       }
     } else {
-      if (input.password !== input.confirmPassword) {
-        setNotification("Passwords do not match");
-        setInput({ password: "", confirmPassword: "" });
+      if (input.password.length < 8) {
+        setPasswordError("Password must be at least 8 characters long.");
         return;
       }
+
+      if (input.password !== input.confirmPassword) {
+        setNotification("Passwords do not match.");
+        return;
+      }
+
       try {
-        const value = {
-          newPassword: input.password,
-        };
+        const value = { newPassword: input.password };
         const res = await api.post(`${url}/User/change-password`, value);
-        if (res?.status === 200) {
-          setNotification("Password changed successfully");
-          setTimeout(() => setRegister(0), 1000);
+        if (res.status === 200) {
+          setNotification("Password changed successfully!");
+          setTimeout(() => setRegister(0), 1500);
         } else {
-          setNotification("Failed to change password.");
+          throw new Error(res.data?.message || "Failed to change password.");
         }
-      } catch (error) {
-        setError("Error occurred. Try again.");
+      } catch (err) {
+        setError(err.response?.data?.message || err.message || "Error occurred. Try again.");
       }
     }
   };
 
+  // Check if form is valid for submission
   const isFormValid = () => {
     if (step === 1) {
       return validateEmail(email) && emailSent && code.every((digit) => digit.trim().length === 1);
     }
-    return input.password && input.confirmPassword;
+    return input.password.length >= 8 && input.confirmPassword === input.password;
   };
 
   return (
@@ -172,7 +216,7 @@ export default function ForgotPassword({ setRegister }) {
                 ? emailSent
                   ? "We sent a verification code to your email"
                   : "Enter your email to reset password"
-                : "Your new password must be different from previous passwords"}
+                : ""}
             </p>
           </div>
 
@@ -194,16 +238,14 @@ export default function ForgotPassword({ setRegister }) {
                     onClick={handleSendCode}
                     disabled={!validateEmail(email) || !canResend}
                     className={`mt-8 h-[55px] px-6 rounded-xl font-semibold transition-all
-                                        ${
-                                          validateEmail(email) && canResend
-                                            ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer"
-                                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        }`}
+                      ${validateEmail(email) && canResend
+                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
                   >
-                    Send
+                    {canResend ? "Send" : `${countdown}s`}
                   </button>
                 </div>
-                {error && <p className="text-red-500">{error}</p>}
+                {error && <p className="text-red-500 text-sm">{error}</p>}
 
                 {emailSent && (
                   <div className="space-y-3">
@@ -250,31 +292,31 @@ export default function ForgotPassword({ setRegister }) {
                   onChange={handleChangeAccount}
                   value={input.password}
                   name="password"
+                  error={passwordError} // Truyền lỗi vào input
                 />
                 <InputForgotPassword
                   type="password"
                   label="Confirm Password"
-                  placeholder="Enter Confirm password"
+                  placeholder="Confirm your password"
                   onChange={handleChangeAccount}
                   value={input.confirmPassword}
                   name="confirmPassword"
                 />
               </div>
             )}
-            {notification === "Password changed successfully" ? (
-              <p className="text-green-600">{notification}</p>
-            ) : (
-              <p className="text-red-600">{notification}</p>
+
+            {notification && (
+              <p className={notification.includes("success") ? "text-green-600" : "text-red-600"}>
+                {notification}
+              </p>
             )}
 
             <button
               type="submit"
               className={`w-full p-4 rounded-xl text-lg font-semibold transition-all duration-300
-                            ${
-                              isFormValid()
-                                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 cursor-pointer"
-                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                            }`}
+                ${isFormValid()
+                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 cursor-pointer"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
               disabled={!isFormValid()}
             >
               {step === 1 ? "Verify Code" : "Reset Password"}

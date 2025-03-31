@@ -156,11 +156,9 @@ const ModalDetailCombo = ({ isOpen, onClose, combo, onClick }) => {
                                             <Card key={index} className="border-blue-100">
                                                 <CardContent className="p-4">
                                                     <div className="flex justify-between items-start">
-                                                        <div>
+                                                        <div className="flex flex-row gap-2">
                                                             <h4 className="font-medium text-blue-800">{vaccine.name}</h4>
-                                                            {vaccine.description && (
-                                                                <p className="text-sm text-gray-600 mt-1">{vaccine.description}</p>
-                                                            )}
+                                                            <p className="text-sm text-green-500 mt-1">{vaccine.doesTimes} Does</p>
                                                         </div>
                                                         <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                                                             {formatCurrency(vaccine.price)} VND

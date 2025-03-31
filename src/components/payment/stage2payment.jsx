@@ -11,6 +11,7 @@ import { childAction } from "../redux/reducers/selectChildren";
 import { vaccineAction } from "../redux/reducers/selectVaccine";
 import { methodPaymentAction } from "../redux/reducers/methodPaymentlice";
 import useAxios from "../../utils/useAxios";
+
 const url = import.meta.env.VITE_BASE_URL_DB
 export default function Stage2Payment() {
     const api = useAxios()
@@ -55,15 +56,15 @@ export default function Stage2Payment() {
             const res = await api.post(`${url}/Booking/add-booking`, value);
             if (res.status === 200 && res.data) {
                 if (paymentMenthod === 1) {
-                    // dispatch(orderAction.savePaymentData(res.data))
+                    window.location.href = res.data;
                     dispatch(childAction.completePayment())
                     dispatch(vaccineAction.completePayment())
                     dispatch(childAction.resetArriveDate())
+                    dispatch(childAction.resetForm())
                     dispatch(methodPaymentAction.resetMethodPayment())
                     dispatch(childAction.resetForm())
-
                     // console.log("Redirecting to:", res.data);
-                    window.location.href = res.data;
+                   
                 }
                 else {
                     window.location.href = res.data;

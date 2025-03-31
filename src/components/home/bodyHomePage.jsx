@@ -371,6 +371,7 @@ export default function BodyHomePage() {
                                         description={vaccine.description}
                                         type="vaccine"
                                         priceGoc={null}
+                                        quantity={vaccine.quantity}
                                         priceSale={vaccine.price}
                                         country={vaccine.fromCountry}
                                         maxAge={vaccine.suggestAgeMax}

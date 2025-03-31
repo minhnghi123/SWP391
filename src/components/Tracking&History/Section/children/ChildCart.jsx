@@ -10,7 +10,7 @@ const ChildCart = ({ handleAddChild, sortchildren, handleEditChild, searchTerm, 
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case 'active': return 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border border-emerald-200';
-            case 'tracking': return 'bg-gradient-to-r from-sky-100 to-blue-100 text-blue-800 border border-blue-200';
+            case 'tracking': return 'bg-amber-100 text-amber-800 border border-amber-200';
             case 'inactive': return 'bg-gradient-to-r from-slate-100 to-gray-100 text-gray-800 border border-gray-200';
             default: return 'bg-gradient-to-r from-slate-100 to-gray-100 text-gray-800 border border-gray-200';
         }

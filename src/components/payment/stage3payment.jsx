@@ -44,6 +44,7 @@ export default function Stage3Payment() {
         dispatch(childAction.completePayment())
         dispatch(vaccineAction.completePayment())
         dispatch(childAction.resetArriveDate())
+        dispatch(childAction.resetForm())
         dispatch(methodPaymentAction.resetMethodPayment())
         dispatch(childAction.resetForm())
     }

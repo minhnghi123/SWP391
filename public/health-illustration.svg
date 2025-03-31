@@ -4,12 +4,22 @@
     <circle cx="300" cy="200" r="150" fill="#E3F2FD" opacity="0.5"/>
     <circle cx="300" cy="200" r="100" fill="#BBDEFB" opacity="0.3"/>
     
-    <!-- Medical Cross -->
+    <!-- Vaccine Syringe -->
     <g transform="translate(250,150)">
-        <rect x="0" y="0" width="100" height="100" rx="10" fill="#2196F3"/>
-        <rect x="40" y="20" width="20" height="60" fill="white"/>
-        <rect x="20" y="40" width="60" height="20" fill="white"/>
+        <!-- Syringe Body -->
+        <rect x="0" y="40" width="100" height="20" rx="5" fill="#2196F3"/>
+        <rect x="90" y="35" width="20" height="30" rx="5" fill="#2196F3"/>
+        <!-- Needle -->
+        <path d="M110,50 L130,50 L125,45 L115,45 Z" fill="#2196F3"/>
+        <!-- Plunger -->
+        <rect x="-10" y="35" width="20" height="30" rx="5" fill="#1976D2"/>
+        <!-- Vaccine Liquid -->
+        <rect x="5" y="45" width="85" height="10" rx="2" fill="#64B5F6"/>
     </g>
+    
+    <!-- Shield Protection -->
+    <path d="M300,100 L350,120 L350,180 C350,220 300,250 300,250 C300,250 250,220 250,180 L250,120 Z" 
+          fill="#42A5F5" opacity="0.8"/>
     
     <!-- Decorative Elements -->
     <circle cx="150" cy="100" r="20" fill="#64B5F6" opacity="0.6"/>

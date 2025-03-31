@@ -193,7 +193,7 @@ const BookingManagementPage = () => {
         setAppointments((prevAppointments) =>
           prevAppointments.map((appointment) =>
             appointment.id === bookingId
-              ? { ...appointment, status: refundPercentage === 50 ? "Partial Refund" : "Refund" }
+              ? { ...appointment, status: "Refund" }
               : appointment
           )
         );

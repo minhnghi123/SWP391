@@ -1,11 +1,12 @@
 import formatCurrency from '../../utils/calculateMoney';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { useNavigate } from 'react-router-dom';
 
-const VaccineCard = ({ id, image, name, description, country, priceSale, onClick, priceGoc, isBooking, maxAge, minAge, handleSelectVaccine }) => {
-  const navigate = useNavigate();
+
+const VaccineCard = ({ id, image, name, description, country, priceSale, onClick, priceGoc, isBooking, maxAge, minAge, handleSelectVaccine, quantity }) => {
   const isBooked = isBooking?.some(bookingId => bookingId === `vaccine-${id}`);
+  const checkQuantity = quantity > 0 ? true : false;
+  const checkQuanlitNearSoldOut = quantity <= 5 && quantity > 0 ? true : false;
 
   return (
     <div className='bg-white rounded-3xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100'>
@@ -27,9 +28,20 @@ const VaccineCard = ({ id, image, name, description, country, priceSale, onClick
 
           {/* Origin and Age */}
           <div className='flex items-center gap-2 text-gray-500 text-sm justify-between'>
-            <span className='text-sm'>Origin: {country}</span>
             <span className='text-sm'>Age: {minAge} - {maxAge}</span>
+            {checkQuanlitNearSoldOut ? (
+              <span className='text-sm text-yellow-500 font-bold'>Only {quantity} doses left</span>
+            ) : (
+              quantity > 0 ? (
+                <span className='text-sm'>Quantity: {quantity} Doses</span>
+              ) : (
+                  <span className='text-red-500'>Sold Out</span>
+                
+              )
+            )}
+
           </div>
+
 
           {/* Price */}
           <div className='flex items-center justify-between'>
@@ -49,18 +61,24 @@ const VaccineCard = ({ id, image, name, description, country, priceSale, onClick
 
             {/* Booking Button */}
             <button
-              onClick={onClick}
-              className={`px-4 py-2 ${isBooked ? 'bg-gray-400' : 'bg-blue-500'} text-white rounded-lg hover:${isBooked ? 'bg-gray-500' : 'bg-blue-600'} transition-colors duration-300`}
+              onClick={checkQuantity ? onClick : undefined}
+              disabled={!checkQuantity}
+              className={`px-4 py-2 rounded-lg transition-colors duration-300 text-white 
+    ${!checkQuantity ? 'bg-gray-300 cursor-not-allowed' : isBooked ? 'bg-gray-400 hover:bg-gray-500' : 'bg-blue-500 hover:bg-blue-600'}`}
             >
-              {isBooked ? 'Booking' : 'Book Now'}
+              {checkQuantity ? (isBooked ? 'Booking' : 'Book Now') : 'Sold Out'}
             </button>
+
+
           </div>
+
         </div>
 
         {/* Clinic Info */}
         <div className='pt-4 border-t border-gray-100'>
-          <div className='flex items-center gap-2'>
-            <span className='text-gray-600 text-sm'>Available at: Central Medical Clinic</span>
+          <div className='flex items-center gap-2 justify-between'>
+            <span className='text-gray-600 text-sm'>Available at: Heath Blue </span>
+            <span className='text-gray-600 text-sm'>Origin: {country}</span>
           </div>
         </div>
 

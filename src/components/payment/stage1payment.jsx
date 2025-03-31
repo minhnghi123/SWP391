@@ -12,30 +12,34 @@ import { useNavigate } from "react-router-dom";
 import useAxios from "../../utils/useAxios";
 import CalculateAge from "../../utils/calculateYearOld";
 import { toast } from "react-toastify";
-import { fetchHistoryTracking,fetchBooking } from "../redux/actions/historyTracking";
-const url = import.meta.env.VITE_BASE_URL_DB
+import { fetchHistoryTracking, fetchBooking } from "../redux/actions/historyTracking";
+import ModalNoQuantity from "./modaNoQuanlity"; 
+
+const url = import.meta.env.VITE_BASE_URL_DB;
+
 export default function Stage1Payment({ id }) {
-  const api = useAxios()
-  const navigate = useNavigate()
-
-
-
-  const [err, setErr] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-
+  const api = useAxios();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // Redux state
   const listChildren = useSelector((state) => state.children.listChildren);
   const arriveDate = useSelector((state) => state.children.arriveDate);
   const advitory = useSelector((state) => state.children.advitory_detail);
-  const [user, setUser] = useState(null)
+  const listVaccine = useSelector((state) => state.vaccine.listVaccine);
+  const listComboVaccine = useSelector((state) => state.vaccine.listComboVaccine);
+
+  // Local state
+  const [user, setUser] = useState(null);
   const [child, setChild] = useState([]);
   const [isOpenFirst, setIsOpenFirst] = useState(false);
   const [inputAdvisory, setInputAdvisory] = useState("");
-  const listVaccine = useSelector((state) => state.vaccine.listVaccine);
-  const listComboVaccine = useSelector((state) => state.vaccine.listComboVaccine);
-  const [trigger, setTrigger] = useState(false)
+  const [trigger, setTrigger] = useState(false);
   const [checkSent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [value,setValue] = useState()
   const [inputData, setData] = useState({
     parentId: id || "",
     name: "",
@@ -43,107 +47,88 @@ export default function Stage1Payment({ id }) {
     gender: "",
   });
 
-
-
-
+  // Effects
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
   useEffect(() => {
     if (!id) return;
     getUserData();
-    dispatch(fetchHistoryTracking(api,id))
-    dispatch(fetchBooking(api,id))
+    dispatch(fetchHistoryTracking(api, id));
+    dispatch(fetchBooking(api, id));
   }, [id, trigger]);
+
+  useEffect(() => {
+    if (listChildren.length === 0) {
+      dispatch(childAction.resetArriveDate());
+      dispatch(childAction.resetForm());
+      setSent(false);
+    }
+  }, [listChildren]);
+
+  // Fetch user and children data
   const getUserData = async () => {
     setLoading(true);
     setErr(null);
-    setUser(null);
-    setChild([]);
     try {
-      // Gọi API lấy thông tin user
       const userResponse = await api.get(`${url}/User/get-user-by-id/${id}`);
-      if (userResponse.status === 200) {
-        setUser(userResponse.data.user);
-      } else {
-        setErr("Failed to fetch user data");
-      }
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      setErr("Failed to fetch user data");
-    }
-    try {
-      // Gọi API lấy danh sách child
+      if (userResponse.status === 200) setUser(userResponse.data.user);
+
       const childResponse = await api.get(`${url}/Child/get-child-by-parents-id/${id}`);
       if (childResponse.status === 200 && Array.isArray(childResponse.data)) {
         setChild(childResponse.data);
       } else {
         setChild([]);
-        setErr("Failed to fetch child data");
       }
     } catch (error) {
-      console.error("Error fetching child:", error);
-      setErr("Failed to fetch child data");
-      setChild([]);
+      console.error("Error fetching data:", error);
+      setErr("Failed to fetch data");
     } finally {
       setLoading(false);
     }
   };
-  // console.log(listChildren)
-  //create child
-  const handleOnchange = (e) => {
-    const { name, value } = e.target
-    setData({ ...inputData, [name]: value })
 
-  }
+  // Handle form input and submission for adding child
+  const handleOnchange = (e) => {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErr(null);
-    setLoading(true);
-
     if (!inputData.name || !inputData.dateOfBirth || !inputData.gender) {
-      setErr("Please enter all fields");
-      setLoading(false);
+      setErr("Please fill in all fields");
       return;
     }
 
-    const dateOfBirthISO = inputData.dateOfBirth instanceof Date
-      ? inputData.dateOfBirth.toISOString()
-      : new Date(inputData.dateOfBirth).toISOString();
-
+    setLoading(true);
     try {
+      const dateOfBirthISO = new Date(inputData.dateOfBirth).toISOString();
       const value = {
         parentId: id,
         name: inputData.name,
         dateOfBirth: dateOfBirthISO,
-        gender: inputData.gender === 'Male' ? 0 : 1,
+        gender: inputData.gender === "Male" ? 0 : 1,
       };
-
-
       const response = await api.post(`${url}/Child/create-child`, value);
       if (response.status === 200) {
-        toast.success("Create child successfully")
-        setTrigger(prev => !prev)
+        toast.success("Child added successfully");
+        setTrigger((prev) => !prev);
         setIsOpenFirst(false);
-        setData({
-          name: "",
-          dateOfBirth: "",
-          gender: "",
-        })
+        setData({ parentId: id || "", name: "", dateOfBirth: "", gender: "" });
       }
     } catch (error) {
-      console.error("Error:", error.response ? error.response.data : error);
-      setErr(error.response?.data?.message || "Create child failed");
+      setErr(error.response?.data?.message || "Failed to add child");
     } finally {
       setLoading(false);
     }
   };
 
-
+  // Advisory input handling
   const handleInputAdvisory = (e) => {
     e.preventDefault();
-    if (!inputAdvisory.trim()) return alert("Please enter your advisory message.");
+    if (!inputAdvisory.trim()) return toast.error("Please enter an advisory message");
     dispatch(childAction.replaceAdvitory(inputAdvisory));
     setInputAdvisory("");
     setSent(true);
@@ -153,64 +138,76 @@ export default function Stage1Payment({ id }) {
     dispatch(childAction.resetForm());
     setSent(false);
   };
- 
-  useEffect(() => {
-    if (listChildren.length === 0) {
-      dispatch(childAction.resetArriveDate());
-      dispatch(childAction.resetForm());
-      setSent(false);
-    }
-  }, [listChildren]); 
-  //remove child on list vaccination
-  const handleRemove = (id) => {
-    dispatch(childAction.deleteChild(id));
+
+  // Child management
+  const handleRemove = (childId) => {
+    dispatch(childAction.deleteChild(childId));
   };
-  
-  // add child on list vaccination
+
   const handleAddChildren = (child) => {
-    dispatch(
-      childAction.chooseChildren({
-        ...child,
-        parentID: id,
-      })
+    dispatch(childAction.chooseChildren({ ...child, parentID: id }));
+  };
+
+  // Vaccine and combo suitability checks
+  const isVaccineSuitableForAnyChild = (child) => {
+    if (!child?.dateOfBirth) return false;
+    const age = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
+    return listVaccine?.some((v) => age >= v.minAge && age <= v.maxAge) || false;
+  };
+
+  const isComboSuitableForAnyChild = (child) => {
+    if (!child?.dateOfBirth) return false;
+    const age = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
+    return (
+      listComboVaccine?.some((combo) =>
+        combo.vaccines.every((v) => age >= v.suggestAgeMin && age <= v.suggestAgeMax)
+      ) || false
     );
   };
 
+  // Quantity check
+  const handleCheckQuantity = () => {
+    const totalQuantityVaccine = listVaccine?.reduce((acc, v) => acc + v.quantity, 0) || 0;
+    const totalQuantityCombo = listComboVaccine?.reduce(
+      (acc, combo) => acc + combo.listVaccine.reduce((vAcc, v) => vAcc + v.quantity, 0),
+      0
+    ) || 0;
+    const totalChildren = listChildren.length;
+    const totalDoesTimeVaccine = listVaccine?.reduce((acc, v) => acc + v.doesTimes, 0) || 0;
+    const totalDoesTimeCombo = listComboVaccine?.reduce(
+      (acc, combo) => acc + combo.listVaccine.reduce((vAcc, v) => vAcc + v.doesTimes, 0),
+      0
+    ) || 0;
 
+    const requiredDoesVaccine = totalDoesTimeVaccine * totalChildren;
+    const requiredDoesCombo = totalDoesTimeCombo * totalChildren;
 
-  //check vaccine suitable for any child
-  const isVaccineSuitableForAnyChild = (childToCheck) => {
-    if (!childToCheck || !childToCheck.dateOfBirth) return false;
+    const shortageInfo = {
+      totalQuantity: totalQuantityVaccine + totalQuantityCombo,
+      totalChildren,
+      totalQuantityVaccine,
+      totalQuantityCombo,
+      requiredDoesVaccine,
+      requiredDoesCombo,
+      shortageVaccine: Math.max(0, requiredDoesVaccine - totalQuantityVaccine),
+      shortageCombo: Math.max(0, requiredDoesCombo - totalQuantityCombo),
+    };
 
-    const ageString = CalculateAge(childToCheck.dateOfBirth);
-    const age = parseInt(ageString.split(" ")[0], 10);
+    const isEnough = totalQuantityVaccine >= requiredDoesVaccine && totalQuantityCombo >= requiredDoesCombo;
 
-    if (isNaN(age)) return false; // Nếu age không hợp lệ, trả về false
-
-    return listVaccine?.some(vaccine => age >= vaccine.minAge && age <= vaccine.maxAge) || false;
+    if (!isEnough) {
+    setIsModalOpen(true)
+    setValue(shortageInfo)
+    } else {
+      navigate(`/payment/${id}`);
+    }
   };
-
-  // Check combo suitability
-  const isComboSuitableForAnyChild = (childToCheck) => {
-    if (!childToCheck || !childToCheck.dateOfBirth) return false;
-
-    const ageString = CalculateAge(childToCheck.dateOfBirth);
-    const age = parseInt(ageString.split(" ")[0], 10);
-
-    if (isNaN(age)) return false;
-
-    return listComboVaccine?.some(combo =>
-      combo.vaccines.every(vaccine => age >= vaccine.suggestAgeMin && age <= vaccine.suggestAgeMax)
-    ) || false;
-  };
-
 
   return (
-
-
     <div className="max-w-[1400px] my-10 mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col lg:flex-row gap-8 justify-center">
-        <div className="w-full lg:w-[550px] space-y-8">
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Left Side */}
+        <div className="w-full lg:w-[550px] space-y-6">
           <HeaderLeftSide user={user} />
           <ChildrenList
             child={child}
@@ -222,22 +219,24 @@ export default function Stage1Payment({ id }) {
             isComboSuitableForAnyChild={isComboSuitableForAnyChild}
             loading={loading}
           />
-          {isOpenFirst && <FormAddChildren handleOnchange={handleOnchange} handleSubmit={handleSubmit} err={err} loading={loading} />}
+          {isOpenFirst && (
+            <FormAddChildren
+              handleOnchange={handleOnchange}
+              handleSubmit={handleSubmit}
+              err={err}
+              loading={loading}
+              inputData={inputData}
+            />
+          )}
         </div>
 
-
-
-
+        {/* Right Side */}
         <div className="w-full lg:w-[650px] space-y-6">
-          <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 sticky top-6">
+          <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-100 sticky top-6">
             {listChildren.length > 0 ? (
               <>
-                <ChooseDateVaccination
-                  arriveDate={arriveDate}
-
-
-                />
-                <div className="space-y-1 border-gray-200 border-b mb-5">
+                <ChooseDateVaccination arriveDate={arriveDate} />
+                <div className="space-y-4 border-b border-gray-200 pb-4 mb-4">
                   {listChildren.map((child) => (
                     <ChildCard
                       key={child.id}
@@ -258,9 +257,9 @@ export default function Stage1Payment({ id }) {
                   resetForm={resetForm}
                 />
                 <button
-                  onClick={arriveDate !== null ? () => navigate(`/payment/${id}`) : undefined}
-                  className={`w-full mt-6 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-medium shadow-lg transition-all duration-300 ${arriveDate !== null ? "hover:from-teal-600 hover:to-teal-700" : "pointer-events-none opacity-50"
-                    }`}
+                  onClick={arriveDate ? handleCheckQuantity : undefined}
+                  disabled={!arriveDate}
+                  className="w-full mt-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-xl font-semibold shadow-md hover:from-teal-600 hover:to-teal-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Proceed to Payment
                 </button>
@@ -272,8 +271,13 @@ export default function Stage1Payment({ id }) {
         </div>
       </div>
 
+      {/* Modal */}
+      {isModalOpen && (
+        <ModalNoQuantity
+          onClose={() => setIsModalOpen(false)}
+          shortageInfo={value}
+        />
+      )}
     </div>
-
-
   );
 }

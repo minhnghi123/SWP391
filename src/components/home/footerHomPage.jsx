@@ -28,7 +28,7 @@ const FooterHomePage = memo(() => {
     ], []);
 
     return (
-        <footer className="bg-gray-900 text-white mt-20" id='contact'>
+        <footer className="bg-gray-900 text-white " id='contact'>
             <div className="max-w-7xl mx-auto px-4 py-8 md:py-16">
                 {/* Main Footer Content */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">

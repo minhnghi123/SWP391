@@ -77,7 +77,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName, isVaccineSuitableForAn
     return (
         <div className="max-w-2xl mx-auto p-4">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300">
-                <div className={`${isSuitableForVaccination ? 'bg-gradient-to-r from-blue-50 via-white to-blue-50' : 'bg-gradient-to-r from-red-50 via-white to-orange-100'} p-4`}>
+                <div className={`${child.status.toLowerCase() === "active" ? 'bg-gradient-to-r from-blue-50 via-white to-blue-50' : 'bg-gradient-to-r from-red-50 via-white to-orange-100'} p-4`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                             <div className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md flex items-center justify-center text-4xl">
@@ -205,7 +205,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName, isVaccineSuitableForAn
                                                             {
                                                                 totalVaccine > 0 ? (
                                                                     <>
-                                                                        <p className="text-gray-700 font-medium"> Completed Vaccine:{totalVaccine}{` `} does</p>
+                                                                        <p className="text-gray-700 font-medium"> Completed Vaccine:{totalVaccine}</p>
                                                                         <p className="text-gray-500">{formatDate(mostRecentVaccinationDate)}</p>
                                                                         <p className="text-gray-600 mt-1">Most Recent Vaccine</p>
                                                                     </>
@@ -221,7 +221,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName, isVaccineSuitableForAn
                                                             {
                                                                 totalTracking > 0 ? (
                                                                     <>
-                                                                        <p className="text-gray-700 font-medium">Tracking:{totalTracking}{` `} does</p>
+                                                                        <p className="text-gray-700 font-medium">Tracking:{totalTracking}</p>
                                                                         <p className="text-gray-500"> Next Vaccine: {formatDate(nextVaccinationDate)}</p>
                                                                         <p className="text-gray-600 mt-1">Vaccination Progress</p>
                                                                     </>

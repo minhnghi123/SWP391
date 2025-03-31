@@ -138,8 +138,8 @@ function BodyVariants() {
     const isCombo =
       Array.isArray(vaccine?.vaccines) && vaccine.vaccines.length > 0;
     const finalPrice = isCombo ? vaccine.finalPrice : vaccine.price;
-    const ischeck =
-      type === "combo" ? `combo-${vaccine.id}` : `vaccine-${vaccine.id}`;
+    // const ischeck =
+    //   type === "combo" ? `combo-${vaccine.id}` : `vaccine-${vaccine.id}`;
     const name = type === "combo" ? vaccine.comboName : vaccine.name;
 
     const isItemInCart = cart.some(
@@ -169,6 +169,8 @@ function BodyVariants() {
               price: item.price,
               suggestAgeMax: item.suggestAgeMax,
               suggestAgeMin: item.suggestAgeMin,
+              quantity: item.quantity,
+              doesTimes: item.doesTimes,
             })),
           })
         );
@@ -181,6 +183,8 @@ function BodyVariants() {
             maxAge: vaccine.suggestAgeMax,
             minAge: vaccine.suggestAgeMin,
             type: type,
+            quantity: vaccine.quantity,
+            doesTimes: vaccine.doesTimes,
           })
         );
       }
@@ -273,6 +277,7 @@ function BodyVariants() {
                         maxAge={item.suggestAgeMax}
                         minAge={item.suggestAgeMin}
                         onClick={() => handleAddToCart(item, "vaccine")}
+                        quantity={item.quantity}
                         isBooking={isBooking}
                         handleSelectVaccine={() => handleSelectVaccine(item)}
                       />
@@ -323,19 +328,19 @@ function BodyVariants() {
                         maxAge={
                           combo.vaccines && combo.vaccines.length > 0
                             ? combo.vaccines.reduce(
-                                (max, vaccine) =>
-                                  Math.max(max, vaccine.suggestAgeMax || 0),
-                                0
-                              )
+                              (max, vaccine) =>
+                                Math.max(max, vaccine.suggestAgeMax || 0),
+                              0
+                            )
                             : 0
                         }
                         minAge={
                           combo.vaccines && combo.vaccines.length > 0
                             ? combo.vaccines.reduce(
-                                (min, vaccine) =>
-                                  Math.min(min, vaccine.suggestAgeMin || 0),
-                                100
-                              )
+                              (min, vaccine) =>
+                                Math.min(min, vaccine.suggestAgeMin || 0),
+                              100
+                            )
                             : 0
                         }
                         vaccines={combo.vaccines}
@@ -383,39 +388,39 @@ function BodyVariants() {
                   <div className="max-h-[calc(100vh-300px)] overflow-y-auto mb-4 pr-2">
                     {cart.filter((item) => item.type === "vaccine").length >
                       0 && (
-                      <div className="mb-4">
-                        <h3 className="font-medium text-gray-700 mb-2">
-                          Vaccines
-                        </h3>
-                        {cart
-                          .filter((item) => item.type === "vaccine")
-                          .map((item) => (
-                            <div
-                              key={`cart-vaccine-${item.id}`}
-                              className="flex justify-between items-center py-2 group"
-                            >
-                              <div className="flex items-center flex-1 min-w-0">
-                                <span className="truncate text-sm">
-                                  {item.name}
-                                </span>
+                        <div className="mb-4">
+                          <h3 className="font-medium text-gray-700 mb-2">
+                            Vaccines
+                          </h3>
+                          {cart
+                            .filter((item) => item.type === "vaccine")
+                            .map((item) => (
+                              <div
+                                key={`cart-vaccine-${item.id}`}
+                                className="flex justify-between items-center py-2 group"
+                              >
+                                <div className="flex items-center flex-1 min-w-0">
+                                  <span className="truncate text-sm">
+                                    {item.name}
+                                  </span>
+                                </div>
+                                <div className="flex items-center ml-2">
+                                  <span className="text-blue-600 font-medium text-sm mr-2">
+                                    {FormmatDeicimal(item.price)} VND
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      removeFromCart(item.id, "vaccine")
+                                    }
+                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
                               </div>
-                              <div className="flex items-center ml-2">
-                                <span className="text-blue-600 font-medium text-sm mr-2">
-                                  {FormmatDeicimal(item.price)} VND
-                                </span>
-                                <button
-                                  onClick={() =>
-                                    removeFromCart(item.id, "vaccine")
-                                  }
-                                  className="text-gray-400 hover:text-red-500 transition-colors"
-                                >
-                                  <X size={16} />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    )}
+                            ))}
+                        </div>
+                      )}
 
                     {cart.filter((item) => item.type === "combo").length > 0 && (
                       <div className="mb-4">
@@ -466,11 +471,10 @@ function BodyVariants() {
 
               <button
                 onClick={() => navigate(`/information/${user?.id}`)}
-                className={`w-full py-3 rounded-lg mt-6 transition-colors flex items-center justify-center ${
-                  cart.length === 0
+                className={`w-full py-3 rounded-lg mt-6 transition-colors flex items-center justify-center ${cart.length === 0
                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                     : "bg-blue-600 text-white hover:bg-blue-700"
-                }`}
+                  }`}
                 disabled={cart.length === 0}
               >
                 <ShoppingCart size={18} className="mr-2" />

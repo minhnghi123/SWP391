@@ -210,7 +210,7 @@ const BodyFeedback = () => {
                             >
                                 All Feedback
                             </button>
-                            {[5, 4, 3, 2, 1].map((rating) => (
+                            {/* {[5, 4, 3, 2, 1].map((rating) => (
                                 <button
                                     key={rating}
                                     onClick={() => handleSortRating(rating)}
@@ -221,7 +221,7 @@ const BodyFeedback = () => {
                                 >
                                     {rating} <FaStar className={activeFilter === rating ? 'text-white' : 'text-yellow-400'} />
                                 </button>
-                            ))}
+                            ))} */}
                         </div>
                     )}
 

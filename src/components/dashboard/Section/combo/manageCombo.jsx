@@ -14,6 +14,7 @@ import DetailCombo from "./detailsCombo";
 import UpdateVaccineCombo from "./updateCombo";
 import useAxios from "../../../../utils/useAxios";
 import RestoreCombo from "./restoreCombo";
+import FormateMoney from "@/utils/calculateMoney"
 const url = import.meta.env.VITE_BASE_URL_DB;
 
 const ManageCombo = () => {
@@ -235,13 +236,13 @@ const ManageCombo = () => {
                         {item.discount}%
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 hidden md:table-cell">
-                        {item.totalPrice?.toLocaleString()} VND
+                        {FormateMoney(item.totalPrice)} VND
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 hidden lg:table-cell">
-                        {(
+                        {FormateMoney(
                           item.totalPrice *
                           (1 - item.discount / 100)
-                        )?.toLocaleString()}{" "}
+                        )}{" "}
                         VND
                       </td>
                       <td className="px-2 sm:px-4 py-3">

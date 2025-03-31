@@ -3,6 +3,7 @@ import AddVaccineComponent from "./addVaccine";
 import DeleteVaccine from "./deleteVaccine";
 import Pagination from "../../../../utils/pagination";
 import VaccineDetails from "./detailVaccine";
+import FormateMoney from "@/utils/calculateMoney"
 import { ToastContainer } from "react-toastify";
 import {
   Search,
@@ -236,7 +237,7 @@ const VaccineList = () => {
                         {item.quantity}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
-                      {item.price.toLocaleString()} VND
+                      {FormateMoney(item.price)} VND
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
                         {item.fromCountry}

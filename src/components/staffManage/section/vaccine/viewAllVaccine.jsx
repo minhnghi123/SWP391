@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import FormateMoney from "@/utils/calculateMoney"
+
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -187,7 +189,7 @@ const VaccineList = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{item.quantity ?? 0}</TableCell>
-                      <TableCell className="text-center">{item.price.toLocaleString()} VNĐ</TableCell>
+                      <TableCell className="text-center">{FormateMoney(item.price)} VND</TableCell>
                       <TableCell className="text-center">{item.fromCountry || "N/A"}</TableCell>
                       <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
                       <TableCell className="text-center">

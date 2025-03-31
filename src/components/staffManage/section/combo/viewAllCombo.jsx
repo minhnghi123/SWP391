@@ -11,6 +11,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Input } from "@/components/ui/input";
 import DetailCombo from "../../../dashboard/Section/combo/detailsCombo";
 import Pagination from "../../Pagination"; // Import external Pagination component
+import FormateMoney from "@/utils/calculateMoney"
+
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -189,9 +191,9 @@ const VaccineCombo = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-center">{item.discount}%</TableCell>
-                      <TableCell className="text-center">{item.totalPrice?.toLocaleString() || "0"} VNĐ</TableCell>
+                      <TableCell className="text-center">{FormateMoney(item.totalPrice || "0")} VND</TableCell>
                       <TableCell className="text-center">
-                        {(item.totalPrice * (1 - item.discount / 100))?.toLocaleString() || "0"} VNĐ
+                        {FormateMoney(item.totalPrice * (1 - item.discount / 100))|| "0"} VND
                       </TableCell>
                       <TableCell className="text-center">{getStatusBadge(item.status)}</TableCell>
                       <TableCell className="text-center">

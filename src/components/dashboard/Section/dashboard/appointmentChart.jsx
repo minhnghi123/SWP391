@@ -17,8 +17,8 @@ const url = import.meta.env.VITE_BASE_URL_DB;
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
-// Định dạng tiền tệ sang VNĐ
-const formatCurrency = (value) => `${Number(value).toLocaleString('vi-VN')} ₫`;
+// Format currency to VNĐ
+const formatCurrency = (value) => `${Number(value).toLocaleString("en-US")} VNĐ`;
 
 const formatDateWithDay = (dateStr, weekday) => {
   const date = new Date(dateStr);
@@ -32,9 +32,11 @@ const formatDateWithDay = (dateStr, weekday) => {
 
 const DashboardChart = ({ chartType, title }) => {
   const [filterType, setFilterType] = useState("all"); // "all", "month", "year", "day"
-  const [selectedMonth, setSelectedMonth] = useState("03"); // Mặc định tháng 3
-  const [selectedYear, setSelectedYear] = useState("2025"); // Mặc định năm 2025
-  const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split("T")[0]); // Mặc định ngày hiện tại
+  const [selectedMonth, setSelectedMonth] = useState("03"); // Default: March
+  const [selectedYear, setSelectedYear] = useState("2025"); // Default: 2025
+  const [selectedDay, setSelectedDay] = useState(
+    new Date().toISOString().split("T")[0]
+  ); // Default: today
   const [bookingData, setBookingData] = useState([]); // Initialized as empty array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,7 +65,9 @@ const DashboardChart = ({ chartType, title }) => {
 
     const filteredBookings = bookingData.filter((booking) => {
       const bookingDate = new Date(booking.createdAt);
-      const bookingMonth = (bookingDate.getMonth() + 1).toString().padStart(2, "0");
+      const bookingMonth = (bookingDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0");
       const bookingYear = bookingDate.getFullYear().toString();
       const bookingDay = bookingDate.toISOString().split("T")[0];
 
@@ -74,7 +78,7 @@ const DashboardChart = ({ chartType, title }) => {
       } else if (filterType === "year") {
         return bookingYear === selectedYear;
       }
-      // Mặc định: 30 ngày gần nhất nếu filterType là "all"
+      // Default: last 30 days if filterType is "all"
       const today = new Date();
       const past30Days = new Date();
       past30Days.setDate(today.getDate() - 30);
@@ -102,25 +106,36 @@ const DashboardChart = ({ chartType, title }) => {
   // Process data for revenue trend
   const processRevenueTrendData = (bookings) => {
     if (filterType === "day") {
-      // Lọc theo ngày cụ thể
-      const revenue = bookings.reduce((sum, booking) => sum + (booking.amount || 0), 0);
-      const weekday = new Date(selectedDay).toLocaleDateString("en-US", { weekday: "short" });
+      // Filter by specific day
+      const revenue = bookings.reduce(
+        (sum, booking) => sum + (booking.amount || 0),
+        0
+      );
+      const weekday = new Date(selectedDay).toLocaleDateString("en-US", {
+        weekday: "short",
+      });
       return [{ date: selectedDay, weekday, revenue }];
     } else if (filterType === "month") {
-      // Lọc theo ngày trong tháng
+      // Filter by days in the month
       const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
       const revenueByDate = Array.from({ length: daysInMonth }, (_, i) => {
         const day = (i + 1).toString().padStart(2, "0");
         const dateStr = `${selectedYear}-${selectedMonth}-${day}`;
-        const weekday = new Date(dateStr).toLocaleDateString("en-US", { weekday: "short" });
+        const weekday = new Date(dateStr).toLocaleDateString("en-US", {
+          weekday: "short",
+        });
         const revenue = bookings
-          .filter((booking) => new Date(booking.createdAt).toISOString().split("T")[0] === dateStr)
+          .filter(
+            (booking) =>
+              new Date(booking.createdAt).toISOString().split("T")[0] ===
+              dateStr
+          )
           .reduce((sum, booking) => sum + (booking.amount || 0), 0);
         return { date: dateStr, weekday, revenue };
       });
-      return revenueByDate.filter((item) => item.revenue > 0); // Chỉ hiển thị ngày có doanh thu
+      return revenueByDate.filter((item) => item.revenue > 0); // Only show days with revenue
     } else if (filterType === "year") {
-      // Lọc theo tháng trong năm
+      // Filter by months in the year
       const revenueByMonth = Array.from({ length: 12 }, (_, i) => {
         const month = (i + 1).toString().padStart(2, "0");
         const dateStr = `${selectedYear}-${month}`;
@@ -135,18 +150,23 @@ const DashboardChart = ({ chartType, title }) => {
           .reduce((sum, booking) => sum + (booking.amount || 0), 0);
         return {
           date: dateStr,
-          weekday: new Date(selectedYear, i, 1).toLocaleString("en-US", { month: "short" }),
+          weekday: new Date(selectedYear, i, 1).toLocaleString("en-US", {
+            month: "short",
+          }),
           revenue,
         };
       });
-      return revenueByMonth.filter((item) => item.revenue > 0); // Chỉ hiển thị tháng có doanh thu
+      return revenueByMonth.filter((item) => item.revenue > 0); // Only show months with revenue
     } else {
-      // Mặc định: 30 ngày gần nhất
+      // Default: last 30 days
       const revenueByDate = bookings.reduce((acc, booking) => {
         const date = new Date(booking.createdAt).toISOString().split("T")[0];
-        const weekday = new Date(booking.createdAt).toLocaleDateString("en-US", {
-          weekday: "short",
-        });
+        const weekday = new Date(booking.createdAt).toLocaleDateString(
+          "en-US",
+          {
+            weekday: "short",
+          }
+        );
         if (!acc[date]) {
           acc[date] = { date, revenue: 0, weekday };
         }
@@ -168,7 +188,9 @@ const DashboardChart = ({ chartType, title }) => {
     }
 
     return (
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={500}>
+        {" "}
+        {/* Increased height from 400 to 500 */}
         {chartType === "bookingStatus" ? (
           <PieChart>
             <Pie
@@ -192,36 +214,49 @@ const DashboardChart = ({ chartType, title }) => {
             <Legend />
           </PieChart>
         ) : (
-          <AreaChart data={filteredData}>
+          <AreaChart
+            data={filteredData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 20 }} // Added padding
+          >
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis
               dataKey="date"
               tickFormatter={(date) => {
                 const item = filteredData.find((d) => d.date === date);
                 return filterType === "year"
-                  ? item?.weekday || "Unknown" // Hiển thị tháng nếu lọc theo năm
+                  ? item?.weekday || "Unknown" // Show month if filtering by year
                   : formatDateWithDay(date, item?.weekday || "Unknown");
               }}
-              angle={-45}
+              angle={-30} // Reduced angle from -45 to -30 for better readability
               textAnchor="end"
-              height={70}
-              interval="preserveStartEnd"
-              fontSize={10}
+              height={100} // Increased height from 70 to 100 for more space
+              interval="preserveStartEnd" // Ensures ticks are not overcrowded
+              fontSize={12} // Slightly increased font size from 10 to 12
+              tickMargin={10} // Added margin to separate ticks from axis
             />
-            <YAxis tickFormatter={formatCurrency} />
+            <YAxis
+              tickFormatter={formatCurrency}
+              width={100} // Increased width to accommodate longer currency values
+              fontSize={12} // Consistent font size with XAxis
+              tickMargin={10} // Added margin for better spacing
+            />
             <Tooltip
               formatter={(value) => formatCurrency(value)}
               labelFormatter={(label) => {
                 const item = filteredData.find((d) => d.date === label);
                 return filterType === "year"
                   ? `Month: ${item?.weekday || "Unknown"}`
-                  : `Date: ${formatDateWithDay(label, item?.weekday || "Unknown")}`;
+                  : `Date: ${formatDateWithDay(
+                      label,
+                      item?.weekday || "Unknown"
+                    )}`;
               }}
+              contentStyle={{ fontSize: 14 }} // Increased tooltip font size for clarity
             />
             <Area
               type="monotone"
               dataKey="revenue"
-              stroke="#3b82f6" // Sửa lỗi màu từ "#3b82 Plane6" thành "#3b82f6"
+              stroke="#3b82f6"
               fill="#93c5fd"
               strokeWidth={2}
               activeDot={{ r: 8 }}

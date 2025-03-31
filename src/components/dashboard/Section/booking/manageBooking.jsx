@@ -4,6 +4,7 @@ import Pagination from "../../../../utils/pagination";
 import AddBooking from "../booking/addBooking";
 import UpdateBooking from "../booking/updateBooking";
 import DetailAppoinment from "../booking/detailBooking";
+import FormateMoney from "@/utils/calculateMoney"
 import {
   Search,
   ArrowUpDown,
@@ -40,6 +41,7 @@ const Booking = () => {
   const [completeLoading, setCompleteLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [refundLoading, setRefundLoading] = useState(false);
+  const [refundPercentage, setRefundPercentage] = useState(0);
 
   const [availableVaccines, setAvailableVaccines] = useState([]);
   const [availableVaccineCombos, setAvailableVaccineCombos] = useState([]);
@@ -49,10 +51,6 @@ const Booking = () => {
       setLoading(true);
       try {
         const response = await api.get(`${url}/Booking/get-all-booking-admin`);
-        console.log(
-          "Fetched Bookings:",
-          JSON.stringify(response.data, null, 2)
-        );
         setBookings(response.data || []);
         setError(null);
       } catch (error) {
@@ -99,10 +97,7 @@ const Booking = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentBookings = sortedBookings.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentBookings = sortedBookings.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -123,6 +118,8 @@ const Booking = () => {
         return "Scheduled";
       case "refund":
         return "Refunded";
+      case "partial refund":
+        return "Partial Refund";
       default:
         return status || "Unknown";
     }
@@ -153,7 +150,6 @@ const Booking = () => {
       toast.error("No valid booking selected or missing required data!");
       return;
     }
-
     setCompleteLoading(true);
     try {
       const payload = {
@@ -162,20 +158,12 @@ const Booking = () => {
         totalPrice: bookingComplete.amount || 0,
         paymentId: 1,
         arrivedAt: bookingComplete.arrivedAt || new Date().toISOString(),
-        childrenIds:
-          bookingComplete.childrenList?.map((child) => child.childId) || [],
-        vaccineIds:
-          bookingComplete.vaccineList?.map((vaccine) => vaccine.id) || [],
-        vaccineComboIds:
-          bookingComplete.comboList?.map((combo) => combo.id) || [],
+        childrenIds: bookingComplete.childrenList?.map((child) => child.childId) || [],
+        vaccineIds: bookingComplete.vaccineList?.map((vaccine) => vaccine.id) || [],
+        vaccineComboIds: bookingComplete.comboList?.map((combo) => combo.id) || [],
         bookingID: bookingComplete.id,
       };
-
-      const response = await api.post(
-        `${url}/Booking/add-booking-by-staff`,
-        payload
-      );
-
+      const response = await api.post(`${url}/Booking/add-booking-by-staff`, payload);
       if (response.status === 200 || response.status === 201) {
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
@@ -192,18 +180,14 @@ const Booking = () => {
         toast.error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to complete booking!"
-      );
+      toast.error(error.response?.data?.message || "Failed to complete booking!");
     } finally {
       setCompleteLoading(false);
     }
   };
 
-  // Sửa hàm handleSaveBookingChanges để giống BookingManagementPage
   const handleSaveBookingChanges = async (updatedBooking) => {
     if (!updatedBooking) return;
-
     setUpdateLoading(true);
     try {
       const payload = {
@@ -211,34 +195,21 @@ const Booking = () => {
         vaccinesList: updatedBooking.vaccinesList,
         vaccinesCombo: updatedBooking.vaccinesCombo,
       };
-      console.log("Sending update payload:", JSON.stringify(payload, null, 2));
-
-      const res = await api.patch(
-        `${url}/Booking/update-booking-details`,
-        payload
-      );
-
+      const res = await api.patch(`${url}/Booking/update-booking-details`, payload);
       if (res.status === 200) {
-        // Cập nhật tạm thời danh sách bookings trước khi fetch lại
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
             booking.id === parseInt(updatedBooking.bookingId)
               ? {
                   ...booking,
-                  vaccineList: availableVaccines.filter((v) =>
-                    updatedBooking.vaccinesList.includes(v.id)
-                  ),
-                  comboList: availableVaccineCombos.filter((c) =>
-                    updatedBooking.vaccinesCombo.includes(c.id)
-                  ),
+                  vaccineList: availableVaccines.filter((v) => updatedBooking.vaccinesList.includes(v.id)),
+                  comboList: availableVaccineCombos.filter((c) => updatedBooking.vaccinesCombo.includes(c.id)),
                 }
               : booking
           )
         );
-        // Đóng modal và reset selectedBooking
         setIsUpdateModalOpen(false);
         setSelectedBooking(null);
-        // Toggle trigger để fetch lại dữ liệu từ server
         setTrigger((prev) => !prev);
       } else {
         toast.error(`Failed to update booking: Status ${res.status}`);
@@ -264,56 +235,50 @@ const Booking = () => {
       toast.error("No booking selected!");
       return;
     }
-
-    const booking = bookings.find((item) => item.id === bookingId);
-    if (!booking) {
-      toast.error("Booking not found!");
+    if (refundPercentage === 0) {
+      toast.error("No refund");
       return;
     }
-
-    if (!canRefundBooking(booking)) {
-      toast.error("This booking cannot be refunded.");
-      setIsRefundModalOpen(false);
-      return;
-    }
-
     setRefundLoading(true);
     try {
+      const booking = bookings.find((item) => item.id === bookingId);
+      if (!booking) {
+        throw new Error("Booking not found");
+      }
+
       const paymentMethod = booking.paymentMethod?.toLowerCase();
-      const isCashOrMoMo = paymentMethod === "momo" || paymentMethod === "cash";
-      const refundEndpoint = isCashOrMoMo
+      const isCashOrVNPay = paymentMethod === "vnpay" || paymentMethod === "cash";
+      const refundEndpoint = isCashOrVNPay
         ? `${url}/Payment/refund-by-staff`
         : `${url}/Payment/refund`;
 
-      const hasFirstInjection =
-        (booking.vaccineList && booking.vaccineList.length > 0) ||
-        (booking.comboList && booking.comboList.length > 0);
-      const refundPercentage = hasFirstInjection ? 50 : 100;
-
-      const payload = {
+      const value = {
         bookingID: bookingId,
-        paymentStatusEnum: 1,
-        refundPercentage,
+        paymentStatusEnum: refundPercentage === 50 ? 0 : 1,
       };
 
-      const response = await api.post(refundEndpoint, payload);
+      const response = await api.post(refundEndpoint, value);
 
       if (response.status === 200) {
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
             booking.id === bookingId
-              ? { ...booking, status: "Refund" }
+              ? {
+                  ...booking,
+                  status: refundPercentage === 50 ? "Partial Refund" : "Refund",
+                }
               : booking
           )
         );
+        toast.success("Refunded successfully!");
         setIsRefundModalOpen(false);
-        toast.success(`Refunded successfully (${refundPercentage}%)!`);
         setTrigger((prev) => !prev);
       } else {
         throw new Error("Refund request failed");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Refund failed.");
+      console.error("Refund error:", error);
+      toast.error(error.message || "Refund failed. Please try again.");
     } finally {
       setRefundLoading(false);
     }
@@ -324,11 +289,12 @@ const Booking = () => {
       toast.error("This booking cannot be refunded.");
       return;
     }
+    setSelectedBooking(booking);
     const hasFirstInjection =
       (booking.vaccineList && booking.vaccineList.length > 0) ||
       (booking.comboList && booking.comboList.length > 0);
-    const refundPercentage = hasFirstInjection ? 50 : 100;
-    setSelectedBooking({ ...booking, refundPercentage });
+    const calculatedRefundPercentage = hasFirstInjection ? 50 : 100;
+    setRefundPercentage(calculatedRefundPercentage);
     setIsRefundModalOpen(true);
   };
 
@@ -341,8 +307,7 @@ const Booking = () => {
             onClick={() => setIsAddModalOpen(true)}
             className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 py-2.5 rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
           >
-            <Plus className="w-5 h-5" />{" "}
-            <span className="font-medium">Add Booking</span>
+            <Plus className="w-5 h-5" /> <span className="font-medium">Add Booking</span>
           </button>
         </div>
 
@@ -388,70 +353,38 @@ const Booking = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    ID
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Parent
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Phone
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Amount
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Payment Method
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Created At
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Delete
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Action
-                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Parent</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Phone</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Amount</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Payment Method</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Created At</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Delete</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {currentBookings.length > 0 ? (
                   currentBookings.map((booking) => (
-                    <tr
-                      key={booking.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {booking.id}
-                      </td>
+                    <tr key={booking.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-4 text-sm text-gray-600">{booking.id}</td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
                             <Calendar className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">
-                              {booking.parentName}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              ID: {booking.parentId}
-                            </p>
+                            <p className="font-medium text-gray-900">{booking.parentName}</p>
+                            <p className="text-sm text-gray-500">ID: {booking.parentId}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {booking.phoneNumber}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {booking.amount.toLocaleString()} VND
-                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">{booking.phoneNumber}</td>
+                      <td className="px-4 py-4 text-sm text-gray-600">{FormateMoney(booking.amount)} VND</td>
                       <td className="px-4 py-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
-                          <CreditCard className="w-4 h-4" />{" "}
-                          {booking.paymentMethod}
+                          <CreditCard className="w-4 h-4" /> {booking.paymentMethod}
                         </div>
                       </td>
                       <td className="px-4 py-4">
@@ -471,9 +404,7 @@ const Booking = () => {
                           {formatStatus(booking.status)}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
-                        {formatDate(booking.createdAt)}
-                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">{formatDate(booking.createdAt)}</td>
                       <td className="px-4 py-4 text-sm text-gray-600">
                         {booking.isDeleted ? "Deleted" : "Not Deleted"}
                       </td>
@@ -486,15 +417,16 @@ const Booking = () => {
                           >
                             <Eye size={16} />
                           </button>
-                          {booking.status?.toLowerCase() !== "refund" && booking.status?.toLowerCase() !== "success" && (
-                            <button
-                              onClick={() => handleEditBooking(booking)}
-                              className="flex items-center gap-1 text-teal-600 hover:text-teal-800 transition-colors"
-                              title="Edit Booking"
-                            >
-                              <SquarePen size={16} />
-                            </button>
-                          )}
+                          {booking.status?.toLowerCase() !== "refund" &&
+                            booking.status?.toLowerCase() !== "success" && (
+                              <button
+                                onClick={() => handleEditBooking(booking)}
+                                className="flex items-center gap-1 text-teal-600 hover:text-teal-800 transition-colors"
+                                title="Edit Booking"
+                              >
+                                <SquarePen size={16} />
+                              </button>
+                            )}
                           {canRefundBooking(booking) && (
                             <button
                               onClick={() => handleOpenRefundModal(booking)}
@@ -504,11 +436,11 @@ const Booking = () => {
                               <DollarSign size={16} />
                             </button>
                           )}
-                          {booking.isDeleted !== true && booking.status.toLowerCase() !== "success" && (
-                          <DeleteBooking
-                            bookingId={booking.id}
-                            onDeleteSuccess={() => setTrigger((prev) => !prev)}
-                          />
+                          {booking.isDeleted !== true && booking.status.toLowerCase() !== "success" && booking.status.toLowerCase() !== "refund" &&(
+                            <DeleteBooking
+                              bookingId={booking.id}
+                              onDeleteSuccess={() => setTrigger((prev) => !prev)}
+                            />
                           )}
                         </div>
                       </td>
@@ -516,10 +448,7 @@ const Booking = () => {
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan={9}
-                      className="px-4 py-8 text-center text-gray-500"
-                    >
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                       No bookings found matching your search criteria.
                     </td>
                   </tr>
@@ -568,7 +497,7 @@ const Booking = () => {
             handleConfirm={() => handleRefundBooking(selectedBooking?.id)}
             handleCancel={() => setIsRefundModalOpen(false)}
             loading={refundLoading}
-            refundPercentage={selectedBooking?.refundPercentage || 100}
+            refundPercentage={refundPercentage}
             bookingId={selectedBooking?.id}
           />
         )}

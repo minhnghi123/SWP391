@@ -3,7 +3,8 @@ import { Calendar, Syringe, CircleDollarSign } from "lucide-react";
 import useAxios from "../../../../utils/useAxios";
 import SummaryCard from "./SummaryCard";
 import VaccineInventory from "./VaccineInventory";
-import DashboardChart from "./appointmentChart";
+import DashboardChart from "./appointmentChart"; // Ensure this matches your file name
+import FormateMoney from "@/utils/calculateMoney";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -17,8 +18,6 @@ const Dashboard = () => {
   });
   const [vaccines, setVaccines] = useState([]);
   const [displayedVaccines, setDisplayedVaccines] = useState([]);
-  const [bookingPayments, setBookingPayments] = useState([]);
-  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -52,7 +51,6 @@ const Dashboard = () => {
           .split("T")[0];
         return arrivedAt === today;
       });
-      setBookings(response.data);
       setSummaryData((prev) => ({
         ...prev,
         todayAppointments: {
@@ -91,18 +89,34 @@ const Dashboard = () => {
 
   const fetchFinancialData = async () => {
     try {
-      const bookingsResponse = await api.get(`${url}/Booking/get-all-booking`);
-      if (bookingsResponse.status !== 200)
-        throw new Error("Failed to fetch bookings");
-      const bookingsData = bookingsResponse.data;
-      const bookingAmounts = bookingsData.map(
-        (booking) => Number(booking.amount) || 0
-      );
-      setBookingPayments(bookingsData);
+      const paymentResponse = await api.get(`${url}/Payment/get-payment-admin`);
+      if (paymentResponse.status !== 200)
+        throw new Error("Failed to fetch payment data");
+      const paymentData = paymentResponse.data;
+
+      const successAmount = paymentData
+        .filter((p) => p.status === "Success")
+        .reduce((sum, p) => sum + Number(p.totalPrice || 0), 0);
+      const pendingAmount = paymentData
+        .filter((p) => p.status === "Pending")
+        .reduce((sum, p) => sum + Number(p.totalPrice || 0), 0);
+      const fullyRefundedAmount = paymentData
+        .filter((p) => p.status === "FullyRefunded")
+        .reduce((sum, p) => sum + Number(p.totalPrice || 0), 0);
+      const partialRefundedAmount = paymentData
+        .filter((p) => p.status === "PartialRefunded")
+        .reduce((sum, p) => sum + Number(p.totalPrice || 0), 0);
+
+      const totalIncome =
+        successAmount +
+        pendingAmount -
+        fullyRefundedAmount -
+        partialRefundedAmount;
+
       setSummaryData((prev) => ({
         ...prev,
         totalIncome: {
-          value: bookingAmounts.reduce((sum, amount) => sum + amount, 0).toLocaleString('vi-VN'), // Định dạng VNĐ
+          value: totalIncome.toLocaleString("en-US"),
           description: "Total Revenue",
         },
       }));
@@ -137,40 +151,6 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Transform data for charts
-  const bookingStatusData = [
-    {
-      name: "Success",
-      value: bookings.filter((b) => b.status === "Success").length,
-    },
-    {
-      name: "Pending",
-      value: bookings.filter((b) => b.status === "Pending").length,
-    },
-    {
-      name: "Refund",
-      value: bookings.filter((b) => b.status === "Refund").length,
-    },
-  ];
-
-  const revenueData = bookingPayments.slice(-7).map((booking, index) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - index));
-    const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
-    return {
-      date: date.toISOString().split("T")[0],
-      weekday: weekday,
-      revenue: Number(booking.amount || 0).toLocaleString('vi-VN'), // Định dạng VNĐ
-    };
-  });
-
-  const vaccineStockData = vaccines.map((vaccine) => ({
-    name: vaccine.name || "Unknown",
-    current: vaccine.quantity || 0,
-    minimum: vaccine.minimumThreshold || 100,
-    maximum: vaccine.maximumThreshold || 1000,
-  }));
-
   return (
     <div className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-2xl shadow-xl shadow-teal-500/5 border border-gray-100 min-h-screen">
       {/* Header */}
@@ -187,7 +167,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-3 sm:mb-6">
             <SummaryCard
               title="Total Vaccinations"
-              value={summaryData.totalVaccinations.value.toLocaleString('vi-VN')}
+              value={summaryData.totalVaccinations.value.toLocaleString("vi-VN")}
               description={summaryData.totalVaccinations.change}
               icon={Syringe}
             />
@@ -199,13 +179,13 @@ const Dashboard = () => {
             />
             <SummaryCard
               title="Available Vaccines"
-              value={summaryData.availableVaccines.value.toLocaleString('vi-VN')}
+              value={summaryData.availableVaccines.value.toLocaleString("vi-VN")}
               description={summaryData.availableVaccines.description}
               icon={Syringe}
             />
             <SummaryCard
               title="Total Income"
-              value={`${summaryData.totalIncome.value} VNĐ`} // Thêm ký hiệu ₫
+              value={FormateMoney(summaryData.totalIncome.value + " VNĐ")}
               description={summaryData.totalIncome.description}
               icon={CircleDollarSign}
             />
@@ -222,19 +202,10 @@ const Dashboard = () => {
                 >
                   <DashboardChart
                     chartType={type}
-                    data={
-                      type === "bookingStatus"
-                        ? bookingStatusData
-                        : type === "revenueTrend"
-                        ? revenueData
-                        : vaccineStockData
-                    }
                     title={
                       type === "bookingStatus"
                         ? "Booking Status"
-                        : type === "revenueTrend"
-                        ? "Revenue Trend"
-                        : "Vaccine Stock Levels"
+                        : "Revenue Trend"
                     }
                   />
                 </div>

@@ -13,12 +13,12 @@ import { AlertTriangle, RefreshCcw } from "lucide-react";
 
 const ModalRefund = ({ title, message, bookingId, refundPercentage, handleConfirm, handleCancel, loading }) => {
   return (
-    <AlertDialog defaultOpen>
+    <AlertDialog defaultOpen> 
       <AlertDialogContent className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col border border-gray-100">
         {/* Header */}
         <AlertDialogHeader className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
           <AlertDialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <RefreshCcw className="h-5 w-5 text-teal-600" />
+            <RefreshCcw className="h-5 w-5 text-blue-600" />
             {title || "Confirm Refund"}
           </AlertDialogTitle>
           <button
@@ -35,8 +35,8 @@ const ModalRefund = ({ title, message, bookingId, refundPercentage, handleConfir
         {/* Main Content */}
         <div className="p-4 flex-1 overflow-y-auto">
           <div className="text-center space-y-4 mb-4">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-teal-50">
-              <AlertTriangle className="h-6 w-6 text-teal-600" />
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-50">
+              <AlertTriangle className="h-6 w-6 text-blue-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900">Booking #{bookingId}</h3>
             <AlertDialogDescription className="text-sm text-gray-600">
@@ -48,11 +48,11 @@ const ModalRefund = ({ title, message, bookingId, refundPercentage, handleConfir
           <div className="bg-gray-50 p-3 rounded-xl space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="font-semibold text-gray-600">Refund Percentage:</span>
-              <span className="font-bold text-teal-600">{refundPercentage}%</span>
+              <span className="font-bold text-blue-600">{refundPercentage}%</span>
             </div>
             {refundPercentage === 100 ? (
               <div className="text-sm text-gray-700 flex items-start gap-2 bg-green-50 border border-green-100 rounded-md p-2">
-                <AlertTriangle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                <AlertTriangle className="h-4 w-4 text-blue-600 flex-shrink-0" />
                 <span>
                   This booking qualifies for a full refund as it is in "Pending" status and within the 2-day window.
                 </span>
@@ -82,7 +82,7 @@ const ModalRefund = ({ title, message, bookingId, refundPercentage, handleConfir
             className={`px-4 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
               loading || refundPercentage === 0
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-teal-600 text-white hover:bg-teal-700"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
           >
             {loading ? (

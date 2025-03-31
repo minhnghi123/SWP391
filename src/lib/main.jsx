@@ -6,7 +6,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Provider } from 'react-redux'
 import store from '../components/redux/store';
-import { AuthProvider } from '../components/Context/AuthContext';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <GoogleOAuthProvider clientId='428240789533-0ph77i9n53v8cqc7b8m55h7rq3hh7efn.apps.googleusercontent.com'>

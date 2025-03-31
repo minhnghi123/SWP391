@@ -41,15 +41,8 @@ const FormFeedback = () => {
             toast.error('Please enter a description');
             return;
         }
-
-        // Chỉ dispatch API call nếu ratingScore > 3
-        if (inputData.ratingScore > 3) {
             dispatch(postFeedback(api, inputData));
-        } else {
-            // Nếu rating <= 3, chỉ dispatch action để thêm vào tempFeedback
-            // dispatch(postFeedback(api, inputData));
-            dispatch(feedbackTrackingActions.setPostFeedback(inputData));
-        }
+        
 
         toast.success('Thank you for your feedback!');
         setInputData({

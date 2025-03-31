@@ -205,7 +205,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName, isVaccineSuitableForAn
                                                             {
                                                                 totalVaccine > 0 ? (
                                                                     <>
-                                                                        <p className="text-gray-700 font-medium"> Completed Vaccine:{totalVaccine}{` `} does</p>
+                                                                        <p className="text-gray-700 font-medium"> Completed Vaccine:{totalVaccine}</p>
                                                                         <p className="text-gray-500">{formatDate(mostRecentVaccinationDate)}</p>
                                                                         <p className="text-gray-600 mt-1">Most Recent Vaccine</p>
                                                                     </>
@@ -221,7 +221,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName, isVaccineSuitableForAn
                                                             {
                                                                 totalTracking > 0 ? (
                                                                     <>
-                                                                        <p className="text-gray-700 font-medium">Tracking:{totalTracking}{` `} does</p>
+                                                                        <p className="text-gray-700 font-medium">Tracking:{totalTracking}</p>
                                                                         <p className="text-gray-500"> Next Vaccine: {formatDate(nextVaccinationDate)}</p>
                                                                         <p className="text-gray-600 mt-1">Vaccination Progress</p>
                                                                     </>

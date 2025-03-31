@@ -22,12 +22,14 @@ const Sidebar = ({
   return (
     <>
       {/* Mobile Menu Button */}
-      <button
-        onClick={toggleSidebar}
-        className="lg:hidden fixed  bottom-4 left-4 z-50 p-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-      >
-        {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-      </button>
+      {!isOpen && (
+        <button
+          onClick={toggleSidebar}
+          className="lg:hidden fixed  bottom-4 left-4 z-50 p-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+      )}
 
       {/* Overlay */}
       {isOpen && (

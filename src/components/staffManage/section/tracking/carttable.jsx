@@ -1,14 +1,12 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Filter, MoreHorizontal, Syringe, Calendar, Search, ChevronDown, ChevronUp } from "lucide-react";
+import { MoreHorizontal, Syringe, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import FormatDate from "../../../../utils/Date";
 import Pagination from "../../Pagination";
-
+import React from "react";
 const getReactionBadge = (reaction) => {
   switch (reaction?.toLowerCase()) {
     case "nothing":
@@ -19,7 +17,6 @@ const getReactionBadge = (reaction) => {
 };
 
 const getStatusBadge = (status, isOverdue) => {
-  // Nếu mũi tiêm bị "Overdue", hiển thị trạng thái "Overdue"
   if (isOverdue) {
     return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100" variant="outline">Overdue</Badge>;
   }
@@ -40,7 +37,6 @@ const getStatusBadge = (status, isOverdue) => {
   }
 };
 
-// Hàm kiểm tra trạng thái "Overdue"
 const isOverdue = (maximumIntervalDate, status) => {
   if (!maximumIntervalDate) return false;
   if (status?.toLowerCase() !== "schedule" && status?.toLowerCase() !== "waiting") return false;
@@ -70,67 +66,6 @@ const CartTable = ({
 }) => {
   return (
     <Card className="border-blue-100 bg-white shadow-sm">
-      {/* <CardHeader className="border-b border-blue-50">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <CardTitle className="text-blue-700">Vaccination Tracking Records</CardTitle>
-          <div className="flex flex-wrap gap-2">
-            <div className="relative w-[250px]">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500" />
-              <Input
-                placeholder="Search by name, vaccine..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
-              />
-            </div>
-            <Select defaultValue="all" onValueChange={handleFilter}>
-              <SelectTrigger className="w-[180px] border-blue-200 focus:ring-blue-400">
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-blue-500" />
-                  <SelectValue placeholder="Filter by status" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Records</SelectItem>
-                <SelectItem value="success">Success</SelectItem>
-                <SelectItem value="schedule">Scheduled</SelectItem>
-                <SelectItem value="waiting">Waiting</SelectItem>
-                <SelectItem value="cancel">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={sortField}
-              onValueChange={(value) => {
-                setSortField(value);
-                setFilteredData(sortData(filteredData));
-              }}
-            >
-              <SelectTrigger className="w-[180px] border-blue-200 focus:ring-blue-400">
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-blue-500" />
-                  <SelectValue placeholder="Sort by" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="vaccinationDate">Date</SelectItem>
-                <SelectItem value="status">Status</SelectItem>
-                <SelectItem value="vaccineName">Vaccine Name</SelectItem>
-                <SelectItem value="userName">Parent Name</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                setFilteredData(sortData(filteredData));
-              }}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
-            >
-              {sortOrder === "asc" ? "↑" : "↓"}
-            </Button>
-          </div>
-        </div>
-      </CardHeader> */}
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
@@ -150,12 +85,12 @@ const CartTable = ({
             </TableHeader>
             <TableBody>
               {paginatedData.map((record, index) => {
-                // Kiểm tra trạng thái "Overdue" cho từng record
                 const overdue = isOverdue(record.maximumIntervalDate, record.status);
 
                 return (
-                  <>
-                    <TableRow key={record.trackingID} className="hover:bg-blue-50/30 border-b border-blue-50">
+                  // Use Fragment with key to wrap multiple rows
+                  <React.Fragment key={record.trackingID}>
+                    <TableRow className="hover:bg-blue-50/30 border-b border-blue-50">
                       <TableCell onClick={() => handleExpand(record)} className="text-center cursor-pointer">
                         {isExpand?.trackingID === record.trackingID ? (
                           <ChevronUp className="h-4 w-4 text-blue-500" />
@@ -199,13 +134,9 @@ const CartTable = ({
                           const checkCancel = findArry && findArry.some(item => item.status.toLowerCase() === "cancel");
                           const checkOverdue = findArry && findArry.some(item => isOverdue(item.maximumIntervalDate, item.status));
 
-                          // Nếu tất cả các mũi đều "Success"
                           if (checkSuccess) return getStatusBadge("Success");
-                          // Nếu có bất kỳ mũi nào "Cancel"
                           if (checkCancel) return getStatusBadge("Cancel");
-                          // Nếu có bất kỳ mũi nào "Overdue"
                           if (checkOverdue) return getStatusBadge("Overdue");
-                          // Mặc định là "In Progress"
                           return getStatusBadge("In Progress");
                         })()}
                       </TableCell>
@@ -231,7 +162,7 @@ const CartTable = ({
                     </TableRow>
                     {/* Expanded Section */}
                     {isExpand?.trackingID === record.trackingID && (
-                      <TableRow className="bg-blue-50/20">
+                      <TableRow key={`${record.trackingID}-expanded`}>
                         <TableCell colSpan={10}>
                           <div className="p-4">
                             <h4 className="text-blue-700 font-medium mb-2">All Doses</h4>
@@ -248,7 +179,6 @@ const CartTable = ({
                                 </TableHeader>
                                 <TableBody>
                                   {array.map((item) => {
-                                    // Kiểm tra trạng thái "Overdue" cho từng mũi trong expanded section
                                     const itemOverdue = isOverdue(item.maximumIntervalDate, item.status);
 
                                     return (
@@ -276,7 +206,6 @@ const CartTable = ({
                                               >
                                                 View details
                                               </DropdownMenuItem>
-                                              {/* Nếu mũi tiêm bị "Overdue", chỉ cho phép "Update status" để chuyển thành "Cancel" */}
                                               {itemOverdue ? (
                                                 <DropdownMenuItem
                                                   className="text-blue-700 focus:bg-blue-50 focus:text-blue-800"
@@ -335,7 +264,7 @@ const CartTable = ({
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </TableBody>

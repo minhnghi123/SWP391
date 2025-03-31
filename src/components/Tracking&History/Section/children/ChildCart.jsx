@@ -4,7 +4,7 @@ import CalculateAge from '../../../../utils/calculateYearOld'
 // import ModalDelete from './ModalDelete';
 import FemaleOutlinedIcon from '@mui/icons-material/FemaleOutlined';
 import MaleOutlinedIcon from '@mui/icons-material/MaleOutlined';
-
+import ToUperCaseFirstLetter from '@/utils/upperCaseFirstLetter';
 const ChildCart = ({ handleAddChild, sortchildren, handleEditChild, searchTerm, handleDeleteChild}) => {
     console.log(sortchildren)
     const getStatusColor = (status) => {
@@ -59,7 +59,7 @@ const ChildCart = ({ handleAddChild, sortchildren, handleEditChild, searchTerm, 
                                             </div>
                                         </div>
                                         <div>
-                                            <h3 className="text-base font-semibold text-gray-900 mb-1">{child.name}</h3>
+                                            <h3 className="text-base font-semibold text-gray-900 mb-1">{ToUperCaseFirstLetter(child.name)}</h3>
                                             <div className="flex items-center gap-2">
                                                 <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getStatusColor(child?.status)}`}>
                                                     {child?.status}

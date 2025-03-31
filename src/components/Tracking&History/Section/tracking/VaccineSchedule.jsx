@@ -202,7 +202,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Vaccination Schedule</h2>
             <p className="text-gray-500 text-sm mt-1">
-              rack and manage your vaccination progress'
+              Track and manage your vaccination progress
             </p>
           </div>
         </div>

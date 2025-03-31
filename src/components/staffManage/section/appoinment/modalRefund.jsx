@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, RefreshCcw, X } from "lucide-react";
 
 const ModalRefund = ({ title, message, bookingId, refundPercentage, handleConfirm, handleCancel, loading }) => {
+
   return (
     <AlertDialog defaultOpen>
       <AlertDialogContent className="max-w-md p-0 overflow-hidden border border-blue-100 shadow-md">
@@ -37,22 +38,36 @@ const ModalRefund = ({ title, message, bookingId, refundPercentage, handleConfir
 
           <Card className="my-4 bg-blue-50/30 border border-blue-100">
             <CardContent className="pt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-gray-700">Refund Amount:</span>
-                <span className="font-bold text-blue-600">{refundPercentage}%</span>
-              </div>
+              {
+                refundPercentage !== 0 && (
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium text-gray-700">Refund Amount:</span>
+                    <span className="font-bold text-blue-600">{refundPercentage}%</span>
+                  </div>
+                )
+              }
+              {
+                refundPercentage === 0 && (
+                  <div className="text-sm text-gray-700 mt-2 flex items-start gap-2 bg-red-50 border border-red-100 rounded-md p-3">
+                    <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                    <span className="text-red-700 font-medium" >
+                      This booking has recevied at least two doses of vaccination. According to our policy, no refund anything.
+                    </span>
+                  </div>
+                )
+              }
               {
                 refundPercentage === 50 ? (
                   <div className="text-sm text-gray-700 mt-2 flex items-start gap-2 bg-yellow-50 border border-yellow-100 rounded-md p-3">
                     <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />
-                    <span>
+                    <span className="text-yellow-700 font-medium" >
                       This booking has received the first dose of vaccination. According to our policy, only a partial refund is available.
                     </span>
                   </div>
                 ) : refundPercentage === 100 ? (
                   <div className="text-sm text-gray-700 mt-2 flex items-start gap-2 bg-green-50 border border-green-100 rounded-md p-3">
                     <AlertTriangle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span>
+                    <span className="text-green-700 font-medium" >
                       This booking has not received any vaccination. According to our policy, a full refund is available.
                     </span>
                   </div>
@@ -68,30 +83,36 @@ const ModalRefund = ({ title, message, bookingId, refundPercentage, handleConfir
             >
               Cancel
             </AlertDialogCancel>
-            <button
-              onClick={() => handleConfirm(bookingId)}
-              disabled={loading}
-              className={`flex-1 px-4 py-2 text-white font-medium rounded-md transition duration-200 
+            {
+              refundPercentage !== 0 && (
+                <button
+                  onClick={() => handleConfirm(bookingId)}
+                  disabled={loading}
+                  className={`flex-1 px-4 py-2 text-white font-medium rounded-md transition duration-200 
       ${loading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}
     `}
-            >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                  </svg>
-                  Processing...
-                </div>
-              ) : (
-                "Confirm Refund"
-              )}
-            </button>
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      Processing...
+                    </div>
+                  ) : (
+                    "Confirm Refund"
+                  )}
+                </button>
+
+
+              )
+            }
           </AlertDialogFooter>
         </div>
       </AlertDialogContent>

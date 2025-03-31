@@ -299,7 +299,7 @@ const BodyFeedback = () => {
                                     <div className="col-span-full py-12 text-center">
                                         <div className="bg-gray-50 p-8 rounded-2xl">
                                             <p className="text-gray-600 text-lg">
-                                                {searchQuery ? 'No feedback matches your search.' :
+                                                {searchQuery && activeFeedbackTab === 'tracking' ? 'No feedback matches your search.' :
                                                     (activeFeedbackTab === 'vaccine' ? 'No reactions available yet.' : 'No feedback available yet.')}
                                             </p>
                                         </div>

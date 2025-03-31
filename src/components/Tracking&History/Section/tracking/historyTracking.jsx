@@ -145,8 +145,8 @@ export default function VaccineSchedules({ sortLinkList, setTrigger, setHistoryT
             <Shield className="w-6 h-6 text-indigo-500" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Vaccination Schedule</h2>
-            <p className="text-gray-500 text-sm mt-1">Track and manage your vaccination progress</p>
+            <h2 className="text-2xl font-bold text-gray-800">Vaccine History</h2>
+            <p className="text-gray-500 text-sm mt-1">Track and manage your vaccination history</p>
           </div>
         </div>
         <div className="flex items-center gap-4">

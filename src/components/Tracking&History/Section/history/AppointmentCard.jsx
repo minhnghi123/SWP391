@@ -48,14 +48,19 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
 
     const initiateRefund = async (bookingId) => {
         if (!bookingId) return;
+        setModalRefund(true);
         setLoading(true);
         try {
             const res = await api.get(`${url}/VaccinesTracking/get-by-booking-id/${bookingId}`);
             if (res.status === 200) {
                 const trackingData = res.data;
-                const checkFirstDose = trackingData.some(item => item.bookingId == bookingId && item.previousVaccination === 0 && item.status.toLowerCase() === "success")
-                setRefundPercentage(checkFirstDose ? 50 : 100);
-                setModalRefund(true);
+                const checkFirstDose = trackingData.some(item => item.bookingId == appointment.id && item.previousVaccination === 0 && item.status.toLowerCase() === "success")
+                if (checkFirstDose) {
+                  const hasNextVaccine = trackingData.some(item => item.bookingId == appointment.id && item.previousVaccination !== 0 && item.status.toLowerCase() === "success")
+                  setRefundPercentage(hasNextVaccine ? 0 : 50);
+                } else {
+                  setRefundPercentage(100);
+                }
             }
         } catch (error) {
             toast.error("Failed to check refund eligibility.");

@@ -11,6 +11,7 @@ const getStatusBadge = (status) => {
     Pending: <Badge variant="warning" className="bg-yellow-100 text-yellow-800">Pending</Badge>,
     Success: <Badge variant="success" className="bg-green-100 text-green-800">Success</Badge>,
     Refund: <Badge variant="destructive" className="bg-red-100 text-red-800">Refunded</Badge>,
+    "Partial Refund": <Badge variant="destructive" className="bg-red-100 text-red-800">Partial Refund</Badge>,
     default: <Badge variant="secondary" className="bg-gray-100 text-gray-800">{status}</Badge>
   };
   return variants[status] || variants.default;
@@ -21,6 +22,24 @@ const CardTable = ({
   currentPage, totalPages, startIndex, endIndex, totalItems, onPageChange,
   tracking
 }) => {
+
+
+  const handlePercentRefund = (appointment) => {
+    setModalRefund(true);
+    setSelectedBooking(appointment);
+
+    const checkFirstDose = tracking.some(item => item.bookingId == appointment.id && item.previousVaccination === 0 && item.status.toLowerCase() === "success")
+    if (checkFirstDose) {
+      const hasNextVaccine = tracking.some(item => item.bookingId == appointment.id && item.previousVaccination !== 0 && item.status.toLowerCase() === "success")
+      setRefundPercentage(hasNextVaccine ? 0 : 50);
+    } else {
+      setRefundPercentage(100);
+    }
+  };
+
+
+
+
   return (
     <Card>
       <CardContent className="p-0">
@@ -38,7 +57,7 @@ const CardTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.map((appointment,index) => (
+            {paginatedData.map((appointment, index) => (
               <TableRow key={index} className="hover:bg-blue-50/30 border-b border-blue-50">
                 <TableCell className="font-medium ">#{appointment.id}</TableCell>
                 <TableCell className="">{appointment.parentName}</TableCell>
@@ -143,12 +162,7 @@ const CardTable = ({
                           variant="ghost"
                           size="icon"
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => {
-                            setModalRefund(true)
-                            setSelectedBooking(appointment)
-                            const checkFirstDose = tracking.some(item=>item.bookingId == appointment.id && item.previousVaccination === 0 && item.status.toLowerCase() === "success")
-                            setRefundPercentage(checkFirstDose ? 50 : 100)
-                          }}
+                          onClick={() => handlePercentRefund(appointment)}
                           disabled={loading}
                         >
                           <RefreshCcw className="h-4 w-4" />

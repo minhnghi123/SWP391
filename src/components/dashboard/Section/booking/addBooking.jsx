@@ -31,7 +31,7 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
       const fetchUsers = async () => {
         setIsLoading(true);
         try {
-          const res = await api.get(`${url}/User/get-all-user`);
+          const res = await api.get(`${url}/User/get-all-user-admin`);
           if (res.status === 200) {
             setUsers(res.data);
             setFilteredUsers(res.data);

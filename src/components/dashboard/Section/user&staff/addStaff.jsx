@@ -191,6 +191,13 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Add Staff</h2>
 
         {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+        {avatarPreview && (
+          <img
+            src={avatarPreview}
+            alt="Avatar preview"
+            className="mt-2 w-20 h-20 object-cover rounded-full mx-auto"
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <input
@@ -247,13 +254,6 @@ const AddUserComponent = ({ onAddSuccess, setShowForm }) => {
               onChange={handleFileChange}
               className="w-full p-2 border border-gray-300 rounded-md"
             />
-            {avatarPreview && (
-              <img
-                src={avatarPreview}
-                alt="Avatar preview"
-                className="mt-2 w-20 h-20 object-cover rounded-full mx-auto"
-              />
-            )}
           </div>
           <select
             name="gender"

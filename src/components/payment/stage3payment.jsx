@@ -145,13 +145,17 @@ const Stage3Payment = () => {
                                     </div>
                                     <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                         <p className="text-sm text-gray-500 mb-1">Amount</p>
-                                     {
-                                        data.OrderId.substring(0,4).toLowerCase() === "payid" ? (
-                                            <p className="font-bold text-blue-600">{formatDecimal(data.Amount*23000)} VND</p>
-                                        ) : (
-                                            <p className="font-bold text-blue-600">{formatDecimal(data.Amount)} VND</p>
-                                        )
-                                     }
+                                        {
+                                            data.OrderId && data.Amount !== undefined ? (
+                                                data.OrderId.includes("PAYID") ? (
+                                                    <p className="font-bold text-blue-600">{data.Amount} USD</p>
+                                                ) : (
+                                                    <p className="font-bold text-blue-600">{formatDecimal(data.Amount)} VND</p>
+                                                )
+                                            ) : (
+                                                <p className="font-bold text-red-600">Invalid data</p> // Hoặc hiển thị thông báo lỗi
+                                            )
+                                        }
                                     </div>
                                     <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                         <p className="text-sm text-gray-500 mb-1">Booking ID</p>

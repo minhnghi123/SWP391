@@ -31,7 +31,7 @@ const BenefitforParents = ({ image, title, description }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </a> */}
-                <div className="flex items-center gap-4 pt-4">
+                {/* <div className="flex items-center gap-4 pt-4">
                     <button className='px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 font-medium flex items-center gap-2'>
                         <Link to="/aboutPage">Learn More</Link>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@ const BenefitforParents = ({ image, title, description }) => {
                         </svg>
                     </button>
 
-                </div>
+                </div> */}
             </div>
         </div>
     )

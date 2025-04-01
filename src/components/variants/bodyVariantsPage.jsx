@@ -89,7 +89,7 @@ function BodyVariants() {
     return () => {
       isMounted = false;
     };
-  }, [url]);
+  }, []);
 
   const filteredVaccines = vaccines.filter((vaccine) =>
     vaccine.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -138,8 +138,6 @@ function BodyVariants() {
     const isCombo =
       Array.isArray(vaccine?.vaccines) && vaccine.vaccines.length > 0;
     const finalPrice = isCombo ? vaccine.finalPrice : vaccine.price;
-    // const ischeck =
-    //   type === "combo" ? `combo-${vaccine.id}` : `vaccine-${vaccine.id}`;
     const name = type === "combo" ? vaccine.comboName : vaccine.name;
 
     const isItemInCart = cart.some(
@@ -472,8 +470,8 @@ function BodyVariants() {
               <button
                 onClick={() => navigate(`/information/${user?.id}`)}
                 className={`w-full py-3 rounded-lg mt-6 transition-colors flex items-center justify-center ${cart.length === 0
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
                 disabled={cart.length === 0}
               >

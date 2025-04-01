@@ -13,7 +13,7 @@ const RightSide = ({ section }) => {
     switch (section) {
       case 'dashboardStaff': return <LayoutDashboard />;
       case 'manageVaccine': return <Syringe />;
-      case 'appointments': return <FiCalendar />;
+      case 'booking': return <FiCalendar />;
       case 'trackingVaccine': return <FiClock />;
       default: return <LayoutDashboard />;
     }
@@ -22,7 +22,7 @@ const RightSide = ({ section }) => {
     switch (section) {
       case 'dashboardStaff': return <Dashboard />;
       case 'manageVaccine': return <ManageVaccine />;
-      case 'appointments': return <Appointments />;
+      case 'booking': return <Appointments />;
       case 'trackingVaccine': return <TrackingStaff />;
       default: return <Dashboard />;
     }

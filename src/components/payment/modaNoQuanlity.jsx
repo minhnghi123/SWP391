@@ -1,10 +1,12 @@
-import { AlertCircle, XCircle, Phone } from 'lucide-react';
+import { AlertCircle, XCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';   
+import { ArrowLeft } from 'lucide-react';
+
 const ModalNoQuantity = ({ onClose, shortageInfo }) => {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
+  console.log(shortageInfo)
   return (
     <AnimatePresence>
       <motion.div
@@ -61,7 +63,7 @@ const ModalNoQuantity = ({ onClose, shortageInfo }) => {
             </motion.p>
 
             {/* Shortage Details */}
-            {shortageInfo && (
+            {shortageInfo && shortageInfo.shortageVaccines.length > 0 && (
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -70,36 +72,19 @@ const ModalNoQuantity = ({ onClose, shortageInfo }) => {
               >
                 <h3 className="text-lg font-semibold text-red-800 mb-4">Shortage Details</h3>
                 <ul className="space-y-4">
-                  <li className="flex items-center justify-between">
-                    <span className="text-gray-700">Number of Children:</span>
-                    <span className="font-semibold text-red-700">{shortageInfo.totalChildren}</span>
-                  </li>
-                  <li className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">Single Vaccine:</span>
-                      <span className="font-semibold text-red-700">
-                        {shortageInfo.totalQuantityVaccine} / {shortageInfo.requiredDoesVaccine}
-                      </span>
-                    </div>
-                    {shortageInfo.shortageVaccine > 0 && (
-                      <div className="text-sm text-red-600 bg-red-100/50 px-3 py-1 rounded-full inline-block">
-                        Shortage: {shortageInfo.shortageVaccine} doses
+                  {shortageInfo.shortageVaccines.map((shortage, index) => (
+                    <li key={index} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-700">{shortage.name}</span>
+                        <span className="font-semibold text-red-700">
+                          {shortage.available} / {shortage.required}
+                        </span>
                       </div>
-                    )}
-                  </li>
-                  <li className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">Combo Vaccine:</span>
-                      <span className="font-semibold text-red-700">
-                        {shortageInfo.totalQuantityCombo} / {shortageInfo.requiredDoesCombo}
-                      </span>
-                    </div>
-                    {shortageInfo.shortageCombo > 0 && (
                       <div className="text-sm text-red-600 bg-red-100/50 px-3 py-1 rounded-full inline-block">
-                        Shortage: {shortageInfo.shortageCombo} doses
+                        Shortage: {shortage.shortage} doses
                       </div>
-                    )}
-                  </li>
+                    </li>
+                  ))}
                 </ul>
               </motion.div>
             )}
@@ -111,9 +96,8 @@ const ModalNoQuantity = ({ onClose, shortageInfo }) => {
               transition={{ delay: 0.5 }}
               className="flex justify-center gap-4 w-full"
             >
-             
               <Button
-                onClick={() =>navigate(-1)}
+                onClick={() => navigate('/variantsPage')}
                 className="bg-red-600 text-white hover:bg-red-700 rounded-full px-8 py-3 flex items-center space-x-2 transition-all duration-200 font-medium"
               >
                 <ArrowLeft className="w-5 h-5" />

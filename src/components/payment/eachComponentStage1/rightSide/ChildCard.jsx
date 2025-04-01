@@ -96,7 +96,7 @@ const ChildInfoCard = ({ child, handleRemove, parentName, isVaccineSuitableForAn
 
                                 {/* Status and Creation Date */}
                                 <div className="mt-1 text-sm">
-                                    <span className={`px-2 py-1 rounded-full ${child.status === "Good" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+                                    <span className={`px-2 py-1 rounded-full ${child.status.toLowerCase() === "active" ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}`}>
                                         {child.status}
                                     </span>
                                     <span className="ml-2 text-gray-600">Created: {FormDate(child.createdAt)}</span>

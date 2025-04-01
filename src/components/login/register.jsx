@@ -3,8 +3,9 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import Avatar from '../../../avatar.json';
+import { addData } from "@/Api/axios";
 import useAxios from "../../utils/useAxios";
-const url = import.meta.env.VITE_BASE_URL_DB;
+import ToUpperCase from "../../utils/upperCaseFirstLetter";
 
 const InputRegister = ({ type, placeholder, onChange, name, value, label, error }) => {
     return (
@@ -20,6 +21,7 @@ const InputRegister = ({ type, placeholder, onChange, name, value, label, error 
                 onChange={onChange}
                 value={value}
                 name={name}
+                max={new Date().toISOString().split('T')[0]}
                 required
             />
             {error && <p className="text-red-500 text-xs ml-1">{error}</p>}
@@ -27,21 +29,10 @@ const InputRegister = ({ type, placeholder, onChange, name, value, label, error 
     );
 };
 
-const StepIndicator = ({ currentStep, totalSteps }) => {
-    return (
-        <div className="flex justify-center items-center space-x-2 mb-8">
-            {[...Array(totalSteps)].map((_, index) => (
-                <div
-                    key={index}
-                    className={`h-2 w-2 rounded-full transition-all duration-300 ${index < currentStep ? 'bg-blue-600 w-8' : 'bg-gray-300'}`}
-                />
-            ))}
-        </div>
-    );
-};
+
 
 export default function Register({ setRegister }) {
-    const api = useAxios();
+    // const api = useAxios();
     const avatar = Avatar;
     const [err, setErr] = useState("");
     const [stage, setStage] = useState(1);
@@ -179,7 +170,7 @@ export default function Register({ setRegister }) {
 
         try {
             const value = {
-                name: `${input.firstName} ${input.lastName}`,
+                name: `${ToUpperCase(input.firstName)} ${ToUpperCase(input.lastName)}`,
                 username: input.userName,
                 gmail: input.email,
                 phoneNumber: input.phone,
@@ -189,7 +180,7 @@ export default function Register({ setRegister }) {
                 gender: input.gender?.toLowerCase() === "male" ? 0 : 1,
             };
 
-            const res = await api.post(`${url}/User/register`, value);
+            const res = await addData(`User/register`, value);
             if (res?.status === 200) {
                 setStage(2);
             }
@@ -212,8 +203,8 @@ export default function Register({ setRegister }) {
         setIsSubmitting(true);
         try {
             const verifyValue = { otp: verificationCode.join("") };
-            const verifyRes = await api.post(`${url}/User/verify-register`, verifyValue);
-
+            const verifyRes = await addData('User/verify-register', verifyValue);
+        
             if (verifyRes?.status === 200) {
                 toast.success("Registered successfully");
                 setTimeout(() => setRegister(0), 1500);

@@ -45,7 +45,7 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
   }, [isModalOpen]);
 
   // Fetch vaccines, combos, and children on Step 2
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (currentStep === 2) {
       const fetchVaccinesAndCombos = async () => {
         setIsLoading(true);
@@ -89,7 +89,7 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
     }
   }, [searchTerm, users]);
 
-  console.log(users)
+ 
   // Handle user selection
   const handleUserSelect = (user) => {
     setSelectedUser(user);
@@ -104,105 +104,141 @@ const CreateBookingByStaff = ({ isModalOpen, setIsModalOpen, setTrigger }) => {
   }, [selectedUser, children]);
 
   // Toggle child selection
-  const handleChildToggle = (child) => {
-    setSelectedChildren((prev) =>
-      prev.some((c) => c.id === child.id)
-        ? prev.filter((c) => c.id !== child.id)
-        : [...prev, child]
-    );
-  };
+// Toggle vaccine selection
+const handleVaccineToggle = (vaccine) => {
+  if (!isVaccineSuitableForAnyChild(vaccine)) return;
 
-  // Check vaccine suitability
-  const isVaccineSuitableForAnyChild = (vaccine) => {
-    if (!selectedChildren.length) return true;
-    return selectedChildren.some((child) => {
+  // Nếu vaccine phù hợp, cập nhật danh sách vaccine đã chọn
+  setSelectedVaccines((prev) =>
+    prev.some((v) => v.id === vaccine.id)
+      ? prev.filter((v) => v.id !== vaccine.id)
+      : [...prev, vaccine]
+  );
+
+  // Kiểm tra và xóa những đứa trẻ không phù hợp với vaccine đã chọn
+  setSelectedChildren((prevChildren) => {
+    return prevChildren.filter((child) => {
       const childAge = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
       return childAge >= vaccine.suggestAgeMin && childAge <= vaccine.suggestAgeMax;
     });
-  };
+  });
+};
 
-  // Check combo suitability
-  const isComboSuitableForAnyChild = (combo) => {
-    if (!selectedChildren.length) return true;
-    return selectedChildren.some((child) => {
-      const Age = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
-      return combo.vaccines.every(
-        (vaccine) => Age >= vaccine.suggestAgeMin && Age <= vaccine.suggestAgeMax
-      );
-    });
-  };
+// Toggle child selection
+const handleChildToggle = (child) => {
+  setSelectedChildren((prev) => {
+    const newChildren = prev.some((c) => c.id === child.id)
+      ? prev.filter((c) => c.id !== child.id)
+      : [...prev, child];
 
-  // Toggle vaccine selection
-  const handleVaccineToggle = (vaccine) => {
-    if (!isVaccineSuitableForAnyChild(vaccine)) return;
-    setSelectedVaccines((prev) =>
-      prev.some((v) => v.id === vaccine.id)
-        ? prev.filter((v) => v.id !== vaccine.id)
-        : [...prev, vaccine]
+    // Kiểm tra lại vaccine khi thay đổi danh sách trẻ em
+    setSelectedVaccines((prevVaccines) =>
+      prevVaccines.filter((vaccine) => {
+        const childAge = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
+        return childAge >= vaccine.suggestAgeMin && childAge <= vaccine.suggestAgeMax;
+      })
     );
-  };
 
-  // Toggle combo selection
-  const handleComboToggle = (combo) => {
-    if (!isComboSuitableForAnyChild(combo)) return;
-    setSelectedCombos((prev) =>
-      prev.some((c) => c.id === combo.id)
-        ? prev.filter((c) => c.id !== combo.id)
-        : [...prev, combo]
+    return newChildren;
+  });
+};
+
+// Check vaccine suitability
+const isVaccineSuitableForAnyChild = (vaccine) => {
+  if (!selectedChildren.length) return true;
+  return selectedChildren.some((child) => {
+    const childAge = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
+    return childAge >= vaccine.suggestAgeMin && childAge <= vaccine.suggestAgeMax;
+  });
+};
+
+// Check combo suitability
+const isComboSuitableForAnyChild = (combo) => {
+  if (!selectedChildren.length) return true;
+  return selectedChildren.some((child) => {
+    const Age = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
+    return combo.vaccines.every(
+      (vaccine) => Age >= vaccine.suggestAgeMin && Age <= vaccine.suggestAgeMax
     );
-  };
+  });
+};
 
   // Check quantity vs doesTimes
   const checkQuantityAvailability = () => {
     const totalChildren = selectedChildren.length;
     if (totalChildren === 0) return true; // Nếu chưa chọn trẻ, bỏ qua kiểm tra
 
-    // Tính tổng số liều cần thiết và so sánh với số lượng hiện có
-    const vaccineRequirements = selectedVaccines.map((vaccine) => ({
-      id: vaccine.id,
-      name: vaccine.name,
-      requiredDoses: vaccine.doesTimes * totalChildren,
-      availableQuantity: vaccine.quantity,
-    }));
+    const vaccineMap = new Map();
 
-    const comboRequirements = selectedCombos.map((combo) => {
-      const totalDosesInCombo = combo.vaccines.reduce(
-        (sum, vaccine) => sum + vaccine.doesTimes,
-        0
-      );
-      return {
-        id: combo.id,
-        name: combo.comboName,
-        requiredDoses: totalDosesInCombo * totalChildren,
-        availableQuantity: combo.vaccines.reduce(
-          (min, vaccine) => Math.min(min, vaccine.quantity),
-          Infinity
-        ), // Lấy số lượng thấp nhất của vaccine trong combo
-      };
+    //  Thêm vắc-xin từ listVaccine
+    selectedVaccines?.forEach(vaccine => {
+        vaccineMap.set(vaccine.id, {
+            name: vaccine.name,
+            quantity: vaccine.quantity,
+            required: 0,
+        });
     });
 
-    // Kiểm tra từng vaccine
-    for (const req of vaccineRequirements) {
-      if (req.requiredDoses > req.availableQuantity) {
-        toast.error(
-          `Not enough doses for ${req.name}. Required: ${req.requiredDoses}, Available: ${req.availableQuantity}`
-        );
-        return false;
-      }
-    }
+    //  Thêm vắc-xin từ listComboVaccine
+    selectedCombos?.forEach(combo => {
+        combo.vaccines?.forEach(vaccine => {
+            if (vaccineMap.has(vaccine.id)) {
+                // Nếu vaccine đã có trong vaccineMap, cập nhật lại quantity
+                vaccineMap.get(vaccine.id).quantity = vaccine.quantity;
+            } else {
+                // Nếu vaccine chưa có trong vaccineMap, thêm mới
+                vaccineMap.set(vaccine.id, {
+                    name: vaccine.name,
+                    quantity: vaccine.quantity,
+                    required: 0,
+                });
+            }
+        });
+    });
+    
+    //  Tính tổng số liều cần dùng (cộng cả listVaccine và listComboVaccine)
+    selectedVaccines?.forEach(vaccine => {
+        if (vaccineMap.has(vaccine.id)) {
+            vaccineMap.get(vaccine.id).required += vaccine.doesTimes * totalChildren;
+        }
+    });
 
-    // Kiểm tra từng combo
-    for (const req of comboRequirements) {
-      if (req.requiredDoses > req.availableQuantity) {
-        toast.error(
-          `Not enough doses for ${req.name}. Required: ${req.requiredDoses}, Available: ${req.availableQuantity}`
-        );
+    selectedCombos?.forEach(combo => {
+        combo.listVaccine?.forEach(vaccine => {
+            if (vaccineMap.has(vaccine.id)) {
+                vaccineMap.get(vaccine.id).required += vaccine.doesTimes * totalChildren;
+            }
+        });
+    });
+ 
+    // Bước 3: Kiểm tra nếu có vaccine nào không đủ
+    const shortageVaccines = [];
+
+    vaccineMap.forEach((vaccine) => {
+        if (vaccine.quantity < vaccine.required) {
+            shortageVaccines.push({
+                name: vaccine.name,
+                required: vaccine.required,
+                available: vaccine.quantity,
+                shortage: vaccine.required - vaccine.quantity
+            });
+        }
+    });
+    
+    if (shortageVaccines.length > 0) {
+        shortageVaccines.forEach((vaccine) => {
+            toast.error(
+                `Vaccine Name: ${vaccine.name},Shortage: ${vaccine.shortage},Required: ${vaccine.required},Available: ${vaccine.available}`
+            );
+        });
         return false;
-      }
     }
 
     return true;
-  };
+};
+
+
+
 
   // Handle form submission
   const handleSubmit = async () => {

@@ -14,7 +14,7 @@ const PrivateRoute = () => {
 
     const roleAccount = user?.role?.toLowerCase() || '';
 
-    // Define role-based route restrictions
+
     const restrictedRoutes = {
         user: [
             '/staffPage',

@@ -13,7 +13,7 @@ import useAxios from "../../utils/useAxios";
 import CalculateAge from "../../utils/calculateYearOld";
 import { toast } from "react-toastify";
 import { fetchHistoryTracking, fetchBooking } from "../redux/actions/historyTracking";
-import ModalNoQuantity from "./modaNoQuanlity"; 
+import ModalNoQuantity from "./modaNoQuanlity";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 
@@ -39,7 +39,7 @@ export default function Stage1Payment({ id }) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [value,setValue] = useState()
+  const [value, setValue] = useState()
   const [inputData, setData] = useState({
     parentId: id || "",
     name: "",
@@ -47,18 +47,34 @@ export default function Stage1Payment({ id }) {
     gender: "",
   });
 
-  // Effects
+  // check child enough age 
+  useEffect(() => {
+    if (listChildren.length > 0) {
+      const newList = listChildren.filter((child) => {
+        const isVaccineValid = isVaccineSuitableForAnyChild(child);
+        const isComboValid = isComboSuitableForAnyChild(child);
+        return isVaccineValid || isComboValid;
+      });
+
+      if (newList.length !== listChildren.length) {
+        dispatch(childAction.completePayment()) //reset list children
+      }
+    }
+  }, [listChildren, listVaccine, listComboVaccine]);
+
+  //scroll to top
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
+  //fetch data
   useEffect(() => {
     if (!id) return;
     getUserData();
     dispatch(fetchHistoryTracking(api, id));
     dispatch(fetchBooking(api, id));
-  }, [id, trigger]);
+  }, [id,trigger]);
 
+  //reset form
   useEffect(() => {
     if (listChildren.length === 0) {
       dispatch(childAction.resetArriveDate());
@@ -95,6 +111,7 @@ export default function Stage1Payment({ id }) {
     setData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // handle submit  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!inputData.name || !inputData.dateOfBirth || !inputData.gender) {
@@ -152,11 +169,13 @@ export default function Stage1Payment({ id }) {
   const isVaccineSuitableForAnyChild = (child) => {
     if (!child?.dateOfBirth) return false;
     const age = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
-    return listVaccine?.some((v) => age >= v.minAge && age <= v.maxAge) || false;
+    return listVaccine?.every((v) => age >= v.minAge && age <= v.maxAge) || false;
   };
 
+  // check combo vaccine suitable for any child
   const isComboSuitableForAnyChild = (child) => {
     if (!child?.dateOfBirth) return false;
+
     const age = parseInt(CalculateAge(child.dateOfBirth).split(" ")[0], 10);
     return (
       listComboVaccine?.some((combo) =>
@@ -167,42 +186,78 @@ export default function Stage1Payment({ id }) {
 
   // Quantity check
   const handleCheckQuantity = () => {
-    const totalQuantityVaccine = listVaccine?.reduce((acc, v) => acc + v.quantity, 0) || 0;
-    const totalQuantityCombo = listComboVaccine?.reduce(
-      (acc, combo) => acc + combo.listVaccine.reduce((vAcc, v) => vAcc + v.quantity, 0),
-      0
-    ) || 0;
-    const totalChildren = listChildren.length;
-    const totalDoesTimeVaccine = listVaccine?.reduce((acc, v) => acc + v.doesTimes, 0) || 0;
-    const totalDoesTimeCombo = listComboVaccine?.reduce(
-      (acc, combo) => acc + combo.listVaccine.reduce((vAcc, v) => vAcc + v.doesTimes, 0),
-      0
-    ) || 0;
+    const totalListChild = listChildren.length;
+    // Bước 1: Tạo Map để gom nhóm vaccine theo ID
+    const vaccineMap = new Map();
 
-    const requiredDoesVaccine = totalDoesTimeVaccine * totalChildren;
-    const requiredDoesCombo = totalDoesTimeCombo * totalChildren;
+    // ✅ Thêm vắc-xin từ listVaccine
+    listVaccine?.forEach(vaccine => {
+      vaccineMap.set(vaccine.id, {
+        name: vaccine.name,
+        quantity: vaccine.quantity,
+        required: 0 
+      });
+    });
 
-    const shortageInfo = {
-      totalQuantity: totalQuantityVaccine + totalQuantityCombo,
-      totalChildren,
-      totalQuantityVaccine,
-      totalQuantityCombo,
-      requiredDoesVaccine,
-      requiredDoesCombo,
-      shortageVaccine: Math.max(0, requiredDoesVaccine - totalQuantityVaccine),
-      shortageCombo: Math.max(0, requiredDoesCombo - totalQuantityCombo),
-    };
+    // ✅ Thêm vắc-xin từ listComboVaccine
+    listComboVaccine?.forEach(combo => {
+      combo.listVaccine.forEach(vaccine => {
+        if (vaccineMap.has(vaccine.id)) {
+          vaccineMap.get(vaccine.id).quantity = vaccine.quantity;
+        } else {
+          vaccineMap.set(vaccine.id, {
+            name: vaccine.name,
+            quantity: vaccine.quantity,
+            required: 0
+          });
+        }
+      });
+    });
+    
+    // ✅ Tính tổng số liều cần dùng (cộng cả listVaccine và listComboVaccine)
+    listVaccine?.forEach(vaccine => {
+      if (vaccineMap.has(vaccine.id)) {
+        vaccineMap.get(vaccine.id).required += vaccine.doesTimes * totalListChild;
+      }
+    });
 
-    const isEnough = totalQuantityVaccine >= requiredDoesVaccine && totalQuantityCombo >= requiredDoesCombo;
+    listComboVaccine?.forEach(combo => {
+      combo.listVaccine.forEach(vaccine => {
+        if (vaccineMap.has(vaccine.id)) {
+          vaccineMap.get(vaccine.id).required += vaccine.doesTimes * totalListChild;
+        }
+      });
+    }); 
 
-    if (!isEnough) {
-    setIsModalOpen(true)
-    setValue(shortageInfo)
+    // console.log(vaccineMap)
+    // Bước 3: Kiểm tra nếu có vaccine nào không đủ
+    const shortageVaccines = [];
+
+    vaccineMap?.forEach((vaccine, id) => {
+      if (vaccine.quantity < vaccine.required) {
+        shortageVaccines.push({
+          id,
+          name: vaccine.name,
+          required: vaccine.required,
+          available: vaccine.quantity,
+          shortage: vaccine.required - vaccine.quantity
+        });
+      }
+    });
+    //  console.log(shortageVaccines)
+    // check shortage vaccine
+    if (shortageVaccines.length > 0) {
+      setIsModalOpen(true);
+      setValue({
+        totalChildren: totalListChild,
+        shortageVaccines
+      });
     } else {
       navigate(`/payment/${id}`);
     }
-  };
 
+  }
+  
   return (
     <div className="max-w-[1400px] my-10 mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col lg:flex-row gap-8">

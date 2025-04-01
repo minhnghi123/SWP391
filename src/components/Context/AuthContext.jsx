@@ -88,7 +88,8 @@ export const AuthProvider = ({ children }) => {
                     role: decoded.Role,
                     avatar: decoded.Avatar,
                 }));
-
+                // toast.success("Login successfully")
+                // navigate('/')
                 setTimeout(() => {
                     if (decoded.Role.toLowerCase() === 'admin') {
                         toast.success("Welcome back Admin")

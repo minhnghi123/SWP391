@@ -88,7 +88,7 @@ const selectVaccineSlice = createSlice({
 
             // Recalculate total price
             state.totalPrice = state.listVaccine.reduce((total, v) => total + (v.price || 0), 0)
-                + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
+               
 
             // Save to localStorage
             state.listVaccine.length > 0 ? localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine)) : localStorage.removeItem('ListVaccine');
@@ -101,11 +101,10 @@ const selectVaccineSlice = createSlice({
             state.isBooking = state.isBooking.filter((comboID) => comboID !== comboKey);
 
             // Recalculate total price
-            state.totalPrice = state.listVaccine.reduce((total, v) => total + (v.price || 0), 0)
-                + state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
+            state.totalPrice =  state.listComboVaccine.reduce((total, c) => total + (c.price || 0), 0);
 
             // Save to localStorage
-            state.listVaccine.length > 0 ? localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine)) : localStorage.removeItem('ListVaccine');
+            // state.listVaccine.length > 0 ? localStorage.setItem('ListVaccine', JSON.stringify(state.listVaccine)) : localStorage.removeItem('ListVaccine');
             state.listComboVaccine.length > 0 ? localStorage.setItem('ListComboVaccine', JSON.stringify(state.listComboVaccine)) : localStorage.removeItem('ListComboVaccine');
             state.totalPrice > 0 ? localStorage.setItem('TotalVaccine', JSON.stringify(state.totalPrice)) : localStorage.removeItem('TotalVaccine');
         },

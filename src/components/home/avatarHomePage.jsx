@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { accountAction } from '../redux/reducers/accountSlice';
 import { vaccineAction } from '../redux/reducers/selectVaccine';
 import { childAction } from '../redux/reducers/selectChildren';
-
+import ToUpperCaseWords from '../../utils/upperCaseFirstLetter';
 export default function AvatarHomePage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -71,8 +71,13 @@ export default function AvatarHomePage() {
                                         />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-semibold text-gray-800">{user?.name}</h4>
+                                        <h4
+                                            className="text-sm font-semibold text-gray-800 truncate w-28" 
+                                        >
+                                            {ToUpperCaseWords(user?.name)}
+                                        </h4>
                                     </div>
+
                                 </div>
                             </div>
 
@@ -121,7 +126,7 @@ export default function AvatarHomePage() {
                     )}
                 </>
             ) : (
-                <div className=" bg-blue-500 rounded-2xl px-4 py-2 text-white" onClick={() => navigate('/loginPage')}>Login</div>
+                <div className=" bg-blue-500 hover:bg-blue-600 transition-all duration-300 rounded-2xl px-4 py-2 text-white cursor-pointer" onClick={() => navigate('/loginPage')}>Login</div>
             )}
         </div>
     );

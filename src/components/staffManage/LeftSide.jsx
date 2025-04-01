@@ -15,7 +15,7 @@ const LeftSide = ({ section }) => {
   const menuItems = [
     { id: "dashboardStaff", icon: LayoutDashboard, label: "Dashboard" },
     { id: "manageVaccine", icon: Syringe, label: "Manage Vaccines" },
-    { id: "appointments", icon: FiCalendar, label: "Appointments" },
+    { id: "booking", icon: FiCalendar, label: "Booking" },
     { id: "trackingVaccine", icon: FiClock, label: "Tracking Vaccine" },
   ];
 

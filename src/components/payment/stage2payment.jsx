@@ -11,12 +11,17 @@ import { childAction } from "../redux/reducers/selectChildren";
 import { vaccineAction } from "../redux/reducers/selectVaccine";
 import { methodPaymentAction } from "../redux/reducers/methodPaymentlice";
 import useAxios from "../../utils/useAxios";
-
+import { locationAciton } from "../redux/reducers/locationBooking";
 const url = import.meta.env.VITE_BASE_URL_DB
 export default function Stage2Payment() {
     const api = useAxios()
     const { id } = useParams()
     const [isLoading, setLoading] = useState(false);
+
+
+
+
+    // redux state
     const dispatch = useDispatch()
     const arriveDate = useSelector((state) => state.children.arriveDate);
     const paymentMenthod = useSelector((state) => state.methodPayment.methodPayment);
@@ -26,16 +31,20 @@ export default function Stage2Payment() {
     const listVaccine = useSelector((state) => state.vaccine.listVaccine);
     const listComboVaccine = useSelector((state) => state.vaccine.listComboVaccine);
     const cart = useSelector(state => [...state.vaccine.listVaccine, ...state.vaccine.listComboVaccine]);
+   
+    //scroll to top
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-
+    // no render when listChildren change
     const CalculateTotal = useMemo(() => {
         const totalPriceVaccine = totalPrice;
         return listChildren.length * totalPriceVaccine;
     }, [listChildren, listVaccine, listComboVaccine]);
 
+    //handle submit
     const handleSubmit = async () => {
+        dispatch(locationAciton.resetLocation())
         try {
             setLoading(true)
 
@@ -50,21 +59,13 @@ export default function Stage2Payment() {
                 vaccineComboIds: (listComboVaccine || []).map(combo => combo.id),
 
             };
-            // console.log(value);
-
-
             const res = await api.post(`${url}/Booking/add-booking`, value);
             if (res.status === 200 && res.data) {
                 if (paymentMenthod === 1) {
                     window.location.href = res.data;
                     dispatch(childAction.completePayment())
                     dispatch(vaccineAction.completePayment())
-                    dispatch(childAction.resetArriveDate())
-                    dispatch(childAction.resetForm())
-                    dispatch(methodPaymentAction.resetMethodPayment())
-                    dispatch(childAction.resetForm())
-                    // console.log("Redirecting to:", res.data);
-                   
+                    dispatch(methodPaymentAction.resetMethodPayment())  
                 }
                 else {
                     window.location.href = res.data;

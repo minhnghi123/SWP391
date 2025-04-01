@@ -1,7 +1,10 @@
 import React from 'react';
 import { Camera, Check } from 'lucide-react';
 import Avatar from '../../../../assets/p15.jpg'
+import { memo } from 'react';
+import ToUpperCase from '../../../../utils/upperCaseFirstLetter'
 const ProfileHeader = ({ avatar, profileData, edit, handlePreviewAvatar }) => {
+    console.log(profileData)
     return (
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 rounded-2xl shadow-xl mb-8 relative overflow-hidden">
             <div className="absolute inset-0 opacity-10" >
@@ -22,7 +25,7 @@ const ProfileHeader = ({ avatar, profileData, edit, handlePreviewAvatar }) => {
                         </div>
                     </div>
                     <div>
-                        <h2 className="text-3xl font-bold text-white mb-2">{profileData?.username || 'User'}</h2>
+                        <h2 className="text-3xl font-bold text-white mb-2">{ToUpperCase(profileData?.username) || 'User'}</h2>
                         <div className="flex items-center gap-3">
                             <span className={`
                 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1.5
@@ -31,7 +34,7 @@ const ProfileHeader = ({ avatar, profileData, edit, handlePreviewAvatar }) => {
                                     : 'bg-gray-500/20 text-gray-100 border border-gray-400/30'}
               `}>
                                 <span className={`w-2 h-2 rounded-full ${profileData?.status?.toLowerCase() === 'active' ? 'bg-green-400' : 'bg-gray-400'}`}></span>
-                                {profileData?.status || 'Offline'}
+                                {ToUpperCase(profileData?.status) || 'Offline'}
                             </span>
                         </div>
                     </div>
@@ -55,4 +58,4 @@ const ProfileHeader = ({ avatar, profileData, edit, handlePreviewAvatar }) => {
     );
 };
 
-export default ProfileHeader;
+export default memo(ProfileHeader);

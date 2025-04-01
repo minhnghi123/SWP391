@@ -27,8 +27,8 @@ export default function HeaderTracking({ searchQuery, setSearchQuery, handleFilt
           <SelectContent>
             <SelectItem value="all">All Records</SelectItem>
             <SelectItem value="success">Success</SelectItem>
-            <SelectItem value="schedule">Scheduled</SelectItem>
-            <SelectItem value="waiting">Waiting</SelectItem>
+            <SelectItem value="inprogress">In Progress</SelectItem>
+            <SelectItem value="overdue">Overdue</SelectItem>
             <SelectItem value="cancel">Cancelled</SelectItem>
           </SelectContent>
         </Select>

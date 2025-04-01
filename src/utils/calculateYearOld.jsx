@@ -12,19 +12,5 @@ export default function CalculateAge(dateOfBirth) {
     if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
         age --;
     }
-
-    // Nếu tuổi = 0, tính số tháng
-    // if (age === 0) {
-    //     let months = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth());
-
-    //     // Nếu chưa đủ ngày trong tháng này, trừ đi 1 tháng
-    //     if (today.getDate() < birthDate.getDate()) {
-    //         months--;
-    //     }
-
-    //     return `${months} month${months > 1 ? "s" : ""}`;
-
-    // }
-
     return `${age} years old`;
 }

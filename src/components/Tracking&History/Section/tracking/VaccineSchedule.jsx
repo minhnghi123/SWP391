@@ -101,9 +101,6 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
       default:
         break;
     }
-
-    // Log để kiểm tra kết quả
-    console.log('Sorted List:', sortedList);
     setSortedLinkList(sortedList);
   };
 
@@ -118,7 +115,7 @@ export default function VaccineSchedules({ sortLinkList, setTrigger }) {
   const toggleVaccine = (index) => {
     setExpandedVaccines((prev) => ({ ...prev, [index]: !prev[index] }));
   };
-
+  
   const handleSubmit = async (trackingID) => {
     const data = { reaction: reaction[trackingID] || '' };
     try {

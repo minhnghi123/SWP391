@@ -12,6 +12,7 @@ import ModalDetailAllDoes from './modaAllDoes'
 import HeaderTracking from "./headerTracking";
 
 const url = import.meta.env.VITE_BASE_URL_DB;
+
 export function VaccinationTrackingDashboard() {
   useEffect(() => {
     const styleElement = document.createElement("style");
@@ -41,6 +42,16 @@ export function VaccinationTrackingDashboard() {
   const [statusSuccess, setStatusSuccess] = useState([]);
   const [modalAllDoes, setModalAllDoes] = useState(false)
   const [selectAllDoes, setSelectAllDoes] = useState([])
+  const [isExpand, setIsExpand] = useState(null);
+  const [array, setArray] = useState([]);
+
+  // Add isOverdue function definition
+  const isOverdue = (maximumIntervalDate, status) => {
+    if (!maximumIntervalDate) return false;
+    if (status?.toLowerCase() !== "schedule" && status?.toLowerCase() !== "waiting") return false;
+    return new Date() > new Date(maximumIntervalDate);
+  };
+
   // Memoize the linkList function to avoid recalculating on every render
   const linkList = useMemo(() => {
     return (data) => {
@@ -102,22 +113,42 @@ export function VaccinationTrackingDashboard() {
 
     // Apply status filter
     if (status !== "all") {
-      newFilteredData = newFilteredData.filter(
-        (item) => item.status.toLowerCase() === status
-      );
+      newFilteredData = newFilteredData.filter((item) => {
+        const findTrackingList = linkList(data);
+        const findArry = findTrackingList.find(subArray => subArray[0]?.trackingID === item.trackingID);
+        
+        switch (status) {
+          case "success":
+            return findArry && findArry.every(item => item.status.toLowerCase() === "success");
+          case "cancel":
+            return findArry && findArry.some(item => item.status.toLowerCase() === "cancel");
+          case "inprogress":
+            return findArry && findArry.some(item => 
+              item.status.toLowerCase() === "schedule" || 
+              item.status.toLowerCase() === "waiting"
+            );
+          case "overdue":
+            return findArry && findArry.some(item => 
+              isOverdue(item.maximumIntervalDate, item.status)
+            );
+          default:
+            return true;
+        }
+      });
     }
+
     // Apply search filter
     if (searchQuery) {
-      setCurrentPage(1)
+      setCurrentPage(1);
       newFilteredData = newFilteredData.filter((item) => {
         const childName = childData.find((child) => child.id === item.childId)?.name || "";
         return (
           item.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           childName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.vaccineName?.toLowerCase().includes(searchQuery.toLowerCase())
-          || item.bookingId?.toString().includes(searchQuery)
-          || item.trackingID?.toString().includes(searchQuery)
-          || item.childId?.toString().includes(searchQuery.toLowerCase())
+          item.vaccineName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.bookingId?.toString().includes(searchQuery) ||
+          item.trackingID?.toString().includes(searchQuery) ||
+          item.childId?.toString().includes(searchQuery.toLowerCase())
         );
       });
     }
@@ -125,24 +156,44 @@ export function VaccinationTrackingDashboard() {
     // Sort data
     const sortedData = sortData(newFilteredData);
     setFilteredData(sortedData);
-    setCurrentPage(1); // Reset to first page on filter/sort change
-  }, [data, childData, status, searchQuery, sortField, sortOrder]);
+    setCurrentPage(1); // Reset current page when filters change
+  }, [data, childData, status, searchQuery, sortField, sortOrder, linkList]);
 
   const sortData = (dataToSort) => {
     return [...dataToSort].sort((a, b) => {
       if (!sortField) return 0;
 
       if (sortField === "status") {
-        const statusOrder = { success: 1, schedule: 2, waiting: 3, cancel: 4 };
-        const aValue = statusOrder[a.status?.toLowerCase()] || 999;
-        const bValue = statusOrder[b.status?.toLowerCase()] || 999;
+        const statusOrder = { 
+          success: 1, 
+          schedule: 2, 
+          waiting: 3, 
+          overdue: 4, 
+          cancel: 5 
+        };
+        const findTrackingList = linkList(data);
+        const aArray = findTrackingList.find(subArray => subArray[0]?.trackingID === a.trackingID);
+        const bArray = findTrackingList.find(subArray => subArray[0]?.trackingID === b.trackingID);
+        
+        const aStatus = aArray?.some(item => item.status.toLowerCase() === "cancel") ? "cancel" :
+                       aArray?.every(item => item.status.toLowerCase() === "success") ? "success" :
+                       aArray?.some(item => isOverdue(item.maximumIntervalDate, item.status)) ? "overdue" :
+                       aArray?.some(item => item.status.toLowerCase() === "schedule" || item.status.toLowerCase() === "waiting") ? "schedule" : "waiting";
+        
+        const bStatus = bArray?.some(item => item.status.toLowerCase() === "cancel") ? "cancel" :
+                       bArray?.every(item => item.status.toLowerCase() === "success") ? "success" :
+                       bArray?.some(item => isOverdue(item.maximumIntervalDate, item.status)) ? "overdue" :
+                       bArray?.some(item => item.status.toLowerCase() === "schedule" || item.status.toLowerCase() === "waiting") ? "schedule" : "waiting";
+
+        const aValue = statusOrder[aStatus] || 999;
+        const bValue = statusOrder[bStatus] || 999;
         return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
       }
 
       if (sortField === "vaccinationDate") {
         const aDate = a.vaccinationDate ? new Date(a.vaccinationDate) : new Date(0);
         const bDate = b.vaccinationDate ? new Date(b.vaccinationDate) : new Date(0);
-        if (isNaN(aDate) || isNaN(bDate)) return 0; // Handle invalid dates
+        if (isNaN(aDate) || isNaN(bDate)) return 0;
         return sortOrder === "asc" ? aDate - bDate : bDate - aDate;
       }
 
@@ -164,8 +215,7 @@ export function VaccinationTrackingDashboard() {
     }
   };
 
-  const [isExpand, setIsExpand] = useState(null);
-  const [array, setArray] = useState([]);
+
 
   const linkList2 = (record) => {
     const detailAll = data.filter((item) => item.bookingId === record.bookingId);
@@ -226,6 +276,7 @@ export function VaccinationTrackingDashboard() {
     setNewStatus(record.status);
     setIsStatusModalOpen(true);
   };
+
   const handleStatusUpdate = async () => {
     let nextStatus;
     const statusLower = newStatus?.toLowerCase() || "";
@@ -318,10 +369,10 @@ export function VaccinationTrackingDashboard() {
       if (res.status === 200) {
         // Update both data and array states
         const updatedData = data.map((item) =>
-          item.trackingID === selectedRecord.trackingID ? { ...item, reaction: reaction, status: "success" } : item
+          item.trackingID === selectedRecord.trackingID ? { ...item, reaction: reaction} : item
         );
         const updatedArray = array.map((item) =>
-          item.trackingID === selectedRecord.trackingID ? { ...item, reaction: reaction, status: "success" } : item
+          item.trackingID === selectedRecord.trackingID ? { ...item, reaction: reaction} : item
         );
         setData(updatedData);
         setArray(updatedArray);
@@ -410,7 +461,9 @@ export function VaccinationTrackingDashboard() {
         isExpand={isExpand}
         array={array}
         linkList={linkList}
-        />
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
 
       {/* Modal Detail */}
       <ModalDetail

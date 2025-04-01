@@ -30,8 +30,8 @@ const BookingManagementPage = () => {
   const [refundPercentage, setRefundPercentage] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
-  // const triggerHistory = useSelector(state => state.trigerReloadUser.triggerHistory);
-  // console.log(triggerHistory);
+
+  //fetch data
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -49,6 +49,8 @@ const BookingManagementPage = () => {
     fetchBookings();
   }, [trigger]);
 
+
+  //search
   useEffect(() => {
     if (!searchTerm) {
       setFilteredAppointments(appointments);
@@ -64,11 +66,13 @@ const BookingManagementPage = () => {
     }
   }, [searchTerm, appointments]);
 
+  //handle open modal
   const handleOpenModal = (booking) => {
     setSelectedBooking(booking);
     setIsModalOpen(true);
   };
 
+  //filter by status
   const filterByStatus = (status) => {
     setCurrentPage(1);
     if (status.toLowerCase() === "all") {
@@ -80,11 +84,13 @@ const BookingManagementPage = () => {
     }
   };
 
+  //handle open edit modal
   const handleOpenEditModal = (booking) => {
     setEditingBooking(booking);
     setIsEditModalOpen(true);
   };
 
+  //handle save booking changes
   const handleSaveBookingChanges = async (updatedBooking) => {
     if (!updatedBooking) return;
     setLoading(true);
@@ -105,8 +111,7 @@ const BookingManagementPage = () => {
               : appointment
           )
         );
-        // setTrigger((prev) => !prev); // Toggle trigger để fetch lại dữ liệu
-        // dispatch(trigerAction.setTriggerHistory());
+       
       }
     } catch (error) {
       console.error("Error updating booking:", error);
@@ -116,6 +121,7 @@ const BookingManagementPage = () => {
     }
   };
 
+  //handle complete
   const handleCompleteBooking = async (bookingComplete) => {
     if (!bookingComplete) {
       toast.error("No booking selected!");
@@ -146,7 +152,7 @@ const BookingManagementPage = () => {
         setIsModalOpen(false);
         setIsModalConfirmOpen(false);
         toast.success("Booking marked as completed!");
-        // dispatch(trigerAction.setTriggerHistory());
+      
       }
     } catch (error) {
       console.error("Error completing booking:", error);
@@ -155,6 +161,8 @@ const BookingManagementPage = () => {
       setLoading(false);
     }
   };
+
+  //handle refund
   const handleRefundBooking = async (bookingId) => {
     if (!bookingId) {
       toast.error("No booking selected!");
@@ -166,14 +174,11 @@ const BookingManagementPage = () => {
     }
     setLoading(true);
     try {
-
-
       // Get booking details
       const booking = appointments.find((item) => item.id === bookingId);
       if (!booking) {
         throw new Error("Booking not found");
       }
-
       // Determine refund endpoint based on payment method
       const paymentMethod = booking.paymentMethod.toLowerCase();
       const isCashOrVNPay = paymentMethod === 'vnpay' || paymentMethod === 'cash';
@@ -211,7 +216,7 @@ const BookingManagementPage = () => {
       setLoading(false);
     }
   };
-  // console.log(refundPercentage);
+
   // Pagination logic
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -221,7 +226,7 @@ const BookingManagementPage = () => {
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 

@@ -36,7 +36,7 @@ const Profile = ({ id }) => {
         }
     };
 
-    // Fetch user data từ API
+    //  Fetch data user
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -53,13 +53,15 @@ const Profile = ({ id }) => {
 
         if (id) fetchProfile();
     }, [id]);
-    // Xử lý chỉnh sửa dữ liệu
+    
+
+    // handle edit
     const handleEdit = (e) => {
         const { name, value } = e.target;
         setEditProfile(prevState => ({ ...prevState, [name]: value }));
     };
 
-    // Xử lý lưu thông tin người dùng
+    // save data
     const handleSave = async (e) => {
         e.preventDefault();
 
@@ -84,7 +86,7 @@ const Profile = ({ id }) => {
                 imageUrl = uploadResponse.data.secure_url;
             }
             if (editProfile.gender === undefined || editProfile.gender === null || editProfile.gender === '') {
-                setNote('Plase choose your gender , You are gay???')
+                setNote('Plase choose your gender.')
                 return;
             }
 
@@ -108,7 +110,13 @@ const Profile = ({ id }) => {
                 setTimeout(() => setNote(""), 3000);
 
                 //fetch 
-                setProfileData(updatedProfile);
+                const update = {
+                    ...updatedProfile,
+                    status:'active',
+                    createdAt:profileData.createdAt,
+                    username:profileData.username
+                }
+                setProfileData(update);
 
                 // Cập nhật Redux store
 

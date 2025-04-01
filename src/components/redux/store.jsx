@@ -6,6 +6,7 @@ import menthodPaymentSlice from "./reducers/methodPaymentlice";
 import dataUserSlice from "./reducers/dataUser";
 import feedbackTrackingSlice from "./reducers/feedbackTracking";
 import historyTrackingSlice from "./reducers/historyTrackingSlice";
+import locationSlice from "./reducers/locationBooking";
 const store = configureStore({
     reducer: {
         account: accountSlice.reducer,
@@ -13,6 +14,7 @@ const store = configureStore({
         children: childrenSelectSlice.reducer,
         methodPayment: menthodPaymentSlice.reducer,
         profilechildren: childrenSelectSlice.reducer,
+        location: locationSlice.reducer,
 
 
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Stethoscope, CreditCard, CheckCircle, ChevronLeft } from "lucide-react";
-
+import { memo } from "react";
 
 const steps = [
     { id: 1, title: "Patient Info", description: "Child's medical details", icon: Stethoscope },
@@ -33,9 +33,7 @@ const StepConnector = ({ isCompleted }) => (
     </div>
 );
 
-export default function HeaderPayment({currentStep}) {
-    // const dispatch = useDispatch()
-    // const currentStep = useSelector((state) => state.payment.currentStep)
+const HeaderPayment = ({currentStep})=>{
     const navigate = useNavigate()
     return (
         <header className="bg-white shadow-xl py-8 px-4 sm:px-6 lg:px-8 rounded-3xl mx-auto max-w-[1400px] mt-4 animate-slideDown border border-gray-100">
@@ -83,3 +81,4 @@ export default function HeaderPayment({currentStep}) {
         </header>
     );
 }
+export default memo(HeaderPayment)

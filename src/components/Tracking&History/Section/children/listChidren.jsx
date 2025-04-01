@@ -7,7 +7,6 @@ import ChildCart from './ChildCart';
 import ModalCrudChild from './ModalCrudChild';
 import ModalDelete from './ModalDelete';
 import formatDate from '../../../../utils/Date';
-import { fetchData, addData, updateData, deleteData } from '../../../../Api/axios'
 import useAxios from '../../../../utils/useAxios'
 const url = import.meta.env.VITE_BASE_URL_DB
 export default function ListChildren({ id }) {
@@ -24,6 +23,8 @@ export default function ListChildren({ id }) {
     const [err, setErr] = useState("");
     const defaultChild = { parentId: id, name: "", dateOfBirth: "", gender: "" };
     const [isLoading, setIsLoading] = useState(false);
+   
+    //fetch data
     useEffect(() => {
         if (!id) return;
         const fetchChildren = async () => {
@@ -38,11 +39,12 @@ export default function ListChildren({ id }) {
         fetchChildren();
     }, [id, trigger]);
 
+    //filter data
     useEffect(() => {
         setFilteredChildren(listChildren);
     }, [listChildren]);
 
-
+    //open modal add child
     const handleOpenAddChildModal = () => {
         setCurrentChild(defaultChild);
         setIsEditing(false);

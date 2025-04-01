@@ -155,7 +155,7 @@ const AppointmentCard = ({ bill, VaccineItem, STATUS_CONFIG, id, setTrigger }) =
                 )}
 
                 {bill?.status?.toLowerCase() === "success" &&
-                    bill.paymentName.toLowerCase() === 'momo' &&
+                    (bill.paymentName.toLowerCase() === 'momo' || bill.paymentName.toLowerCase() === 'paypal') &&
                     (new Date() - new Date(bill.createdAt)) <= 48 * 60 * 60 * 1000 && (
                         <button
                             onClick={() => initiateRefund(bill.id)}

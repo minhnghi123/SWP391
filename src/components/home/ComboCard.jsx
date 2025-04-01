@@ -6,7 +6,7 @@ import VaccinesIcon from '@mui/icons-material/Vaccines';
 const ComboCard = ({ id, image, name, description, priceSale, onClick, priceGoc, isBooking, vaccines, discount, handleSelectCombo }) => {
   const isBooked = isBooking?.some(bookingId => bookingId === `combo-${id}`);
   const hasEnoughQuantity = vaccines.every(vaccine => vaccine.quantity > 0);
-  const checkQuanlitNearSoldOut = vaccines.some(vaccine => vaccine.quantity <= 5 && vaccine.quantity > 0);
+
   return (
     <div className='bg-white rounded-3xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100'>
       <div className='space-y-4'>
@@ -37,22 +37,13 @@ const ComboCard = ({ id, image, name, description, priceSale, onClick, priceGoc,
                 {vaccines.map((vaccine, index) => (
                   <li key={index} className='flex items-center justify-between bg-white p-2 rounded-lg'>
                     <span className='flex items-center gap-2'>
-                      <span className={`w-2 h-2 rounded-full ${checkQuanlitNearSoldOut ? 'bg-yellow-500' : vaccine.quantity > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                      <span className={`w-2 h-2 rounded-full ${vaccine.quantity === 0 ? 'bg-red-500' : vaccine.quantity <= 5 ? 'bg-yellow-500' : 'bg-green-500'}`}></span>
                       <span className='text-sm font-medium'>{vaccine.name}</span>
                     </span>
                     <div className='flex items-center gap-3'>
-                      {/* <span className='text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full'>
-                        {vaccine.suggestAgeMin}-{vaccine.suggestAgeMax}y
-                      </span> */}
-                      {
-                        checkQuanlitNearSoldOut ? (
-                          <span className='text-xs text-yellow-600'>Only {vaccine.quantity} doses</span>
-                        ) : (
-                          <span className={`text-xs font-semibold ${vaccine.quantity > 0 ? 'text-green-600' : vaccine.quantity < 5 && vaccine.quantity > 0 ? 'text-yellow-600' : 'text-red-600'}`}>
-                            {vaccine.quantity} doses
-                          </span>
-                        )
-                      }
+                      <span className={`text-xs font-semibold ${vaccine.quantity === 0 ? 'text-red-600' : vaccine.quantity <= 5 ? 'text-yellow-600' : 'text-green-600'}`}>
+                        {vaccine.quantity === 0 ? 'Out of stock' : `${vaccine.quantity} doses`}
+                      </span>
                     </div>
                   </li>
                 ))}
@@ -101,7 +92,7 @@ const ComboCard = ({ id, image, name, description, priceSale, onClick, priceGoc,
         {/* Clinic Info */}
         <div className='pt-4 border-t border-gray-100'>
           <div className='flex items-center gap-2 justify-between'>
-            <span className='text-gray-600 text-sm'>Available at: Central Medical Clinic</span>
+            <span className='text-gray-600 text-sm'>Available at: HealBlue</span>
             <span className='text-gray-600 text-sm'>Combo Package</span>
           </div>
         </div>

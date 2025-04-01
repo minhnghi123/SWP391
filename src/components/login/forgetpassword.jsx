@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import useAxios from "../../utils/useAxios";
-
+import { addData } from "@/Api/axios";
 const InputForgotPassword = ({ type, placeholder, onChange, name, value, label, error }) => {
   return (
     <div className="space-y-2 w-full">
@@ -83,7 +83,7 @@ export default function ForgotPassword({ setRegister }) {
     const sendRequest = async (attempt = 1) => {
       try {
         const value = { gmail: email };
-        const res = await api.post(`${url}/User/forgot-password`, value);
+        const res = await addData(`User/forgot-password`, value);
         if (res.status === 200) {
           setEmailSent(true);
           setRetryCount(0);
@@ -156,7 +156,7 @@ export default function ForgotPassword({ setRegister }) {
       const codeString = code.join("");
       try {
         const value = { verifyCode: codeString };
-        const res = await api.post(`${url}/User/verify-forgot-password`, value);
+        const res = await addData(`User/verify-forgot-password`, value);
         if (res.status === 200) {
           setStep(2);
         } else {
@@ -178,7 +178,7 @@ export default function ForgotPassword({ setRegister }) {
 
       try {
         const value = { newPassword: input.password };
-        const res = await api.post(`${url}/User/change-password`, value);
+        const res = await addData(`User/change-password`, value);
         if (res.status === 200) {
           setNotification("Password changed successfully!");
           setTimeout(() => setRegister(0), 1500);
@@ -292,7 +292,7 @@ export default function ForgotPassword({ setRegister }) {
                   onChange={handleChangeAccount}
                   value={input.password}
                   name="password"
-                  error={passwordError} // Truyền lỗi vào input
+                  error={passwordError}
                 />
                 <InputForgotPassword
                   type="password"

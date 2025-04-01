@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { User, Mail, Cake, Phone, UserCircle2, Calendar } from 'lucide-react';
 import ToUpperCase from '../../../../utils/upperCaseFirstLetter'
 import FormDate from '../../../../utils/Date'
@@ -11,24 +11,27 @@ const ProfileInfo = ({ profileData }) => {
       value: ToUpperCase(profileData?.name) || 'Not specified'
     },
     {
-      icon: <Mail className="w-5 h-5" />,
-      label: 'Email',
-      value: profileData?.gmail || 'Not specified'
-    },
-    {
-      icon: <Cake className="w-5 h-5" />,
-      label: 'Date of Birth',
-      value: FormDate(profileData?.dateOfBirth) || 'Not specified'
-    },
-    {
+
       icon: <Phone className="w-5 h-5" />,
       label: 'Phone',
       value:  profileData?.phoneNumber || 'XXXXXXXXXX'
     },
     {
+      icon: <Mail className="w-5 h-5" />,
+      label: 'Email',
+      value: profileData?.gmail || 'Not specified'
+     
+    },
+    {
+
       icon: <UserCircle2 className="w-5 h-5" />,
       label: 'Gender',
       value: profileData?.gender === 0 ? 'Male' : 'Female' || 'Not specified'
+    },
+    {
+      icon: <Cake className="w-5 h-5" />,
+      label: 'Date of Birth',
+      value: FormDate(profileData?.dateOfBirth) || 'Not specified'
     },
     {
       icon: <Calendar className="w-5 h-5" />,
@@ -54,4 +57,4 @@ const ProfileInfo = ({ profileData }) => {
   );
 };
 
-export default ProfileInfo;
+export default memo(ProfileInfo);

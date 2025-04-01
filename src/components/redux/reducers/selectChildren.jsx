@@ -49,6 +49,10 @@ const childrenSelectSlice = createSlice({
                 localStorage.removeItem('AdvitoryDetail');
             }
         },
+        resetListChildren(state) {
+            state.listChildren = [];
+            localStorage.removeItem('ChildrenList');
+        },
         resetForm(state) {
             state.advitory_detail = null;
             localStorage.removeItem('AdvitoryDetail');
@@ -93,7 +97,7 @@ const childrenSelectSlice = createSlice({
             state.listChildren = [];
             state.inputData = {};
             state.arriveDate = null;
-
+            state.advitory_detail = null;
             // Remove from localStorage
             localStorage.removeItem('ChildrenList');
             localStorage.removeItem('ArriveDate');

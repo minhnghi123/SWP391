@@ -3,12 +3,10 @@ import { motion } from "framer-motion";
 import 'react-toastify/dist/ReactToastify.css';
 import FormLogin from './formLogin';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from "react-redux";
 import { AuthContext } from "../Context/AuthContext";
-
 export default function Login({ setRegister }) {
     const { loginUser, loading } = useContext(AuthContext);
-    const dispatch = useDispatch();
+   
     const navigate = useNavigate();
     const [input, setInput] = useState({
         username: "",
@@ -37,7 +35,7 @@ export default function Login({ setRegister }) {
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-md space-y-6 sm:space-y-8 p-4 sm:p-6"
         >
-            <div className="text-center space-y-3 sm:space-y-4">
+            <div onClick={() => navigate('/')} className="text-center space-y-3 sm:space-y-4 cursor-pointer">
                 <div className="flex items-center justify-center space-x-2">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center">
                         <span className="text-2xl font-bold text-white">H</span>

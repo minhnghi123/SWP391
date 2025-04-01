@@ -17,10 +17,12 @@ const useAxios = () => {
         headers: { Authorization: `Bearer ${authTokens?.accessToken}` }
     });
 
+    //Nếu không có token, trả về instance axios ban đầu.
     if (!authTokens) {
         return axiosInstance
 
     }
+    //Thêm một interceptor để xử lý mọi yêu cầu trước khi chúng được gửi đi.
     axiosInstance.interceptors.request.use(async req => {
 
         const user = jwtDecode(authTokens.accessToken)
@@ -29,6 +31,7 @@ const useAxios = () => {
         const isExpired = expTimeVN < currentTimeVN;
 
 
+        //Nếu token chưa hết hạn, trả về yêu cầu gốc (req) mà không làm gì thêm.
         if (!isExpired) return req
 
         const response = await axios.post(`${url}/User/refresh`, {
@@ -48,10 +51,13 @@ const useAxios = () => {
             avatar: decoded.Avatar,
         }));
 
+        //Cập nhật header Authorization của yêu cầu ban đầu với accessToken mới.
+        //Trả về yêu cầu đã được cập nhật để tiếp tục thực thi.
         req.headers.Authorization = `Bearer ${newTokens.accessToken}`
         return req
     })
 
+    //Trả về instance axios đã được cập nhật.
     return axiosInstance
 }
 

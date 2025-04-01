@@ -18,6 +18,9 @@ const ModalDetailVaccine = ({ isOpen, onClose, vaccine, onClick }) => {
   const vaccineImg = Infomation.vaccine.find(v => v.id === vaccine.id)?.img
   const isBooking = useSelector(state => state.vaccine.isBooking)
   const isBooked = isBooking?.some(bookingId => bookingId === `vaccine-${vaccine.id}`);
+  const checkQuanlitNearSoldOut = vaccine.quantity <= 5 && vaccine.quantity > 0;
+  const checkQuanlitSoldOut = vaccine.quantity === 0;
+ 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden bg-white rounded-lg">
@@ -64,14 +67,11 @@ const ModalDetailVaccine = ({ isOpen, onClose, vaccine, onClick }) => {
                   <span className="text-gray-700">Status:</span>
                   <Badge
                     variant="outline"
-                    className={cn(
-                      "font-medium",
-                      vaccine.status.toLowerCase().includes("available")
-                        ? "bg-green-50 text-green-700 border-green-200"
-                        : "bg-amber-50 text-amber-700 border-amber-200"
-                    )}
+                    className={`${checkQuanlitSoldOut ? 'bg-red-500' : checkQuanlitNearSoldOut ? 'bg-yellow-500' : 'bg-green-500'}`}
                   >
-                    {ToUpperCaseFirst(vaccine.status)}
+                    {
+                      checkQuanlitSoldOut ? 'Sold Out' : checkQuanlitNearSoldOut ? 'Only few doses left' : 'Available'
+                    }
                   </Badge>
                 </div>
 

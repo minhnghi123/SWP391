@@ -4,7 +4,7 @@ import { FaSyringe, FaShieldVirus, FaChartLine, FaStar, FaLock, FaInfoCircle, Fa
 import FormFeedback from './formFeedback';
 import FeedbackParent from '../home/FeedbackParent';
 import useAxios from '@/utils/useAxios';
-import Pagination from '../../components/staffManage/Pagination'; // Đảm bảo đường dẫn đúng
+import Pagination from '../../components/staffManage/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDataFeedback, fetchDataUser, fetchFeedback } from '../redux/actions/feedbackApi';
 import Avatar from '@mui/material/Avatar';
@@ -12,13 +12,11 @@ import Avatar from '@mui/material/Avatar';
 const BodyFeedback = () => {
     const navigate = useNavigate();
     const [activeFeedbackTab, setActiveFeedbackTab] = useState('tracking');
-    const [sorted, setSorted] = useState([]);
-    const [activeFilter, setActiveFilter] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
-
-    const api = useAxios();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
+
+    const api = useAxios();
     const dispatch = useDispatch();
 
     const feedbackTracking = useSelector((state) => state.feedbackTracking.feedbackTracking);
@@ -27,17 +25,36 @@ const BodyFeedback = () => {
     const user = useSelector((state) => state.feedbackTracking.user);
     const feedback = useSelector((state) => state.feedbackTracking.feedback);
     const tempFeedback = useSelector((state) => state.feedbackTracking.tempFeedback);
-    const findFeedback = feedbackTracking.filter(item => item.status.toLowerCase() === "success" && item.reaction.toLowerCase() !== 'nothing');
 
-    // Kết hợp feedback thực và tạm thời
+    // Filter feedback based on active tab
+    const getDisplayedFeedback = () => {
+        if (activeFeedbackTab === 'tracking') { 
+            const fillterFeedback = feedback.filter(item=>item.ratingScore >3 )
+            return [...fillterFeedback, ...tempFeedback].sort((a, b) => b.id - a.id);
+        } else if (activeFeedbackTab === 'vaccine') {
+            return feedbackTracking.filter(item => 
+                item.status.toLowerCase() === "success" && 
+                item.reaction.toLowerCase() !== 'nothing'
+            );
+        }
+        return [];
+    };
 
+    const displayedFeedback = getDisplayedFeedback();
 
-    // Tính toán phân trang dựa trên sorted (danh sách đã lọc/sắp xếp)
-    const totalItems = sorted.length;
+    // Pagination calculations
+    const totalItems = displayedFeedback.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const paginatedData = sorted.slice(startIndex, endIndex);
+
+    // Filter by search query
+    const filteredFeedbacks = displayedFeedback
+        .slice(startIndex, endIndex)
+        .filter(item => {
+            const userName = user?.find(u => u.id === item.userId)?.name || 'Unknown User';
+            return userName.toLowerCase().includes(searchQuery.toLowerCase());
+        });
 
     useEffect(() => {
         dispatch(fetchDataFeedback(api));
@@ -46,61 +63,21 @@ const BodyFeedback = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        const sortedFeedback = feedback.filter(item => item.ratingScore > 3);
-        const allFeedback = [...sortedFeedback, ...tempFeedback];
-        if (Array.isArray(allFeedback) && allFeedback.length > 0) {
-
-            const sortedByDate = [...allFeedback].sort((a, b) => (b.id - a.id));
-            setSorted(sortedByDate);
-            setCurrentPage(1);
-        }
-    }, [feedback, tempFeedback]);
-
-    const handleSortRating = (rating) => {
-        setActiveFilter(rating);
-        setCurrentPage(1);
-
-        if (!Array.isArray(allFeedback) || allFeedback.length === 0) {
-            setSorted([]);
-            return;
-        }
-
-        let newSorted;
-        if (rating === 0) {
-            newSorted = [...allFeedback].sort((a, b) => (b.id - a.id));
-        } else {
-            newSorted = [...allFeedback].filter(item => Number(item.ratingScore) === rating);
-        }
-        setSorted(newSorted);
-    };
-
-    const filteredFeedbacks = paginatedData.filter(item => {
-        const userName = user?.find(u => u.id === item.userId)?.name || 'Unknown User';
-        return userName.toLowerCase().includes(searchQuery.toLowerCase());
-    });
-
-    const handleFindUser = (userId) => {
-        return user?.find(u => u.id === userId) || { name: 'Unknown User', avatar: null };
-    };
-
-    useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery]);
+    }, [searchQuery, activeFeedbackTab]);
 
     const handleTabChange = (tab) => {
         setActiveFeedbackTab(tab);
         setCurrentPage(1);
-        setActiveFilter(0);
         setSearchQuery('');
-        if (tab === 'tracking') {
-            const sortedByDate = [...allFeedback].sort((a, b) => (b.id - a.id));
-            setSorted(sortedByDate);
-        } else if (tab === 'vaccine') {
-            setSorted(findFeedback);
-        }
+    };
+
+    const handleFindUser = (userId) => {
+        return user?.find(u => u.id === userId) || { name: 'Unknown User', avatar: null };
     };
 
     const safetyPolicy = {
@@ -174,10 +151,11 @@ const BodyFeedback = () => {
                 <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-8 mb-8 sm:mb-12 lg:mb-16 border border-gray-100 backdrop-blur-sm">
                     <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8'>
                         <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-3">
-                            <span className={`p-2 sm:p-3 rounded-full ${activeFeedbackTab === 'tracking' ? 'bg-indigo-100' :
+                            <span className={`p-2 sm:p-3 rounded-full ${
+                                activeFeedbackTab === 'tracking' ? 'bg-indigo-100' :
                                 activeFeedbackTab === 'vaccine' ? 'bg-blue-100' :
-                                    'bg-green-100'
-                                }`}>
+                                'bg-green-100'
+                            }`}>
                                 {activeFeedbackTab === 'tracking' && <FaChartLine className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />}
                                 {activeFeedbackTab === 'vaccine' && <FaSyringe className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />}
                                 {activeFeedbackTab === 'safety' && <FaShieldVirus className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />}
@@ -197,33 +175,6 @@ const BodyFeedback = () => {
                             />
                         </div>
                     </div>
-
-                    {/* Rating Filters (Tracking System) */}
-                    {activeFeedbackTab === 'tracking' && (
-                        <div className="flex flex-wrap gap-2 sm:gap-4 mb-6 sm:mb-8">
-                            <button
-                                onClick={() => handleSortRating(0)}
-                                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 font-medium text-sm sm:text-base ${activeFilter === 0
-                                    ? 'bg-indigo-600 text-white shadow-lg'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
-                            >
-                                All Feedback
-                            </button>
-                            {/* {[5, 4, 3, 2, 1].map((rating) => (
-                                <button
-                                    key={rating}
-                                    onClick={() => handleSortRating(rating)}
-                                    className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full flex items-center gap-2 transition-all duration-300 font-medium text-sm sm:text-base ${activeFilter === rating
-                                        ? 'bg-indigo-600 text-white shadow-lg'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                        }`}
-                                >
-                                    {rating} <FaStar className={activeFilter === rating ? 'text-white' : 'text-yellow-400'} />
-                                </button>
-                            ))} */}
-                        </div>
-                    )}
 
                     {/* Tab Content */}
                     {activeFeedbackTab === 'safety' ? (
@@ -256,55 +207,50 @@ const BodyFeedback = () => {
                                         <p className="text-lg font-medium">Error loading feedback: {error}</p>
                                     </div>
                                 </div>
-                            ) :
-
-                                filteredFeedbacks.length > 0 ? (
-                                    filteredFeedbacks.map((eachFeedback) => (
-                                        <div
-                                            key={eachFeedback.id}
-                                            className=""
-                                        >
-                                            {activeFeedbackTab === 'vaccine' ? (
-                                                <div className='bg-gray-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1'>
-                                                    <div className="flex items-center gap-4 mb-4">
-                                                        <Avatar
-                                                            alt="User"
-                                                            src={handleFindUser(eachFeedback.userId)?.avatar}
-                                                            className="w-14 h-14 border-2 border-blue-200"
-                                                        />
-                                                        <div>
-                                                            <p className="font-semibold text-gray-800 text-lg">
-                                                                {handleFindUser(eachFeedback.userId)?.name || 'Unknown User'}
-                                                            </p>
-                                                            <p className="text-sm text-gray-500">{eachFeedback.vaccineName || 'Unknown Vaccine'}</p>
-                                                        </div>
+                            ) : filteredFeedbacks.length > 0 ? (
+                                filteredFeedbacks.map((eachFeedback) => (
+                                    <div key={eachFeedback.id}>
+                                        {activeFeedbackTab === 'vaccine' ? (
+                                            <div className='bg-gray-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1'>
+                                                <div className="flex items-center gap-4 mb-4">
+                                                    <Avatar
+                                                        alt="User"
+                                                        src={handleFindUser(eachFeedback.userId)?.avatar}
+                                                        className="w-14 h-14 border-2 border-blue-200"
+                                                    />
+                                                    <div>
+                                                        <p className="font-semibold text-gray-800 text-lg">
+                                                            {handleFindUser(eachFeedback.userId)?.name || 'Unknown User'}
+                                                        </p>
+                                                        <p className="text-sm text-gray-500">{eachFeedback.vaccineName || 'Unknown Vaccine'}</p>
                                                     </div>
-                                                    <p className="text-gray-700 text-base">
-                                                        <span className="font-medium text-blue-600">Reaction: </span>
-                                                        <span>{eachFeedback.reaction || 'No reaction recorded'}</span>
-                                                    </p>
                                                 </div>
-                                            ) : (
-                                                <FeedbackParent
-                                                    image={user?.find(u => u.id === eachFeedback.userId)?.avatar}
-                                                    randomNumber={eachFeedback.ratingScore}
-                                                    description={eachFeedback.description}
-                                                    username={user?.find(u => u.id === eachFeedback.userId)?.name || 'Unknown User'}
-                                                    isTemp={eachFeedback.isTemp}
-                                                />
-                                            )}
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="col-span-full py-12 text-center">
-                                        <div className="bg-gray-50 p-8 rounded-2xl">
-                                            <p className="text-gray-600 text-lg">
-                                                {searchQuery && activeFeedbackTab === 'tracking' ? 'No feedback matches your search.' :
-                                                    (activeFeedbackTab === 'vaccine' ? 'No reactions available yet.' : 'No feedback available yet.')}
-                                            </p>
-                                        </div>
+                                                <p className="text-gray-700 text-base">
+                                                    <span className="font-medium text-blue-600">Reaction: </span>
+                                                    <span>{eachFeedback.reaction || 'No reaction recorded'}</span>
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <FeedbackParent
+                                                image={handleFindUser(eachFeedback.userId)?.avatar}
+                                                randomNumber={eachFeedback.ratingScore}
+                                                description={eachFeedback.description}
+                                                username={handleFindUser(eachFeedback.userId)?.name || 'Unknown User'}
+                                                isTemp={eachFeedback.isTemp}
+                                            />
+                                        )}
                                     </div>
-                                )}
+                                ))
+                            ) : (
+                                <div className="col-span-full py-12 text-center">
+                                    <div className="bg-gray-50 p-8 rounded-2xl">
+                                        <p className="text-gray-600 text-lg">
+                                            {searchQuery ? 'No feedback matches your search.' :
+                                                (activeFeedbackTab === 'vaccine' ? 'No reactions available yet.' : 'No feedback available yet.')}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 

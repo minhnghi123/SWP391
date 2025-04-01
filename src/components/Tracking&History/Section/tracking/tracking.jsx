@@ -7,6 +7,7 @@ import useAxios from '../../../../utils/useAxios';
 
 const url = import.meta.env.VITE_BASE_URL_DB;
 const TrackingChildbyUser = ({ id }) => {
+
   const [trackingData, setTrackingData] = useState([]);
   const [selectedChild, setSelectedChild] = useState(null);
   const [children, setChildren] = useState([]);
@@ -19,7 +20,7 @@ const TrackingChildbyUser = ({ id }) => {
     completed: 0,
     percentage: 0,
   });
-
+  // link list vaccine
   const createVaccineChains = (data) => {
     if (!data || data.length === 0) return [];
     const headers = data.filter(item => item.previousVaccination === 0);
@@ -36,38 +37,43 @@ const TrackingChildbyUser = ({ id }) => {
     });
   };
 
+  //fetch data 
   const fetchTrackingData = async () => {
     try {
-      const [trackingRes, historyRes] = await Promise.all([
-        api.get(`${url}/VaccinesTracking/get-by-parent-id/${id}`),
-        api.get(`${url}/Booking/booking-history/${id}`),
-      ]);
-      if (trackingRes.status === 200 && historyRes.status === 200) {
+      const trackingRes = await api.get(`${url}/VaccinesTracking/get-by-parent-id/${id}`);
+      if (trackingRes.status === 200 ) {
         setTrackingData(trackingRes.data);
         const childrenIds = [...new Set(trackingRes.data.map(item => item.childId).filter(Boolean))];
+        // call api parallel to get child info
         const childrenResults = await Promise.allSettled(
           childrenIds.map(childId => api.get(`${url}/Child/get-child-by-id/${childId}`))
         );
+  
+        // handle result Promise.allSettled()
         const childrenData = childrenResults
-          .filter(result => result.status === "fulfilled" && result.value.status === 200)
-          .map(result => result.value.data);
+          .filter(result => result.status === "fulfilled" && result.value?.status === 200) // check valid response
+          .map(result => result.value.data); // get data from response
+   
         setChildren(childrenData);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-
+  
+  // fetch data
   useEffect(() => {
     fetchTrackingData();
   }, [id, trigger]);
 
+  // select child first
   useEffect(() => {
     if (children.length > 0 && !selectedChild) {
       setSelectedChild(children[0].id);
     }
   }, [children]);
 
+  // filter data
   useEffect(() => {
     if (selectedChild) {
       const childVaccines = trackingData.filter(item => item.childId === selectedChild);
@@ -79,6 +85,7 @@ const TrackingChildbyUser = ({ id }) => {
     }
   }, [selectedChild, trackingData]);
 
+  // calculate progress
   const calculateProgress = (childVaccines) => {
     if (!childVaccines || childVaccines.length === 0) {
       return { total: 0, totalCancel: 0, completed: 0, percentage: 0, overDue: 0, checkTwoStatus: 0 };

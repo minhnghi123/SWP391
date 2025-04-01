@@ -1,6 +1,7 @@
 import { useSelector } from 'react-redux';
 import formatDecimal from '../../../../utils/calculateMoney';
 import formatDate from '../../../../utils/Date';
+import { memo } from 'react';
 const SummaryCard = ({ CalculateTotal }) => {
     const advitory_detail = useSelector((state) => state.children.advitory_detail);
     const arriveDate = useSelector((state) => state.children.arriveDate);
@@ -72,4 +73,4 @@ const SummaryCard = ({ CalculateTotal }) => {
     );
 };
 
-export default SummaryCard;
+export default memo(SummaryCard);

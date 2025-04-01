@@ -106,7 +106,7 @@ const ChildCart = ({ handleAddChild, sortchildren, handleEditChild, searchTerm, 
                                     </div>
                                 </div>
 
-                                <div className="border-t border-gray-100 pt-3">
+                                <div className="border-t border-gray-100 pt-3 ">
                                     <div className="flex justify-between items-center mb-3">
                                         <div className="flex space-x-2">
                                             <div className="flex items-center text-xs bg-emerald-50 px-2 py-1 rounded-md text-emerald-700">
@@ -121,18 +121,7 @@ const ChildCart = ({ handleAddChild, sortchildren, handleEditChild, searchTerm, 
                                         <div className="text-[10px] text-gray-400">
                                             {FormatDate(child.createdAt)}
                                         </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <button className="flex items-center justify-center py-1.5 px-3 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
-                                            <Activity className="h-3 w-3 mr-1" />
-                                            Health Report
-                                        </button>
-                                        <button className="flex items-center justify-center py-1.5 px-3 text-xs font-medium text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-md hover:from-sky-600 hover:to-blue-700 transition-colors">
-                                            <Calendar className="h-3 w-3 mr-1" />
-                                            Schedule Visit
-                                        </button>
-                                    </div>
+                                    </div> 
                                 </div>
                             </div>
                         </div>

@@ -18,7 +18,7 @@ import '../css/loading.css';
 import { vaccineAction } from '../redux/reducers/selectVaccine';
 import useAxios from '../../utils/useAxios';
 import ModalDetailVaccine from './modalDetailVaccine';
-
+import { fetchData } from '@/Api/axios';
 // Animation variants (giữ nguyên như code gốc)
 const slideUp = {
     initial: { y: 100, opacity: 0, scale: 0.9 },
@@ -132,6 +132,7 @@ export default function BodyHomePage() {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedVaccine, setSelectedVaccine] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+    const account = useSelector((state) => state.account.user);
 
     useEffect(() => {
         const handleResize = () => {
@@ -153,7 +154,8 @@ export default function BodyHomePage() {
                 const [vaccineRes, feedbackRes, userRes] = await Promise.all([
                     api.get(`${url}/Vaccine/get-all-vaccines`),
                     api.get(`${url}/Feedback/get-all-feedback`),
-                    api.get(`${url}/User/get-all-user`)
+                    api.get(`${url}/User/get-all-user`),
+                
                 ]);
 
                 if (vaccineRes.status === 200 && feedbackRes.status === 200 && userRes.status === 200) {
@@ -190,10 +192,11 @@ export default function BodyHomePage() {
             id: vaccine.id,
             name: vaccine.name,
             price: vaccine.price,
-            description: vaccine.description,
-            country: vaccine.fromCountry,
-            vaccines: vaccine.vaccines,
+            maxAge: vaccine.suggestAgeMax,
+            minAge: vaccine.suggestAgeMin,
             type: type,
+            quantity: vaccine.quantity,
+            doesTimes: vaccine.doesTimes,
         }));
     };
 
@@ -234,16 +237,32 @@ export default function BodyHomePage() {
                         <motion.h1
                             variants={heroHeadingVariants}
                             className='text-blue-500 text-3xl sm:text-4xl md:text-5xl font-bold text-center max-w-3xl leading-tight drop-shadow-lg 
-                            bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600'>
+      bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600'>
                             Track your child's vaccine schedule with ease
                         </motion.h1>
+                        {/* Group Button and Description Together */}
+                        <div className="flex flex-col items-center gap-4 mt-auto">
+                            <motion.div
+                                variants={heroButtonVariants}
+                                className='flex justify-center'>
+                                <motion.button
+                                    onClick={account ? () => navigate('/variantsPage') : () => navigate('/loginPage')}
+                                    whileHover={{ scale: 1.05, x: 10 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className='px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-blue-500 to-blue-400 text-white rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 font-medium flex items-center gap-2 text-sm md:text-base'>
+                                  {account ? 'Booking now' : 'Get Started'}
 
-                        {/* Description */}
-                        <motion.p
-                            variants={heroDescriptionVariants}
-                            className='text-white text-base sm:text-lg md:text-xl font-medium max-w-2xl drop-shadow-lg'>
-                            Ensure your optimal health with personalized infusions.
-                        </motion.p>
+                                </motion.button>
+                            </motion.div>
+                            {/* Description */}
+                            <motion.p
+                                variants={heroDescriptionVariants}
+                                className='text-white text-base sm:text-lg md:text-xl font-medium max-w-2xl drop-shadow-lg'>
+                                Ensure your optimal health with personalized infusions.
+                            </motion.p>
+                            {/* Button */}
+
+                        </div>
                     </div>
                 </div>
             </motion.div>

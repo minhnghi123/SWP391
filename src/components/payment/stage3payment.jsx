@@ -127,7 +127,17 @@ const Stage3Payment = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                         <p className="text-sm text-gray-500 mb-1">Order ID</p>
-                                        <p className="font-medium text-gray-800">{data.OrderId}</p>
+                                        <p className="font-medium text-gray-800 flex items-center group relative">
+                                            {data.OrderId.length > 20 
+                                                ? `${data.OrderId.substring(0, 10)}...${data.OrderId.substring(data.OrderId.length - 10)}`
+                                                : data.OrderId
+                                            }
+                                            {data.OrderId.length > 20 && (
+                                                <span className="hidden group-hover:block absolute -top-8 left-0 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                                    {data.OrderId}
+                                                </span>
+                                            )}
+                                        </p>
                                     </div>
                                     <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                         <p className="text-sm text-gray-500 mb-1">Amount</p>

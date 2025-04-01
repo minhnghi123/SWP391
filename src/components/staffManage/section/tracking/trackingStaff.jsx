@@ -151,12 +151,13 @@ export function VaccinationTrackingDashboard() {
           item.childId?.toString().includes(searchQuery.toLowerCase())
         );
       });
+      setCurrentPage(1);
     }
 
     // Sort data
     const sortedData = sortData(newFilteredData);
     setFilteredData(sortedData);
-    setCurrentPage(1); // Reset current page when filters change
+    // Reset current page when filters change
   }, [data, childData, status, searchQuery, sortField, sortOrder, linkList]);
 
   const sortData = (dataToSort) => {

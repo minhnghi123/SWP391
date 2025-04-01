@@ -19,6 +19,7 @@ import { vaccineAction } from '../redux/reducers/selectVaccine';
 import useAxios from '../../utils/useAxios';
 import ModalDetailVaccine from './modalDetailVaccine';
 import { fetchData } from '@/Api/axios';
+
 // Animation variants (giữ nguyên như code gốc)
 const slideUp = {
     initial: { y: 100, opacity: 0, scale: 0.9 },
@@ -149,12 +150,12 @@ export default function BodyHomePage() {
     };
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchDataAll = async () => {
             try {
                 const [vaccineRes, feedbackRes, userRes] = await Promise.all([
-                    api.get(`${url}/Vaccine/get-all-vaccines`),
-                    api.get(`${url}/Feedback/get-all-feedback`),
-                    api.get(`${url}/User/get-all-user`),
+                   fetchData('Vaccine/get-all-vaccines'),
+                   fetchData('Feedback/get-all-feedback'),
+                   fetchData('User/get-all-user'),
                 
                 ]);
 
@@ -174,7 +175,7 @@ export default function BodyHomePage() {
                 console.error('Error fetching data:', error);
             }
         };
-        fetchData();
+        fetchDataAll();
     }, [isMobile]); // Re-fetch when screen size changes
 
     useEffect(() => {

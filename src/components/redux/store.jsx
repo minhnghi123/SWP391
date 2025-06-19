@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import childrenSelectSlice from "./reducers/selectChildren";
-import selectVaccineSlice from "./reducers/SelectVaccine";
+import selectVaccineSlice from "./reducers/selectVaccine";
 import accountSlice from "./reducers/accountSlice";
 import menthodPaymentSlice from "./reducers/methodPaymentlice";
 import feedbackTrackingSlice from "./reducers/feedbackTracking";

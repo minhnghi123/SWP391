@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
 import useAxios from "../../../../utils/useAxios";
 import { toast } from "react-toastify";
-import { Search, Syringe, Calendar, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Search,
+  Syringe,
+  Calendar,
+  Eye,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import FormatDate from "../../../../utils/Date";
-import Pagination from "../../../../utils/Pagination"; // Assuming this is the same Pagination
+import Pagination from "@/utils/pagination";
 import ModalDetail from "./modalDetail";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL_DB;
@@ -37,7 +44,9 @@ const VaccinesTracking = () => {
         const chain = [header];
         let currentId = header.trackingID;
         while (currentId) {
-          const next = data.find((item) => item.previousVaccination === currentId);
+          const next = data.find(
+            (item) => item.previousVaccination === currentId
+          );
           if (!next) break;
           chain.push(next);
           currentId = next.trackingID;
@@ -65,7 +74,9 @@ const VaccinesTracking = () => {
         setChildData(childResponse.data || []);
         setVaccineChains(buildVaccineChains(tracking));
 
-        const uniqueVaccineIDs = [...new Set(tracking.map((item) => item.vaccineID))];
+        const uniqueVaccineIDs = [
+          ...new Set(tracking.map((item) => item.vaccineID)),
+        ];
         const vaccinePromises = uniqueVaccineIDs.map((vaccineID) =>
           api
             .get(`${API_BASE_URL}/vaccine/get-vaccine-by-id-admin/${vaccineID}`)
@@ -73,16 +84,21 @@ const VaccinesTracking = () => {
         );
 
         const vaccineResults = await Promise.all(vaccinePromises);
-        const newVaccineData = vaccineResults.reduce((acc, { vaccineID, doesTimes }) => {
-          acc[vaccineID] = doesTimes;
-          return acc;
-        }, {});
+        const newVaccineData = vaccineResults.reduce(
+          (acc, { vaccineID, doesTimes }) => {
+            acc[vaccineID] = doesTimes;
+            return acc;
+          },
+          {}
+        );
         setVaccineData(newVaccineData);
         console.log("Vaccine Data with doesTimes:", newVaccineData); // Log để kiểm tra
         setHasFetched(true);
       } catch (err) {
         console.error("Error fetching data:", err);
-        setError("Failed to fetch vaccines tracking data. Please try again later.");
+        setError(
+          "Failed to fetch vaccines tracking data. Please try again later."
+        );
         toast.error("Failed to fetch vaccination data");
       } finally {
         setLoading(false);
@@ -93,9 +109,11 @@ const VaccinesTracking = () => {
   }, [api, hasFetched, buildVaccineChains]);
 
   const filteredRecords = filteredData.filter((record) => {
-    const childName = childData.find((child) => child.id === record.childId)?.name || "";
+    const childName =
+      childData.find((child) => child.id === record.childId)?.name || "";
     return (
-      (statusFilter === "all" || record.status?.toLowerCase() === statusFilter) &&
+      (statusFilter === "all" ||
+        record.status?.toLowerCase() === statusFilter) &&
       (record.vaccineName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         childName.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -114,10 +132,15 @@ const VaccinesTracking = () => {
       : -1;
   });
 
-  const topLevelRecords = sortedRecords.filter((item) => item.previousVaccination === 0);
+  const topLevelRecords = sortedRecords.filter(
+    (item) => item.previousVaccination === 0
+  );
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentRecords = topLevelRecords.slice(indexOfFirstItem, indexOfLastItem);
+  const currentRecords = topLevelRecords.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -146,9 +169,13 @@ const VaccinesTracking = () => {
     if (!chain) return "N/A";
 
     const totalDoses = vaccineData[record.vaccineID] || 1; // Lấy doesTimes từ vaccineData
-    const completedDoses = chain.filter((item) => item.status?.toLowerCase() === "success").length;
+    const completedDoses = chain.filter(
+      (item) => item.status?.toLowerCase() === "success"
+    ).length;
 
-    return completedDoses >= totalDoses ? "Completed" : `${completedDoses}/${totalDoses}`;
+    return completedDoses >= totalDoses
+      ? "Completed"
+      : `${completedDoses}/${totalDoses}`;
   };
 
   const handleExpand = (record) => {
@@ -160,7 +187,9 @@ const VaccinesTracking = () => {
       const chain = [record];
       let currentId = record.trackingID;
       while (currentId) {
-        const next = trackingData.find((item) => item.previousVaccination === currentId);
+        const next = trackingData.find(
+          (item) => item.previousVaccination === currentId
+        );
         if (!next) break;
         chain.push(next);
         currentId = next.trackingID;
@@ -210,7 +239,9 @@ const VaccinesTracking = () => {
 
       <div className="overflow-x-auto">
         {loading ? (
-          <p className="text-center text-gray-500 py-8">Loading vaccines tracking data...</p>
+          <p className="text-center text-gray-500 py-8">
+            Loading vaccines tracking data...
+          </p>
         ) : error ? (
           <p className="text-red-500 text-center py-8">Error: {error}</p>
         ) : (
@@ -218,15 +249,33 @@ const VaccinesTracking = () => {
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600"></th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Vaccine</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Parent</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Child Name</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Vaccination Date</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Progress</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Reaction</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Action</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  ID
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  Vaccine
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  Parent
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  Child Name
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  Vaccination Date
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  Progress
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  Reaction
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -246,29 +295,42 @@ const VaccinesTracking = () => {
                           )}
                         </button>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">#{record.trackingID}</td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        #{record.trackingID}
+                      </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
                             <Syringe className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{record.vaccineName}</p>
-                            <p className="text-sm text-gray-500">ID: {record.vaccineID}</p>
+                            <p className="font-medium text-gray-900">
+                              {record.vaccineName}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              ID: {record.vaccineID}
+                            </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">{record.userName}</td>
                       <td className="px-4 py-4 text-sm text-gray-600">
-                        {childData.find((child) => child.id === record.childId)?.name || "N/A"}
+                        {record.userName}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {childData.find((child) => child.id === record.childId)
+                          ?.name || "N/A"}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4 text-blue-600" />
-                          {record.vaccinationDate ? FormatDate(record.vaccinationDate) : "N/A"}
+                          {record.vaccinationDate
+                            ? FormatDate(record.vaccinationDate)
+                            : "N/A"}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">{getProgress(record)}</td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {getProgress(record)}
+                      </td>
                       <td className="px-4 py-4">
                         <span
                           className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
@@ -309,33 +371,55 @@ const VaccinesTracking = () => {
                       <tr className="bg-gray-50">
                         <td colSpan={10} className="px-4 py-4">
                           <div className="p-4">
-                            <h4 className="text-teal-700 font-medium mb-2">All Doses</h4>
+                            <h4 className="text-teal-700 font-medium mb-2">
+                              All Doses
+                            </h4>
                             {expandedChain.length > 0 ? (
                               <table className="w-full border-collapse">
                                 <thead>
                                   <tr className="bg-teal-50 border-b border-teal-200">
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Vaccination Date</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Reaction</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Action</th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                      ID
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                      Vaccination Date
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                      Status
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                      Reaction
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                      Action
+                                    </th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   {expandedChain.map((item) => (
-                                    <tr key={item.trackingID} className="border-b border-gray-100">
-                                      <td className="px-4 py-4 text-sm text-gray-600">#{item.trackingID}</td>
+                                    <tr
+                                      key={item.trackingID}
+                                      className="border-b border-gray-100"
+                                    >
                                       <td className="px-4 py-4 text-sm text-gray-600">
-                                        {item.vaccinationDate ? FormatDate(item.vaccinationDate) : "N/A"}
+                                        #{item.trackingID}
+                                      </td>
+                                      <td className="px-4 py-4 text-sm text-gray-600">
+                                        {item.vaccinationDate
+                                          ? FormatDate(item.vaccinationDate)
+                                          : "N/A"}
                                       </td>
                                       <td className="px-4 py-4">
                                         <span
                                           className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                                            item.status?.toLowerCase() === "success"
+                                            item.status?.toLowerCase() ===
+                                            "success"
                                               ? "bg-green-100 text-green-800"
-                                              : item.status?.toLowerCase() === "schedule"
+                                              : item.status?.toLowerCase() ===
+                                                "schedule"
                                               ? "bg-yellow-100 text-yellow-800"
-                                              : item.status?.toLowerCase() === "waiting"
+                                              : item.status?.toLowerCase() ===
+                                                "waiting"
                                               ? "bg-red-100 text-red-800"
                                               : "bg-gray-100 text-gray-800"
                                           }`}
@@ -346,7 +430,8 @@ const VaccinesTracking = () => {
                                       <td className="px-4 py-4">
                                         <span
                                           className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${
-                                            item.reaction?.toLowerCase() === "nothing"
+                                            item.reaction?.toLowerCase() ===
+                                            "nothing"
                                               ? "bg-yellow-100 text-yellow-800"
                                               : "bg-green-100 text-green-800"
                                           }`}
@@ -356,7 +441,9 @@ const VaccinesTracking = () => {
                                       </td>
                                       <td className="px-4 py-4">
                                         <button
-                                          onClick={() => handleViewDetails(item)}
+                                          onClick={() =>
+                                            handleViewDetails(item)
+                                          }
                                           className="flex items-center gap-1 text-teal-600 hover:text-teal-800 transition-colors"
                                           title="View Details"
                                         >
@@ -368,7 +455,9 @@ const VaccinesTracking = () => {
                                 </tbody>
                               </table>
                             ) : (
-                              <p className="text-teal-600">No related records found.</p>
+                              <p className="text-teal-600">
+                                No related records found.
+                              </p>
                             )}
                           </div>
                         </td>
@@ -378,7 +467,10 @@ const VaccinesTracking = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                  <td
+                    colSpan={10}
+                    className="px-4 py-8 text-center text-gray-500"
+                  >
                     No tracking records found matching your search criteria.
                   </td>
                 </tr>
